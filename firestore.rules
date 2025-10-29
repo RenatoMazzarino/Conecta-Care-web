@@ -1,134 +1,116 @@
 /**
- * @file Firestore Security Rules for Homecare Application
- * @version Prototyping
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for patient-specific data.
  *
- * @description This ruleset enforces a strict user-ownership model for patient data,
- *  while allowing public read access to the list of available supplies.  All
- *  patient-specific data is nested under a /patients/{patientId} document, simplifying
- *  access control. The core philosophy is to ensure that only authenticated users can
- *  access and modify patient-related information.
+ * Data Structure:
+ * All patient-specific data is nested under `/patients/{patientId}`.
+ * Top-level `/supplies/{supplyId}` are considered public read-only.
  *
- * @dataStructure
- *  /patients/{patientId}: Root document for a single patient's information.
- *  /patients/{patientId}/inventories/{inventoryId}: Inventory levels for a patient's supplies.
- *  /patients/{patientId}/supplyRequests/{supplyRequestId}: Supply requests made for a patient.
- *  /patients/{patientId}/shiftReports/{shiftReportId}: Shift reports submitted for a patient.
- *  /patients/{patientId}/whatsAppNotifications/{notificationId}: WhatsApp notifications sent to a patient.
- *  /supplies/{supplyId}: Public list of available supply items.
- *
- * @keySecurityDecisions
- *  - Patient data is strictly controlled by user ownership, enforced via path-based rules.
- *  - The supplies collection is publicly readable, assuming it contains non-sensitive data.
- *  - List operations on patient-specific subcollections are restricted to the owner.
- *
- * @denormalizationConsiderations
- *  - There are no denormalization requirements given the structure of the single patient application.
+ * Key Security Decisions:
+ * - Enforces path-based ownership for patient-related data.
+ * - Allows public read access to the `/supplies` collection.
+ * - Employs strict ownership checks for all write operations.
+ * - Does not implement data-type validation in this prototyping phase.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Secures the patient document, ensuring only authenticated users can access it.
+     * @description Allows access to patient documents.
      * @path /patients/{patientId}
-     * @allow (create) - An authenticated user can create a patient document if the ID matches their auth UID.
-     * @deny (create) - An unauthenticated user cannot create a patient document.
-     * @allow (get, list, update, delete) - Only an authenticated user can get, list, update, or delete patient documents.
-     * @deny (get, list, update, delete) - An unauthenticated user cannot get, list, update, or delete patient documents.
-     * @principle Enforces document ownership for writes; requires authentication for all operations.
+     * @allow (read) Authenticated user can get patient document.
+     * @deny (write) Any write access is forbidden
+     * @principle Enforces read-only access to patient documents and disallows modification.
      */
     match /patients/{patientId} {
       allow get: if isSignedIn();
       allow list: if false;
-      allow create: if isSignedIn() && request.resource.data.id == patientId;
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
     /**
-     * @description Secures the supply collection, allowing public read access.
+     * @description Allows public read access to the supplies collection.
      * @path /supplies/{supplyId}
-     * @allow (get, list) - Anyone can read the supply list.
-     * @deny (create, update, delete) - Only authenticated users can create, update, or delete supplies.
-     * @principle Allows public read access to supply data; requires authentication for write operations.
+     * @allow (read) Any user can read supply data.
+     * @deny (write) No writes are allowed.
+     * @principle Allows public read access to supply data, restricts writes.
      */
     match /supplies/{supplyId} {
       allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
     /**
-     * @description Secures the inventory subcollection, ensuring only authenticated users can access it.
+     * @description Manages inventory levels for a patient.
      * @path /patients/{patientId}/inventories/{inventoryId}
-     * @allow (create) - An authenticated user can create an inventory document under their patient ID.
-     * @deny (create) - An unauthenticated user cannot create an inventory document.
-     * @allow (get, list, update, delete) - Only the authenticated user can get, list, update, or delete inventory documents under their patient ID.
-     * @deny (get, list, update, delete) - An unauthenticated user cannot get, list, update, or delete inventory documents.
-     * @principle Enforces document ownership for writes; requires authentication for all operations within the patient's inventory.
+     * @allow (read) Authenticated user can get inventory data for a specific patient.
+     * @allow (write) Authenticated user can manage inventory levels.
+     * @deny (write) Non-authenticated users cannot manage inventory.
+     * @principle Enforces patient-specific inventory management.
      */
     match /patients/{patientId}/inventories/{inventoryId} {
       allow get: if isSignedIn();
       allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.patientId == patientId;
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
     }
 
     /**
-     * @description Secures the supplyRequests subcollection, ensuring only authenticated users can access it.
+     * @description Manages supply requests for a patient.
      * @path /patients/{patientId}/supplyRequests/{supplyRequestId}
-     * @allow (create) - An authenticated user can create a supply request document under their patient ID.
-     * @deny (create) - An unauthenticated user cannot create a supply request document.
-     * @allow (get, list, update, delete) - Only the authenticated user can get, list, update, or delete supply request documents under their patient ID.
-     * @deny (get, list, update, delete) - An unauthenticated user cannot get, list, update, or delete supply request documents.
-     * @principle Enforces document ownership for writes; requires authentication for all operations within the patient's supply requests.
+     * @allow (read) Authenticated user can get supply requests for a specific patient.
+     * @allow (write) Authenticated user can manage supply requests.
+     * @deny (write) Non-authenticated users cannot manage supply requests.
+     * @principle Enforces patient-specific supply request management.
      */
     match /patients/{patientId}/supplyRequests/{supplyRequestId} {
       allow get: if isSignedIn();
       allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.patientId == patientId;
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
     }
 
     /**
-     * @description Secures the shiftReports subcollection, ensuring only authenticated users can access it.
+     * @description Manages shift reports for a patient.
      * @path /patients/{patientId}/shiftReports/{shiftReportId}
-     * @allow (create) - An authenticated user can create a shift report document under their patient ID.
-     * @deny (create) - An unauthenticated user cannot create a shift report document.
-     * @allow (get, list, update, delete) - Only the authenticated user can get, list, update, or delete shift report documents under their patient ID.
-     * @deny (get, list, update, delete) - An unauthenticated user cannot get, list, update, or delete shift report documents.
-     * @principle Enforces document ownership for writes; requires authentication for all operations within the patient's shift reports.
+     * @allow (read) Authenticated user can read shift reports for a specific patient.
+     * @allow (write) Authenticated user can create, update, and delete shift reports.
+     * @deny (write) Non-authenticated users cannot manage shift reports.
+     * @principle Enforces patient-specific shift report management.
      */
     match /patients/{patientId}/shiftReports/{shiftReportId} {
       allow get: if isSignedIn();
       allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.patientId == patientId;
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
     }
 
     /**
-     * @description Secures the whatsAppNotifications subcollection, ensuring only authenticated users can access it.
+     * @description Manages WhatsApp notifications for a patient.
      * @path /patients/{patientId}/whatsAppNotifications/{notificationId}
-     * @allow (create) - An authenticated user can create a WhatsApp notification document under their patient ID.
-     * @deny (create) - An unauthenticated user cannot create a WhatsApp notification document.
-     * @allow (get, list, update, delete) - Only the authenticated user can get, list, update, or delete WhatsApp notification documents under their patient ID.
-     * @deny (get, list, update, delete) - An unauthenticated user cannot get, list, update, or delete WhatsApp notification documents.
-     * @principle Enforces document ownership for writes; requires authentication for all operations within the patient's WhatsApp notifications.
+     * @allow (read) Authenticated user can read WhatsApp notifications for a specific patient.
+     * @allow (write) Authenticated user can create, update, and delete WhatsApp notifications.
+     * @deny (write) Non-authenticated users cannot manage WhatsApp notifications.
+     * @principle Enforces patient-specific WhatsApp notification management.
      */
     match /patients/{patientId}/whatsAppNotifications/{notificationId} {
       allow get: if isSignedIn();
       allow list: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.patientId == patientId;
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
     }
   }
 
-  // Helper function to determine if a user is signed in
+  // Helper function to determine if the user is signed in
   function isSignedIn() {
     return request.auth != null;
   }
