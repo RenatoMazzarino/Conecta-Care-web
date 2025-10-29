@@ -37,6 +37,8 @@ export function ShiftChatDialog({
   const { toast } = useToast();
   const [messages, setMessages] = React.useState(mockMessages);
   const [newMessage, setNewMessage] = React.useState('');
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +56,16 @@ export function ShiftChatDialog({
         setMessages(prev => [...prev, { role: 'assistant', content: 'Ok, recebido.'}]);
     }, 1000);
   }
+  
+    React.useEffect(() => {
+    if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollTo({
+            top: scrollAreaRef.current.scrollHeight,
+            behavior: 'smooth',
+        });
+    }
+  }, [messages])
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -72,7 +84,7 @@ export function ShiftChatDialog({
           </div>
         </DialogHeader>
         
-        <ScrollArea className="h-80 w-full pr-4">
+        <ScrollArea className="h-80 w-full pr-4" ref={scrollAreaRef}>
             <div className="space-y-4">
                 {messages.map((message, index) => {
                     if (message.role === 'system') {
@@ -116,6 +128,12 @@ export function ShiftChatDialog({
                     rows={1}
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage(e);
+                        }
+                    }}
                     required
                 />
                 <Button type="submit" size="icon">
