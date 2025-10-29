@@ -38,3 +38,5 @@ export type Shift = {
   professional: Professional;
   shiftType: 'day' | 'night';
 };
+
+export type ShiftState = Shift | null | 'open' | 'pending';

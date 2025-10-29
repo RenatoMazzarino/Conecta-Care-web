@@ -26,10 +26,12 @@ export function PublishVacancyDialog({
   isOpen,
   onOpenChange,
   shiftInfo,
+  onVacancyPublished,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   shiftInfo?: ShiftInfo | null;
+  onVacancyPublished?: (shiftInfo: ShiftInfo) => void;
 }) {
   const { toast } = useToast();
 
@@ -43,6 +45,11 @@ export function PublishVacancyDialog({
       title: 'Vaga Publicada com Sucesso!',
       description: `A vaga ${isUrgent ? 'URGENTE ' : ''}para o paciente ${shiftInfo?.patient.name} foi publicada. Os profissionais adequados serão notificados.`,
     });
+    
+    if (shiftInfo && onVacancyPublished) {
+        onVacancyPublished(shiftInfo);
+    }
+    
     onOpenChange(false);
   };
   

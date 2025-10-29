@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users } from 'lucide-react';
 import type { Professional, Shift } from '@/lib/types';
 import { professionals } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -12,6 +12,7 @@ import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
 import { AvatarFallback } from '@radix-ui/react-avatar';
+import { useToast } from '@/hooks/use-toast';
 
 type Patient = {
   id: number;
@@ -24,23 +25,25 @@ type OpenShiftInfo = {
   shiftType: 'diurno' | 'noturno';
 };
 
+type ShiftState = Shift | null | 'open' | 'pending';
+
 const patients: Patient[] = [
   { id: 1, name: 'Srª. Maria Lopes' },
   { id: 2, name: 'Sr. Jorge Mendes' },
   { id: 3, name: 'Sra. Ana Costa' },
 ];
 
-const shifts: Record<string, (Shift | null)[]> = {
+const initialShifts: Record<string, ShiftState[]> = {
   '1-2024-10-06': [
     { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' },
-    null, // night shift is open
+    'open',
   ],
   '1-2024-10-07': [
     { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' },
     { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' },
   ],
   '2-2024-10-09': [
-    null, // day shift is open
+    'open',
     { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' },
   ],
    '3-2024-10-08': [
@@ -72,10 +75,20 @@ const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: stri
   </div>
 );
 
+const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
+    <div onClick={onClick} className="flex items-center gap-2 p-2 rounded-lg border-2 border-dashed border-amber-500 text-amber-600 cursor-pointer hover:bg-amber-50">
+        <Users className="h-5 w-5" />
+        <span className="text-sm font-semibold">Candidaturas</span>
+    </div>
+);
+
 
 const ShiftScaleView = () => {
+  const [shifts, setShifts] = React.useState(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<OpenShiftInfo | null>(null);
+  const { toast } = useToast();
+
 
   const handleOpenProfile = (professional: Professional) => {
     setSelectedProfessional(professional);
@@ -92,6 +105,19 @@ const ShiftScaleView = () => {
   const handleCloseVacancy = () => {
     setOpenShiftInfo(null);
   };
+
+  const handleVacancyPublished = (info: OpenShiftInfo) => {
+    const key = `${info.patient.id}-${info.dayKey}`;
+    const shiftIndex = info.shiftType === 'diurno' ? 0 : 1;
+    
+    setShifts(prev => {
+        const newShifts = { ...prev };
+        const dayShifts = newShifts[key] ? [...newShifts[key]] : ['open', 'open'];
+        dayShifts[shiftIndex] = 'pending';
+        newShifts[key] = dayShifts;
+        return newShifts;
+    });
+  }
 
   return (
     <div className="p-4 sm:p-6">
@@ -152,14 +178,25 @@ const ShiftScaleView = () => {
                   <div className="text-sm font-medium text-foreground">{patient.name}</div>
                 </td>
                 {dayKeys.map(dayKey => {
-                  const dayShifts = shifts[`${patient.id}-${dayKey}`] || [null, null];
+                  const dayShifts = shifts[`${patient.id}-${dayKey}`] || ['open', 'open'];
                   const dayShift = dayShifts[0];
                   const nightShift = dayShifts[1];
+                  
+                  const renderShift = (shift: ShiftState, type: 'diurno' | 'noturno') => {
+                    if (shift && typeof shift === 'object' && 'professional' in shift) {
+                        return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional)} />;
+                    }
+                    if (shift === 'pending') {
+                        return <PendingShiftCard onClick={() => toast({ title: "Em breve", description: "A tela de gestão de candidaturas será implementada."})} />;
+                    }
+                    return <OpenShiftCard shiftType={type} urgent={patient.id === 2 && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                  }
+
                   return (
                     <td key={dayKey} className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-2">
-                        {dayShift ? <ShiftCard professional={dayShift.professional} onClick={() => handleOpenProfile(dayShift.professional)} /> : <OpenShiftCard shiftType="diurno" urgent={patient.id === 2 && dayKey === '2024-10-09'} onClick={() => handleOpenVacancy(patient, dayKey, 'diurno')} />}
-                        {nightShift ? <ShiftCard professional={nightShift.professional} onClick={() => handleOpenProfile(nightShift.professional)} /> : <OpenShiftCard shiftType="noturno" onClick={() => handleOpenVacancy(patient, dayKey, 'noturno')} />}
+                        {renderShift(dayShift, 'diurno')}
+                        {renderShift(nightShift, 'noturno')}
                       </div>
                     </td>
                   )
@@ -181,6 +218,7 @@ const ShiftScaleView = () => {
           shiftInfo={openShiftInfo}
           isOpen={!!openShiftInfo}
           onOpenChange={handleCloseVacancy}
+          onVacancyPublished={handleVacancyPublished}
         />
       )}
     </div>
@@ -281,28 +319,35 @@ const ShiftMonitoringView = () => (
 
 export function ShiftManagement() {
   const [isPublishVacancyOpen, setIsPublishVacancyOpen] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState("scale");
+
   return (
     <div className="flex-1 flex flex-col">
-       <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+       <div className="flex justify-between items-center p-4 sm:p-6 border-b bg-card">
          <div className="flex-1">
-            <Tabs defaultValue="scale" className="w-full">
-            <TabsList>
-                <TabsTrigger value="scale">Gestão de Escala</TabsTrigger>
-                <TabsTrigger value="monitoring">Monitoramento em Tempo Real</TabsTrigger>
-            </TabsList>
-            <TabsContent value="scale">
-                <ShiftScaleView />
-            </TabsContent>
-            <TabsContent value="monitoring">
-                <ShiftMonitoringView />
-            </TabsContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList>
+                  <TabsTrigger value="scale">Gestão de Escala</TabsTrigger>
+                  <TabsTrigger value="monitoring">Monitoramento em Tempo Real</TabsTrigger>
+              </TabsList>
             </Tabs>
         </div>
+        {activeTab === 'scale' && (
          <Button onClick={() => setIsPublishVacancyOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Publicar Nova Vaga
          </Button>
+        )}
        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsContent value="scale" className="m-0">
+              <ShiftScaleView />
+          </TabsContent>
+          <TabsContent value="monitoring" className="m-0">
+              <ShiftMonitoringView />
+          </TabsContent>
+        </Tabs>
+
        <PublishVacancyDialog
           isOpen={isPublishVacancyOpen}
           onOpenChange={setIsPublishVacancyOpen}
