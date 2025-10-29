@@ -57,3 +57,11 @@ export type ActiveShift = {
     status: string;
     statusColor: string;
 }
+
+export type ShiftHistoryEvent = {
+    time: string;
+    event: string;
+    details?: string;
+    icon: React.ElementType;
+    iconColor: string;
+}

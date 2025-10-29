@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users, CircleCheck, CircleX, Pill, Footprints } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, ActiveShift } from '@/lib/types';
 import { professionals, initialActiveShiftsData } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -15,6 +15,7 @@ import { AvatarFallback } from '@radix-ui/react-avatar';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { ShiftHistoryDialog } from './shift-history-dialog';
 
 type ShiftState = Shift | null | 'open' | 'pending';
 
@@ -256,6 +257,7 @@ const ShiftScaleView = () => {
 const ShiftMonitoringView = () => {
     const [activeShifts, setActiveShifts] = React.useState<ActiveShift[]>(initialActiveShiftsData);
     const [selectedChatShift, setSelectedChatShift] = React.useState<ActiveShift | null>(null);
+    const [selectedHistoryShift, setSelectedHistoryShift] = React.useState<ActiveShift | null>(null);
 
 
     React.useEffect(() => {
@@ -303,6 +305,14 @@ const ShiftMonitoringView = () => {
     
     const handleCloseChat = () => {
         setSelectedChatShift(null);
+    }
+
+    const handleOpenHistory = (shift: ActiveShift) => {
+        setSelectedHistoryShift(shift);
+    }
+
+    const handleCloseHistory = () => {
+        setSelectedHistoryShift(null);
     }
 
     return (
@@ -353,7 +363,7 @@ const ShiftMonitoringView = () => {
                             <div className="flex gap-2 justify-end">
                                 <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon" onClick={() => handleOpenChat(shift)}><MessageCircle className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon"><History className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon" onClick={() => handleOpenHistory(shift)}><History className="h-4 w-4" /></Button>
                             </div>
 
                         </CardContent>
@@ -366,6 +376,13 @@ const ShiftMonitoringView = () => {
                     isOpen={!!selectedChatShift}
                     onOpenChange={handleCloseChat}
                     shift={selectedChatShift}
+                />
+            )}
+             {selectedHistoryShift && (
+                <ShiftHistoryDialog
+                    isOpen={!!selectedHistoryShift}
+                    onOpenChange={handleCloseHistory}
+                    shift={selectedHistoryShift}
                 />
             )}
         </div>
