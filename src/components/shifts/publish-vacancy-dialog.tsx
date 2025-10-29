@@ -35,9 +35,13 @@ export function PublishVacancyDialog({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+    const notes = formData.get('notes');
+    const isUrgent = formData.get('urgent-switch') === 'on';
+
     toast({
       title: 'Vaga Publicada com Sucesso!',
-      description: 'Os profissionais adequados serão notificados em breve.',
+      description: `A vaga ${isUrgent ? 'URGENTE ' : ''}para o paciente ${shiftInfo?.patient.name} foi publicada. Os profissionais adequados serão notificados.`,
     });
     onOpenChange(false);
   };
@@ -74,16 +78,16 @@ export function PublishVacancyDialog({
             )}
             <div className="grid gap-2">
               <Label htmlFor="notes">Requisitos e Observações</Label>
-              <Textarea id="notes" placeholder="Ex: Necessário experiência com pacientes acamados, troca de fraldas, etc." />
+              <Textarea id="notes" name="notes" placeholder="Ex: Necessário experiência com pacientes acamados, troca de fraldas, etc." />
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
-                    <Label>Vaga Urgente</Label>
+                    <Label htmlFor="urgent-switch">Vaga Urgente</Label>
                     <p className="text-xs text-muted-foreground">
                         Marcar esta vaga como urgente para priorizar a notificação.
                     </p>
                 </div>
-              <Switch id="urgent-switch" />
+              <Switch id="urgent-switch" name="urgent-switch" />
             </div>
           </div>
           <DialogFooter>
