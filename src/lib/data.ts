@@ -1,4 +1,4 @@
-import type { Patient, InventoryItem, Professional, Shift } from './types';
+import type { Patient, InventoryItem, Professional, ActiveShift } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const patientAvatar = PlaceHolderImages.find(img => img.id === 'patient-avatar-1');
@@ -110,3 +110,37 @@ export const professionals: Professional[] = [
     reviews: []
   }
 ];
+
+
+export const initialActiveShiftsData: ActiveShift[] = [
+    {
+        patientName: "Srª. Maria Lopes",
+        professional: professionals[0],
+        shift: "DIURNO 12H",
+        progress: 45,
+        checkIn: "08:02",
+        checkOut: null,
+        status: "Sem Intercorrências",
+        statusColor: "text-green-600"
+    },
+    {
+        patientName: "Sr. Jorge Mendes",
+        professional: professionals[2],
+        shift: "NOTURNO 12H",
+        progress: 80,
+        checkIn: "20:00",
+        checkOut: null,
+        status: "Aguardando Confirmação de Presença",
+        statusColor: "text-amber-600"
+    },
+     {
+        patientName: "Sra. Ana Costa",
+        professional: professionals[1],
+        shift: "DIURNO 12H",
+        progress: 15,
+        checkIn: null,
+        checkOut: null,
+        status: "Atrasado",
+        statusColor: "text-destructive"
+    }
+]

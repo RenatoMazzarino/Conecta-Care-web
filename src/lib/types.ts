@@ -46,3 +46,14 @@ export type OpenShiftInfo = {
 };
 
 export type ShiftState = Shift | null | 'open' | 'pending';
+
+export type ActiveShift = {
+    patientName: string;
+    professional: Professional;
+    shift: string;
+    progress: number;
+    checkIn: string | null;
+    checkOut: string | null;
+    status: string;
+    statusColor: string;
+}

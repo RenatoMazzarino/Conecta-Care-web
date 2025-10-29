@@ -5,14 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo } from '@/lib/types';
-import { professionals } from '@/lib/data';
+import type { Professional, Shift, OpenShiftInfo, ActiveShift } from '@/lib/types';
+import { professionals, initialActiveShiftsData } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
 import { AvatarFallback } from '@radix-ui/react-avatar';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
+import { ShiftChatDialog } from './shift-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 
 type ShiftState = Shift | null | 'open' | 'pending';
@@ -250,43 +251,12 @@ const ShiftScaleView = () => {
   );
 }
 
-const initialActiveShiftsData = [
-    {
-        patientName: "Srª. Maria Lopes",
-        professional: professionals[0],
-        shift: "DIURNO 12H",
-        progress: 45,
-        checkIn: "08:02",
-        checkOut: null,
-        status: "Sem Intercorrências",
-        statusColor: "text-green-600"
-    },
-    {
-        patientName: "Sr. Jorge Mendes",
-        professional: professionals[2],
-        shift: "NOTURNO 12H",
-        progress: 80,
-        checkIn: "20:00",
-        checkOut: null,
-        status: "Aguardando Confirmação de Presença",
-        statusColor: "text-amber-600"
-    },
-     {
-        patientName: "Sra. Ana Costa",
-        professional: professionals[1],
-        shift: "DIURNO 12H",
-        progress: 15,
-        checkIn: null,
-        checkOut: null,
-        status: "Atrasado",
-        statusColor: "text-destructive"
-    }
-]
 
-type ActiveShift = typeof initialActiveShiftsData[0];
 
 const ShiftMonitoringView = () => {
     const [activeShifts, setActiveShifts] = React.useState<ActiveShift[]>(initialActiveShiftsData);
+    const [selectedChatShift, setSelectedChatShift] = React.useState<ActiveShift | null>(null);
+
 
     React.useEffect(() => {
         const interval = setInterval(() => {
@@ -326,6 +296,14 @@ const ShiftMonitoringView = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    const handleOpenChat = (shift: ActiveShift) => {
+        setSelectedChatShift(shift);
+    }
+    
+    const handleCloseChat = () => {
+        setSelectedChatShift(null);
+    }
 
     return (
         <div className="p-4 sm:p-6 space-y-6">
@@ -374,7 +352,7 @@ const ShiftMonitoringView = () => {
 
                             <div className="flex gap-2 justify-end">
                                 <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon"><MessageCircle className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon" onClick={() => handleOpenChat(shift)}><MessageCircle className="h-4 w-4" /></Button>
                                 <Button variant="outline" size="icon"><History className="h-4 w-4" /></Button>
                             </div>
 
@@ -383,6 +361,13 @@ const ShiftMonitoringView = () => {
                 ))}
             </CardContent>
             </Card>
+            {selectedChatShift && (
+                <ShiftChatDialog
+                    isOpen={!!selectedChatShift}
+                    onOpenChange={handleCloseChat}
+                    shift={selectedChatShift}
+                />
+            )}
         </div>
     );
 }
