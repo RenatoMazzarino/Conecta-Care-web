@@ -22,6 +22,7 @@ const mockCandidates = [
     professionals.find(p => p.id === 'prof-1')!,
     professionals.find(p => p.id === 'prof-2')!,
     professionals.find(p => p.id === 'prof-4')!,
+    professionals.find(p => p.id === 'prof-5')!,
 ]
 
 export function CandidacyManagementDialog({

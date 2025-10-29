@@ -73,5 +73,40 @@ export const professionals: Professional[] = [
     reviews: [
          { from: 'Hospital Infantil', quote: 'Atrasou em 2 dos 3 plantões.' },
     ]
+  },
+  {
+    id: 'prof-5',
+    name: 'Bruno Alves',
+    initials: 'BA',
+    avatarColor: 'bg-blue-500',
+    rating: 4.7,
+    corenStatus: 'active',
+    specialties: ['Cardiologia', 'Home Care'],
+    reviews: [
+      { from: 'Clínica do Coração', quote: 'Excelente profissional, muito conhecimento técnico.' },
+    ]
+  },
+  {
+    id: 'prof-6',
+    name: 'Juliana Paes',
+    initials: 'JP',
+    avatarColor: 'bg-red-500',
+    rating: 4.9,
+    corenStatus: 'active',
+    specialties: ['Dermatologia', 'Curativos'],
+    reviews: [
+      { from: 'DermaClin', quote: 'Extremamente cuidadosa e atenta aos detalhes.' },
+      { from: 'Home Care Senior', quote: 'Paciente adorou a atenção e o cuidado.' }
+    ]
+  },
+  {
+    id: 'prof-7',
+    name: 'Ricardo Gomes',
+    initials: 'RG',
+    avatarColor: 'bg-yellow-500',
+    rating: 4.3,
+    corenStatus: 'active',
+    specialties: ['Fisioterapia Respiratória'],
+    reviews: []
   }
 ];
