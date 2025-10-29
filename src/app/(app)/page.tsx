@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
 import { PatientCard } from '@/components/dashboard/patient-card';
 import { LowStockCard } from '@/components/dashboard/low-stock-card';
@@ -10,6 +11,7 @@ import type { Patient, InventoryItem } from '@/lib/types';
 import { doc, collection } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
   const firestore = useFirestore();
@@ -27,19 +29,38 @@ export default function DashboardPage() {
   const { data: patient, isLoading: isPatientLoading } = useDoc<Patient>(patientRef);
   const { data: inventory, isLoading: isInventoryLoading } = useCollection<InventoryItem>(inventoryCollectionRef);
 
+  const isLoading = isPatientLoading || isInventoryLoading;
+  const noData = !isLoading && !patient;
+
   return (
     <>
       <AppHeader title="Dashboard" />
       <main className="flex-1 p-4 sm:p-6 bg-background">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            {isPatientLoading || isInventoryLoading ? (
+            {isLoading ? (
               <>
                 <Skeleton className="h-[250px] w-full" />
                 <Skeleton className="h-[250px] w-full" />
               </>
             ) : (
               <>
+                {noData && (
+                   <Card>
+                    <CardHeader>
+                        <CardTitle>Bem-vindo ao CareSync</CardTitle>
+                        <CardDescription>Nenhum dado de paciente encontrado no Firestore.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="mb-4 text-sm text-muted-foreground">
+                            Para começar, por favor, popule o banco de dados com dados de simulação.
+                        </p>
+                        <Button asChild>
+                            <Link href="/inventory">Ir para a página de Estoque</Link>
+                        </Button>
+                    </CardContent>
+                   </Card>
+                )}
                 {patient && <PatientCard patient={patient} />}
                 {inventory && <LowStockCard items={inventory} />}
               </>
