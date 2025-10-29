@@ -11,6 +11,7 @@ import { patient, inventory as mockInventory } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function InventoryPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -61,21 +62,34 @@ export default function InventoryPage() {
     });
   }
 
-  const showSeedButton = !isLoading && (!inventory || inventory.length === 0);
+  const noData = !isLoading && (!inventory || inventory.length === 0);
 
   return (
     <>
-      <AppHeader title="Inventory Management" />
+      <div className="sticky top-0 z-30">
+        <AppHeader title="Inventory Management" />
+      </div>
       <main className="flex-1 p-4 sm:p-6 bg-background">
-        {showSeedButton && (
+        <Card className="mb-6">
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <CardTitle>Ferramentas de Desenvolvimento</CardTitle>
+                        <CardDescription>Use este botão para popular o Firestore com dados de simulação.</CardDescription>
+                    </div>
+                     <Button onClick={handleSeedData} disabled={isLoading}>
+                        Popular Dados de Simulação
+                    </Button>
+                </div>
+            </CardHeader>
+        </Card>
+
+        {noData && (
              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
                 <div className="text-lg font-semibold mb-2">Seu inventário está vazio.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Clique no botão abaixo para popular o banco de dados com dados de simulação de paciente e estoque.
+                    Clique no botão acima para popular o banco de dados com dados de simulação de paciente e estoque.
                 </p>
-                <Button onClick={handleSeedData}>
-                    Popular Dados de Simulação
-                </Button>
             </div>
         )}
         {isLoading && (
