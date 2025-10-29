@@ -31,8 +31,8 @@ export function AppSidebar() {
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-card sm:flex">
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center border-b px-6">
-          <Link href="/" className="flex items-center gap-2 font-semibold font-headline">
-            <HeartPulse className="h-6 w-6 text-primary" />
+          <Link href="/" className="flex items-center gap-2 font-semibold font-headline text-primary">
+            <HeartPulse className="h-6 w-6" />
             <span className="">CareSync Home</span>
           </Link>
         </div>
@@ -43,8 +43,8 @@ export function AppSidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-secondary',
-                    pathname === item.href && 'bg-secondary text-primary'
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-accent',
+                    pathname === item.href && 'bg-accent text-primary'
                   )}
                 >
                   <item.icon className="h-4 w-4" />
