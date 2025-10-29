@@ -22,3 +22,19 @@ export type ChatMessage = {
   role: 'user' | 'assistant' | 'system';
   content: string;
 };
+
+export type Professional = {
+  id: string;
+  name: string;
+  initials: string;
+  avatarColor: string;
+  rating: number;
+  corenStatus: 'active' | 'inactive';
+  reviews: { from: string; quote: string }[];
+  specialties: string[];
+};
+
+export type Shift = {
+  professional: Professional;
+  shiftType: 'day' | 'night';
+};
