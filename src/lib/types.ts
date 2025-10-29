@@ -39,4 +39,10 @@ export type Shift = {
   shiftType: 'day' | 'night';
 };
 
+export type OpenShiftInfo = {
+  patient: { id: number; name: string };
+  dayKey: string;
+  shiftType: 'diurno' | 'noturno';
+};
+
 export type ShiftState = Shift | null | 'open' | 'pending';

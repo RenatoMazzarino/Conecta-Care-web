@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Professional } from '@/lib/types';
 import { Star, Shield, MessageCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 function StarRating({ rating }: { rating: number }) {
   const fullStars = Math.floor(rating);
@@ -37,11 +38,34 @@ export function ProfessionalProfileDialog({
   professional,
   isOpen,
   onOpenChange,
+  onApprove,
 }: {
   professional: Professional;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onApprove?: (professional: Professional) => void;
 }) {
+  const { toast } = useToast();
+
+  const handleApprove = () => {
+    if (onApprove) {
+      onApprove(professional);
+      toast({
+        title: 'Profissional Aprovado!',
+        description: `${professional.name} foi alocado para o plantão.`,
+      });
+    }
+  };
+
+  const handleReject = () => {
+    toast({
+      title: 'Ação Registrada',
+      description: `O profissional ${professional.name} foi marcado como reprovado para esta vaga.`,
+      variant: 'destructive'
+    });
+    onOpenChange(false);
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -88,9 +112,9 @@ export function ProfessionalProfileDialog({
         </div>
 
         <DialogFooter className="grid grid-cols-3 gap-2">
-          <Button variant="outline"><XCircle className="mr-2 h-4 w-4" />Reprovar</Button>
+          <Button variant="outline" onClick={handleReject}><XCircle className="mr-2 h-4 w-4" />Reprovar</Button>
           <Button variant="secondary"><MessageCircle className="mr-2 h-4 w-4" />Chat</Button>
-          <Button>Aprovar</Button>
+          <Button onClick={handleApprove} disabled={!onApprove}>Aprovar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

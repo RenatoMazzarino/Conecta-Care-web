@@ -5,29 +5,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users } from 'lucide-react';
-import type { Professional, Shift } from '@/lib/types';
+import type { Professional, Shift, OpenShiftInfo } from '@/lib/types';
 import { professionals } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
 import { AvatarFallback } from '@radix-ui/react-avatar';
-import { useToast } from '@/hooks/use-toast';
-
-type Patient = {
-  id: number;
-  name: string;
-};
-
-type OpenShiftInfo = {
-  patient: Patient;
-  dayKey: string;
-  shiftType: 'diurno' | 'noturno';
-};
+import { CandidacyManagementDialog } from './candidacy-management-dialog';
 
 type ShiftState = Shift | null | 'open' | 'pending';
 
-const patients: Patient[] = [
+const patients: { id: number; name: string }[] = [
   { id: 1, name: 'Srª. Maria Lopes' },
   { id: 2, name: 'Sr. Jorge Mendes' },
   { id: 3, name: 'Sra. Ana Costa' },
@@ -82,13 +71,11 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
     </div>
 );
 
-
 const ShiftScaleView = () => {
   const [shifts, setShifts] = React.useState(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<OpenShiftInfo | null>(null);
-  const { toast } = useToast();
-
+  const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
 
   const handleOpenProfile = (professional: Professional) => {
     setSelectedProfessional(professional);
@@ -98,7 +85,7 @@ const ShiftScaleView = () => {
     setSelectedProfessional(null);
   };
 
-  const handleOpenVacancy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
+  const handleOpenVacancy = (patient: {id: number, name: string}, dayKey: string, shiftType: 'diurno' | 'noturno') => {
     setOpenShiftInfo({ patient, dayKey, shiftType });
   };
   
@@ -118,6 +105,33 @@ const ShiftScaleView = () => {
         return newShifts;
     });
   }
+
+  const handleOpenCandidacy = (patient: {id: number, name: string}, dayKey: string, shiftType: 'diurno' | 'noturno') => {
+    setCandidacyShiftInfo({ patient, dayKey, shiftType });
+  }
+
+  const handleCloseCandidacy = () => {
+    setCandidacyShiftInfo(null);
+  }
+
+  const handleApproveProfessional = (professional: Professional) => {
+    if (candidacyShiftInfo) {
+        const { patient, dayKey, shiftType } = candidacyShiftInfo;
+        const key = `${patient.id}-${dayKey}`;
+        const shiftIndex = shiftType === 'diurno' ? 0 : 1;
+
+        setShifts(prev => {
+            const newShifts = { ...prev };
+            const dayShifts = newShifts[key] ? [...newShifts[key]] : ['open', 'open'];
+            dayShifts[shiftIndex] = { professional, shiftType: shiftType === 'diurno' ? 'day' : 'night' };
+            newShifts[key] = dayShifts;
+            return newShifts;
+        });
+
+        handleCloseCandidacy();
+        handleCloseProfile();
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6">
@@ -187,7 +201,7 @@ const ShiftScaleView = () => {
                         return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional)} />;
                     }
                     if (shift === 'pending') {
-                        return <PendingShiftCard onClick={() => toast({ title: "Em breve", description: "A tela de gestão de candidaturas será implementada."})} />;
+                        return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
                     }
                     return <OpenShiftCard shiftType={type} urgent={patient.id === 2 && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
                   }
@@ -211,6 +225,7 @@ const ShiftScaleView = () => {
           professional={selectedProfessional}
           isOpen={!!selectedProfessional}
           onOpenChange={handleCloseProfile}
+          onApprove={handleApproveProfessional}
         />
       )}
       {openShiftInfo && (
@@ -219,6 +234,15 @@ const ShiftScaleView = () => {
           isOpen={!!openShiftInfo}
           onOpenChange={handleCloseVacancy}
           onVacancyPublished={handleVacancyPublished}
+        />
+      )}
+       {candidacyShiftInfo && (
+        <CandidacyManagementDialog
+          shiftInfo={candidacyShiftInfo}
+          isOpen={!!candidacyShiftInfo}
+          onOpenChange={handleCloseCandidacy}
+          onOpenProfile={handleOpenProfile}
+          onApprove={handleApproveProfessional}
         />
       )}
     </div>
