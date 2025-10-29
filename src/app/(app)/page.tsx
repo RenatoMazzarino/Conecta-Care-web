@@ -1,71 +1,62 @@
+'use client';
+
+import * as React from 'react';
 import { AppHeader } from '@/components/app-header';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Users, Briefcase, Bell } from 'lucide-react';
+import { PatientCard } from '@/components/dashboard/patient-card';
+import { LowStockCard } from '@/components/dashboard/low-stock-card';
+import { QuickActionsCard } from '@/components/dashboard/quick-actions-card';
+import { useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import type { Patient, InventoryItem } from '@/lib/types';
+import { doc, collection } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function DashboardPage() {
+  const firestore = useFirestore();
+
+  const patientRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'patients', 'patient-123');
+  }, [firestore]);
+
+  const inventoryCollectionRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'patients', 'patient-123', 'inventories');
+  }, [firestore]);
+
+  const { data: patient, isLoading: isPatientLoading } = useDoc<Patient>(patientRef);
+  const { data: inventory, isLoading: isInventoryLoading } = useCollection<InventoryItem>(inventoryCollectionRef);
+
   return (
     <>
       <AppHeader title="Dashboard" />
       <main className="flex-1 p-4 sm:p-6 bg-background">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pacientes</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 from last month</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Agendamentos</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">32</div>
-              <p className="text-xs text-muted-foreground">+5 this week</p>
-            </CardContent>
-          </Card>
-           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Equipe</CardTitle>
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">8</div>
-               <p className="text-xs text-muted-foreground">Online</p>
-            </CardContent>
-          </Card>
-           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avisos</CardTitle>
-              <Bell className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
-               <p className="text-xs text-muted-foreground">Não lidos</p>
-            </CardContent>
-          </Card>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            {isPatientLoading || isInventoryLoading ? (
+              <>
+                <Skeleton className="h-[250px] w-full" />
+                <Skeleton className="h-[250px] w-full" />
+              </>
+            ) : (
+              <>
+                {patient && <PatientCard patient={patient} />}
+                {inventory && <LowStockCard items={inventory} />}
+              </>
+            )}
+          </div>
+          <div>
+            <QuickActionsCard />
+          </div>
         </div>
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="lg:col-span-2">
+        <div className="mt-6 grid gap-6">
+           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle>Próximos Agendamentos</CardTitle>
               <CardDescription>Você tem 5 agendamentos para hoje.</CardDescription>
             </CardHeader>
             <CardContent>
               {/* Upcoming appointments list will go here */}
-              <p className="text-sm text-muted-foreground">Em breve.</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Avisos Recentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Recent notices list will go here */}
               <p className="text-sm text-muted-foreground">Em breve.</p>
             </CardContent>
           </Card>
