@@ -42,18 +42,22 @@ export default function InventoryPage() {
     
     toast({
         title: "Populando dados...",
-        description: "Enviando itens de simulação para o Firestore."
+        description: "Enviando dados de simulação para o Firestore."
     });
 
+    // Seed patient data
+    const patientDocRef = doc(firestore, 'patients', patient.id);
+    setDocumentNonBlocking(patientDocRef, patient, { merge: true });
+
+    // Seed inventory data
     mockInventory.forEach(item => {
         const itemDocRef = doc(firestore, 'patients', patient.id, 'inventories', item.id);
-        // Using non-blocking update
         setDocumentNonBlocking(itemDocRef, item, { merge: true });
     });
 
     toast({
         title: "Sucesso!",
-        description: "Dados de inventário foram enviados para o Firestore."
+        description: "Dados de paciente e inventário foram enviados para o Firestore."
     });
   }
 
@@ -67,10 +71,10 @@ export default function InventoryPage() {
              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
                 <div className="text-lg font-semibold mb-2">Seu inventário está vazio.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Clique no botão abaixo para popular o banco de dados com dados de simulação.
+                    Clique no botão abaixo para popular o banco de dados com dados de simulação de paciente e estoque.
                 </p>
                 <Button onClick={handleSeedData}>
-                    Popular Dados de Inventário
+                    Popular Dados de Simulação
                 </Button>
             </div>
         )}
