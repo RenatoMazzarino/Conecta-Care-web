@@ -7,7 +7,7 @@ import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
 import type { InventoryItem } from '@/lib/types';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { patient, inventory as mockInventory } from '@/lib/data';
+import { patients, inventory as mockInventory } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -19,10 +19,13 @@ export default function InventoryPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   
+  // Assuming we manage inventory for the first patient in the mock data for now
+  const firstPatientId = patients[0]?.id;
+
   const inventoryCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'patients', patient.id, 'inventories');
-  }, [firestore]);
+    if (!firestore || !firstPatientId) return null;
+    return collection(firestore, 'patients', firstPatientId, 'inventories');
+  }, [firestore, firstPatientId]);
 
   const { data: inventory, isLoading } = useCollection<InventoryItem>(inventoryCollectionRef);
 
@@ -46,19 +49,21 @@ export default function InventoryPage() {
         description: "Enviando dados de simulação para o Firestore."
     });
 
-    // Seed patient data
-    const patientDocRef = doc(firestore, 'patients', patient.id);
-    setDocumentNonBlocking(patientDocRef, patient, { merge: true });
+    // Seed multiple patients
+    patients.forEach(patient => {
+        const patientDocRef = doc(firestore, 'patients', patient.id);
+        setDocumentNonBlocking(patientDocRef, patient, { merge: true });
 
-    // Seed inventory data
-    mockInventory.forEach(item => {
-        const itemDocRef = doc(firestore, 'patients', patient.id, 'inventories', item.id);
-        setDocumentNonBlocking(itemDocRef, item, { merge: true });
+        // Seed inventory for each patient
+        mockInventory.forEach(item => {
+            const itemDocRef = doc(firestore, 'patients', patient.id, 'inventories', item.id);
+            setDocumentNonBlocking(itemDocRef, item, { merge: true });
+        });
     });
 
     toast({
         title: "Sucesso!",
-        description: "Dados de paciente e inventário foram enviados para o Firestore."
+        description: `${patients.length} pacientes e seus inventários foram enviados para o Firestore.`
     });
   }
 
@@ -67,7 +72,7 @@ export default function InventoryPage() {
   return (
     <>
       <div className="sticky top-0 z-30">
-        <AppHeader title="Inventory Management" />
+        <AppHeader title="Estoque" />
       </div>
       <main className="flex-1 p-4 sm:p-6 bg-background">
         <Card className="mb-6">
@@ -75,7 +80,7 @@ export default function InventoryPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Ferramentas de Desenvolvimento</CardTitle>
-                        <CardDescription>Use este botão para popular o Firestore com dados de simulação.</CardDescription>
+                        <CardDescription>Use este botão para popular o Firestore com dados de simulação (pacientes e estoque).</CardDescription>
                     </div>
                      <Button onClick={handleSeedData} disabled={isLoading}>
                         Popular Dados de Simulação
@@ -86,9 +91,9 @@ export default function InventoryPage() {
 
         {noData && (
              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
-                <div className="text-lg font-semibold mb-2">Seu inventário está vazio.</div>
+                <div className="text-lg font-semibold mb-2">Inventário do paciente está vazio.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Clique no botão acima para popular o banco de dados com dados de simulação de paciente e estoque.
+                    Clique no botão acima para popular o banco de dados com dados de simulação. A tabela mostrará o inventário do primeiro paciente ({patients[0]?.name}).
                 </p>
             </div>
         )}

@@ -12,19 +12,23 @@ import { doc, collection } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { patients as mockPatients } from '@/lib/data';
 
 export default function DashboardPage() {
   const firestore = useFirestore();
+  
+  // For the dashboard, we'll focus on the first patient from our mock data.
+  const mainPatientId = mockPatients[0]?.id;
 
   const patientRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(firestore, 'patients', 'patient-123');
-  }, [firestore]);
+    if (!firestore || !mainPatientId) return null;
+    return doc(firestore, 'patients', mainPatientId);
+  }, [firestore, mainPatientId]);
 
   const inventoryCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'patients', 'patient-123', 'inventories');
-  }, [firestore]);
+    if (!firestore || !mainPatientId) return null;
+    return collection(firestore, 'patients', mainPatientId, 'inventories');
+  }, [firestore, mainPatientId]);
 
   const { data: patient, isLoading: isPatientLoading } = useDoc<Patient>(patientRef);
   const { data: inventory, isLoading: isInventoryLoading } = useCollection<InventoryItem>(inventoryCollectionRef);

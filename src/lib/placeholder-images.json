@@ -2,9 +2,21 @@
   "placeholderImages": [
     {
       "id": "patient-avatar-1",
-      "description": "Avatar for patient John Doe",
-      "imageUrl": "https://images.unsplash.com/photo-1703759354731-f4868ae7019f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxlbGRlcmx5JTIwbWFuJTIwc21pbGluZ3xlbnwwfHx8fDE3NjE3MjU2Mjh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "elderly man smiling"
+      "description": "Avatar para o paciente João da Silva",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwb3J0cmFpdCUyMG9mJTIwYSUyMGJyYXppbGlhbiUyMG9sZCUyMG1hbnxlbnwwfHx8fDE3NjIzMTMwNTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "homem idoso sorrindo"
+    },
+    {
+      "id": "patient-avatar-2",
+      "description": "Avatar para a paciente Maria Lopes",
+      "imageUrl": "https://images.unsplash.com/photo-1582352632947-a4192087e543?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZW9wbGV8ZW58MHx8fHwxNzYxNzI2NDg4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "senhora de oculos"
+    },
+    {
+      "id": "patient-avatar-3",
+      "description": "Avatar para o paciente Jorge Mendes",
+      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwZW9wbGV8ZW58MHx8fHwxNzYxNzI2NDg4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "homem de meia idade"
     }
   ]
 }

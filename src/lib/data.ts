@@ -1,29 +1,58 @@
 import type { Patient, InventoryItem, Professional, ActiveShift } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
-const patientAvatar = PlaceHolderImages.find(img => img.id === 'patient-avatar-1');
-
-export const patient: Patient = {
-  id: 'patient-123',
-  name: 'John Doe',
-  age: 78,
-  avatarUrl: patientAvatar?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
-  avatarHint: patientAvatar?.imageHint ?? 'elderly man smiling',
-  familyContact: {
-    name: 'Jane Doe',
-    phone: '+1 (555) 123-4567',
-  },
+const patientAvatars = {
+  'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
+  'patient-456': PlaceHolderImages.find(img => img.id === 'patient-avatar-2'),
+  'patient-789': PlaceHolderImages.find(img => img.id === 'patient-avatar-3'),
 };
 
+export const patients: Patient[] = [
+  {
+    id: 'patient-123',
+    name: 'João da Silva',
+    age: 78,
+    avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
+    avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
+    familyContact: {
+      name: 'Maria da Silva',
+      phone: '+55 (11) 98765-4321',
+    },
+  },
+  {
+    id: 'patient-456',
+    name: 'Maria Lopes',
+    age: 82,
+    avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
+    avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
+    familyContact: {
+      name: 'Carlos Lopes',
+      phone: '+55 (21) 91234-5678',
+    },
+  },
+  {
+    id: 'patient-789',
+    name: 'Jorge Mendes',
+    age: 65,
+    avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
+    avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
+    familyContact: {
+      name: 'Ana Mendes',
+      phone: '+55 (31) 95555-8888',
+    },
+  },
+];
+
+
 export const inventory: InventoryItem[] = [
-  { id: 'item-001', name: 'Gauze Pads', description: 'Sterile 4x4 inch pads', stock: 45, lowStockThreshold: 20 },
-  { id: 'item-002', name: 'Antibiotic Ointment', description: 'Triple-antibiotic formula', stock: 8, lowStockThreshold: 5 },
-  { id: 'item-003', name: 'Medical Tape', description: 'Hypoallergenic paper tape', stock: 12, lowStockThreshold: 10 },
-  { id: 'item-004', name: 'Disposable Gloves', description: 'Latex-free, size M', stock: 88, lowStockThreshold: 50 },
-  { id: 'item-005', name: 'Saline Solution', description: '500ml sterile solution', stock: 3, lowStockThreshold: 4 },
-  { id: 'item-006', name: 'Syringes', description: '10ml Luer Lock', stock: 25, lowStockThreshold: 30 },
-  { id: 'item-007', name: 'Band-Aids', description: 'Assorted sizes', stock: 150, lowStockThreshold: 50 },
-  { id: 'item-008', name: 'Alcohol Wipes', description: '70% Isopropyl alcohol', stock: 200, lowStockThreshold: 100 },
+  { id: 'item-001', name: 'Gaze Estéril', description: 'Pacote com 10 unidades 10x10cm', stock: 45, lowStockThreshold: 20 },
+  { id: 'item-002', name: 'Pomada Antibiótica', description: 'Tubo de 30g', stock: 8, lowStockThreshold: 5 },
+  { id: 'item-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', stock: 12, lowStockThreshold: 10 },
+  { id: 'item-004', name: 'Luvas Descartáveis', description: 'Caixa com 100un, tamanho M', stock: 88, lowStockThreshold: 50 },
+  { id: 'item-005', name: 'Soro Fisiológico', description: 'Frasco de 500ml', stock: 3, lowStockThreshold: 4 },
+  { id: 'item-006', name: 'Seringas', description: '10ml, bico Luer Lock, caixa c/ 50', stock: 25, lowStockThreshold: 30 },
+  { id: 'item-007', name: 'Curativos Adesivos', description: 'Caixa com tamanhos variados', stock: 150, lowStockThreshold: 50 },
+  { id: 'item-008', name: 'Álcool 70%', description: 'Frasco de 1L', stock: 5, lowStockThreshold: 2 },
 ];
 
 export const professionals: Professional[] = [

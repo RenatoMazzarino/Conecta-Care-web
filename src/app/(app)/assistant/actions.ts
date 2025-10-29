@@ -1,7 +1,7 @@
 'use server';
 
 import { askMedicalHistory } from '@/ai/flows/ai-medical-history-assistant';
-import { patient } from '@/lib/data';
+import { patients } from '@/lib/data';
 
 export async function askQuestionAction(
   prevState: any,
@@ -12,6 +12,7 @@ export async function askQuestionAction(
   error?: string;
 }> {
   const question = formData.get('question') as string;
+  const patientId = patients[0]?.id; // Using first patient for assistant context
 
   if (!question) {
     return {
@@ -21,9 +22,17 @@ export async function askQuestionAction(
     };
   }
 
+  if (!patientId) {
+    return {
+      question,
+      answer: '',
+      error: 'No patient data available to ask questions about.'
+    }
+  }
+
   try {
     const result = await askMedicalHistory({
-      patientId: patient.id,
+      patientId: patientId,
       question: question,
     });
     return {
