@@ -1,0 +1,75 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import {
+  Home,
+  ClipboardList,
+  BotMessageSquare,
+  Settings,
+  HeartPulse,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
+const navItems = [
+  { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/inventory', label: 'Inventory', icon: ClipboardList },
+  { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
+];
+
+export function AppSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-card sm:flex">
+      <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-16 items-center border-b px-6">
+          <Link href="/" className="flex items-center gap-2 font-semibold font-headline">
+            <HeartPulse className="h-6 w-6 text-primary" />
+            <span className="">CareSync Home</span>
+          </Link>
+        </div>
+        <nav className="flex-1 overflow-auto py-2 px-4 text-sm font-medium">
+          <ul className="flex flex-col gap-2">
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-secondary',
+                    pathname === item.href && 'bg-secondary text-primary'
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="mt-auto p-4">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" className="w-full justify-start gap-3">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Settings coming soon!</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+    </aside>
+  );
+}
