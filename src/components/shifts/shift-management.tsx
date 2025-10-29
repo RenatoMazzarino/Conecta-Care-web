@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
 import { AvatarFallback } from '@radix-ui/react-avatar';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 type ShiftState = Shift | null | 'open' | 'pending';
 
@@ -225,7 +226,7 @@ const ShiftScaleView = () => {
           professional={selectedProfessional}
           isOpen={!!selectedProfessional}
           onOpenChange={handleCloseProfile}
-          onApprove={handleApproveProfessional}
+          onApprove={candidacyShiftInfo ? handleApproveProfessional : undefined}
         />
       )}
       {openShiftInfo && (
@@ -291,6 +292,8 @@ const ShiftMonitoringView = () => {
         const interval = setInterval(() => {
             setActiveShifts(prevShifts => 
                 prevShifts.map(shift => {
+                    if (shift.progress >= 100) return shift;
+
                     // Update progress
                     let newProgress = shift.progress < 100 ? shift.progress + 1 : 100;
                     
@@ -306,7 +309,7 @@ const ShiftMonitoringView = () => {
                     }
 
                     // Simulate checkout
-                    if(shift.progress >= 100 && !shift.checkOut) {
+                    if(newProgress >= 100 && !shift.checkOut) {
                          return {
                             ...shift,
                             progress: 100,
@@ -387,6 +390,30 @@ const ShiftMonitoringView = () => {
 export function ShiftManagement() {
   const [isPublishVacancyOpen, setIsPublishVacancyOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("scale");
+  const [shiftInfoToPublish, setShiftInfoToPublish] = React.useState<OpenShiftInfo | null>(null);
+  const { toast } = useToast();
+
+  const handleOpenVacancyDialog = (info: OpenShiftInfo) => {
+    setShiftInfoToPublish(info);
+    setIsPublishVacancyOpen(true);
+  }
+
+  const handleCloseVacancyDialog = () => {
+    setIsPublishVacancyOpen(false);
+    setShiftInfoToPublish(null);
+  }
+
+  const handlePublishVacancy = (info: OpenShiftInfo) => {
+    // This function will be called from the dialog
+    // Here you would typically make an API call
+    toast({
+        title: 'Vaga Publicada com Sucesso!',
+        description: `A vaga para o paciente ${info.patient.name} foi publicada.`,
+    });
+    // Here you would also update the state of the scale view
+    // For now, we just close the dialog
+    handleCloseVacancyDialog();
+  }
 
   return (
     <div className="flex-1 flex flex-col">
@@ -416,7 +443,7 @@ export function ShiftManagement() {
         </Tabs>
 
        <PublishVacancyDialog
-          isOpen={isPublishVacancyOpen}
+          isOpen={isPublishVacancyOpen && !shiftInfoToPublish}
           onOpenChange={setIsPublishVacancyOpen}
         />
     </div>
