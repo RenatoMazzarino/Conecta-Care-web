@@ -25,7 +25,7 @@ const patients: { id: number; name: string }[] = [
 const initialShifts: Record<string, ShiftState[]> = {
   '1-2024-10-06': [
     { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' },
-    'open',
+    'pending',
   ],
   '1-2024-10-07': [
     { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' },
@@ -249,7 +249,7 @@ const ShiftScaleView = () => {
   );
 }
 
-const activeShifts = [
+const initialActiveShiftsData = [
     {
         patientName: "Srª. Maria Lopes",
         professional: professionals[0],
@@ -282,64 +282,107 @@ const activeShifts = [
     }
 ]
 
-const ShiftMonitoringView = () => (
-  <div className="p-4 sm:p-6 space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Monitoramento em Tempo Real</CardTitle>
-        <CardDescription>Acompanhe os plantões em andamento.</CardDescription>
-      </CardHeader>
-      <CardContent className="pt-4 space-y-4">
-        {activeShifts.map((shift, index) => (
-            <Card key={index} className="bg-muted/30">
-                <CardContent className="p-4 grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] lg:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center">
-                    <div className="flex items-center gap-4">
-                        <Avatar className={`h-12 w-12 text-xl font-bold ${shift.professional.avatarColor}`}>
-                            <AvatarFallback className="bg-transparent text-white">{shift.professional.initials}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="font-semibold">{shift.patientName}</p>
-                            <p className="text-sm text-muted-foreground">{shift.professional.name} - {shift.shift}</p>
-                        </div>
-                    </div>
+type ActiveShift = typeof initialActiveShiftsData[0];
+
+const ShiftMonitoringView = () => {
+    const [activeShifts, setActiveShifts] = React.useState<ActiveShift[]>(initialActiveShiftsData);
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveShifts(prevShifts => 
+                prevShifts.map(shift => {
+                    // Update progress
+                    let newProgress = shift.progress < 100 ? shift.progress + 1 : 100;
                     
-                    <div>
-                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                            <span>Progresso do Plantão</span>
-                            <span>{shift.progress}%</span>
-                        </div>
-                        <Progress value={shift.progress} className="h-2" />
-                    </div>
+                    // Simulate check-in for the late professional
+                    if (shift.status === 'Atrasado' && newProgress > 20 && !shift.checkIn) {
+                        return {
+                            ...shift,
+                            progress: newProgress,
+                            checkIn: '08:15',
+                            status: 'Sem Intercorrências',
+                            statusColor: 'text-green-600'
+                        };
+                    }
 
-                    <div className="flex justify-around items-center text-sm">
-                        <div className="flex items-center gap-2">
-                           <CheckCircle className={`h-5 w-5 ${shift.checkIn ? 'text-green-500' : 'text-muted-foreground/50'}`} />
-                           <span>{shift.checkIn || '--:--'}</span>
-                        </div>
-                         <div className="flex items-center gap-2">
-                           <XCircle className={`h-5 w-5 ${shift.checkOut ? 'text-red-500' : 'text-muted-foreground/50'}`} />
-                           <span>{shift.checkOut || '--:--'}</span>
-                        </div>
-                    </div>
+                    // Simulate checkout
+                    if(shift.progress >= 100 && !shift.checkOut) {
+                         return {
+                            ...shift,
+                            progress: 100,
+                            checkOut: shift.shift.includes('DIURNO') ? '20:05' : '08:05',
+                            status: 'Finalizado',
+                            statusColor: 'text-muted-foreground'
+                        };
+                    }
+                    
+                    return { ...shift, progress: newProgress };
+                })
+            );
+        }, 2000);
 
-                    <div className="text-sm">
-                        <p className="font-semibold">Status Atual:</p>
-                        <p className={shift.statusColor}>{shift.status}</p>
-                    </div>
+        return () => clearInterval(interval);
+    }, []);
 
-                    <div className="flex gap-2 justify-end">
-                        <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
-                        <Button variant="outline" size="icon"><MessageCircle className="h-4 w-4" /></Button>
-                        <Button variant="outline" size="icon"><History className="h-4 w-4" /></Button>
-                    </div>
+    return (
+        <div className="p-4 sm:p-6 space-y-6">
+            <Card>
+            <CardHeader>
+                <CardTitle>Monitoramento em Tempo Real</CardTitle>
+                <CardDescription>Acompanhe os plantões em andamento.</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+                {activeShifts.map((shift, index) => (
+                    <Card key={index} className="bg-muted/30">
+                        <CardContent className="p-4 grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] lg:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center">
+                            <div className="flex items-center gap-4">
+                                <Avatar className={`h-12 w-12 text-xl font-bold ${shift.professional.avatarColor}`}>
+                                    <AvatarFallback className="bg-transparent text-white">{shift.professional.initials}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold">{shift.patientName}</p>
+                                    <p className="text-sm text-muted-foreground">{shift.professional.name} - {shift.shift}</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                                    <span>Progresso do Plantão</span>
+                                    <span>{shift.progress}%</span>
+                                </div>
+                                <Progress value={shift.progress} className="h-2" />
+                            </div>
 
-                </CardContent>
+                            <div className="flex justify-around items-center text-sm">
+                                <div className="flex items-center gap-2">
+                                <CheckCircle className={`h-5 w-5 ${shift.checkIn ? 'text-green-500' : 'text-muted-foreground/50'}`} />
+                                <span>{shift.checkIn || '--:--'}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                <XCircle className={`h-5 w-5 ${shift.checkOut ? 'text-red-500' : 'text-muted-foreground/50'}`} />
+                                <span>{shift.checkOut || '--:--'}</span>
+                                </div>
+                            </div>
+
+                            <div className="text-sm">
+                                <p className="font-semibold">Status Atual:</p>
+                                <p className={shift.statusColor}>{shift.status}</p>
+                            </div>
+
+                            <div className="flex gap-2 justify-end">
+                                <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon"><MessageCircle className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon"><History className="h-4 w-4" /></Button>
+                            </div>
+
+                        </CardContent>
+                    </Card>
+                ))}
+            </CardContent>
             </Card>
-        ))}
-      </CardContent>
-    </Card>
-  </div>
-);
+        </div>
+    );
+}
 
 export function ShiftManagement() {
   const [isPublishVacancyOpen, setIsPublishVacancyOpen] = React.useState(false);
