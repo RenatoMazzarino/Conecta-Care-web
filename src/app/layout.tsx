@@ -1,12 +1,10 @@
+'use client';
+
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { cn } from '@/lib/utils';
-
-export const metadata: Metadata = {
-  title: 'CareSync Home',
-  description: 'A homecare management app for nursing teams and families.',
-};
+import { FirebaseClientProvider } from '@/firebase';
 
 export default function RootLayout({
   children,
@@ -24,8 +22,10 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased', 'min-h-screen bg-background font-sans')}>
-        {children}
-        <Toaster />
+        <FirebaseClientProvider>
+          {children}
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );
