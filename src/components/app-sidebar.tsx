@@ -13,6 +13,7 @@ import {
   LineChart,
   DollarSign,
   FileText,
+  CalendarCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/schedule', label: 'Agenda', icon: Calendar },
+  { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
   { href: '/team', label: 'Equipe', icon: ClipboardList },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
