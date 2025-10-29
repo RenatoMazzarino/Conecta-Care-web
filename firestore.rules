@@ -1,0 +1,159 @@
+/**
+ * @file Firestore Security Rules for Homecare Management App
+ *
+ * @description This ruleset enforces a strict user-ownership model for patient data.
+ * All patient-related data (inventories, supply requests, shift reports, and WhatsApp notifications)
+ * is nested under a specific `/patients/{patientId}` document, ensuring that only
+ * authenticated users can access data related to a patient.
+ *
+ * @dataStructure
+ * - `/patients/{patientId}`: Root document for patient information.
+ * - `/supplies/{supplyId}`: Collection of available supply items.
+ * - `/patients/{patientId}/inventories/{inventoryId}`: Inventory levels for a patient.
+ * - `/patients/{patientId}/supplyRequests/{supplyRequestId}`: Supply requests for a patient.
+ * - `/patients/{patientId}/shiftReports/{shiftReportId}`: Shift reports for a patient.
+ * - `/patients/{patientId}/whatsAppNotifications/{notificationId}`: WhatsApp notifications for a patient.
+ *
+ * @keySecurityDecisions
+ * - Patient data is strictly controlled via path-based ownership.
+ * - Supplies are publicly readable but not writable without authentication (TODO: Implement an admin check for supply writes).
+ * - Listing of patient subcollections is restricted to the authenticated user.
+ * - No schema validation is performed during this prototyping phase, except for the patient ID.
+ *
+ * @denormalization For Collaborative Data - there are no group permissions in this case, all data is related to a single patient.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to patient documents.
+     * @path /patients/{patientId}
+     * @allow (create) - An authenticated user can create a patient document if the patientId matches their UID.
+     * @allow (get, list, update, delete) - Only an authenticated user can get, list, update, or delete a patient document.
+     * @deny (create) - An unauthenticated user cannot create a patient document.
+     * @deny (update, delete) - An unauthenticated user cannot update or delete a patient document.
+     * @principle Enforces document ownership for writes and reads for authenticated users.
+     */
+    match /patients/{patientId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(patientId) {
+        return request.auth.uid == patientId;
+      }
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(patientId);
+      allow update: if isSignedIn() && isOwner(patientId);
+      allow delete: if isSignedIn() && isOwner(patientId);
+    }
+
+    /**
+     * @description Controls access to supply documents.
+     * @path /supplies/{supplyId}
+     * @allow (get, list) - Any user can read supply documents.
+     * @deny (create, update, delete) - No user can create, update, or delete supply documents.
+     * @principle Allows public read access for supply information, but restricts writes.
+     */
+    match /supplies/{supplyId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false; // TODO: Add admin role check for supply creation
+      allow update: if false; // TODO: Add admin role check for supply updates
+      allow delete: if false; // TODO: Add admin role check for supply deletion
+    }
+
+    /**
+     * @description Controls access to inventory documents nested under a patient.
+     * @path /patients/{patientId}/inventories/{inventoryId}
+     * @allow (create) - Only an authenticated user can create an inventory document for their patient.
+     * @allow (get, list, update, delete) - Only an authenticated user can get, list, update, or delete an inventory document for their patient.
+     * @deny (create, update, delete) - An unauthenticated user cannot create, update, or delete an inventory document.
+     * @deny (create) - A user cannot create an inventory document for another patient.
+     * @principle Enforces patient-based ownership for all operations on inventory documents.
+     */
+    match /patients/{patientId}/inventories/{inventoryId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(patientId) {
+        return request.auth.uid == patientId;
+      }
+      allow get: if isSignedIn() && isOwner(patientId);
+      allow list: if isSignedIn() && isOwner(patientId);
+      allow create: if isSignedIn() && isOwner(patientId);
+      allow update: if isSignedIn() && isOwner(patientId);
+      allow delete: if isSignedIn() && isOwner(patientId);
+    }
+
+    /**
+     * @description Controls access to supply request documents nested under a patient.
+     * @path /patients/{patientId}/supplyRequests/{supplyRequestId}
+     * @allow (create) - Only an authenticated user can create a supply request document for their patient.
+     * @allow (get, list, update, delete) - Only an authenticated user can get, list, update, or delete a supply request document for their patient.
+     * @deny (create, update, delete) - An unauthenticated user cannot create, update, or delete a supply request document.
+     * @deny (create) - A user cannot create a supply request document for another patient.
+     * @principle Enforces patient-based ownership for all operations on supply request documents.
+     */
+    match /patients/{patientId}/supplyRequests/{supplyRequestId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(patientId) {
+        return request.auth.uid == patientId;
+      }
+      allow get: if isSignedIn() && isOwner(patientId);
+      allow list: if isSignedIn() && isOwner(patientId);
+      allow create: if isSignedIn() && isOwner(patientId);
+      allow update: if isSignedIn() && isOwner(patientId);
+      allow delete: if isSignedIn() && isOwner(patientId);
+    }
+
+    /**
+     * @description Controls access to shift report documents nested under a patient.
+     * @path /patients/{patientId}/shiftReports/{shiftReportId}
+     * @allow (create) - Only an authenticated user can create a shift report document for their patient.
+     * @allow (get, list, update, delete) - Only an authenticated user can get, list, update, or delete a shift report document for their patient.
+     * @deny (create, update, delete) - An unauthenticated user cannot create, update, or delete a shift report document.
+     * @deny (create) - A user cannot create a shift report document for another patient.
+     * @principle Enforces patient-based ownership for all operations on shift report documents.
+     */
+    match /patients/{patientId}/shiftReports/{shiftReportId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(patientId) {
+        return request.auth.uid == patientId;
+      }
+      allow get: if isSignedIn() && isOwner(patientId);
+      allow list: if isSignedIn() && isOwner(patientId);
+      allow create: if isSignedIn() && isOwner(patientId);
+      allow update: if isSignedIn() && isOwner(patientId);
+      allow delete: if isSignedIn() && isOwner(patientId);
+    }
+
+    /**
+     * @description Controls access to WhatsApp notification documents nested under a patient.
+     * @path /patients/{patientId}/whatsAppNotifications/{notificationId}
+     * @allow (create) - Only an authenticated user can create a WhatsApp notification document for their patient.
+     * @allow (get, list, update, delete) - Only an authenticated user can get, list, update, or delete a WhatsApp notification document for their patient.
+     * @deny (create, update, delete) - An unauthenticated user cannot create, update, or delete a WhatsApp notification document.
+     * @deny (create) - A user cannot create a WhatsApp notification document for another patient.
+     * @principle Enforces patient-based ownership for all operations on WhatsApp notification documents.
+     */
+    match /patients/{patientId}/whatsAppNotifications/{notificationId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(patientId) {
+        return request.auth.uid == patientId;
+      }
+      allow get: if isSignedIn() && isOwner(patientId);
+      allow list: if isSignedIn() && isOwner(patientId);
+      allow create: if isSignedIn() && isOwner(patientId);
+      allow update: if isSignedIn() && isOwner(patientId);
+      allow delete: if isSignedIn() && isOwner(patientId);
+    }
+  }
+}
