@@ -10,6 +10,11 @@ import {
   User,
   LogOut,
   Settings,
+  Users,
+  Calendar,
+  LineChart,
+  DollarSign,
+  FileText
 } from 'lucide-react';
 import {
   Sheet,
@@ -29,7 +34,11 @@ import Image from 'next/image';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
-  { href: '/inventory', label: 'Inventory', icon: ClipboardList },
+  { href: '/patients', label: 'Pacientes', icon: Users },
+  { href: '/schedule', label: 'Agenda', icon: Calendar },
+  { href: '/team', label: 'Equipe', icon: ClipboardList },
+  { href: '/financial', label: 'Financeiro', icon: DollarSign },
+  { href: '/reports', 'label': 'Relatórios', icon: LineChart },
   { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
 ];
 
