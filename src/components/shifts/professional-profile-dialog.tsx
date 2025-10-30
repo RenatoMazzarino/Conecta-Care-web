@@ -16,18 +16,10 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 function StarRating({ rating }: { rating: number }) {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
   return (
     <div className="flex items-center gap-0.5">
-      {[...Array(fullStars)].map((_, i) => (
-        <Star key={`full-${i}`} className="h-5 w-5 fill-amber-400 text-amber-400" />
-      ))}
-      {halfStar && <Star key="half" className="h-5 w-5" style={{ background: 'linear-gradient(to right, #fbbf24 50%, #d1d5db 50%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} />}
-      {[...Array(emptyStars)].map((_, i) => (
-        <Star key={`empty-${i}`} className="h-5 w-5 fill-gray-300 text-gray-300" />
+      {[...Array(5)].map((_, i) => (
+        <Star key={i} className={cn("h-5 w-5", i < Math.floor(rating) ? 'fill-amber-400 text-amber-400' : 'fill-gray-300 text-gray-300')} />
       ))}
        <span className="ml-2 text-sm text-muted-foreground">({rating.toFixed(1)})</span>
     </div>
