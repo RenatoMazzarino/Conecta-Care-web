@@ -77,3 +77,25 @@ export type ShiftHistoryEvent = {
     icon: React.ElementType;
     iconColor: string;
 }
+
+export type ShiftReport = {
+  id: string;
+  patientId: string;
+  careTeamMemberName: string;
+  shift: 'Diurno' | 'Noturno';
+  reportDate: string;
+  observations: string;
+  vitalSigns: {
+    bloodPressure: string;
+    heartRate: number;
+    oxygenSaturation: number;
+  }
+}
+
+export type Notification = {
+  id: string;
+  patientId: string;
+  type: 'supply' | 'info' | 'alert';
+  message: string;
+  timestamp: string;
+}

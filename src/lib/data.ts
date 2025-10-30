@@ -1,4 +1,4 @@
-import type { Patient, InventoryItem, Professional, ActiveShift } from './types';
+import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const patientAvatars = {
@@ -79,9 +79,9 @@ export const inventory: InventoryItem[] = [
   { id: 'item-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', stock: 12, lowStockThreshold: 10 },
   { id: 'item-004', name: 'Luvas Descartáveis', description: 'Caixa com 100un, tamanho M', stock: 88, lowStockThreshold: 50 },
   { id: 'item-005', name: 'Soro Fisiológico', description: 'Frasco de 500ml', stock: 3, lowStockThreshold: 4 },
-  { id: 'item-006', name: 'Seringas', description: '10ml, bico Luer Lock, caixa c/ 50', stock: 25, lowStockThreshold: 30 },
+  { id: 'item-006', name: 'Seringas', description: '10ml, bico Luer Lock, caixa c/ 50', stock: 2, lowStockThreshold: 30 },
   { id: 'item-007', name: 'Curativos Adesivos', description: 'Caixa com tamanhos variados', stock: 150, lowStockThreshold: 50 },
-  { id: 'item-008', name: 'Álcool 70%', description: 'Frasco de 1L', stock: 5, lowStockThreshold: 2 },
+  { id: 'item-008', name: 'Álcool 70%', description: 'Frasco de 1L', stock: 1, lowStockThreshold: 2 },
 ];
 
 export const professionals: Professional[] = [
@@ -201,4 +201,58 @@ export const initialActiveShiftsData: ActiveShift[] = [
         status: "Atrasado",
         statusColor: "text-destructive"
     }
+]
+
+export const mockShiftReports: ShiftReport[] = [
+  {
+    id: 'sr-001',
+    patientId: 'patient-123',
+    careTeamMemberName: 'Carla Nogueira',
+    shift: 'Diurno',
+    reportDate: new Date(new Date().setDate(new Date().getDate() -1)).toISOString(),
+    observations: 'Paciente passou o dia tranquilo, colaborativo e sem queixas de dor. Realizou fisioterapia pela manhã e aceitou bem a dieta.',
+    vitalSigns: { bloodPressure: '122/78', heartRate: 75, oxygenSaturation: 98 }
+  },
+  {
+    id: 'sr-002',
+    patientId: 'patient-123',
+    careTeamMemberName: 'Fábio Bastos',
+    shift: 'Noturno',
+    reportDate: new Date(new Date().setDate(new Date().getDate() -2)).toISOString(),
+    observations: 'Noite calma, sono tranquilo com alguns despertares. Sem intercorrências durante a madrugada. Sinais vitais estáveis.',
+    vitalSigns: { bloodPressure: '118/75', heartRate: 70, oxygenSaturation: 97 }
+  },
+  {
+    id: 'sr-003',
+    patientId: 'patient-456',
+    careTeamMemberName: 'Diogo Lima',
+    shift: 'Diurno',
+    reportDate: new Date(new Date().setDate(new Date().getDate() -1)).toISOString(),
+    observations: 'Paciente apresentou leve dor na articulação do joelho direito. Administrado analgésico conforme prescrição, com melhora do quadro.',
+    vitalSigns: { bloodPressure: '130/85', heartRate: 80, oxygenSaturation: 99 }
+  }
+]
+
+export const mockNotifications: Notification[] = [
+  {
+    id: 'notif-001',
+    patientId: 'patient-123',
+    type: 'supply',
+    message: 'Solicitação de Soro Fisiológico (2 unidades) enviada para a família.',
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 2)).toISOString()
+  },
+  {
+    id: 'notif-002',
+    patientId: 'patient-123',
+    type: 'alert',
+    message: 'Nível de estoque de Seringas está crítico (2 unidades).',
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 5)).toISOString()
+  },
+    {
+    id: 'notif-003',
+    patientId: 'patient-456',
+    type: 'info',
+    message: 'Profissional Carla Nogueira confirmou o plantão de amanhã.',
+    timestamp: new Date(new Date().setDate(new Date().getDate() -1)).toISOString()
+  },
 ]

@@ -7,7 +7,7 @@ import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
 import type { InventoryItem } from '@/lib/types';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { patients, inventory as mockInventory } from '@/lib/data';
+import { patients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -49,21 +49,29 @@ export default function InventoryPage() {
         description: "Enviando dados de simulação para o Firestore."
     });
 
-    // Seed multiple patients
     patients.forEach(patient => {
         const patientDocRef = doc(firestore, 'patients', patient.id);
         setDocumentNonBlocking(patientDocRef, patient, { merge: true });
 
-        // Seed inventory for each patient
         mockInventory.forEach(item => {
             const itemDocRef = doc(firestore, 'patients', patient.id, 'inventories', item.id);
             setDocumentNonBlocking(itemDocRef, item, { merge: true });
         });
+
+        mockShiftReports.filter(sr => sr.patientId === patient.id).forEach(report => {
+            const reportDocRef = doc(firestore, 'patients', patient.id, 'shiftReports', report.id);
+            setDocumentNonBlocking(reportDocRef, report, { merge: true });
+        })
+
+        mockNotifications.filter(n => n.patientId === patient.id).forEach(notification => {
+            const notifDocRef = doc(firestore, 'patients', patient.id, 'notifications', notification.id);
+            setDocumentNonBlocking(notifDocRef, notification, { merge: true });
+        })
     });
 
     toast({
         title: "Sucesso!",
-        description: `${patients.length} pacientes e seus inventários foram enviados para o Firestore.`
+        description: `${patients.length} pacientes, seus inventários e outros dados foram enviados para o Firestore.`
     });
   }
 
@@ -80,7 +88,7 @@ export default function InventoryPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Ferramentas de Desenvolvimento</CardTitle>
-                        <CardDescription>Use este botão para popular o Firestore com dados de simulação (pacientes e estoque).</CardDescription>
+                        <CardDescription>Use este botão para popular o Firestore com dados de simulação.</CardDescription>
                     </div>
                      <Button onClick={handleSeedData} disabled={isLoading}>
                         Popular Dados de Simulação
