@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo, type ReactNode } from 'react';
@@ -42,13 +41,22 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
   }, [auth]);
 
   // While the initial user state is being determined, show a loading UI.
+  // This helps prevent hydration mismatches.
   if (isUserLoading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        <div className="w-full max-w-md space-y-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-12 w-full" />
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
+        <div className="w-full max-w-md space-y-4 p-4">
+          <div className="flex items-center space-x-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            </div>
+            <Skeleton className="h-48 w-full" />
+            <div className="flex justify-end">
+              <Skeleton className="h-12 w-24" />
+            </div>
         </div>
       </div>
     );
