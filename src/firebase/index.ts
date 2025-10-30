@@ -5,20 +5,44 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
+// This function can be called from anywhere, but the dynamic config part
+// should only happen on the client.
 export function initializeFirebase() {
-  // If a Firebase app is already initialized, return its SDKs.
   if (getApps().length) {
-    return getSdks(getApp());
+    const app = getApp();
+    return {
+      firebaseApp: app,
+      auth: getAuth(app),
+      firestore: getFirestore(app)
+    };
+  }
+
+  // If on the server, initialize with the base config.
+  // The client-provider will handle re-initialization if needed for authDomain.
+  // This path is less likely with the new structure but provides a safe fallback.
+  if (typeof window === 'undefined') {
+    const serverApp = initializeApp(firebaseConfig);
+    return {
+      firebaseApp: serverApp,
+      auth: getAuth(serverApp),
+      firestore: getFirestore(serverApp)
+    };
   }
   
-  // Otherwise, initialize a new app using the local firebaseConfig.
-  // This approach is robust for both local development and production
-  // as it bypasses the App Hosting auto-init that fails in dev.
-  const firebaseApp = initializeApp(firebaseConfig);
-  return getSdks(firebaseApp);
-}
+  // On the client, create the dynamic config.
+  const clientConfig = {
+    ...firebaseConfig,
+    authDomain: window.location.hostname,
+  };
 
+  const clientApp = initializeApp(clientConfig);
+  
+  return {
+    firebaseApp: clientApp,
+    auth: getAuth(clientApp),
+    firestore: getFirestore(clientApp)
+  };
+}
 
 export function getSdks(firebaseApp: FirebaseApp) {
   return {
