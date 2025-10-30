@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText, AlertCircle } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,6 +19,7 @@ import { ProntuarioEnfermagem } from '@/components/prontuario/prontuario-enferma
 import { ProntuarioMedico } from '@/components/prontuario/prontuario-medico';
 import { ProntuarioFisioterapia } from '@/components/prontuario/prontuario-fisioterapia';
 import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao';
+import { Badge } from '@/components/ui/badge';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -111,7 +112,7 @@ export default function PatientDetailPage() {
   return (
     <>
     <AppHeader title={`Prontuário de ${patient?.name || ''}`} />
-    <main className="p-6 space-y-6 max-w-7xl mx-auto">
+    <main className="p-6 space-y-6 max-w-7xl mx-auto w-full">
        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Prontuário do Paciente</h1>
@@ -139,48 +140,54 @@ export default function PatientDetailPage() {
         </div>
       </div>
       
-       <div className="grid lg:grid-cols-3 gap-6">
-            <Card>
-                <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-                     <div className="p-3 rounded-full bg-primary/10">
-                        <User className="w-6 h-6 text-primary" />
+       <Card>
+        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex items-center gap-4">
+                 <div className="p-3 rounded-full bg-primary/10">
+                    <User className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                    <p className="text-sm text-muted-foreground">Paciente</p>
+                    <p className="font-semibold text-lg">{displayData.name}</p>
+                    <p className="text-sm text-muted-foreground">{displayData.age} anos ({new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})})</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-primary/10">
+                    <Phone className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                     <p className="text-sm text-muted-foreground">Contato de Emergência</p>
+                    <p className="font-semibold text-lg">{displayData.familyContact.name}</p>
+                    <p className="text-sm text-muted-foreground">{displayData.familyContact.phone}</p>
+                </div>
+            </div>
+             <div className="flex items-start gap-4 col-span-1 md:col-span-2 lg:col-span-1">
+                <div className="p-3 rounded-full bg-destructive/10 mt-1">
+                    <AlertCircle className="w-6 h-6 text-destructive" />
+                </div>
+                <div>
+                     <p className="text-sm text-muted-foreground">Condições e Alergias</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                    {displayData.chronicConditions?.length > 0 ? (
+                        displayData.chronicConditions.map((condition, i) => (
+                        <Badge key={i} variant="secondary">{condition}</Badge>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">Nenhuma condição crônica</p>
+                    )}
+                     {displayData.allergies?.length > 0 ? (
+                        displayData.allergies.map((allergy, i) => (
+                        <Badge key={i} variant="destructive">{allergy}</Badge>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">Nenhuma alergia</p>
+                    )}
                     </div>
-                    <div>
-                        <CardTitle className="text-xl">{displayData.name}</CardTitle>
-                        <p className="text-muted-foreground text-sm">{displayData.age} anos ({new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})})</p>
-                    </div>
-                </CardHeader>
-            </Card>
-
-            <Card>
-                <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-                    <div className="p-3 rounded-full bg-primary/10">
-                        <Phone className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                        <CardTitle className="text-xl">{displayData.familyContact.name}</CardTitle>
-                        <p className="text-muted-foreground text-sm">Contato de Emergência: {displayData.familyContact.phone}</p>
-                    </div>
-                </CardHeader>
-            </Card>
-
-            <Card>
-                 <CardHeader>
-                    <CardTitle className="text-lg">Condições Principais</CardTitle>
-                </CardHeader>
-                <CardContent>
-                     <div className="flex flex-wrap gap-2">
-                        {displayData.chronicConditions?.length > 0 ? (
-                            displayData.chronicConditions.map((condition, i) => (
-                            <span key={i} className="text-sm text-foreground">{condition}{i < displayData.chronicConditions.length - 1 ? ',' : ''}</span>
-                            ))
-                        ) : (
-                            <p className="text-sm text-muted-foreground">Nenhuma condição registrada</p>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-      </div>
+                </div>
+            </div>
+        </CardContent>
+       </Card>
 
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
