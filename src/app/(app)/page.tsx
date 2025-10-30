@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [patient, setPatient] = React.useState<Patient | null>(null);
   const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
+  const [reports, setReports] = React.useState<ShiftReport[]>([]);
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -34,15 +36,13 @@ export default function DashboardPage() {
         });
       }
       setInventory(mockInventory);
+      setReports(mockShiftReports);
+      setNotifications(mockNotifications);
       setIsLoading(false);
     }, 1000); // Simulate network delay
 
     return () => clearTimeout(timer);
   }, []);
-  
-  // Use mock data directly to avoid permission errors for now
-  const reports: ShiftReport[] = mockShiftReports.filter(r => r.patientId === patient?.id);
-  const notifications: Notification[] = mockNotifications.filter(n => n.patientId === patient?.id);
   
   const noData = !isLoading && !patient;
   
@@ -62,6 +62,21 @@ export default function DashboardPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {[...Array(4)].map((_,i) => <Skeleton key={i} className="h-28 w-full" />)}
             </div>
+         ) : noData ? (
+             <Card>
+                <CardHeader>
+                    <CardTitle>Bem-vindo ao CareSync</CardTitle>
+                    <CardDescription>Nenhum dado de paciente encontrado.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                        Para começar, por favor, popule o sistema com dados de simulação na página de Estoque.
+                    </p>
+                    <Button asChild>
+                        <Link href="/inventory">Ir para a página de Estoque</Link>
+                    </Button>
+                </CardContent>
+               </Card>
          ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {stats.map(stat => (
@@ -74,29 +89,9 @@ export default function DashboardPage() {
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             {isLoading ? (
-              <>
-                <Skeleton className="h-[100px] w-full" />
-                <Skeleton className="h-[300px] w-full" />
-              </>
+              <Skeleton className="h-[400px] w-full" />
             ) : (
               <>
-                {noData && (
-                   <Card>
-                    <CardHeader>
-                        <CardTitle>Bem-vindo ao CareSync</CardTitle>
-                        <CardDescription>Nenhum dado de paciente encontrado.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="mb-4 text-sm text-muted-foreground">
-                            Para começar, por favor, popule o sistema com dados de simulação na página de Estoque.
-                        </p>
-                        <Button asChild>
-                            <Link href="/inventory">Ir para a página de Estoque</Link>
-                        </Button>
-                    </CardContent>
-                   </Card>
-                )}
-                {patient && <PatientInfoCard patient={patient} />}
                 {reports && <RecentReportsCard reports={reports} />}
               </>
             )}
