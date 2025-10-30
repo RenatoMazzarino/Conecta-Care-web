@@ -6,16 +6,18 @@ import type { Patient } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, AlertCircle, Pill, Utensils, Phone, Edit, Save, X, Plus } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText, CalendarDays } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients } from '@/lib/data';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
+
+import { ProntuarioResumo } from '@/components/prontuario/prontuario-resumo';
+import { ProntuarioTimeline } from '@/components/prontuario/prontuario-timeline';
+import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
+import { ProntuarioExames } from '@/components/prontuario/prontuario-exames';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -27,7 +29,6 @@ export default function PatientDetailPage() {
   const [patient, setPatient] = React.useState<Patient | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Set patient data from mock
   React.useEffect(() => {
     const timer = setTimeout(() => {
         const foundPatient = mockPatients.find(p => p.id === patientId);
@@ -38,7 +39,7 @@ export default function PatientDetailPage() {
                 criticalStockCount: 0,
             };
             setPatient(patientWithCounts);
-            setEditedData(JSON.parse(JSON.stringify(patientWithCounts))); // Deep copy
+            setEditedData(JSON.parse(JSON.stringify(patientWithCounts)));
         }
         setIsLoading(false);
     }, 500);
@@ -48,19 +49,17 @@ export default function PatientDetailPage() {
 
   const handleEdit = () => {
     if (patient) {
-      setEditedData(JSON.parse(JSON.stringify(patient))); // Reset to original on re-edit
+      setEditedData(JSON.parse(JSON.stringify(patient)));
       setIsEditing(true);
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedData(patient ? JSON.parse(JSON.stringify(patient)) : null); // Revert changes
+    setEditedData(patient ? JSON.parse(JSON.stringify(patient)) : null);
   };
 
   const handleSave = () => {
-    // Here you would typically save to a database.
-    // For this mock, we just update the local state.
     if (!editedData) return;
     setPatient(editedData);
     toast({
@@ -69,26 +68,6 @@ export default function PatientDetailPage() {
     });
     setIsEditing(false);
   };
-  
-   const addMedication = () => {
-    if (!editedData) return;
-    const newMeds = [...(editedData.medications || []), { name: '', dosage: '', frequency: '', notes: '' }];
-    setEditedData({ ...editedData, medications: newMeds });
-  };
-
-  const removeMedication = (index: number) => {
-    if (!editedData) return;
-    const newMeds = editedData.medications.filter((_, i) => i !== index);
-    setEditedData({ ...editedData, medications: newMeds });
-  };
-
-  const updateMedication = (index: number, field: string, value: string) => {
-    if (!editedData) return;
-    const newMeds = [...editedData.medications];
-    newMeds[index] = { ...newMeds[index], [field]: value };
-    setEditedData({ ...editedData, medications: newMeds });
-  };
-
 
   const displayData = isEditing ? editedData : patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
@@ -99,13 +78,13 @@ export default function PatientDetailPage() {
             <AppHeader title="Carregando Prontuário..." />
             <main className="p-6 space-y-6 max-w-7xl mx-auto">
                 <Skeleton className="h-10 w-1/3" />
-                <div className="grid lg:grid-cols-2 gap-6">
-                    <Skeleton className="h-64 w-full" />
+                <div className="grid lg:grid-cols-3 gap-6">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-48 w-full" />
                     <Skeleton className="h-48 w-full" />
                 </div>
-                 <Skeleton className="h-48 w-full" />
+                 <Skeleton className="h-12 w-full" />
                  <Skeleton className="h-72 w-full" />
-                 <Skeleton className="h-48 w-full" />
             </main>
         </>
     );
@@ -135,307 +114,97 @@ export default function PatientDetailPage() {
        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Prontuário do Paciente</h1>
-          <p className="text-muted-foreground mt-1">Informações clínicas e dados pessoais</p>
+          <p className="text-muted-foreground mt-1">Informações clínicas, histórico e documentos.</p>
         </div>
-        {!isEditing ? (
-          <Button onClick={handleEdit}>
-            <Edit className="w-4 h-4 mr-2" />
-            Editar
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={handleCancel} variant="outline">
-              <X className="w-4 h-4 mr-2" />
-              Cancelar
+        <div className="flex gap-2">
+           <Button asChild variant="secondary"><Link href={`/patients/${patientId}/profile`}><FileText className="mr-2"/>Ver Ficha Cadastral</Link></Button>
+            {!isEditing ? (
+            <Button onClick={handleEdit}>
+                <Edit className="w-4 h-4 mr-2" />
+                Editar Resumo
             </Button>
-            <Button onClick={handleSave} disabled={isSaveDisabled}>
-              <Save className="w-4 h-4 mr-2" />
-              Salvar
-            </Button>
-          </div>
-        )}
-      </div>
-      
-       <div className="grid lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="bg-muted/30">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <User className="w-5 h-5 text-primary" />
-              Dados Pessoais
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div>
-              <Label>Nome Completo</Label>
-              {isEditing ? (
-                <Input
-                  value={editedData?.name || ''}
-                  onChange={(e) => setEditedData({ ...editedData!, name: e.target.value })}
-                />
-              ) : (
-                <p className="font-medium mt-1">{displayData.name}</p>
-              )}
+            ) : (
+            <div className="flex gap-2">
+                <Button onClick={handleCancel} variant="outline">
+                <X className="w-4 h-4 mr-2" />
+                Cancelar
+                </Button>
+                <Button onClick={handleSave} disabled={isSaveDisabled}>
+                <Save className="w-4 h-4 mr-2" />
+                Salvar
+                </Button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>CPF</Label>
-                 {isEditing ? (
-                  <Input
-                    value={editedData?.cpf || ''}
-                    onChange={(e) => setEditedData({ ...editedData!, cpf: e.target.value })}
-                  />
-                ) : (
-                  <p className="font-medium mt-1">{displayData.cpf}</p>
-                )}
-              </div>
-              <div>
-                <Label>Data de Nascimento</Label>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    value={editedData?.dateOfBirth || ''}
-                    onChange={(e) => setEditedData({ ...editedData!, dateOfBirth: e.target.value })}
-                  />
-                ) : (
-                  <p className="font-medium mt-1">
-                    {displayData.dateOfBirth ? new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div>
-              <Label>Tipo Sanguíneo</Label>
-              {isEditing ? (
-                <Select
-                  value={editedData?.bloodType || ''}
-                  onValueChange={(value) => setEditedData({ ...editedData!, bloodType: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((type) => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                 <p className="font-medium mt-1">
-                    {displayData.bloodType ? (
-                      <Badge variant={displayData.bloodType.includes('O') || displayData.bloodType.includes('A') ? 'destructive' : 'secondary'}>{displayData.bloodType}</Badge>
-                    ) : (
-                      <span>-</span>
-                    )}
-                 </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="bg-muted/30">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Phone className="w-5 h-5 text-primary" />
-              Contato de Emergência
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div>
-              <Label>Nome do Contato</Label>
-              {isEditing ? (
-                <Input
-                  value={editedData?.familyContact.name || ''}
-                  onChange={(e) => setEditedData({ ...editedData!, familyContact: { ...editedData!.familyContact, name: e.target.value }})}
-                />
-              ) : (
-                <p className="font-medium mt-1">{displayData.familyContact.name || '-'}</p>
-              )}
-            </div>
-            <div>
-              <Label>Telefone</Label>
-              {isEditing ? (
-                <Input
-                  value={editedData?.familyContact.phone || ''}
-                  onChange={(e) => setEditedData({ ...editedData!, familyContact: { ...editedData!.familyContact, phone: e.target.value }})}
-                  placeholder="+55 11 99999-9999"
-                />
-              ) : (
-                <p className="font-medium mt-1">{displayData.familyContact.phone || '-'}</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-       <Card>
-        <CardHeader className="bg-muted/30">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <AlertCircle className="w-5 h-5 text-destructive" />
-            Alergias e Condições Crônicas
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <Label>Alergias</Label>
-              {isEditing ? (
-                <Textarea
-                  value={editedData?.allergies?.join(', ') || ''}
-                  onChange={(e) => setEditedData({
-                    ...editedData!,
-                    allergies: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  })}
-                  placeholder="Separe por vírgula"
-                  className="mt-1"
-                />
-              ) : (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {displayData.allergies?.length > 0 ? (
-                    displayData.allergies.map((allergy, i) => (
-                      <Badge key={i} variant="destructive">{allergy}</Badge>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground">Nenhuma alergia registrada</p>
-                  )}
-                </div>
-              )}
-            </div>
-            <div>
-              <Label>Condições Crônicas</Label>
-              {isEditing ? (
-                <Textarea
-                  value={editedData?.chronicConditions?.join(', ') || ''}
-                  onChange={(e) => setEditedData({
-                    ...editedData!,
-                    chronicConditions: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  })}
-                  placeholder="Separe por vírgula"
-                  className="mt-1"
-                />
-              ) : (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {displayData.chronicConditions?.length > 0 ? (
-                    displayData.chronicConditions.map((condition, i) => (
-                      <Badge key={i} variant="secondary">{condition}</Badge>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground">Nenhuma condição registrada</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="bg-muted/30">
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Pill className="w-5 h-5 text-primary" />
-              Medicações
-            </CardTitle>
-            {isEditing && (
-              <Button onClick={addMedication} size="sm" variant="outline">
-                <Plus className="w-4 h-4 mr-1" />
-                Adicionar
-              </Button>
             )}
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          {isEditing ? (
-            <div className="space-y-4">
-              {editedData?.medications?.map((med, index) => (
-                <Card key={index} className="p-4 bg-background">
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-medium">Medicação {index + 1}</h4>
-                    <Button
-                      onClick={() => removeMedication(index)}
-                      size="icon"
-                      variant="ghost"
-                      className="text-destructive hover:bg-destructive/10"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label>Nome</Label>
-                      <Input
-                        value={med.name}
-                        onChange={(e) => updateMedication(index, 'name', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label>Dosagem</Label>
-                      <Input
-                        value={med.dosage}
-                        onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <Label>Frequência</Label>
-                      <Input
-                        value={med.frequency}
-                        onChange={(e) => updateMedication(index, 'frequency', e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-2 sm:col-span-2">
-                      <Label>Observações</Label>
-                      <Input
-                        value={med.notes || ''}
-                        onChange={(e) => updateMedication(index, 'notes', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-               {(!editedData?.medications || editedData.medications.length === 0) && (
-                <p className="text-muted-foreground text-center py-4">Nenhuma medicação para editar.</p>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {displayData.medications?.map((med, i) => (
-                <div key={i} className="p-4 bg-secondary/30 rounded-lg">
-                  <p className="font-semibold text-secondary-foreground">{med.name}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {med.dosage} &bull; {med.frequency}
-                  </p>
-                  {med.notes && (
-                    <p className="text-sm text-muted-foreground mt-2">{med.notes}</p>
-                  )}
-                </div>
-              ))}
-              {(!displayData.medications || displayData.medications.length === 0) && (
-                <p className="text-muted-foreground text-center py-4">Nenhuma medicação cadastrada</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
-       <Card>
-        <CardHeader className="bg-muted/30">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Utensils className="w-5 h-5 text-primary" />
-            Dieta
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          {isEditing ? (
-            <Textarea
-              value={editedData?.diet || ''}
-              onChange={(e) => setEditedData({ ...editedData!, diet: e.target.value })}
-              placeholder="Descreva a dieta do paciente"
-              rows={4}
-            />
-          ) : (
-            <p className="text-foreground">{displayData.diet || 'Nenhuma dieta específica registrada'}</p>
-          )}
-        </CardContent>
-      </Card>
+       <div className="grid lg:grid-cols-3 gap-6">
+            <Card>
+                <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+                     <div className="p-3 rounded-full bg-primary/10">
+                        <User className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-xl">{displayData.name}</CardTitle>
+                        <p className="text-muted-foreground text-sm">{displayData.age} anos ({new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})})</p>
+                    </div>
+                </CardHeader>
+            </Card>
+
+            <Card>
+                <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+                    <div className="p-3 rounded-full bg-primary/10">
+                        <Phone className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-xl">{displayData.familyContact.name}</CardTitle>
+                        <p className="text-muted-foreground text-sm">Contato de Emergência: {displayData.familyContact.phone}</p>
+                    </div>
+                </CardHeader>
+            </Card>
+
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="text-lg">Condições Principais</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <div className="flex flex-wrap gap-2">
+                        {displayData.chronicConditions?.length > 0 ? (
+                            displayData.chronicConditions.map((condition, i) => (
+                            <span key={i} className="text-sm text-foreground">{condition}{i < displayData.chronicConditions.length - 1 ? ',' : ''}</span>
+                            ))
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Nenhuma condição registrada</p>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+      </div>
+
+      <Tabs defaultValue="resumo" className="w-full">
+        <TabsList>
+            <TabsTrigger value="resumo">Resumo Clínico</TabsTrigger>
+            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="documentos">Documentos</TabsTrigger>
+            <TabsTrigger value="exames">Exames</TabsTrigger>
+        </TabsList>
+        <TabsContent value="resumo" className="mt-6">
+             <ProntuarioResumo 
+                isEditing={isEditing}
+                editedData={editedData}
+                setEditedData={setEditedData}
+             />
+        </TabsContent>
+        <TabsContent value="timeline" className="mt-6">
+            <ProntuarioTimeline />
+        </TabsContent>
+        <TabsContent value="documentos" className="mt-6">
+            <ProntuarioDocumentos />
+        </TabsContent>
+         <TabsContent value="exames" className="mt-6">
+            <ProntuarioExames />
+        </TabsContent>
+      </Tabs>
 
     </main>
     </>
