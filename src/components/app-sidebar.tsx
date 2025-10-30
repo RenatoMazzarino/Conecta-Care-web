@@ -115,3 +115,5 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
     </aside>
   );
 }
+
+    

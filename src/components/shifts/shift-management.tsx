@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, History, XCircle } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialActiveShiftsData, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -46,6 +46,14 @@ const initialShifts: Record<string, ShiftState[]> = {
   ],
 };
 
+const periodConfig = {
+  weekly: 7,
+  biweekly: 15,
+  monthly: 30,
+};
+
+type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
+
 
 const ShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => (
   <div onClick={onClick} className="flex items-center gap-2 p-2 rounded-lg bg-card border cursor-pointer hover:bg-accent">
@@ -81,8 +89,11 @@ const ShiftScaleView = () => {
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   
-  const [currentDate, setCurrentDate] = React.useState(startOfWeek(new Date('2024-10-07'), { weekStartsOn: 1 }));
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentDate, i));
+  const [currentDate, setCurrentDate] = React.useState(new Date('2024-10-07'));
+  const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
+
+  const numDays = periodConfig[viewPeriod];
+  const displayedDays = Array.from({ length: numDays }, (_, i) => addDays(currentDate, i));
 
   const handleDateChange = (days: number) => {
     setCurrentDate(prev => addDays(prev, days));
@@ -144,7 +155,6 @@ const ShiftScaleView = () => {
             return newShifts;
         });
 
-        // Close all related dialogs
         handleCloseCandidacy();
         setIsCandidacyListOpen(false);
         handleCloseProfile();
@@ -164,10 +174,40 @@ const ShiftScaleView = () => {
             )}
         </CardContent>
     </Card>
-);
+  );
+  
+  const getPeriodLabel = () => {
+    const start = displayedDays[0];
+    const end = displayedDays[displayedDays.length - 1];
+    const startFormat = format(start, 'd MMM', { locale: ptBR });
+    const endFormat = format(end, 'd MMM, yyyy', { locale: ptBR });
+    return `${startFormat} - ${endFormat}`;
+  }
 
   return (
     <div className="p-4 sm:p-6">
+       <div className="flex items-center justify-between gap-4 mb-6">
+         <div className="flex items-center gap-2">
+           <Button variant={viewPeriod === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('weekly')}>Semanal</Button>
+           <Button variant={viewPeriod === 'biweekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('biweekly')}>Quinzenal</Button>
+           <Button variant={viewPeriod === 'monthly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('monthly')}>Mensal</Button>
+         </div>
+          <div className="flex items-center justify-center gap-2 text-sm font-semibold">
+              <div className='flex items-center gap-1'>
+                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(-7)}><ChevronsLeft className="h-5 w-5" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
+              </div>
+              <div className="text-foreground text-center flex-1 w-48">
+                  {getPeriodLabel()}
+              </div>
+              <div className='flex items-center gap-1'>
+                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(7)}><ChevronsRight className="h-5 w-5" /></Button>
+              </div>
+          </div>
+          <div className="w-48"></div> {/* Spacer */}
+       </div>
+
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
             <StatCard 
                 title="Total de Pacientes"
@@ -201,28 +241,15 @@ const ShiftScaleView = () => {
       </div>
       
       <div className="rounded-lg border bg-card overflow-hidden">
-        <div className="flex items-center justify-center gap-2 px-4 py-2 border-b bg-muted/50 w-full text-sm font-semibold">
-            <div className='flex items-center gap-1'>
-                <Button variant="ghost" size="icon" onClick={() => handleDateChange(-7)}><ChevronsLeft className="h-5 w-5" /></Button>
-                <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
-            </div>
-            <div className="text-foreground text-center flex-1">
-                {format(currentDate, "MMMM 'de' yyyy", { locale: ptBR })}
-            </div>
-             <div className='flex items-center gap-1'>
-                <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
-                <Button variant="ghost" size="icon" onClick={() => handleDateChange(7)}><ChevronsRight className="h-5 w-5" /></Button>
-            </div>
-        </div>
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-border">
             <thead className="bg-muted/50">
                 <tr>
-                <th scope="col" className="sticky left-0 z-10 w-48 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider bg-muted/50">
+                <th scope="col" className="sticky left-0 z-10 w-48 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider bg-muted/50 border-r">
                     Paciente
                 </th>
-                {weekDays.map(day => (
-                    <th key={day.toString()} scope="col" className="min-w-64 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {displayedDays.map(day => (
+                    <th key={day.toString()} scope="col" className="min-w-[18rem] px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                      {format(day, "eeee, dd", { locale: ptBR })}
                     </th>
                 ))}
@@ -234,7 +261,7 @@ const ShiftScaleView = () => {
                     <td className="sticky left-0 z-10 px-6 py-4 whitespace-nowrap bg-card group-hover:bg-accent/50 border-r">
                       <div className="text-sm font-medium text-foreground">{patient.name}</div>
                     </td>
-                    {weekDays.map(day => {
+                    {displayedDays.map(day => {
                     const dayKey = format(day, 'yyyy-MM-dd');
                     const dayShifts = shifts[`${patient.id}-${dayKey}`] || ['open', 'open'];
                     const dayShift = dayShifts[0];
@@ -378,6 +405,7 @@ const ShiftMonitoringView = () => {
                             <div className="flex items-center gap-4">
                                 <Avatar className={`h-12 w-12 text-xl font-bold ${shift.professional.avatarColor}`}>
                                     <AvatarFallback className="bg-transparent text-white">{shift.professional.initials}</AvatarFallback>
+
                                 </Avatar>
                                 <div>
                                     <p className="font-semibold">{shift.patientName}</p>
