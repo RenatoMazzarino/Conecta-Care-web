@@ -59,10 +59,16 @@ export type Professional = {
   id: string;
   name: string;
   initials: string;
+  email: string;
+  phone: string;
+  cpf: string;
+  dateOfBirth: string;
+  address: Patient['address'];
   avatarUrl: string;
   avatarHint: string;
   rating: number;
   bio: string;
+  coren: string;
   corenStatus: 'active' | 'inactive';
   reviews: { from: string; quote: string }[];
   specialties: string[];
