@@ -14,7 +14,7 @@ import type { OpenShiftInfo, Professional } from '@/lib/types';
 import { professionals } from '@/lib/data';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Badge } from '../ui/badge';
-import { Star } from 'lucide-react';
+import { Star, MessageSquare, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,6 +52,15 @@ export function CandidacyManagementDialog({
       });
   }
 
+  const handleReject = (professional: Professional) => {
+    toast({
+        title: 'Candidatura Rejeitada',
+        description: `A candidatura de ${professional.name} foi rejeitada.`,
+        variant: 'destructive',
+      });
+  }
+
+
   const formattedDate = new Date(shiftInfo.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
   const shiftTime = shiftInfo.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
 
@@ -67,8 +76,8 @@ export function CandidacyManagementDialog({
         <div className="py-4 max-h-[60vh] overflow-y-auto pr-2 space-y-3">
             <h4 className="font-semibold">{mockCandidates.length} Candidatos</h4>
             {mockCandidates.map(candidate => (
-                <div key={candidate.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50">
-                    <div className="flex items-center gap-3">
+                <div key={candidate.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleViewProfile(candidate)}>
                          <Avatar className={`h-10 w-10 text-md font-bold ${candidate.avatarColor}`}>
                             <AvatarFallback className={`bg-transparent text-white`}>{candidate.initials}</AvatarFallback>
                         </Avatar>
@@ -80,12 +89,16 @@ export function CandidacyManagementDialog({
                             </div>
                         </div>
                     </div>
-                    <Badge variant={candidate.corenStatus === 'active' ? 'default' : 'destructive'} className={cn(candidate.corenStatus === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
-                        COREN {candidate.corenStatus === 'active' ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                     <div className="flex gap-2">
-                        <Button variant="secondary" onClick={() => handleViewProfile(candidate)}>Ver Perfil</Button>
-                        <Button onClick={() => handleDirectApprove(candidate)} disabled={candidate.corenStatus === 'inactive'}>Aprovar</Button>
+                     <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                            <MessageSquare className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => handleReject(candidate)}>
+                            <X className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-green-600" onClick={() => handleDirectApprove(candidate)} disabled={candidate.corenStatus === 'inactive'}>
+                            <Check className="h-5 w-5" />
+                        </Button>
                     </div>
                 </div>
             ))}
