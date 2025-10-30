@@ -109,7 +109,10 @@ export default function CommunicationsPage() {
                     <Mail className="mr-2 h-4 w-4" /> E-mails
                 </Button>
                  <Button variant="ghost" className="w-full justify-start">
-                    <Bot className="mr-2 h-4 w-4" /> WhatsApp
+                    <Phone className="mr-2 h-4 w-4" /> WhatsApp
+                </Button>
+                 <Button variant="ghost" className="w-full justify-start">
+                    <Bot className="mr-2 h-4 w-4" /> Chat Interno
                 </Button>
                  <Separator className="my-2"/>
                   <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pacientes</h3>
@@ -235,5 +238,3 @@ export default function CommunicationsPage() {
     </>
   );
 }
-
-    
