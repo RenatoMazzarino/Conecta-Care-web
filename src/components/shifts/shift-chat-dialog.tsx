@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const mockMessages: ChatMessageType[] = [
-    { role: 'system', content: 'Chat iniciado em 08/10/2024 às 10:30' },
+    { role: 'system', content: 'Chat iniciado' },
     { role: 'user', content: 'Bom dia, Carla. Tudo certo por aí? O Sr. João está estável?'},
     { role: 'assistant', content: 'Bom dia! Tudo certo por aqui. Ele está estável, medicação administrada conforme prescrito.'},
     { role: 'user', content: 'Ótimo. Por favor, me avise se precisar de algo.' },

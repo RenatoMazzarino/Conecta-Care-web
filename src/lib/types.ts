@@ -73,7 +73,8 @@ export type Shift = {
   professionalId?: string;
   dayKey: string;
   shiftType: 'diurno' | 'noturno';
-  status: 'open' | 'pending' | 'filled' | 'active';
+  status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
+  isUrgent?: boolean;
   progress?: number;
   checkIn?: string;
   checkOut?: string;

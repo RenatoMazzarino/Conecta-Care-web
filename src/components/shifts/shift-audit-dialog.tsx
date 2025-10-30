@@ -1,37 +1,21 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { Shift, Professional, Patient } from '@/lib/types';
-import { Camera, Fingerprint, Router, BadgeCheck, MapPin } from 'lucide-react';
+import { Camera, Fingerprint, Router, BadgeCheck, MapPin, ClipboardCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 
 export function ShiftAuditDialog({
-  isOpen,
-  onOpenChange,
   shift,
   professional,
   patient,
 }: {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   shift: Shift;
   professional?: Professional;
   patient?: Patient;
 }) {
-
   const AuditVerificationItem = ({ label, status, icon: Icon }: { label: string, status: 'OK' | 'Pendente' | 'Falha', icon: React.ElementType }) => {
     const statusConfig = {
       'OK': { text: 'OK', color: 'text-green-600', bg: 'bg-green-50 border-green-200' },
@@ -57,72 +41,44 @@ export function ShiftAuditDialog({
   const checkOutStatus = shift.checkOutStatus || 'Pendente';
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <div className="flex items-center gap-4">
-             {professional && (
-                <Avatar className="h-10 w-10">
-                    <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
-                    <AvatarFallback>{professional.initials}</AvatarFallback>
-                </Avatar>
-             )}
-            <div>
-                <DialogTitle>Auditoria de Plantão</DialogTitle>
-                <DialogDescription>
-                    {patient?.name} - {professional?.name} ({shift.shiftType})
-                </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-        
-        <ScrollArea className="max-h-[60vh] pr-4 py-4 -mx-4 px-6">
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            Verificação de Check-in ({shift.checkIn || 'Pendente'})
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        <AuditVerificationItem label="Biometria Facial" status={checkInStatus} icon={Camera} />
-                        <AuditVerificationItem label="Geolocalização" status={checkInStatus} icon={MapPin} />
-                        <AuditVerificationItem label="Data e Hora" status={checkInStatus} icon={Fingerprint} />
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            Validação BLE
-                        </CardTitle>
-                    </CardHeader>
-                     <CardContent className="space-y-2">
-                        <p className="text-sm text-muted-foreground pb-2">Status das verificações de proximidade durante o plantão.</p>
-                        <AuditVerificationItem label="Proximidade do Paciente" status={'OK'} icon={BadgeCheck} />
-                        <p className="text-xs text-center text-muted-foreground pt-2">Em breve: Histórico de validações BLE.</p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            Verificação de Check-out ({shift.checkOut || 'Pendente'})
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        <AuditVerificationItem label="Biometria Facial" status={checkOutStatus} icon={Camera} />
-                        <AuditVerificationItem label="Geolocalização" status={checkOutStatus} icon={MapPin} />
-                        <AuditVerificationItem label="Data e Hora" status={checkOutStatus} icon={Fingerprint} />
-                    </CardContent>
-                </Card>
-            </div>
-        </ScrollArea>
-        
-        <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <Accordion type="single" collapsible className="w-full border rounded-lg p-2 bg-card">
+      <AccordionItem value="audit" className="border-b-0">
+        <AccordionTrigger className="p-2 rounded-md hover:bg-accent/50">
+           <div className='flex flex-col items-start'>
+                <h4 className="font-semibold flex items-center gap-2"><ClipboardCheck className="w-5 h-5 text-primary"/>Auditoria</h4>
+                <div className="space-y-1 text-sm text-muted-foreground font-normal text-left mt-2">
+                    <div className="flex justify-between"><span>Check-in:</span><span className="font-mono text-green-600 ml-2">{shift.checkIn} (OK)</span></div>
+                    <div className="flex justify-between"><span>Check-out:</span><span className="font-mono text-muted-foreground ml-2">{shift.checkOut || 'Pendente'}</span></div>
+                </div>
+           </div>
+        </AccordionTrigger>
+        <AccordionContent className="pt-2">
+           <div className="space-y-4 p-2">
+              <div>
+                  <h5 className="font-semibold text-sm mb-2">Check-in</h5>
+                  <div className="space-y-1">
+                      <AuditVerificationItem label="Biometria Facial" status={checkInStatus} icon={Camera} />
+                      <AuditVerificationItem label="Geolocalização" status={checkInStatus} icon={MapPin} />
+                      <AuditVerificationItem label="Data e Hora" status={checkInStatus} icon={Fingerprint} />
+                  </div>
+              </div>
+              <div>
+                  <h5 className="font-semibold text-sm mb-2">Validação BLE</h5>
+                  <div className="space-y-1">
+                      <AuditVerificationItem label="Proximidade do Paciente" status={'OK'} icon={BadgeCheck} />
+                  </div>
+              </div>
+              <div>
+                  <h5 className="font-semibold text-sm mb-2">Check-out</h5>
+                   <div className="space-y-1">
+                      <AuditVerificationItem label="Biometria Facial" status={checkOutStatus} icon={Camera} />
+                      <AuditVerificationItem label="Geolocalização" status={checkOutStatus} icon={MapPin} />
+                      <AuditVerificationItem label="Data e Hora" status={checkOutStatus} icon={Fingerprint} />
+                  </div>
+              </div>
+           </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
