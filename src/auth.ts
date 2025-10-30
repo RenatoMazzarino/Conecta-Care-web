@@ -13,7 +13,7 @@ export async function createSession(uid: string, email: string) {
   const session = { uid, email };
  
   // Always await cookies() to get the store
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   cookieStore.set(SESSION_COOKIE_NAME, JSON.stringify(session), {
     expires,
@@ -25,7 +25,7 @@ export async function createSession(uid: string, email: string) {
  
 export async function auth(): Promise<Session> {
   // Always await cookies() to get the store
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   
   if (!sessionCookie) {
@@ -41,5 +41,6 @@ export async function auth(): Promise<Session> {
 }
 
 export async function deleteSession() {
-  cookies().delete(SESSION_COOKIE_NAME);
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
 }
