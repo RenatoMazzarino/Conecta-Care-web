@@ -377,7 +377,7 @@ export function ShiftManagement() {
                 value={stats.pending}
                 icon={UserPlus}
                 className="text-blue-600"
-                onClick={() => stats.pending > 0 && setStatusFilter('pending')}
+                onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
                 isActive={statusFilter === 'pending'}
             />
             <StatCard 
