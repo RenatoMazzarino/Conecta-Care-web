@@ -4,6 +4,15 @@ import * as React from 'react';
 import { AppSidebar } from '@/components/app-sidebar';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { MessageSquarePlus } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 
 export default function AppLayout({
   children,
@@ -28,6 +37,23 @@ export default function AppLayout({
       )}>
         {children}
       </div>
+
+       <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+              size="icon"
+            >
+              <MessageSquarePlus className="h-7 w-7" />
+              <span className="sr-only">Abrir Chat Interno</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Chat Interno</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }
