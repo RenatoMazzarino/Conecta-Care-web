@@ -6,7 +6,6 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import { loginAction, googleLoginAction } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -42,7 +41,6 @@ export default function LoginPage() {
   const [state, formAction] = useActionState(loginAction, { error: null, success: false });
   const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null, success: false });
   const { toast } = useToast();
-  const router = useRouter();
 
   React.useEffect(() => {
     const currentState = state.error ? state : googleState;
@@ -53,14 +51,7 @@ export default function LoginPage() {
         description: currentState.error,
       });
     }
-    if (currentState.success) {
-      toast({
-        title: 'Login bem-sucedido!',
-        description: 'Redirecionando para o dashboard...',
-      });
-      router.push('/');
-    }
-  }, [state, googleState, toast, router]);
+  }, [state, googleState, toast]);
 
   const handleGoogleSignIn = async () => {
     const { auth } = initializeFirebase();

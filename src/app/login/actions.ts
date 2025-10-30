@@ -3,7 +3,7 @@
 
 import { createSession } from '@/auth';
 import { initializeFirebase } from '@/firebase';
-import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { redirect } from 'next/navigation';
 
 export async function loginAction(
@@ -23,8 +23,6 @@ export async function loginAction(
     const user = userCredential.user;
 
     await createSession(user.uid, user.email || '');
-    // Let the client-side handle redirection via useEffect
-    return { error: null, success: true };
     
   } catch (error: any) {
     console.error('Login error:', error);
@@ -34,6 +32,8 @@ export async function loginAction(
     }
     return { error: 'Ocorreu um erro desconhecido. Tente novamente.', success: false };
   }
+
+  redirect('/');
 }
 
 
@@ -53,10 +53,11 @@ export async function googleLoginAction(
     // We trust the user info from Google Sign-In on the client
     await createSession(uid, email);
     // TODO: Could also create a user profile in Firestore here if one doesn't exist
-    return { error: null, success: true };
 
   } catch (error: any) {
     console.error('Google Login Action error:', error);
     return { error: 'Ocorreu um erro ao processar o login com Google.', success: false };
   }
+  
+  redirect('/');
 }
