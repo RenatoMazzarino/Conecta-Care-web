@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -16,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { initializeFirebase } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Separator } from '@/components/ui/separator';
-import { useRouter } from 'next/navigation';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -39,20 +37,9 @@ const GoogleIcon = () => (
 )
 
 export default function LoginPage() {
-  const router = useRouter();
   const { toast } = useToast();
-  const [state, formAction] = useActionState(loginAction, { error: null, success: false });
-  const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null, success: false });
-
-  React.useEffect(() => {
-    if (state.success || googleState.success) {
-      toast({
-        title: 'Login bem-sucedido!',
-        description: 'Redirecionando para o dashboard...',
-      });
-      router.push('/');
-    }
-  }, [state.success, googleState.success, router, toast]);
+  const [state, formAction] = useActionState(loginAction, { error: null });
+  const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null });
 
   React.useEffect(() => {
     const error = state.error || googleState.error;
@@ -83,7 +70,17 @@ export default function LoginPage() {
       });
 
     } catch (error: any) {
-       if (error.code !== 'auth/popup-closed-by-user') {
+       if (error.code === 'auth/popup-closed-by-user') {
+          // User closed the popup, do nothing or show a subtle message
+          console.log("Login popup closed by user.");
+       } else if (error.code === 'auth/unauthorized-domain') {
+          toast({
+            variant: 'destructive',
+            title: 'Erro de Domínio',
+            description: 'Este domínio não está autorizado para operações de login. Por favor, contate o suporte.',
+          });
+       }
+       else {
         console.error("Google Sign-In Error", error);
         toast({
           variant: 'destructive',
