@@ -26,14 +26,14 @@ export async function loginAction(
     
   } catch (error: any) {
     console.error('Login error:', error);
-    // Map Firebase auth errors to user-friendly messages
     if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         return { error: 'Credenciais inválidas. Verifique seu e-mail e senha.', success: false };
     }
     return { error: 'Ocorreu um erro desconhecido. Tente novamente.', success: false };
   }
 
-  redirect('/');
+  // On success, return success state instead of redirecting
+  return { error: null, success: true };
 }
 
 
@@ -50,7 +50,6 @@ export async function googleLoginAction(
   }
 
   try {
-    // We trust the user info from Google Sign-In on the client
     await createSession(uid, email);
     // TODO: Could also create a user profile in Firestore here if one doesn't exist
 
@@ -59,5 +58,6 @@ export async function googleLoginAction(
     return { error: 'Ocorreu um erro ao processar o login com Google.', success: false };
   }
   
-  redirect('/');
+  // On success, return success state instead of redirecting
+  return { error: null, success: true };
 }

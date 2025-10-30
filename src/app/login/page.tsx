@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { initializeFirebase } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Separator } from '@/components/ui/separator';
+import { useRouter } from 'next/navigation';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -38,20 +39,32 @@ const GoogleIcon = () => (
 )
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [state, formAction] = useActionState(loginAction, { error: null, success: false });
   const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null, success: false });
-  const { toast } = useToast();
 
   React.useEffect(() => {
-    const currentState = state.error ? state : googleState;
-    if (currentState.error) {
+    if (state.success || googleState.success) {
+      toast({
+        title: 'Login bem-sucedido!',
+        description: 'Redirecionando para o dashboard...',
+      });
+      router.push('/');
+    }
+  }, [state.success, googleState.success, router, toast]);
+
+  React.useEffect(() => {
+    const error = state.error || googleState.error;
+    if (error) {
       toast({
         variant: 'destructive',
         title: 'Erro de Login',
-        description: currentState.error,
+        description: error,
       });
     }
-  }, [state, googleState, toast]);
+  }, [state.error, googleState.error, toast]);
+
 
   const handleGoogleSignIn = async () => {
     const { auth } = initializeFirebase();
@@ -69,13 +82,15 @@ export default function LoginPage() {
         googleFormAction(formData);
       });
 
-    } catch (error) {
-      console.error("Google Sign-In Error", error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Login com Google',
-        description: 'Não foi possível fazer login com o Google. Tente novamente.',
-      });
+    } catch (error: any) {
+       if (error.code !== 'auth/popup-closed-by-user') {
+        console.error("Google Sign-In Error", error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro de Login com Google',
+          description: 'Não foi possível fazer login com o Google. Tente novamente.',
+        });
+      }
     }
   };
 
