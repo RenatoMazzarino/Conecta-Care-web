@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -8,11 +9,14 @@ import { collection } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Phone, User } from 'lucide-react';
+import { Phone, User, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 function PatientListItem({ patient }: { patient: Patient }) {
+  const birthDate = new Date(patient.dateOfBirth);
+  const age = new Date().getFullYear() - birthDate.getFullYear();
+  
   return (
     <Card>
       <CardHeader>
@@ -24,11 +28,14 @@ function PatientListItem({ patient }: { patient: Patient }) {
             </Avatar>
             <div>
               <CardTitle className="text-xl leading-none">{patient.name}</CardTitle>
-              <CardDescription>{patient.age} anos</CardDescription>
+              <div className="flex items-center text-sm text-muted-foreground mt-1">
+                <Calendar className="mr-2 h-4 w-4" />
+                <span>{age} anos</span>
+              </div>
             </div>
           </div>
           <Button asChild>
-            <Link href={`/patients/${patient.id}`}>Ver Detalhes</Link>
+            <Link href={`/patients/${patient.id}`}>Ver Prontuário</Link>
           </Button>
         </div>
       </CardHeader>
@@ -79,14 +86,14 @@ export default function PatientsPage() {
              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center h-96">
                 <div className="text-lg font-semibold mb-2">Nenhum paciente encontrado.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Parece que não há pacientes cadastrados no sistema.
+                    Parece que não há pacientes cadastrados no sistema. Vá para a página de Estoque para popular os dados.
                 </p>
                 <Button asChild>
                     <Link href="/inventory">Popular dados de simulação</Link>
                 </Button>
             </div>
         )}
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {patients?.map(patient => (
                 <PatientListItem key={patient.id} patient={patient} />
             ))}

@@ -1,6 +1,9 @@
 export type Patient = {
   id: string;
   name: string;
+  cpf: string;
+  dateOfBirth: string;
+  bloodType: string;
   age: number;
   avatarUrl: string;
   avatarHint: string;
@@ -8,6 +11,15 @@ export type Patient = {
     name: string;
     phone: string;
   };
+  allergies: string[];
+  chronicConditions: string[];
+  medications: {
+    name: string;
+    dosage: string;
+    frequency: string;
+    notes: string;
+  }[];
+  diet: string;
 };
 
 export type InventoryItem = {
@@ -40,7 +52,7 @@ export type Shift = {
 };
 
 export type OpenShiftInfo = {
-  patient: { id: number; name: string };
+  patient: { id: string; name: string };
   dayKey: string;
   shiftType: 'diurno' | 'noturno';
 };

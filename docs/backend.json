@@ -14,10 +14,65 @@
           "type": "string",
           "description": "The patient's full name."
         },
+        "cpf": {
+            "type": "string",
+            "description": "The patient's CPF document number."
+        },
         "dateOfBirth": {
           "type": "string",
           "description": "The patient's date of birth.",
           "format": "date-time"
+        },
+         "bloodType": {
+            "type": "string",
+            "description": "The patient's blood type."
+        },
+        "age": {
+            "type": "number",
+            "description": "The patient's age."
+        },
+        "avatarUrl": {
+            "type": "string",
+            "description": "URL for the patient's avatar image."
+        },
+         "avatarHint": {
+            "type": "string",
+            "description": "A hint for AI to find a similar image."
+        },
+        "familyContact": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "phone": {"type": "string"}
+            }
+        },
+        "allergies": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "A list of the patient's known allergies."
+        },
+        "chronicConditions": {
+             "type": "array",
+            "items": { "type": "string" },
+            "description": "A list of the patient's chronic conditions."
+        },
+        "medications": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "dosage": {"type": "string"},
+                    "frequency": {"type": "string"},
+                    "notes": {"type": "string"}
+                },
+                 "required": ["name", "dosage", "frequency"]
+            },
+            "description": "A list of medications the patient is taking."
+        },
+        "diet": {
+            "type": "string",
+            "description": "Dietary restrictions and recommendations for the patient."
         },
         "medicalHistory": {
           "type": "string",
@@ -26,14 +81,6 @@
         "carePlan": {
           "type": "string",
           "description": "Description of the patient's care plan."
-        },
-        "familyContactName": {
-          "type": "string",
-          "description": "Name of the patient's family contact."
-        },
-        "familyContactPhoneNumber": {
-          "type": "string",
-          "description": "Phone number of the patient's family contact."
         }
       },
       "required": [
@@ -42,8 +89,7 @@
         "dateOfBirth",
         "medicalHistory",
         "carePlan",
-        "familyContactName",
-        "familyContactPhoneNumber"
+        "familyContact"
       ]
     },
     "Supply": {
