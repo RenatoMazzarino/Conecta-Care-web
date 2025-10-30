@@ -218,7 +218,11 @@ export default function PatientDetailPage() {
                 </Select>
               ) : (
                  <p className="font-medium mt-1">
-                    <Badge variant={displayData.bloodType.includes('O') || displayData.bloodType.includes('A') ? 'destructive' : 'secondary'}>{displayData.bloodType}</Badge>
+                    {displayData.bloodType ? (
+                      <Badge variant={displayData.bloodType.includes('O') || displayData.bloodType.includes('A') ? 'destructive' : 'secondary'}>{displayData.bloodType}</Badge>
+                    ) : (
+                      <span>-</span>
+                    )}
                  </p>
               )}
             </div>
@@ -434,3 +438,5 @@ export default function PatientDetailPage() {
     </>
   );
 }
+
+    
