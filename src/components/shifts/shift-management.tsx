@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, History, XCircle } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails, ShiftState } from '@/lib/types';
+import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialActiveShiftsData, patients as mockPatients, initialShifts } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
@@ -73,7 +73,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
-    const utcDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     return startOfWeek(utcDate, { weekStartsOn: 0 }); // Sunday
   });
 
@@ -127,7 +127,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     });
 
     setStats({ open: openCount, pending: pendingCount, filled: filledCount });
-  }, [gridShifts]);
+  }, [gridShifts, displayedDays]);
 
 
   const handleDateChange = (days: number) => {
@@ -233,7 +233,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     );
 };
   
-  const getPeriodLabel = () => {
+ const getPeriodLabel = () => {
     if (!displayedDays.length) return '';
     const start = displayedDays[0];
     const end = displayedDays[displayedDays.length - 1];

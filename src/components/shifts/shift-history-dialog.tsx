@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { ActiveShift, ShiftHistoryEvent } from '@/lib/types';
+import type { ActiveShift } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { mockShiftHistory } from '@/lib/data';
 
@@ -53,12 +53,14 @@ export function ShiftHistoryDialog({
                 <div className="space-y-6">
                     {mockShiftHistory.map((item, index) => (
                         <div key={index} className="relative flex items-start gap-4">
-                            <div className="absolute left-9 -translate-x-1/2 mt-1.5 h-3 w-3 rounded-full bg-background border-2 border-primary" />
-                            <div className={cn("flex h-6 w-6 items-center justify-center rounded-full bg-muted mt-0.5", item.bgColor)}>
+                            <div className={cn("absolute left-9 -translate-x-1/2 mt-1 flex h-6 w-6 items-center justify-center rounded-full", item.bgColor)}>
                                 <item.icon className={cn("h-4 w-4", item.iconColor)} />
                             </div>
-                            <div className="flex-1">
-                                <p className="font-semibold">{item.event} <span className="ml-2 text-xs font-normal text-muted-foreground">{item.time}</span></p>
+                            <div className="ml-10 w-full rounded-lg bg-muted/40 p-3">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <p className="font-semibold text-sm text-foreground">{item.event}</p>
+                                    <p className="text-xs text-muted-foreground">{item.time}</p>
+                                </div>
                                 {item.details && <p className="text-sm text-muted-foreground">{item.details}</p>}
                             </div>
                         </div>
