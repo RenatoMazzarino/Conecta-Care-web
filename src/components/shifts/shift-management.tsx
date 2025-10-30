@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, MessageSquare } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, MessageSquare, ListFilter } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialShifts, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -26,9 +26,12 @@ type GridShiftState = {
   isUrgent?: boolean;
 };
 
-const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
-
 type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
+type StatusFilter = 'all' | 'open' | 'pending' | 'filled';
+
+
+const allPatients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
+
 
 const periodConfig = {
   weekly: 7,
@@ -37,10 +40,10 @@ const periodConfig = {
 };
 
 const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  active: { base: 'bg-blue-500/10', border: 'border-l-blue-500', text: 'text-blue-700' },
-  issue: { base: 'bg-amber-500/10', border: 'border-l-amber-500', text: 'text-amber-700' },
-  completed: { base: 'bg-green-500/10', border: 'border-l-green-500', text: 'text-green-700' },
-  filled: { base: 'bg-secondary', border: 'border-l-border', text: 'text-secondary-foreground' },
+  active: { base: 'bg-blue-500/10 hover:bg-blue-500/20', border: 'border-l-blue-500', text: 'text-blue-800' },
+  issue: { base: 'bg-amber-500/10 hover:bg-amber-500/20', border: 'border-l-amber-500', text: 'text-amber-800' },
+  completed: { base: 'bg-green-500/10 hover:bg-green-500/20', border: 'border-l-green-500', text: 'text-green-700' },
+  filled: { base: 'bg-secondary hover:bg-secondary/80', border: 'border-l-gray-400', text: 'text-secondary-foreground' },
   pending: { base: 'bg-card', border: 'border-l-border', text: 'text-foreground' },
   open: { base: 'bg-card', border: 'border-l-border', text: 'text-foreground' },
 };
@@ -79,7 +82,7 @@ const FilledShiftCard = ({ professional, onClick }: { professional: Professional
           <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
           <AvatarFallback>{professional.initials}</AvatarFallback>
         </Avatar>
-      <span className="text-sm font-medium truncate">{professional.name}</span>
+      <span className="text-sm font-medium truncate text-foreground">{professional.name}</span>
     </div>
   )
 };
@@ -118,7 +121,8 @@ export function ShiftManagement() {
   });
   
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
-  const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0 });
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+  const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>(allPatients);
 
   const numDays = periodConfig[viewPeriod];
 
@@ -130,7 +134,7 @@ export function ShiftManagement() {
   const gridShifts = React.useMemo(() => {
     const grid: { [key: string]: (GridShiftState | null)[] } = {};
     
-    patients.forEach(patient => {
+    allPatients.forEach(patient => {
       displayedDays.forEach(day => {
         const dayKey = format(day, 'yyyy-MM-dd');
         
@@ -156,7 +160,7 @@ export function ShiftManagement() {
     return grid;
   }, [shiftsData, displayedDays]);
 
-  React.useEffect(() => {
+  const stats = React.useMemo(() => {
     let openCount = 0;
     let pendingCount = 0;
     let filledCount = 0;
@@ -168,8 +172,33 @@ export function ShiftManagement() {
       if (shift.status === 'filled' || shift.status === 'active' || shift.status === 'completed' || shift.status === 'issue') filledCount++;
     });
 
-    setStats({ open: openCount, pending: pendingCount, filled: filledCount });
+    return { open: openCount, pending: pendingCount, filled: filledCount };
   }, [gridShifts]);
+
+
+   React.useEffect(() => {
+    if (statusFilter === 'all') {
+      setFilteredPatients(allPatients);
+      return;
+    }
+    
+    const patientIdsWithStatus = new Set<string>();
+    
+    const filledStatuses: GridShiftState['status'][] = ['filled', 'active', 'completed', 'issue'];
+
+    Object.values(gridShifts).flat().forEach(shift => {
+      if (!shift) return;
+      
+      const match = (statusFilter === 'filled' && filledStatuses.includes(shift.status)) || shift.status === statusFilter;
+
+      if (match) {
+        patientIdsWithStatus.add(shift.patient.id);
+      }
+    });
+
+    setFilteredPatients(allPatients.filter(p => patientIdsWithStatus.has(p.id)));
+
+  }, [statusFilter, gridShifts]);
 
 
   const handleDateChange = (days: number) => {
@@ -242,17 +271,14 @@ export function ShiftManagement() {
     }
   };
   
-  const StatCard = ({ title, value, subValue, icon: Icon, className, onClick }: { title: string, value: string | number, subValue?: string, icon: React.ElementType, className?: string, onClick?: () => void }) => (
-    <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer")}>
+  const StatCard = ({ title, value, icon: Icon, className, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, className?: string, isActive?: boolean, onClick?: () => void }) => (
+    <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer", isActive && "ring-2 ring-primary")}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className={cn("h-5 w-5 text-muted-foreground", className)} />
         </CardHeader>
         <CardContent>
             <div className={cn("text-2xl font-bold", className)}>{value}</div>
-            {subValue && (
-                <p className="text-xs text-muted-foreground">{subValue}</p>
-            )}
         </CardContent>
     </Card>
   );
@@ -326,30 +352,43 @@ export function ShiftManagement() {
         </div>
        </div>
 
-       <div className="grid gap-6 md:grid-cols-4 mb-6">
-             <StatProgressCard 
-                title="Taxa de Ocupação"
-                value={stats.filled}
-                total={totalShifts}
-            />
+       <div className="grid gap-6 md:grid-cols-5 mb-6">
             <StatCard 
+                title="Todos os Plantões"
+                value={totalShifts}
+                icon={ListFilter}
+                className="text-primary"
+                onClick={() => setStatusFilter('all')}
+                isActive={statusFilter === 'all'}
+            />
+             <StatCard 
                 title="Vagas em Aberto"
                 value={stats.open}
                 icon={CircleHelp}
                 className="text-amber-600"
+                onClick={() => setStatusFilter('open')}
+                isActive={statusFilter === 'open'}
             />
             <StatCard 
                 title="Vagas com Candidatos"
                 value={stats.pending}
                 icon={UserPlus}
                 className="text-blue-600"
-                onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
+                onClick={() => stats.pending > 0 && setStatusFilter('pending')}
+                isActive={statusFilter === 'pending'}
             />
             <StatCard 
                 title="Plantões Ocupados"
                 value={stats.filled}
                 icon={CheckCircle}
                 className="text-green-600"
+                onClick={() => setStatusFilter('filled')}
+                isActive={statusFilter === 'filled'}
+            />
+             <StatProgressCard 
+                title="Taxa de Ocupação"
+                value={stats.filled}
+                total={totalShifts}
             />
       </div>
       
@@ -369,7 +408,7 @@ export function ShiftManagement() {
                 </tr>
             </thead>
             <tbody className="divide-y divide-border">
-                {patients.map((patient) => (
+                {filteredPatients.map((patient) => (
                 <tr key={patient.id}>
                     <td className="sticky left-0 z-10 px-6 py-4 whitespace-nowrap bg-card group-hover:bg-accent/50 border-r">
                       <div className="text-sm font-medium text-foreground">{patient.name}</div>
@@ -409,6 +448,13 @@ export function ShiftManagement() {
                     })}
                 </tr>
                 ))}
+                 {filteredPatients.length === 0 && (
+                    <tr>
+                        <td colSpan={numDays + 1} className="text-center text-muted-foreground p-12">
+                            Nenhum paciente encontrado para o filtro "{statusFilter}".
+                        </td>
+                    </tr>
+                )}
             </tbody>
             </table>
         </div>
