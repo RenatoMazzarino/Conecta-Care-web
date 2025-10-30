@@ -3,31 +3,27 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, ClipboardCheck, XCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
-import { professionals, initialShifts } from '@/lib/data';
+import { professionals, initialShifts, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
-import { ShiftChatDialog } from './shift-chat-dialog';
-import { ShiftAuditDialog } from './shift-audit-dialog';
 import { cn } from '@/lib/utils';
 import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ShiftTimelineDialog } from './shift-timeline-dialog';
-import { patients as mockPatients } from '@/lib/data';
+import { ShiftDetailsDialog } from './shift-details-dialog';
 
 type GridShiftState = {
+  shift?: Shift;
   professional?: Professional;
+  patient: Patient;
   status: 'open' | 'pending' | 'filled' | 'active';
   isUrgent?: boolean;
-  progress?: number;
-  checkIn?: string;
-  checkOut?: string;
 };
 
 const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
@@ -40,7 +36,7 @@ const periodConfig = {
   monthly: 30,
 };
 
-const ActiveShiftCard = ({ professional, progress, onClick }: { professional: Professional, progress?: number, onClick: () => void }) => (
+const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shift, professional: Professional, patient: Patient, onClick: () => void }) => (
   <div onClick={onClick} className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
     <div className="flex items-center gap-2">
       <Avatar className="h-8 w-8">
@@ -49,9 +45,9 @@ const ActiveShiftCard = ({ professional, progress, onClick }: { professional: Pr
       </Avatar>
       <span className="text-sm font-medium truncate text-primary-foreground">{professional.name}</span>
     </div>
-    {progress !== undefined && (
+    {shift.progress !== undefined && (
       <div className="px-1 pb-1">
-        <Progress value={progress} className="h-2 w-full [&>div]:bg-primary" />
+        <Progress value={shift.progress} className="h-2 w-full [&>div]:bg-primary" />
       </div>
     )}
   </div>
@@ -93,6 +89,7 @@ export function ShiftManagement() {
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
+  const [detailsShift, setDetailsShift] = React.useState<{shift: Shift, professional?: Professional, patient: Patient} | null>(null);
 
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
@@ -123,20 +120,21 @@ export function ShiftManagement() {
 
           if (dayKey === todayStr && shift?.status === 'filled') {
              const existingShift = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType);
-             shift = { ...existingShift, status: 'active', progress: existingShift?.progress ?? 45, checkIn: existingShift?.checkIn ?? '08:02' }
+             if (existingShift) {
+                 shift = { ...existingShift, status: 'active', progress: existingShift?.progress ?? 45, checkIn: existingShift?.checkIn ?? '08:02', checkInStatus: 'OK' };
+             }
           }
           
-          if (!shift) return { status: 'open', isUrgent: false };
+          if (!shift) return { status: 'open', isUrgent: false, patient };
           
           const professional = professionals.find(p => p.id === shift?.professionalId);
 
           return {
+            shift,
             professional,
+            patient,
             status: shift.status,
-            isUrgent: shift.isUrgent,
-            progress: shift.progress,
-            checkIn: shift.checkIn,
-            checkOut: shift.checkOut,
+            isUrgent: shift.isUrgent
           };
         };
 
@@ -325,7 +323,7 @@ export function ShiftManagement() {
             <StatCard 
                 title="Vagas em Aberto"
                 value={stats.open}
-                icon={FileText}
+                icon={UserPlus}
                 className="text-amber-600"
             />
             <StatCard 
@@ -370,19 +368,22 @@ export function ShiftManagement() {
                     const dayShift = dayShifts[0];
                     const nightShift = dayShifts[1];
                     
-                    const renderShift = (shift: GridShiftState | null, type: 'diurno' | 'noturno') => {
-                        if (!shift) return <OpenShiftCard shiftType={type} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
-                        if (shift.status === 'active' && shift.professional) {
-                            return <ActiveShiftCard professional={shift.professional} progress={shift.progress} onClick={() => alert('Abrir super modal!')} />;
+                    const renderShift = (shiftState: GridShiftState | null, type: 'diurno' | 'noturno') => {
+                        if (!shiftState) return <OpenShiftCard shiftType={type} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                        
+                        const { shift, professional, status, isUrgent, patient } = shiftState;
+
+                        if (status === 'active' && professional && shift) {
+                            return <ActiveShiftCard shift={shift} professional={professional} patient={patient} onClick={() => setDetailsShift({ shift, professional, patient })} />;
                         }
-                        if (shift.status === 'filled' && shift.professional) {
-                            return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional!)} />;
+                        if (status === 'filled' && professional) {
+                            return <ShiftCard professional={professional} onClick={() => handleOpenProfile(professional!)} />;
                         }
-                        if (shift.status === 'pending') {
+                        if (status === 'pending') {
                             return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
                         }
                         
-                        return <OpenShiftCard shiftType={type} urgent={shift.isUrgent} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                        return <OpenShiftCard shiftType={type} urgent={isUrgent} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
                     }
 
                     return (
@@ -437,6 +438,17 @@ export function ShiftManagement() {
           onOpenProfile={handleOpenProfile}
           onApprove={handleApproveProfessional}
       />
+      
+      {detailsShift && (
+        <ShiftDetailsDialog
+          isOpen={!!detailsShift}
+          onOpenChange={() => setDetailsShift(null)}
+          shift={detailsShift.shift}
+          professional={detailsShift.professional}
+          patient={detailsShift.patient}
+          onOpenProfile={handleOpenProfile}
+        />
+      )}
     </div>
   );
 }

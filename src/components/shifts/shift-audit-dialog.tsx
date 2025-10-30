@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import type { Shift, Professional } from '@/lib/types';
+import type { Shift, Professional, Patient } from '@/lib/types';
 import { Camera, Fingerprint, Router, BadgeCheck, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
@@ -51,6 +51,8 @@ export function ShiftAuditDialog({
     )
   };
   
+  if (!shift || !professional || !patient) return null;
+  
   const checkInStatus = shift.checkInStatus || 'Pendente';
   const checkOutStatus = shift.checkOutStatus || 'Pendente';
 
@@ -74,7 +76,7 @@ export function ShiftAuditDialog({
           </div>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[60vh] pr-4 py-4">
+        <ScrollArea className="max-h-[60vh] pr-4 py-4 -mx-4 px-6">
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
