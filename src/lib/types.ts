@@ -71,11 +71,25 @@ export type Shift = {
   shiftType: 'day' | 'night';
 };
 
+export type ShiftDetails = {
+  patient: Patient;
+  dayKey: string;
+  shiftType: 'diurno' | 'noturno';
+  startTime: string;
+  endTime: string;
+  title: string;
+  valueOffered: number;
+  isUrgent: boolean;
+  notes: string;
+  address: Patient['address'];
+}
+
 export type OpenShiftInfo = {
-  patient: { id: number; name: string };
+  patient: Patient;
   dayKey: string;
   shiftType: 'diurno' | 'noturno';
 };
+
 
 export type ShiftState = Shift | null | 'open' | 'pending';
 

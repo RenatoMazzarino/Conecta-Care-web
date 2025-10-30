@@ -5,8 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users, CircleCheck, CircleX, Pill, Footprints } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, ActiveShift } from '@/lib/types';
-import { professionals, initialActiveShiftsData } from '@/lib/data';
+import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
+import { professionals, initialActiveShiftsData, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -19,26 +19,23 @@ import { ShiftHistoryDialog } from './shift-history-dialog';
 
 type ShiftState = Shift | null | 'open' | 'pending';
 
-const patients: { id: number; name: string }[] = [
-  { id: 1, name: 'Srª. Maria Lopes' },
-  { id: 2, name: 'Sr. Jorge Mendes' },
-  { id: 3, name: 'Sra. Ana Costa' },
-];
+const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
+
 
 const initialShifts: Record<string, ShiftState[]> = {
-  '1-2024-10-06': [
+  'patient-123-2024-10-06': [
     { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' },
     'pending',
   ],
-  '1-2024-10-07': [
+  'patient-123-2024-10-07': [
     { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' },
     { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' },
   ],
-  '2-2024-10-09': [
+  'patient-456-2024-10-09': [
     'open',
     { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' },
   ],
-   '3-2024-10-08': [
+   'patient-789-2024-10-08': [
     { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' },
     { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'night' },
   ],
@@ -88,7 +85,7 @@ const ShiftScaleView = () => {
     setSelectedProfessional(null);
   };
 
-  const handleOpenVacancy = (patient: {id: number, name: string}, dayKey: string, shiftType: 'diurno' | 'noturno') => {
+  const handleOpenVacancy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
     setOpenShiftInfo({ patient, dayKey, shiftType });
   };
   
@@ -96,7 +93,7 @@ const ShiftScaleView = () => {
     setOpenShiftInfo(null);
   };
 
-  const handleVacancyPublished = (info: OpenShiftInfo) => {
+  const handleVacancyPublished = (info: ShiftDetails) => {
     const key = `${info.patient.id}-${info.dayKey}`;
     const shiftIndex = info.shiftType === 'diurno' ? 0 : 1;
     
@@ -109,7 +106,7 @@ const ShiftScaleView = () => {
     });
   }
 
-  const handleOpenCandidacy = (patient: {id: number, name: string}, dayKey: string, shiftType: 'diurno' | 'noturno') => {
+  const handleOpenCandidacy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
     setCandidacyShiftInfo({ patient, dayKey, shiftType });
   }
 
@@ -206,7 +203,7 @@ const ShiftScaleView = () => {
                     if (shift === 'pending') {
                         return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
                     }
-                    return <OpenShiftCard shiftType={type} urgent={patient.id === 2 && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                    return <OpenShiftCard shiftType={type} urgent={patient.id === 'patient-456' && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
                   }
 
                   return (
@@ -390,32 +387,7 @@ const ShiftMonitoringView = () => {
 }
 
 export function ShiftManagement() {
-  const [isPublishVacancyOpen, setIsPublishVacancyOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("scale");
-  const [shiftInfoToPublish, setShiftInfoToPublish] = React.useState<OpenShiftInfo | null>(null);
-  const { toast } = useToast();
-
-  const handleOpenVacancyDialog = (info: OpenShiftInfo) => {
-    setShiftInfoToPublish(info);
-    setIsPublishVacancyOpen(true);
-  }
-
-  const handleCloseVacancyDialog = () => {
-    setIsPublishVacancyOpen(false);
-    setShiftInfoToPublish(null);
-  }
-
-  const handlePublishVacancy = (info: OpenShiftInfo) => {
-    // This function will be called from the dialog
-    // Here you would typically make an API call
-    toast({
-        title: 'Vaga Publicada com Sucesso!',
-        description: `A vaga para o paciente ${info.patient.name} foi publicada.`,
-    });
-    // Here you would also update the state of the scale view
-    // For now, we just close the dialog
-    handleCloseVacancyDialog();
-  }
 
   return (
     <div className="flex-1 flex flex-col">
@@ -429,7 +401,7 @@ export function ShiftManagement() {
             </Tabs>
         </div>
         {activeTab === 'scale' && (
-         <Button onClick={() => setIsPublishVacancyOpen(true)}>
+         <Button disabled>
             <Plus className="mr-2 h-4 w-4" />
             Publicar Nova Vaga
          </Button>
@@ -443,11 +415,6 @@ export function ShiftManagement() {
               <ShiftMonitoringView />
           </TabsContent>
         </Tabs>
-
-       <PublishVacancyDialog
-          isOpen={isPublishVacancyOpen && !shiftInfoToPublish}
-          onOpenChange={setIsPublishVacancyOpen}
-        />
     </div>
   );
 }
