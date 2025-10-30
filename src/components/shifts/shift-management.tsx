@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, MessageSquare, ListFilter, UserCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, UserCheck } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialShifts, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -19,15 +19,10 @@ import { ptBR } from 'date-fns/locale';
 import { ShiftDetailsDialog } from './shift-details-dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import { DirectAssignmentDialog } from './direct-assignment-dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ShiftMobileView } from './shift-mobile-view';
+import { ShiftGridView } from './shift-grid-view';
 
-
-type GridShiftState = {
-  shift?: Shift;
-  professional?: Professional;
-  patient: Patient;
-  status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
-  isUrgent?: boolean;
-};
 
 type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
 type StatusFilter = 'all' | 'open' | 'pending' | 'filled';
@@ -41,75 +36,6 @@ const periodConfig = {
   biweekly: 15,
   monthly: 30,
 };
-
-const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  active: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  issue: { base: 'bg-amber-100 dark:bg-amber-950 hover:bg-amber-200/60 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
-  completed: { base: 'bg-green-100 dark:bg-green-950 hover:bg-green-200/60 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  filled: { base: 'bg-secondary hover:bg-secondary/80', border: 'border-l-gray-400', text: 'text-secondary-foreground' },
-  pending: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900 border-blue-500', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  open: { base: 'bg-card hover:bg-accent', border: 'border-l-border', text: 'text-foreground' },
-};
-
-
-const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shift, professional: Professional, patient: Patient, onClick: () => void }) => {
-  const config = statusConfig[shift.status] || statusConfig.active;
-
-  return (
-    <div onClick={onClick} className={cn("relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
-       {shift.hasNotification && (
-        <MessageSquare className="absolute top-1.5 right-1.5 h-4 w-4 text-green-500 fill-green-500/20" />
-      )}
-      <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
-            <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
-            <AvatarFallback>{professional.initials}</AvatarFallback>
-        </Avatar>
-        <span className={cn("text-sm font-semibold truncate", config.text)}>{professional.name}</span>
-      </div>
-      {shift.progress !== undefined && (
-        <div className="px-1 pb-1">
-           <Progress value={shift.progress} className="h-1.5 w-full" />
-        </div>
-      )}
-    </div>
-  )
-};
-
-const FilledShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => {
-  const config = statusConfig.filled;
-  return (
-    <div onClick={onClick} className={cn("relative flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
-       <MessageSquare className="absolute top-1.5 right-1.5 h-4 w-4 text-muted-foreground/20" />
-       <Avatar className="h-8 w-8">
-          <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
-          <AvatarFallback>{professional.initials}</AvatarFallback>
-        </Avatar>
-      <span className="text-sm font-medium truncate text-foreground">{professional.name}</span>
-    </div>
-  )
-};
-
-const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: string, urgent?: boolean, onClick: () => void }) => (
-  <div onClick={onClick} className={`flex items-center gap-2 p-2 rounded-lg border-2 border-dashed cursor-pointer hover:bg-accent ${urgent ? 'border-destructive text-destructive' : 'border-muted-foreground'}`}>
-    {urgent ? (
-       <AlertTriangle className="h-5 w-5 text-destructive" />
-    ) : (
-      <Plus className="h-5 w-5 text-muted-foreground" />
-    )}
-    <span className={`text-sm font-semibold ${urgent ? 'text-destructive' : 'text-muted-foreground'}`}>{urgent ? 'URGENTE' : ''} Preencher {shiftType}</span>
-  </div>
-);
-
-const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
-    const config = statusConfig.pending;
-    return (
-        <div onClick={onClick} className={cn("flex items-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
-            <UserPlus className={cn("h-5 w-5", config.text)} />
-            <span className={cn("text-sm font-semibold", config.text)}>Candidaturas</span>
-        </div>
-    );
-}
 
 export function ShiftManagement() {
   const [shiftsData, setShiftsData] = React.useState<Shift[]>(initialShifts);
@@ -133,7 +59,8 @@ export function ShiftManagement() {
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>(allPatients);
 
-  const numDays = periodConfig[viewPeriod];
+  const isMobile = useIsMobile();
+  const numDays = isMobile ? 3 : periodConfig[viewPeriod];
 
   const displayedDays = React.useMemo(() =>
     Array.from({ length: numDays }, (_, i) => addDays(currentDate, i)),
@@ -342,40 +269,47 @@ export function ShiftManagement() {
 
   const totalShifts = stats.open + stats.pending + stats.filled;
 
+  const viewHandlers = {
+      handleOpenProfile,
+      handleOpenVacancy,
+      handleOpenCandidacy,
+      setDetailsShift,
+  };
+
   return (
     <div className="p-4 sm:p-6">
-       <div className="flex items-center justify-between gap-4 mb-6">
+       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
          <div className="flex items-center gap-2">
-           <Button variant={viewPeriod === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('weekly')}>Semanal</Button>
-           <Button variant={viewPeriod === 'biweekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('biweekly')}>Quinzenal</Button>
-           <Button variant={viewPeriod === 'monthly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('monthly')}>Mensal</Button>
+           {!isMobile && (
+              <>
+                <Button variant={viewPeriod === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('weekly')}>Semanal</Button>
+                <Button variant={viewPeriod === 'biweekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('biweekly')}>Quinzenal</Button>
+                <Button variant={viewPeriod === 'monthly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('monthly')}>Mensal</Button>
+              </>
+           )}
          </div>
-          <div className="flex items-center justify-center gap-2 text-sm font-semibold">
-              <div className='flex items-center gap-1'>
-                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(-numDays)}><ChevronsLeft className="h-5 w-5" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
+          <div className="flex items-center justify-center gap-1 text-sm font-semibold">
+              <Button variant="ghost" size="icon" onClick={() => handleDateChange(isMobile ? -1 : -numDays)}><ChevronsLeft className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
+              <div className="text-foreground text-center w-40 sm:w-48">
+                  {isMobile ? format(currentDate, "eeee, dd/MM", { locale: ptBR }) : getPeriodLabel()}
               </div>
-              <div className="text-foreground text-center w-48">
-                  {getPeriodLabel()}
-              </div>
-              <div className='flex items-center gap-1'>
-                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(numDays)}><ChevronsRight className="h-5 w-5" /></Button>
-              </div>
+              <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => handleDateChange(isMobile ? 1 : numDays)}><ChevronsRight className="h-5 w-5" /></Button>
           </div>
           <div className="flex items-center gap-2">
              <Button variant="outline" onClick={() => setIsBulkPublishing(true)}>
                 <FileUp className="mr-2 h-4 w-4" />
-                Publicação em Massa
+                Publicar em Massa
             </Button>
             <Button onClick={handlePublishFromScratch}>
                 <Plus className="mr-2 h-4 w-4" />
-                Publicar Nova Vaga
+                Nova Vaga
             </Button>
         </div>
        </div>
 
-       <div className="grid gap-6 md:grid-cols-5 mb-6">
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">
             <StatCard 
                 title="Todos os Plantões"
                 value={totalShifts}
@@ -415,73 +349,22 @@ export function ShiftManagement() {
             />
       </div>
       
-      <div className="rounded-lg border bg-card overflow-x-auto">
-        <div className="relative">
-            <table className="min-w-full divide-y divide-border">
-            <thead className="bg-muted/50">
-                <tr>
-                <th scope="col" className="sticky left-0 z-20 w-48 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider bg-muted/50 border-r">
-                    Paciente
-                </th>
-                {displayedDays.map(day => (
-                    <th key={day.toISOString()} scope="col" className="min-w-[18rem] px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                     {format(day, "eeee, dd", { locale: ptBR })}
-                    </th>
-                ))}
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-                {filteredPatients.map((patient) => (
-                <tr key={patient.id}>
-                    <td className="sticky left-0 z-10 px-6 py-4 whitespace-nowrap bg-card group-hover:bg-accent/50 border-r">
-                      <div className="text-sm font-medium text-foreground">{patient.name}</div>
-                    </td>
-                    {displayedDays.map(day => {
-                    const dayKey = format(day, 'yyyy-MM-dd');
-                    const dayShifts = gridShifts[`${patient.id}-${dayKey}`] || [null, null];
-                    const dayShift = dayShifts[0];
-                    const nightShift = dayShifts[1];
-                    
-                    const renderShift = (shiftState: GridShiftState | null, type: 'diurno' | 'noturno') => {
-                        if (!shiftState) return <OpenShiftCard shiftType={type} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
-                        
-                        const { shift, professional, status, isUrgent, patient } = shiftState;
-
-                        if ((status === 'active' || status === 'issue' || status === 'completed') && professional && shift) {
-                            return <ActiveShiftCard shift={shift} professional={professional} patient={patient} onClick={() => setDetailsShift({ shift, professional, patient })} />;
-                        }
-                        if (status === 'filled' && professional) {
-                            return <FilledShiftCard professional={professional} onClick={() => handleOpenProfile(professional!)} />;
-                        }
-                        if (status === 'pending') {
-                            return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
-                        }
-                        
-                        return <OpenShiftCard shiftType={type} urgent={isUrgent} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
-                    }
-
-                    return (
-                        <td key={dayKey} className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col gap-2">
-                            {renderShift(dayShift, 'diurno')}
-                            {renderShift(nightShift, 'noturno')}
-                        </div>
-                        </td>
-                    )
-                    })}
-                </tr>
-                ))}
-                 {filteredPatients.length === 0 && (
-                    <tr>
-                        <td colSpan={numDays + 1} className="text-center text-muted-foreground p-12">
-                            Nenhum paciente encontrado para o filtro "{statusFilter}".
-                        </td>
-                    </tr>
-                )}
-            </tbody>
-            </table>
-        </div>
-      </div>
+      {isMobile ? (
+        <ShiftMobileView 
+          patients={filteredPatients}
+          days={displayedDays}
+          gridShifts={gridShifts}
+          handlers={viewHandlers}
+        />
+      ) : (
+        <ShiftGridView
+          patients={filteredPatients}
+          days={displayedDays}
+          gridShifts={gridShifts}
+          handlers={viewHandlers}
+        />
+      )}
+      
       {selectedProfessional && (
         <ProfessionalProfileDialog 
           professional={selectedProfessional}
@@ -562,4 +445,81 @@ export function ShiftManagement() {
       )}
     </div>
   );
+}
+
+export type GridShiftState = {
+  shift?: Shift;
+  professional?: Professional;
+  patient: Patient;
+  status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
+  isUrgent?: boolean;
+};
+
+export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
+  active: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  issue: { base: 'bg-amber-100 dark:bg-amber-950 hover:bg-amber-200/60 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
+  completed: { base: 'bg-green-100 dark:bg-green-950 hover:bg-green-200/60 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
+  filled: { base: 'bg-secondary hover:bg-secondary/80', border: 'border-l-gray-400', text: 'text-secondary-foreground' },
+  pending: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900 border-blue-500', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  open: { base: 'bg-card hover:bg-accent', border: 'border-l-border', text: 'text-foreground' },
+};
+
+
+export const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shift, professional: Professional, patient: Patient, onClick: () => void }) => {
+  const config = statusConfig[shift.status] || statusConfig.active;
+
+  return (
+    <div onClick={onClick} className={cn("relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+       {shift.hasNotification && (
+        <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-amber-500 fill-amber-500/20" />
+      )}
+      <div className="flex items-center gap-2">
+        <Avatar className="h-8 w-8">
+            <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+            <AvatarFallback>{professional.initials}</AvatarFallback>
+        </Avatar>
+        <span className={cn("text-sm font-semibold truncate", config.text)}>{professional.name}</span>
+      </div>
+      {shift.progress !== undefined && (
+        <div className="px-1 pb-1">
+           <Progress value={shift.progress} className="h-1.5 w-full" />
+        </div>
+      )}
+    </div>
+  )
+};
+
+export const FilledShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => {
+  const config = statusConfig.filled;
+  return (
+    <div onClick={onClick} className={cn("relative flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+       <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-muted-foreground/20" />
+       <Avatar className="h-8 w-8">
+          <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+          <AvatarFallback>{professional.initials}</AvatarFallback>
+        </Avatar>
+      <span className="text-sm font-medium truncate text-foreground">{professional.name}</span>
+    </div>
+  )
+};
+
+export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: string, urgent?: boolean, onClick: () => void }) => (
+  <div onClick={onClick} className={`flex items-center gap-2 p-2 rounded-lg border-2 border-dashed cursor-pointer hover:bg-accent ${urgent ? 'border-destructive text-destructive' : 'border-muted-foreground'}`}>
+    {urgent ? (
+       <AlertTriangle className="h-5 w-5 text-destructive" />
+    ) : (
+      <Plus className="h-5 w-5 text-muted-foreground" />
+    )}
+    <span className={`text-sm font-semibold ${urgent ? 'text-destructive' : 'text-muted-foreground'}`}>{urgent ? 'URGENTE' : ''} Preencher {shiftType}</span>
+  </div>
+);
+
+export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
+    const config = statusConfig.pending;
+    return (
+        <div onClick={onClick} className={cn("flex items-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
+            <UserPlus className={cn("h-5 w-5", config.text)} />
+            <span className={cn("text-sm font-semibold", config.text)}>Candidaturas</span>
+        </div>
+    );
 }
