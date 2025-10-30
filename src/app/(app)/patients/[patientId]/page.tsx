@@ -16,15 +16,11 @@ import { useToast } from '@/hooks/use-toast';
 import { User, AlertCircle, Pill, Utensils, Phone, Edit, Save, X, Plus } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients } from '@/lib/data';
-import { useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
-
 
 export default function PatientDetailPage() {
   const params = useParams();
   const { toast } = useToast();
   const patientId = params.patientId as string;
-  const firestore = useFirestore();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
@@ -63,14 +59,10 @@ export default function PatientDetailPage() {
   };
 
   const handleSave = () => {
-    if (!firestore || !patientId || !editedData) return;
-    
-    const patientRef = doc(firestore, 'patients', patientId);
-    setDocumentNonBlocking(patientRef, editedData, { merge: true });
-    
-    // Optimistically update local state
+    // Here you would typically save to a database.
+    // For this mock, we just update the local state.
+    if (!editedData) return;
     setPatient(editedData);
-
     toast({
       title: "Prontuário Salvo",
       description: `As informações de ${editedData.name} foram atualizadas.`,

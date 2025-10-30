@@ -14,15 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 import { User, Edit, Save, X, Phone, Home, DollarSign, Badge, FileText, CalendarDays } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients } from '@/lib/data';
-import { useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import Link from 'next/link';
 
 export default function PatientProfilePage() {
   const params = useParams();
   const { toast } = useToast();
   const patientId = params.patientId as string;
-  const firestore = useFirestore();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
@@ -60,13 +57,7 @@ export default function PatientProfilePage() {
   };
 
   const handleSave = () => {
-    if (!firestore || !patientId || !editedData) return;
-    
-    // Omit fields that shouldn't be saved from the profile page
-    const { lowStockCount, criticalStockCount, ...dataToSave } = editedData;
-    
-    const patientRef = doc(firestore, 'patients', patientId);
-    setDocumentNonBlocking(patientRef, dataToSave, { merge: true });
+     if (!editedData) return;
     
     // Optimistically update local state
     setPatient(editedData);
