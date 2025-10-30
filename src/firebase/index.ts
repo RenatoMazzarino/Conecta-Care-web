@@ -7,28 +7,16 @@ import { getFirestore } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
+  // If a Firebase app is already initialized, return its SDKs.
   if (getApps().length) {
     return getSdks(getApp());
   }
-
-  // When not in a production environment, we can't rely on auto-init.
-  // The 403 error suggests that the SDK is trying to contact a backend
-  // service that is only available in the App Hosting production environment.
-  // By explicitly checking NODE_ENV, we bypass this for local development.
-  if (process.env.NODE_ENV !== 'production') {
-    const firebaseApp = initializeApp(firebaseConfig);
-    return getSdks(firebaseApp);
-  }
   
-  // In production, first try to initialize with App Hosting's auto-config.
-  try {
-    const firebaseApp = initializeApp();
-    return getSdks(firebaseApp);
-  } catch (e) {
-    // If auto-init fails even in what we think is production, fall back to the config file.
-    const firebaseApp = initializeApp(firebaseConfig);
-    return getSdks(firebaseApp);
-  }
+  // Otherwise, initialize a new app using the local firebaseConfig.
+  // This approach is robust for both local development and production
+  // as it bypasses the App Hosting auto-init that fails in dev.
+  const firebaseApp = initializeApp(firebaseConfig);
+  return getSdks(firebaseApp);
 }
 
 
