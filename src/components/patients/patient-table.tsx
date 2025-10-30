@@ -12,15 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MoreHorizontal, FileText, CalendarDays } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { FileText, CalendarDays } from 'lucide-react';
 import type { Patient } from '@/lib/types';
 
 function calculateAge(dateOfBirth: string) {
@@ -41,25 +33,28 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[300px]">Paciente</TableHead>
-            <TableHead>CPF</TableHead>
+            <TableHead>ID do Paciente</TableHead>
             <TableHead>Idade</TableHead>
             <TableHead>Contato Familiar</TableHead>
-            <TableHead className="text-right w-[100px]">Ações</TableHead>
+            <TableHead className="text-right w-[200px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {patients.map((patient) => (
             <TableRow key={patient.id}>
               <TableCell>
-                <div className="flex items-center gap-3">
+                <Link
+                  href={`/patients/${patient.id}`}
+                  className="flex items-center gap-3 group"
+                >
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
                     <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{patient.name}</span>
-                </div>
+                  <span className="font-medium group-hover:underline">{patient.name}</span>
+                </Link>
               </TableCell>
-              <TableCell className="text-muted-foreground">{patient.cpf}</TableCell>
+              <TableCell className="text-muted-foreground font-mono text-xs">{patient.id}</TableCell>
               <TableCell className="text-muted-foreground">{calculateAge(patient.dateOfBirth)} anos</TableCell>
               <TableCell>
                 <div className="flex flex-col">
@@ -67,31 +62,19 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
                   <span className="text-xs text-muted-foreground">{patient.familyContact.phone}</span>
                 </div>
               </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Abrir menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Ações Rápidas</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href={`/patients/${patient.id}`}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Ver Prontuário
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                       <Link href={`/schedule?patientId=${patient.id}`}>
-                            <CalendarDays className="mr-2 h-4 w-4" />
-                            Ver Agenda
-                       </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <TableCell className="text-right space-x-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/patients/${patient.id}`}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Prontuário
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/schedule?patientId=${patient.id}`}>
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Agenda
+                  </Link>
+                </Button>
               </TableCell>
             </TableRow>
           ))}
