@@ -23,6 +23,21 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
   const [user, setUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
 
+  // Set auth domain dynamically on the client side
+  useEffect(() => {
+    if (typeof window !== 'undefined' && auth) {
+      auth.tenantId = null; // Clear any previous tenant ID
+      auth.languageCode = 'pt'; // Set language if needed
+      
+      // THIS IS THE FIX: Dynamically set the auth domain
+      // to the current browser hostname. This ensures that
+      // Firebase OAuth operations (Google Sign-In) trust the
+      // current development domain.
+      auth.config.authDomain = window.location.hostname;
+    }
+  }, [auth]);
+
+
   // Subscribe to auth state changes.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
