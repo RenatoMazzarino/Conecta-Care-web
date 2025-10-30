@@ -28,31 +28,27 @@ const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, crit
 
 
 const initialShifts: Record<string, ShiftState[]> = {
-  'patient-123-2024-10-06': [
-    { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' },
-    'pending',
-  ],
-  'patient-123-2024-10-07': [
-    { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' },
-    { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' },
-  ],
-  'patient-456-2024-10-09': [
-    'open',
-    { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' },
-  ],
-   'patient-789-2024-10-08': [
-    { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' },
-    { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'night' },
-  ],
+  // Semana atual (base 2024-10-07)
+  'patient-123-2024-10-06': [ { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' }, 'pending', ],
+  'patient-123-2024-10-07': [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' }, ],
+  'patient-456-2024-10-09': [ 'open', { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' }, ],
+  'patient-789-2024-10-08': [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'night' }, ],
+  // Semana seguinte
+  'patient-123-2024-10-14': [ 'open', 'open' ],
+  'patient-456-2024-10-15': [ { professional: professionals.find(p => p.id === 'prof-5')!, shiftType: 'day' }, 'open' ],
+  'patient-789-2024-10-16': [ 'pending', 'open'],
+  // Mês seguinte
+  'patient-123-2024-11-01': [ 'open', 'open' ],
 };
+
+
+type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
 
 const periodConfig = {
   weekly: 7,
   biweekly: 15,
   monthly: 30,
 };
-
-type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
 
 
 const ShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => (
@@ -91,9 +87,40 @@ const ShiftScaleView = () => {
   
   const [currentDate, setCurrentDate] = React.useState(new Date('2024-10-07'));
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
+  
+  const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0, totalPatients: patients.length });
 
   const numDays = periodConfig[viewPeriod];
   const displayedDays = Array.from({ length: numDays }, (_, i) => addDays(currentDate, i));
+
+  React.useEffect(() => {
+    let openCount = 0;
+    let pendingCount = 0;
+    let filledCount = 0;
+    const patientSet = new Set<string>();
+
+    displayedDays.forEach(day => {
+        const dayKey = format(day, 'yyyy-MM-dd');
+        patients.forEach(patient => {
+            patientSet.add(patient.id);
+            const shiftKey = `${patient.id}-${dayKey}`;
+            const dayShifts = shifts[shiftKey] || ['open', 'open'];
+
+            dayShifts.forEach(shift => {
+                if (shift === 'open') {
+                    openCount++;
+                } else if (shift === 'pending') {
+                    pendingCount++;
+                } else if (shift) {
+                    filledCount++;
+                }
+            });
+        });
+    });
+
+    setStats({ open: openCount, pending: pendingCount, filled: filledCount, totalPatients: patientSet.size });
+  }, [displayedDays, shifts]);
+
 
   const handleDateChange = (days: number) => {
     setCurrentDate(prev => addDays(prev, days));
@@ -194,15 +221,15 @@ const ShiftScaleView = () => {
          </div>
           <div className="flex items-center justify-center gap-2 text-sm font-semibold">
               <div className='flex items-center gap-1'>
-                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(-7)}><ChevronsLeft className="h-5 w-5" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(-numDays)}><ChevronsLeft className="h-5 w-5" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
               </div>
-              <div className="text-foreground text-center flex-1 w-48">
+              <div className="text-foreground text-center w-48">
                   {getPeriodLabel()}
               </div>
               <div className='flex items-center gap-1'>
                   <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(7)}><ChevronsRight className="h-5 w-5" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDateChange(numDays)}><ChevronsRight className="h-5 w-5" /></Button>
               </div>
           </div>
           <div className="w-48"></div> {/* Spacer */}
@@ -211,29 +238,27 @@ const ShiftScaleView = () => {
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
             <StatCard 
                 title="Total de Pacientes"
-                value="3"
+                value={String(stats.totalPatients)}
                 icon={UserPlus}
                 onClick={() => console.log('Filter all patients')}
             />
             <StatCard 
                 title="Vagas em Aberto"
-                value="2"
-                subValue="1 Publicada / 1 Não Publicada"
+                value={String(stats.open)}
                 icon={FileText}
                 className="text-amber-600"
                 onClick={() => console.log('Filter open shifts')}
             />
             <StatCard 
                 title="Vagas com Candidatos"
-                value="1"
-                subValue="Total de 4 candidatos"
+                value={String(stats.pending)}
                 icon={UserPlus}
                 className="text-blue-600"
-                onClick={() => setIsCandidacyListOpen(true)}
+                onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
             />
             <StatCard 
                 title="Plantões Ocupados"
-                value="4"
+                value={String(stats.filled)}
                 icon={CheckCircle}
                 className="text-green-600"
                 onClick={() => console.log('Filter filled shifts')}
@@ -514,3 +539,5 @@ export function ShiftManagement() {
     </div>
   );
 }
+
+    
