@@ -7,14 +7,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { mockShiftHistory } from '@/lib/data';
-import type { ActiveShift } from '@/lib/types';
+import type { Shift, Professional, Patient } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 
-export function ShiftTimelineDialog({ isOpen, onOpenChange, shift }: { isOpen: boolean; onOpenChange: (open: boolean) => void; shift: ActiveShift; }) {
+export function ShiftTimelineDialog({ isOpen, onOpenChange, shift, professional, patient }: { 
+    isOpen: boolean; 
+    onOpenChange: (open: boolean) => void; 
+    shift: Shift;
+    professional?: Professional;
+    patient?: Patient;
+}) {
   
-  // Find the index of the event that corresponds to the current progress
-  const currentEventIndex = Math.floor((mockShiftHistory.length - 1) * (shift.progress / 100));
+  if (!shift || !professional || !patient) return null;
+
+  const currentProgress = shift.progress ?? 0;
+  const currentEventIndex = Math.floor((mockShiftHistory.length - 1) * (currentProgress / 100));
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -22,22 +30,22 @@ export function ShiftTimelineDialog({ isOpen, onOpenChange, shift }: { isOpen: b
         <DialogHeader>
           <div className="flex items-center gap-4">
              <Avatar className="h-10 w-10">
-                <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
-                <AvatarFallback>{shift.professional.initials}</AvatarFallback>
+                <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+                <AvatarFallback>{professional.initials}</AvatarFallback>
             </Avatar>
             <div>
                 <DialogTitle>Linha do Tempo do Plantão</DialogTitle>
                 <DialogDescription>
-                    {shift.patientName} - {shift.professional.name}
+                    {patient.name} - {professional.name}
                 </DialogDescription>
             </div>
           </div>
            <div className="pt-4 space-y-2">
                 <div className="flex justify-between text-xs font-medium">
                     <span className="text-muted-foreground">Progresso do Plantão</span>
-                    <span className="text-foreground">{shift.progress}%</span>
+                    <span className="text-foreground">{currentProgress}%</span>
                 </div>
-                <Progress value={shift.progress} />
+                <Progress value={currentProgress} />
            </div>
         </DialogHeader>
 

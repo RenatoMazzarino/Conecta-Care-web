@@ -1,12 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, ClipboardCheck, XCircle } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
-import { professionals, initialActiveShiftsData, patients as mockPatients, initialShifts } from '@/lib/data';
+import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
+import { professionals, initialShifts } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -20,10 +19,15 @@ import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ShiftTimelineDialog } from './shift-timeline-dialog';
+import { patients as mockPatients } from '@/lib/data';
 
 type GridShiftState = {
   professional?: Professional;
-  status: 'open' | 'pending' | 'filled';
+  status: 'open' | 'pending' | 'filled' | 'active';
+  isUrgent?: boolean;
+  progress?: number;
+  checkIn?: string;
+  checkOut?: string;
 };
 
 const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
@@ -35,6 +39,23 @@ const periodConfig = {
   biweekly: 15,
   monthly: 30,
 };
+
+const ActiveShiftCard = ({ professional, progress, onClick }: { professional: Professional, progress?: number, onClick: () => void }) => (
+  <div onClick={onClick} className="flex flex-col gap-2 p-2 rounded-lg border-2 border-primary bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+    <div className="flex items-center gap-2">
+      <Avatar className="h-8 w-8">
+          <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+          <AvatarFallback>{professional.initials}</AvatarFallback>
+      </Avatar>
+      <span className="text-sm font-medium truncate text-primary-foreground">{professional.name}</span>
+    </div>
+    {progress !== undefined && (
+      <div className="px-1 pb-1">
+        <Progress value={progress} className="h-2 w-full [&>div]:bg-primary" />
+      </div>
+    )}
+  </div>
+);
 
 
 const ShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => (
@@ -65,16 +86,16 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
     </div>
 );
 
-const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPublishing: boolean, setIsBulkPublishing: (value: boolean) => void }) => {
+export function ShiftManagement() {
   const [shiftsData, setShiftsData] = React.useState<Shift[]>(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
-  
+  const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
+
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
-    // Use UTC date parts to avoid timezone-related date shifts during initialization
     const utcDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
     return startOfWeek(utcDate, { weekStartsOn: 0 }); // Sunday
   });
@@ -90,27 +111,36 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   );
   
   const gridShifts = React.useMemo(() => {
-    const grid: Record<string, (GridShiftState | null)[]> = {};
+    const grid: { [key: string]: (GridShiftState | null)[] } = {};
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
     
     patients.forEach(patient => {
       displayedDays.forEach(day => {
         const dayKey = format(day, 'yyyy-MM-dd');
-        const shiftKey = `${patient.id}-${dayKey}`;
+        
+        const getGridState = (shiftType: 'diurno' | 'noturno'): GridShiftState | null => {
+          let shift = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType);
 
-        const dayShiftData = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === 'diurno');
-        const nightShiftData = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === 'noturno');
-
-        const getGridState = (shift: Shift | undefined): GridShiftState | null => {
-          if (!shift) return { status: 'open' };
-          if (shift.status === 'pending') return { status: 'pending' };
-          if (shift.professionalId) {
-            const professional = professionals.find(p => p.id === shift.professionalId);
-            if(professional) return { professional, status: 'filled' };
+          if (dayKey === todayStr && shift?.status === 'filled') {
+             const existingShift = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType);
+             shift = { ...existingShift, status: 'active', progress: existingShift?.progress ?? 45, checkIn: existingShift?.checkIn ?? '08:02' }
           }
-          return { status: 'open' };
+          
+          if (!shift) return { status: 'open', isUrgent: false };
+          
+          const professional = professionals.find(p => p.id === shift?.professionalId);
+
+          return {
+            professional,
+            status: shift.status,
+            isUrgent: shift.isUrgent,
+            progress: shift.progress,
+            checkIn: shift.checkIn,
+            checkOut: shift.checkOut,
+          };
         };
 
-        grid[shiftKey] = [getGridState(dayShiftData), getGridState(nightShiftData)];
+        grid[`${patient.id}-${dayKey}`] = [getGridState('diurno'), getGridState('noturno')];
       });
     });
     return grid;
@@ -125,7 +155,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
       if (!shift) return;
       if (shift.status === 'open') openCount++;
       if (shift.status === 'pending') pendingCount++;
-      if (shift.status === 'filled') filledCount++;
+      if (shift.status === 'filled' || shift.status === 'active') filledCount++;
     });
 
     setStats({ open: openCount, pending: pendingCount, filled: filledCount });
@@ -183,9 +213,9 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
             const existingIndex = prev.findIndex(s => s.patientId === shift.patient.id && s.dayKey === shift.dayKey && s.shiftType === shift.shiftType);
             const newShift: Shift = {
                 patientId: shift.patient.id,
+                professionalId: professional.id,
                 dayKey: shift.dayKey,
                 shiftType: shift.shiftType,
-                professionalId: professional.id,
                 status: 'filled'
             };
             if (existingIndex > -1) {
@@ -239,10 +269,16 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     if (!displayedDays.length) return '';
     const start = displayedDays[0];
     const end = displayedDays[displayedDays.length - 1];
-    if (start.getUTCMonth() === end.getUTCMonth()) {
-      return `${format(start, 'd')} - ${format(end, 'd \'de\' LLLL, yyyy', { locale: ptBR })}`;
+    const startFormat = 'd \'de\' LLL';
+    const endFormat = 'd \'de\' LLL, yyyy';
+
+    if (start.getUTCFullYear() !== end.getUTCFullYear()) {
+      return `${format(start, 'd MMM, yy', { locale: ptBR })} - ${format(end, 'd MMM, yy', { locale: ptBR })}`;
     }
-    return `${format(start, 'd \'de\' LLL', { locale: ptBR })} - ${format(end, 'd \'de\' LLL, yyyy', { locale: ptBR })}`;
+    if (start.getUTCMonth() !== end.getUTCMonth()) {
+      return `${format(start, startFormat, { locale: ptBR })} - ${format(end, endFormat, { locale: ptBR })}`;
+    }
+    return `${format(start, 'd')} - ${format(end, endFormat, { locale: ptBR })}`;
   }
 
   const totalShifts = stats.open + stats.pending + stats.filled;
@@ -336,14 +372,17 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                     
                     const renderShift = (shift: GridShiftState | null, type: 'diurno' | 'noturno') => {
                         if (!shift) return <OpenShiftCard shiftType={type} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                        if (shift.status === 'active' && shift.professional) {
+                            return <ActiveShiftCard professional={shift.professional} progress={shift.progress} onClick={() => alert('Abrir super modal!')} />;
+                        }
                         if (shift.status === 'filled' && shift.professional) {
                             return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional!)} />;
                         }
                         if (shift.status === 'pending') {
                             return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
                         }
-                        const isUrgent = patient.id === 'patient-456' && dayKey === format(addDays(new Date(), 2), 'yyyy-MM-dd') && type === 'diurno';
-                        return <OpenShiftCard shiftType={type} urgent={isUrgent} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                        
+                        return <OpenShiftCard shiftType={type} urgent={shift.isUrgent} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
                     }
 
                     return (
@@ -398,196 +437,6 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
           onOpenProfile={handleOpenProfile}
           onApprove={handleApproveProfessional}
       />
-    </div>
-  );
-}
-
-
-
-const ShiftMonitoringView = () => {
-    const [activeShifts, setActiveShifts] = React.useState<ActiveShift[]>(initialActiveShiftsData);
-    const [selectedChatShift, setSelectedChatShift] = React.useState<ActiveShift | null>(null);
-    const [selectedAuditShift, setSelectedAuditShift] = React.useState<ActiveShift | null>(null);
-    const [selectedTimelineShift, setSelectedTimelineShift] = React.useState<ActiveShift | null>(null);
-
-
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveShifts(prevShifts => 
-                prevShifts.map(shift => {
-                    if (shift.progress >= 100) return shift;
-
-                    // Update progress
-                    let newProgress = shift.progress < 100 ? shift.progress + 1 : 100;
-                    
-                    // Simulate check-in for the late professional
-                    if (shift.status === 'Atrasado' && newProgress > 20 && !shift.checkIn) {
-                        return {
-                            ...shift,
-                            progress: newProgress,
-                            checkIn: '08:15',
-                            status: 'Sem Intercorrências',
-                            statusColor: 'text-green-600'
-                        };
-                    }
-
-                    // Simulate checkout
-                    if(newProgress >= 100 && !shift.checkOut) {
-                         return {
-                            ...shift,
-                            progress: 100,
-                            checkOut: shift.shift.includes('DIURNO') ? '20:05' : '08:05',
-                            status: 'Finalizado',
-                            statusColor: 'text-muted-foreground'
-                        };
-                    }
-                    
-                    return { ...shift, progress: newProgress };
-                })
-            );
-        }, 2000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleOpenChat = (shift: ActiveShift) => {
-        setSelectedChatShift(shift);
-    }
-    
-    const handleCloseChat = () => {
-        setSelectedChatShift(null);
-    }
-
-    const handleOpenAudit = (shift: ActiveShift) => {
-        setSelectedAuditShift(shift);
-    }
-
-    const handleCloseAudit = () => {
-        setSelectedAuditShift(null);
-    }
-
-    const handleOpenTimeline = (shift: ActiveShift) => {
-        setSelectedTimelineShift(shift);
-    }
-    
-    const handleCloseTimeline = () => {
-        setSelectedTimelineShift(null);
-    }
-
-    return (
-        <div className="p-4 sm:p-6 space-y-6">
-            <Card>
-            <CardHeader>
-                <CardTitle>Monitoramento em Tempo Real</CardTitle>
-                <CardDescription>Acompanhe os plantões em andamento.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {activeShifts.map((shift, index) => (
-                    <Card key={index} className="bg-muted/30 flex flex-col">
-                        <CardHeader>
-                             <div className="flex items-center gap-4">
-                                <Avatar className="h-12 w-12 text-xl font-bold">
-                                     <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
-                                    <AvatarFallback>{shift.professional.initials}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-semibold">{shift.professional.name}</p>
-                                    <p className="text-sm text-muted-foreground">{shift.patientName} - {shift.shift}</p>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow space-y-4">
-                             <div 
-                                className="space-y-1 cursor-pointer"
-                                onClick={() => handleOpenTimeline(shift)}
-                             >
-                                <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>Progresso do Plantão</span>
-                                    <span>{shift.progress}%</span>
-                                </div>
-                                <Progress value={shift.progress} className="h-2" />
-                            </div>
-                             <div 
-                                className="grid grid-cols-2 gap-4 text-sm p-2 rounded-md hover:bg-background/60 cursor-pointer"
-                                onClick={() => handleOpenAudit(shift)}
-                             >
-                                <div className="flex items-center gap-2">
-                                <CheckCircle className={`h-5 w-5 ${shift.checkIn ? 'text-green-500' : 'text-muted-foreground/50'}`} />
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Check-in</p>
-                                    <p className="font-medium">{shift.checkIn || '--:--'}</p>
-                                </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                <XCircle className={`h-5 w-5 ${shift.checkOut ? 'text-red-500' : 'text-muted-foreground/50'}`} />
-                                 <div>
-                                    <p className="text-xs text-muted-foreground">Check-out</p>
-                                    <p className="font-medium">{shift.checkOut || '--:--'}</p>
-                                </div>
-                                </div>
-                            </div>
-                             <div>
-                                <p className="text-xs font-semibold">Status Atual:</p>
-                                <p className={cn("font-medium", shift.statusColor)}>{shift.status}</p>
-                            </div>
-                        </CardContent>
-                         <div className="flex items-center justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={() => handleOpenChat(shift)}><MessageCircle className="h-4 w-4" /></Button>
-                        </div>
-                    </Card>
-                ))}
-            </CardContent>
-            </Card>
-            {selectedChatShift && (
-                <ShiftChatDialog
-                    isOpen={!!selectedChatShift}
-                    onOpenChange={handleCloseChat}
-                    shift={selectedChatShift}
-                />
-            )}
-             {selectedAuditShift && (
-                <ShiftAuditDialog
-                    isOpen={!!selectedAuditShift}
-                    onOpenChange={handleCloseAudit}
-                    shift={selectedAuditShift}
-                />
-            )}
-            {selectedTimelineShift && (
-                <ShiftTimelineDialog
-                    isOpen={!!selectedTimelineShift}
-                    onOpenChange={handleCloseTimeline}
-                    shift={selectedTimelineShift}
-                />
-            )}
-        </div>
-    );
-}
-
-export function ShiftManagement() {
-  const [activeTab, setActiveTab] = React.useState("scale");
-  const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
-
-  return (
-    <div className="flex-1 flex flex-col">
-       <div className="flex justify-between items-center p-4 sm:p-6 border-b bg-card">
-         <div className="flex-1">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList>
-                  <TabsTrigger value="scale">Gestão de Escala</TabsTrigger>
-                  <TabsTrigger value="monitoring">Monitoramento em Tempo Real</TabsTrigger>
-              </TabsList>
-            </Tabs>
-        </div>
-       </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsContent value="scale" className="m-0">
-                <ShiftScaleView isBulkPublishing={isBulkPublishing} setIsBulkPublishing={setIsBulkPublishing} />
-            </TabsContent>
-            <TabsContent value="monitoring" className="m-0">
-                <ShiftMonitoringView />
-            </TabsContent>
-        </Tabs>
     </div>
   );
 }

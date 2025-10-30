@@ -333,16 +333,18 @@ export const mockTasks: Task[] = [
 
 const today = new Date();
 today.setUTCHours(0, 0, 0, 0);
-const sundayThisWeek = startOfWeek(today, { weekStartsOn: 0 });
 
 export const initialShifts: Shift[] = [
-  { patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
-  { patientId: 'patient-123', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'pending' },
-  { patientId: 'patient-123', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
-  { patientId: 'patient-123', professionalId: 'prof-3', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
-  { patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(addDays(sundayThisWeek, 2), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
-  { patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
-  { patientId: 'patient-789', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
+  { patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(addDays(today, 0), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'active', progress: 50, checkIn: '08:02', checkInStatus: 'OK' },
+  { patientId: 'patient-123', dayKey: format(addDays(today, 0), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'pending' },
+  
+  { patientId: 'patient-456', dayKey: format(addDays(today, 1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'open' },
+  { patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(addDays(today, 1), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
+  
+  { patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(addDays(today, 2), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
+  { patientId: 'patient-789', professionalId: 'prof-1', dayKey: format(addDays(today, 2), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
+  
+  { patientId: 'patient-456', dayKey: format(addDays(today, 2), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'open', isUrgent: true },
 ];
 
 export const mockShiftHistory: ShiftHistoryEvent[] = [

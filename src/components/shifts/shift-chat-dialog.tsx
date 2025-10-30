@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SendHorizonal } from 'lucide-react';
-import type { ActiveShift, ChatMessage as ChatMessageType } from '@/lib/types';
+import type { Shift, Professional, Patient, ChatMessage as ChatMessageType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,10 +29,14 @@ export function ShiftChatDialog({
   isOpen,
   onOpenChange,
   shift,
+  professional,
+  patient,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  shift: ActiveShift;
+  shift: Shift;
+  professional?: Professional;
+  patient?: Patient;
 }) {
   const { toast } = useToast();
   const [messages, setMessages] = React.useState(mockMessages);
@@ -42,7 +46,7 @@ export function ShiftChatDialog({
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !professional) return;
 
     setMessages(prev => [...prev, { role: 'user', content: newMessage }]);
     setNewMessage('');
@@ -67,19 +71,21 @@ export function ShiftChatDialog({
   }, [messages])
 
 
+  if (!professional || !patient) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-4">
              <Avatar className="h-10 w-10">
-                <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
-                <AvatarFallback>{shift.professional.initials}</AvatarFallback>
+                <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+                <AvatarFallback>{professional.initials}</AvatarFallback>
             </Avatar>
             <div>
-                <DialogTitle>Chat com {shift.professional.name}</DialogTitle>
+                <DialogTitle>Chat com {professional.name}</DialogTitle>
                 <DialogDescription>
-                    Plantão: {shift.patientName} - {shift.shift}
+                    Plantão: {patient.name} - {shift.shiftType}
                 </DialogDescription>
             </div>
           </div>
@@ -101,8 +107,8 @@ export function ShiftChatDialog({
                     >
                         {message.role === 'assistant' && (
                            <Avatar className="h-8 w-8">
-                                <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
-                                <AvatarFallback>{shift.professional.initials}</AvatarFallback>
+                                <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+                                <AvatarFallback>{professional.initials}</AvatarFallback>
                             </Avatar>
                         )}
                         <div
