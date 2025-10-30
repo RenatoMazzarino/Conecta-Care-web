@@ -52,7 +52,7 @@ export type Shift = {
 };
 
 export type OpenShiftInfo = {
-  patient: { id: string; name: string };
+  patient: { id: number; name: string };
   dayKey: string;
   shiftType: 'diurno' | 'noturno';
 };

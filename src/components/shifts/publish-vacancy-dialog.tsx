@@ -15,12 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar, Clock, User } from 'lucide-react';
-
-type ShiftInfo = {
-  patient: { id: number; name: string };
-  dayKey: string;
-  shiftType: 'diurno' | 'noturno';
-};
+import type { OpenShiftInfo } from '@/lib/types';
 
 export function PublishVacancyDialog({
   isOpen,
@@ -30,8 +25,8 @@ export function PublishVacancyDialog({
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  shiftInfo?: ShiftInfo | null;
-  onVacancyPublished?: (shiftInfo: ShiftInfo) => void;
+  shiftInfo?: OpenShiftInfo | null;
+  onVacancyPublished?: (shiftInfo: OpenShiftInfo) => void;
 }) {
   const { toast } = useToast();
 
