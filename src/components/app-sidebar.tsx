@@ -41,7 +41,16 @@ const navItems = [
 
 export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean, setIsCollapsed: (isCollapsed: boolean) => void }) {
   const pathname = usePathname();
+  const isMobile = useIsMobile();
   
+   React.useEffect(() => {
+    if (isMobile) {
+      setIsCollapsed(true);
+    } else {
+      setIsCollapsed(false);
+    }
+  }, [isMobile, setIsCollapsed]);
+
   return (
     <aside className={cn(
         "fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-card sm:flex transition-[width] duration-300",
@@ -58,7 +67,7 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
             <span className={cn("transition-opacity", isCollapsed && "w-0 opacity-0")}>CareSync</span>
           </Link>
         </div>
-        <nav className="flex-1 overflow-auto py-2 px-2 text-sm font-medium">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 text-sm font-medium">
           <ul className="flex flex-col gap-1">
             {navItems.map((item) => (
               <li key={item.href}>
