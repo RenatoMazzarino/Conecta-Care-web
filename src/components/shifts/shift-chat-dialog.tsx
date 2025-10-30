@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SendHorizonal } from 'lucide-react';
 import type { ActiveShift, ChatMessage as ChatMessageType } from '@/lib/types';
@@ -72,8 +72,9 @@ export function ShiftChatDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-4">
-             <Avatar className={`h-10 w-10 text-md font-bold ${shift.professional.avatarColor}`}>
-                <AvatarFallback className={`bg-transparent text-white`}>{shift.professional.initials}</AvatarFallback>
+             <Avatar className="h-10 w-10">
+                <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
+                <AvatarFallback>{shift.professional.initials}</AvatarFallback>
             </Avatar>
             <div>
                 <DialogTitle>Chat com {shift.professional.name}</DialogTitle>
@@ -99,8 +100,9 @@ export function ShiftChatDialog({
                         )}
                     >
                         {message.role === 'assistant' && (
-                           <Avatar className={`h-8 w-8 text-sm font-bold ${shift.professional.avatarColor}`}>
-                                <AvatarFallback className={`bg-transparent text-white`}>{shift.professional.initials}</AvatarFallback>
+                           <Avatar className="h-8 w-8">
+                                <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
+                                <AvatarFallback>{shift.professional.initials}</AvatarFallback>
                             </Avatar>
                         )}
                         <div

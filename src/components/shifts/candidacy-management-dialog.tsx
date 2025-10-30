@@ -12,9 +12,9 @@ import {
 import { Button } from '@/components/ui/button';
 import type { OpenShiftInfo, Professional } from '@/lib/types';
 import { professionals } from '@/lib/data';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
-import { Star, MessageSquare, Check, X } from 'lucide-react';
+import { Star, MessageSquare, Check, X, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -76,20 +76,27 @@ export function CandidacyManagementDialog({
         <div className="py-4 max-h-[60vh] overflow-y-auto pr-2 space-y-3">
             <h4 className="font-semibold">{mockCandidates.length} Candidatos</h4>
             {mockCandidates.map(candidate => (
-                <div key={candidate.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50">
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleViewProfile(candidate)}>
-                         <Avatar className={`h-10 w-10 text-md font-bold ${candidate.avatarColor}`}>
-                            <AvatarFallback className={`bg-transparent text-white`}>{candidate.initials}</AvatarFallback>
+                <div key={candidate.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer" onClick={() => handleViewProfile(candidate)}>
+                    <div className="flex items-center gap-3">
+                         <Avatar className="h-10 w-10">
+                            <AvatarImage src={candidate.avatarUrl} alt={candidate.name} data-ai-hint={candidate.avatarHint} />
+                            <AvatarFallback>{candidate.initials}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className="font-semibold">{candidate.name}</p>
+                            <div className="flex items-center gap-2">
+                                <p className="font-semibold">{candidate.name}</p>
+                                <Badge variant={candidate.corenStatus === 'active' ? 'secondary' : 'destructive'} className="py-0 px-1.5 text-xs">
+                                     <Shield className="mr-1 h-3 w-3" />
+                                    COREN {candidate.corenStatus === 'active' ? 'Ativo' : 'Inativo'}
+                                </Badge>
+                            </div>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                 <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
                                 <span>{candidate.rating.toFixed(1)}</span>
                             </div>
                         </div>
                     </div>
-                     <div className="flex gap-1">
+                     <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
                             <MessageSquare className="h-5 w-5" />
                         </Button>

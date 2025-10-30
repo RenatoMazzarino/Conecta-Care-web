@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import type { OpenShiftInfo, Professional } from '@/lib/types';
 import { professionals, patients } from '@/lib/data';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Star, MessageSquare, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -92,10 +92,11 @@ export function CandidacyListDialog({
                             </AccordionTrigger>
                             <AccordionContent className="pt-2 space-y-2">
                                 {mockCandidates.map(candidate => (
-                                    <div key={candidate.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50">
-                                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => onOpenProfile(candidate)}>
-                                            <Avatar className={`h-10 w-10 text-md font-bold ${candidate.avatarColor}`}>
-                                                <AvatarFallback className={`bg-transparent text-white`}>{candidate.initials}</AvatarFallback>
+                                    <div key={candidate.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer" onClick={() => onOpenProfile(candidate)}>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-10 w-10">
+                                                <AvatarImage src={candidate.avatarUrl} alt={candidate.name} data-ai-hint={candidate.avatarHint} />
+                                                <AvatarFallback>{candidate.initials}</AvatarFallback>
                                             </Avatar>
                                             <div>
                                                 <p className="font-semibold">{candidate.name}</p>
@@ -105,7 +106,7 @@ export function CandidacyListDialog({
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                                             <Button variant="ghost" size="icon" className="text-muted-foreground"><MessageSquare className="h-4 w-4" /></Button>
                                             <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleReject(candidate)}><X className="h-4 w-4" /></Button>
                                             <Button size="sm" onClick={() => handleApprove(candidate, shift)}><Check className="mr-2 h-4 w-4" />Aprovar</Button>

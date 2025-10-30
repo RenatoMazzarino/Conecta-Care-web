@@ -59,7 +59,8 @@ export type Professional = {
   id: string;
   name: string;
   initials: string;
-  avatarColor: string;
+  avatarUrl: string;
+  avatarHint: string;
   rating: number;
   bio: string;
   corenStatus: 'active' | 'inactive';

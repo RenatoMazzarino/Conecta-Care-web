@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Footprints, Pill, CircleCheck, CircleX } from 'lucide-react';
 import type { ActiveShift, ShiftHistoryEvent } from '@/lib/types';
@@ -43,8 +43,9 @@ export function ShiftHistoryDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-4">
-             <Avatar className={`h-10 w-10 text-md font-bold ${shift.professional.avatarColor}`}>
-                <AvatarFallback className={`bg-transparent text-white`}>{shift.professional.initials}</AvatarFallback>
+             <Avatar className="h-10 w-10">
+                <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
+                <AvatarFallback>{shift.professional.initials}</AvatarFallback>
             </Avatar>
             <div>
                 <DialogTitle>Histórico do Plantão</DialogTitle>

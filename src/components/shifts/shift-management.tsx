@@ -10,8 +10,7 @@ import { professionals, initialActiveShiftsData, patients as mockPatients, initi
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
-import { Avatar } from '@/components/ui/avatar';
-import { AvatarFallback } from '@radix-ui/react-avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ShiftHistoryDialog } from './shift-history-dialog';
@@ -20,7 +19,7 @@ import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
+import Image from 'next/image';
 
 type ShiftState = Shift | null | 'open' | 'pending';
 
@@ -37,9 +36,10 @@ const periodConfig = {
 
 const ShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => (
   <div onClick={onClick} className="flex items-center gap-2 p-2 rounded-lg bg-card border cursor-pointer hover:bg-accent">
-    <div className={`flex items-center justify-center h-8 w-8 rounded-full ${professional.avatarColor} text-white font-bold text-sm`}>
-      {professional.initials}
-    </div>
+     <Avatar className="h-8 w-8">
+        <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+        <AvatarFallback>{professional.initials}</AvatarFallback>
+      </Avatar>
     <span className="text-sm font-medium truncate">{professional.name}</span>
   </div>
 );
@@ -70,9 +70,10 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   
   const [currentDate, setCurrentDate] = React.useState(() => {
+    // Consistent date initialization to prevent hydration mismatch
     const today = new Date();
-    today.setUTCHours(0, 0, 0, 0); // Normalize to UTC start of day
-    return startOfWeek(today, { weekStartsOn: 0 }); // Sunday
+    const utcDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+    return startOfWeek(utcDate, { weekStartsOn: 0 }); // Sunday
   });
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   
@@ -289,7 +290,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                     Paciente
                 </th>
                 {displayedDays.map(day => (
-                    <th key={day.toString()} scope="col" className="min-w-[18rem] px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <th key={day.toISOString()} scope="col" className="min-w-[18rem] px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                      {format(day, "eeee, dd", { locale: ptBR })}
                     </th>
                 ))}
@@ -449,9 +450,9 @@ const ShiftMonitoringView = () => {
                     <Card key={index} className="bg-muted/30">
                         <CardContent className="p-4 grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] lg:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center">
                             <div className="flex items-center gap-4">
-                                <Avatar className={`h-12 w-12 text-xl font-bold ${shift.professional.avatarColor}`}>
-                                    <AvatarFallback className="bg-transparent text-white">{shift.professional.initials}</AvatarFallback>
-
+                                <Avatar className="h-12 w-12 text-xl font-bold">
+                                     <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
+                                    <AvatarFallback>{shift.professional.initials}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <p className="font-semibold">{shift.patientName}</p>

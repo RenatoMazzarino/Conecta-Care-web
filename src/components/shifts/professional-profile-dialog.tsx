@@ -8,13 +8,14 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { Professional, OpenShiftInfo } from '@/lib/types';
 import { Star, Shield, MessageCircle, XCircle, Briefcase, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
+import Image from 'next/image';
 
 function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
   return (
@@ -62,8 +63,9 @@ export function ProfessionalProfileDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <div className="flex flex-col items-center text-center gap-4 pt-4">
-            <Avatar className={`h-24 w-24 text-4xl font-bold ${professional.avatarColor}`}>
-              <AvatarFallback className={`bg-transparent text-white`}>{professional.initials}</AvatarFallback>
+            <Avatar className="h-24 w-24 text-4xl font-bold">
+               <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
+              <AvatarFallback>{professional.initials}</AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <DialogTitle className="text-2xl">{professional.name}</DialogTitle>
