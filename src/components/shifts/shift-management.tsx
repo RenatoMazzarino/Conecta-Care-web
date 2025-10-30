@@ -78,31 +78,37 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
     </div>
 );
 
-const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing } : { isBulkPublishing: boolean, setIsBulkPublishing: (value: boolean) => void }) => {
+const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPublishing: boolean, setIsBulkPublishing: (value: boolean) => void }) => {
   const [shifts, setShifts] = React.useState(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   
-  const [currentDate, setCurrentDate] = React.useState(() => new Date(2024, 9, 7)); // Month is 0-indexed (9 = October)
+  const [currentDate, setCurrentDate] = React.useState(() => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    return startOfWeek(today, { weekStartsOn: 0 }); // Sunday
+  });
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   
-  const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0, totalPatients: patients.length });
+  const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0 });
 
   const numDays = periodConfig[viewPeriod];
-  const displayedDays = Array.from({ length: numDays }, (_, i) => addDays(currentDate, i));
+  
+  const displayedDays = React.useMemo(() => 
+    Array.from({ length: numDays }, (_, i) => addDays(currentDate, i)),
+    [currentDate, numDays]
+  );
 
   React.useEffect(() => {
     let openCount = 0;
     let pendingCount = 0;
     let filledCount = 0;
-    const patientSet = new Set<string>();
 
     displayedDays.forEach(day => {
         const dayKey = format(day, 'yyyy-MM-dd');
         patients.forEach(patient => {
-            patientSet.add(patient.id);
             const shiftKey = `${patient.id}-${dayKey}`;
             const dayShifts = shifts[shiftKey] || ['open', 'open'];
 
@@ -118,7 +124,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing } : { isBulkPubl
         });
     });
 
-    setStats({ open: openCount, pending: pendingCount, filled: filledCount, totalPatients: patientSet.size });
+    setStats({ open: openCount, pending: pendingCount, filled: filledCount });
   }, [displayedDays, shifts]);
 
 
@@ -245,10 +251,10 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing } : { isBulkPubl
         </div>
        </div>
 
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+       <div className="grid gap-6 md:grid-cols-4 mb-6">
             <StatCard 
                 title="Total de Pacientes"
-                value={String(stats.totalPatients)}
+                value={String(patients.length)}
                 icon={UserPlus}
                 onClick={() => console.log('Filter all patients')}
             />
