@@ -5,28 +5,36 @@ import { auth } from '@/auth'; // Simple auth using cookies
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const session = await auth();
+  console.log(`\n[middleware] Nova requisição para: ${pathname}`);
 
   const isPublicPage = pathname === '/login' || pathname === '/signup';
+  
+  // Ignora rotas de API, arquivos estáticos, etc.
   const isApiOrStatic = pathname.startsWith('/api/') || 
                         pathname.startsWith('/static/') || 
                         pathname.startsWith('/_next/') || 
                         pathname.includes('.');
 
   if (isApiOrStatic) {
+    console.log('[middleware] Rota de API/estática. Ignorando.');
     return NextResponse.next();
   }
 
-  // If the user is not logged in and is trying to access a protected page
+  const session = await auth();
+
+  // Se o usuário não está logado e tenta acessar uma página protegida
   if (!session && !isPublicPage) {
+    console.log(`[middleware] Sem sessão. Redirecionando para /login.`);
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If the user is logged in and tries to access a public page (like login)
+  // Se o usuário está logado e tenta acessar uma página pública (como /login)
   if (session && isPublicPage) {
+    console.log(`[middleware] Sessão ativa. Redirecionando para /.`);
     return NextResponse.redirect(new URL('/', request.url));
   }
 
+  console.log(`[middleware] Acesso permitido para ${pathname}.`);
   return NextResponse.next();
 }
 
