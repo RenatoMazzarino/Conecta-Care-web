@@ -65,7 +65,7 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
 );
 
 const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPublishing: boolean, setIsBulkPublishing: (value: boolean) => void }) => {
-  const [shiftsData, setShiftsData] = React.useState(initialShifts);
+  const [shiftsData, setShiftsData] = React.useState<Shift[]>(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
@@ -121,9 +121,10 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     let filledCount = 0;
 
     Object.values(gridShifts).flat().forEach(shift => {
-      if (shift?.status === 'open') openCount++;
-      if (shift?.status === 'pending') pendingCount++;
-      if (shift?.status === 'filled') filledCount++;
+      if (!shift) return;
+      if (shift.status === 'open') openCount++;
+      if (shift.status === 'pending') pendingCount++;
+      if (shift.status === 'filled') filledCount++;
     });
 
     setStats({ open: openCount, pending: pendingCount, filled: filledCount });
