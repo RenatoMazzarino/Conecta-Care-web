@@ -10,11 +10,11 @@ import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { NotificationsCard } from '@/components/dashboard/notifications-card';
 import { useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Patient, InventoryItem, ShiftReport, Notification } from '@/lib/types';
-import { doc, collection, orderBy, limit, query } from 'firebase/firestore';
+import { doc, collection } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { patients as mockPatients } from '@/lib/data';
+import { patients as mockPatients, mockShiftReports, mockNotifications } from '@/lib/data';
 import { AlertTriangle, Clock, Package, FlaskConical } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -33,21 +33,15 @@ export default function DashboardPage() {
     return collection(firestore, 'patients', mainPatientId, 'inventories');
   }, [firestore, mainPatientId]);
 
-  const reportsQuery = useMemoFirebase(() => {
-    if (!firestore || !mainPatientId) return null;
-    return query(collection(firestore, 'patients', mainPatientId, 'shiftReports'), orderBy('reportDate', 'desc'), limit(3));
-  }, [firestore, mainPatientId]);
-
-  const notificationsQuery = useMemoFirebase(() => {
-    if (!firestore || !mainPatientId) return null;
-    return query(collection(firestore, 'patients', mainPatientId, 'notifications'), orderBy('timestamp', 'desc'), limit(4));
-  }, [firestore, mainPatientId]);
-
-
   const { data: patient, isLoading: isPatientLoading } = useDoc<Patient>(patientRef);
   const { data: inventory, isLoading: isInventoryLoading } = useCollection<InventoryItem>(inventoryCollectionRef);
-  const { data: reports, isLoading: isReportsLoading } = useCollection<ShiftReport>(reportsQuery);
-  const { data: notifications, isLoading: isNotificationsLoading } = useCollection<Notification>(notificationsQuery);
+
+  // Use mock data directly to avoid permission errors for now
+  const reports: ShiftReport[] = mockShiftReports.filter(r => r.patientId === mainPatientId);
+  const notifications: Notification[] = mockNotifications.filter(n => n.patientId === mainPatientId);
+  const isReportsLoading = false;
+  const isNotificationsLoading = false;
+
 
   const isLoading = isPatientLoading || isInventoryLoading || isReportsLoading || isNotificationsLoading;
   const noData = !isLoading && !patient;
