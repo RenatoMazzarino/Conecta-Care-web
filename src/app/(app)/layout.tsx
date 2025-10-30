@@ -3,13 +3,21 @@
 import * as React from 'react';
 import { AppSidebar } from '@/components/app-sidebar';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isMobile) {
+      setIsCollapsed(true);
+    }
+  }, [isMobile]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">

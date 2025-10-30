@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
