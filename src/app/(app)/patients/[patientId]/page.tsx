@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText, CalendarDays } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
