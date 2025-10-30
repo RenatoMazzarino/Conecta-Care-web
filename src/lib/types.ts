@@ -117,7 +117,6 @@ export type ShiftHistoryEvent = {
     event: string;
     details?: string;
     icon: React.ElementType;
-    iconColor: string;
 }
 
 export type ShiftReport = {

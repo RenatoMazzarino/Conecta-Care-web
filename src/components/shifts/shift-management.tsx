@@ -19,6 +19,7 @@ import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ShiftTimelineDialog } from './shift-timeline-dialog';
 
 type GridShiftState = {
   professional?: Professional;
@@ -73,17 +74,17 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
-    const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    // Use UTC date parts to avoid timezone-related date shifts during initialization
+    const utcDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
     return startOfWeek(utcDate, { weekStartsOn: 0 }); // Sunday
   });
-
-  const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   
+  const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0 });
 
   const numDays = periodConfig[viewPeriod];
-  
-  const displayedDays = React.useMemo(() => 
+
+  const displayedDays = React.useMemo(() =>
     Array.from({ length: numDays }, (_, i) => addDays(currentDate, i)),
     [currentDate, numDays]
   );
@@ -128,7 +129,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     });
 
     setStats({ open: openCount, pending: pendingCount, filled: filledCount });
-  }, [gridShifts, displayedDays]);
+  }, [gridShifts]);
 
 
   const handleDateChange = (days: number) => {
@@ -204,7 +205,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   const StatCard = ({ title, value, subValue, icon: Icon, className, onClick }: { title: string, value: string | number, subValue?: string, icon: React.ElementType, className?: string, onClick?: () => void }) => (
     <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer")}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className={cn("text-sm font-medium", className)}>{title}</CardTitle>
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className={cn("h-5 w-5 text-muted-foreground", className)} />
         </CardHeader>
         <CardContent>
@@ -238,9 +239,10 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     if (!displayedDays.length) return '';
     const start = displayedDays[0];
     const end = displayedDays[displayedDays.length - 1];
-    const startFormat = format(start, 'd MMM', { locale: ptBR });
-    const endFormat = format(end, 'd MMM, yyyy', { locale: ptBR });
-    return `${startFormat} - ${endFormat}`;
+    if (start.getUTCMonth() === end.getUTCMonth()) {
+      return `${format(start, 'd')} - ${format(end, 'd \'de\' LLLL, yyyy', { locale: ptBR })}`;
+    }
+    return `${format(start, 'd \'de\' LLL', { locale: ptBR })} - ${format(end, 'd \'de\' LLL, yyyy', { locale: ptBR })}`;
   }
 
   const totalShifts = stats.open + stats.pending + stats.filled;
@@ -305,11 +307,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
             />
       </div>
       
-      <div className={cn(
-        "rounded-lg border bg-card overflow-x-auto",
-        viewPeriod === 'weekly' && 'overflow-x-auto',
-        (viewPeriod === 'biweekly' || viewPeriod === 'monthly') && 'overflow-x-scroll'
-        )}>
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <div className="relative">
             <table className="min-w-full divide-y divide-border">
             <thead className="bg-muted/50">
@@ -410,6 +408,7 @@ const ShiftMonitoringView = () => {
     const [activeShifts, setActiveShifts] = React.useState<ActiveShift[]>(initialActiveShiftsData);
     const [selectedChatShift, setSelectedChatShift] = React.useState<ActiveShift | null>(null);
     const [selectedAuditShift, setSelectedAuditShift] = React.useState<ActiveShift | null>(null);
+    const [selectedTimelineShift, setSelectedTimelineShift] = React.useState<ActiveShift | null>(null);
 
 
     React.useEffect(() => {
@@ -467,6 +466,14 @@ const ShiftMonitoringView = () => {
         setSelectedAuditShift(null);
     }
 
+    const handleOpenTimeline = (shift: ActiveShift) => {
+        setSelectedTimelineShift(shift);
+    }
+    
+    const handleCloseTimeline = () => {
+        setSelectedTimelineShift(null);
+    }
+
     return (
         <div className="p-4 sm:p-6 space-y-6">
             <Card>
@@ -490,14 +497,20 @@ const ShiftMonitoringView = () => {
                             </div>
                         </CardHeader>
                         <CardContent className="flex-grow space-y-4">
-                             <div>
-                                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                             <div 
+                                className="space-y-1 cursor-pointer"
+                                onClick={() => handleOpenTimeline(shift)}
+                             >
+                                <div className="flex justify-between text-xs text-muted-foreground">
                                     <span>Progresso do Plantão</span>
                                     <span>{shift.progress}%</span>
                                 </div>
                                 <Progress value={shift.progress} className="h-2" />
                             </div>
-                             <div className="grid grid-cols-2 gap-4 text-sm">
+                             <div 
+                                className="grid grid-cols-2 gap-4 text-sm p-2 rounded-md hover:bg-background/60 cursor-pointer"
+                                onClick={() => handleOpenAudit(shift)}
+                             >
                                 <div className="flex items-center gap-2">
                                 <CheckCircle className={`h-5 w-5 ${shift.checkIn ? 'text-green-500' : 'text-muted-foreground/50'}`} />
                                 <div>
@@ -521,7 +534,6 @@ const ShiftMonitoringView = () => {
                          <div className="flex items-center justify-end gap-2 p-4 border-t">
                             <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
                             <Button variant="outline" size="icon" onClick={() => handleOpenChat(shift)}><MessageCircle className="h-4 w-4" /></Button>
-                            <Button variant="outline" size="icon" onClick={() => handleOpenAudit(shift)}><ClipboardCheck className="h-4 w-4" /></Button>
                         </div>
                     </Card>
                 ))}
@@ -539,6 +551,13 @@ const ShiftMonitoringView = () => {
                     isOpen={!!selectedAuditShift}
                     onOpenChange={handleCloseAudit}
                     shift={selectedAuditShift}
+                />
+            )}
+            {selectedTimelineShift && (
+                <ShiftTimelineDialog
+                    isOpen={!!selectedTimelineShift}
+                    onOpenChange={handleCloseTimeline}
+                    shift={selectedTimelineShift}
                 />
             )}
         </div>
@@ -562,12 +581,12 @@ export function ShiftManagement() {
         </div>
        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsContent value="scale" className="m-0">
-              <ShiftScaleView isBulkPublishing={isBulkPublishing} setIsBulkPublishing={setIsBulkPublishing} />
-          </TabsContent>
-          <TabsContent value="monitoring" className="m-0">
-              <ShiftMonitoringView />
-          </TabsContent>
+            <TabsContent value="scale" className="m-0">
+                <ShiftScaleView isBulkPublishing={isBulkPublishing} setIsBulkPublishing={setIsBulkPublishing} />
+            </TabsContent>
+            <TabsContent value="monitoring" className="m-0">
+                <ShiftMonitoringView />
+            </TabsContent>
         </Tabs>
     </div>
   );

@@ -1,7 +1,7 @@
 import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification, Task, Shift, ShiftHistoryEvent } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek } from 'date-fns';
-import { Footprints, Pill, CircleCheck, CircleX } from 'lucide-react';
+import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube } from 'lucide-react';
 
 const patientAvatars = {
   'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
@@ -336,22 +336,21 @@ today.setUTCHours(0, 0, 0, 0);
 const sundayThisWeek = startOfWeek(today, { weekStartsOn: 0 });
 
 export const initialShifts: Shift[] = [
-  { patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'diurno' },
+  { patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
   { patientId: 'patient-123', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'pending' },
-  { patientId: 'patient-123', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'diurno' },
-  { patientId: 'patient-123', professionalId: 'prof-3', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'noturno' },
-  { patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(addDays(sundayThisWeek, 2), 'yyyy-MM-dd'), shiftType: 'noturno' },
-  { patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'diurno' },
-  { patientId: 'patient-789', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'noturno' },
+  { patientId: 'patient-123', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
+  { patientId: 'patient-123', professionalId: 'prof-3', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
+  { patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(addDays(sundayThisWeek, 2), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
+  { patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
+  { patientId: 'patient-789', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
 ];
 
 export const mockShiftHistory: ShiftHistoryEvent[] = [
-    { time: '08:02', event: 'Início do Plantão', details: 'Profissional iniciou o plantão via app.', icon: Footprints, iconColor: 'text-blue-500' },
-    { time: '08:15', event: 'Check-in Realizado', details: 'Presença confirmada na residência.', icon: CircleCheck, iconColor: 'text-green-500' },
-    { time: '09:00', event: 'Medicação Administrada', details: 'Administrado 10mg de Lexapro.', icon: Pill, iconColor: 'text-indigo-500' },
-    { time: '12:30', event: 'Medição de Sinais Vitais', details: 'PA: 120/80 mmHg, FC: 75bpm, SpO2: 98%', icon: Pill, iconColor: 'text-indigo-500' },
-    { time: '14:00', event: 'Paciente reportou dor', details: 'Dor leve na região lombar. Escala 3/10.', icon: Pill, iconColor: 'text-amber-500' },
-    { time: '18:00', event: 'Medicação Administrada', details: 'Administrado 500mg de Dipirona.', icon: Pill, iconColor: 'text-indigo-500' },
-    { time: '20:05', event: 'Check-out Realizado', details: 'Saída da residência confirmada.', icon: CircleX, iconColor: 'text-red-500' },
-    { time: '20:10', event: 'Fim do Plantão', details: 'Profissional finalizou o plantão via app.', icon: Footprints, iconColor: 'text-slate-500' },
+    { time: '08:02', event: 'Início do Plantão', details: 'Profissional iniciou o plantão via app.', icon: Footprints },
+    { time: '08:15', event: 'Check-in Realizado', details: 'Presença confirmada na residência.', icon: CircleCheck },
+    { time: '09:00', event: 'Medicação Administrada', details: 'Administrado Losartana 50mg e Metformina 850mg.', icon: Pill },
+    { time: '11:30', event: 'Consulta Médica', details: 'Reavaliação de rotina. PA estável. Solicitado novo exame de sangue.', icon: Stethoscope },
+    { time: '14:00', event: 'Coleta para Exame', details: 'Coleta de sangue para hemograma completo e glicemia.', icon: TestTube },
+    { time: '20:05', event: 'Check-out Realizado', details: 'Saída da residência confirmada.', icon: CircleX },
+    { time: '20:10', event: 'Fim do Plantão', details: 'Profissional finalizou o plantão via app.', icon: Footprints },
 ];
