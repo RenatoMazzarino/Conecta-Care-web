@@ -35,7 +35,7 @@ export default function PatientsPage() {
     }
   }, [searchTerm, allPatients]);
 
-  const noData = !isLoading && (!filteredPatients || filteredPatients.length === 0);
+  const noData = !isLoading && (!allPatients || allPatients.length === 0);
 
   return (
     <>

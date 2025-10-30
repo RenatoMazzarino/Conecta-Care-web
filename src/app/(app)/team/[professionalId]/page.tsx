@@ -17,7 +17,7 @@ import { TeamShiftsTab } from '@/components/team/team-shifts-tab';
 import { TeamPatientsTab } from '@/components/team/team-patients-tab';
 import { TeamFinancialTab } from '@/components/team/team-financial-tab';
 import { TeamDocumentsTab } from '@/components/team/team-documents-tab';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
 function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
@@ -41,7 +41,7 @@ export default function ProfessionalProfilePage() {
   const professionalId = params.professionalId as string;
   const firestore = useFirestore();
 
-  const professionalDocRef = useMemoFirebase(() => {
+  const professionalDocRef = React.useMemo(() => {
     if (!firestore || !professionalId) return null;
     return doc(firestore, 'professionals', professionalId);
   }, [firestore, professionalId]);

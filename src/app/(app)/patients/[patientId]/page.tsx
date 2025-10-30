@@ -21,7 +21,7 @@ import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao'
 import { Badge } from '@/components/ui/badge';
 import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
 import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-upload-dialog';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
 export default function PatientDetailPage() {
@@ -33,7 +33,7 @@ export default function PatientDetailPage() {
   const [isEditing, setIsEditing] = React.useState(false);
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   
-  const patientDocRef = useMemoFirebase(() => {
+  const patientDocRef = React.useMemo(() => {
       if (!firestore || !patientId) return null;
       return doc(firestore, 'patients', patientId);
   }, [firestore, patientId]);

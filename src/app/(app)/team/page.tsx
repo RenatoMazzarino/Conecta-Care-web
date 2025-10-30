@@ -35,7 +35,7 @@ export default function TeamPage() {
     }
   }, [searchTerm, allProfessionals]);
 
-  const noData = !isLoading && (!filteredProfessionals || filteredProfessionals.length === 0);
+  const noData = !isLoading && (!allProfessionals || allProfessionals.length === 0);
 
   return (
     <>

@@ -21,7 +21,7 @@ import { DirectAssignmentDialog } from './direct-assignment-dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ShiftMobileView } from './shift-mobile-view';
 import { ShiftGridView } from './shift-grid-view';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore } from '@/firebase';
 import { collection, doc, setDoc, query } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
@@ -40,9 +40,9 @@ export function ShiftManagement() {
   const firestore = useFirestore();
   const { toast } = useToast();
   
-  const patientsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
-  const shiftsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'shifts') : null, [firestore]);
-  const professionalsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'professionals') : null, [firestore]);
+  const patientsCollection = React.useMemo(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
+  const shiftsCollection = React.useMemo(() => firestore ? collection(firestore, 'shifts') : null, [firestore]);
+  const professionalsCollection = React.useMemo(() => firestore ? collection(firestore, 'professionals') : null, [firestore]);
 
   const { data: allPatients, isLoading: patientsLoading } = useCollection<Patient>(patientsCollection);
   const { data: shiftsData, isLoading: shiftsLoading } = useCollection<Shift>(shiftsCollection);
