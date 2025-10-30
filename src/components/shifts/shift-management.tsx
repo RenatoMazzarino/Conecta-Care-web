@@ -44,7 +44,7 @@ const statusConfig: { [key in GridShiftState['status']]: { base: string, border:
   issue: { base: 'bg-amber-500/10 hover:bg-amber-500/20', border: 'border-l-amber-500', text: 'text-amber-800' },
   completed: { base: 'bg-green-500/10 hover:bg-green-500/20', border: 'border-l-green-500', text: 'text-green-700' },
   filled: { base: 'bg-secondary hover:bg-secondary/80', border: 'border-l-gray-400', text: 'text-secondary-foreground' },
-  pending: { base: 'bg-card', border: 'border-l-border', text: 'text-foreground' },
+  pending: { base: 'bg-blue-500/10 hover:bg-blue-500/20 border-blue-500', border: 'border-l-blue-500', text: 'text-blue-800' },
   open: { base: 'bg-card', border: 'border-l-border', text: 'text-foreground' },
 };
 
@@ -66,7 +66,7 @@ const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shi
       </div>
       {shift.progress !== undefined && (
         <div className="px-1 pb-1">
-          <Progress value={shift.progress} className="h-1.5 w-full" />
+           <Progress value={shift.progress} className="h-1.5 w-full [&>div]:animate-shimmer [&>div]:bg-[linear-gradient(110deg,hsl(var(--primary)),45%,hsl(var(--primary-foreground)),55%,hsl(var(--primary)))] [&>div]:bg-[length:200%_100%]" />
         </div>
       )}
     </div>
@@ -98,12 +98,15 @@ const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: stri
   </div>
 );
 
-const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
-    <div onClick={onClick} className="flex items-center gap-2 p-2 rounded-lg border-2 border-dashed border-blue-500 text-blue-600 cursor-pointer hover:bg-blue-500/10">
-        <UserPlus className="h-5 w-5" />
-        <span className="text-sm font-semibold">Candidaturas</span>
-    </div>
-);
+const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
+    const config = statusConfig.pending;
+    return (
+        <div onClick={onClick} className={cn("flex items-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
+            <UserPlus className={cn("h-5 w-5", config.text)} />
+            <span className={cn("text-sm font-semibold", config.text)}>Candidaturas</span>
+        </div>
+    );
+}
 
 export function ShiftManagement() {
   const [shiftsData, setShiftsData] = React.useState<Shift[]>(initialShifts);
