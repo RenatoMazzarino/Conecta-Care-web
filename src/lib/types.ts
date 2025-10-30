@@ -61,6 +61,7 @@ export type Professional = {
   initials: string;
   avatarColor: string;
   rating: number;
+  bio: string;
   corenStatus: 'active' | 'inactive';
   reviews: { from: string; quote: string }[];
   specialties: string[];

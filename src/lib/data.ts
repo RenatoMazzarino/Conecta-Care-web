@@ -1,5 +1,6 @@
-import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification, Task } from './types';
+import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification, Task, ShiftState } from './types';
 import { PlaceHolderImages } from './placeholder-images';
+import { format, addDays, startOfWeek } from 'date-fns';
 
 const patientAvatars = {
   'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
@@ -142,11 +143,12 @@ export const professionals: Professional[] = [
     initials: 'CN',
     avatarColor: 'bg-cyan-500',
     rating: 4.8,
+    bio: 'Enfermeira com mais de 10 anos de experiência em home care, especializada no cuidado de pacientes idosos e com doenças crônicas. Focada em um atendimento humanizado e de alta qualidade.',
     corenStatus: 'active',
-    specialties: ['Home Care', 'Pediatria', 'Administração de Medicamentos IV'],
+    specialties: ['Home Care', 'Geriatria', 'Administração de Medicamentos IV', 'Curativos'],
     reviews: [
-      { from: 'Home Care ABC', quote: 'Profissional exemplar, sempre pontual.' },
-      { from: 'Clínica XYZ', quote: 'Ótima com pacientes de mobilidade reduzida.' }
+      { from: 'Família Silva', quote: 'Profissional exemplar, sempre pontual e muito carinhosa com nosso pai.' },
+      { from: 'Home Care ABC', quote: 'Uma das melhores enfermeiras da nossa equipe. Proativa e muito competente.' }
     ]
   },
   {
@@ -155,10 +157,11 @@ export const professionals: Professional[] = [
     initials: 'FB',
     avatarColor: 'bg-green-500',
     rating: 4.5,
+    bio: 'Técnico de enfermagem com 5 anos de experiência em ambiente hospitalar e home care. Habilidade em curativos complexos e monitoramento de pacientes.',
     corenStatus: 'active',
-    specialties: ['Geriatria', 'Curativos Complexos'],
+    specialties: ['Curativos Complexos', 'Monitoramento de Sinais Vitais'],
     reviews: [
-        { from: 'Hospital Central', quote: 'Muito atencioso e técnico.' },
+        { from: 'Hospital Central', quote: 'Muito atencioso e técnico. Um ótimo profissional para se ter na equipe.' },
     ]
   },
   {
@@ -167,8 +170,9 @@ export const professionals: Professional[] = [
     initials: 'DL',
     avatarColor: 'bg-orange-400',
     rating: 4.9,
+    bio: 'Enfermeiro com vasta experiência em UTI e cuidados intensivos. Especialista em ventilação mecânica e pacientes de alta complexidade.',
     corenStatus: 'active',
-    specialties: ['UTI', 'Ventilação Mecânica'],
+    specialties: ['UTI', 'Ventilação Mecânica', 'Cuidados Paliativos'],
     reviews: []
   },
     {
@@ -177,10 +181,11 @@ export const professionals: Professional[] = [
     initials: 'DM',
     avatarColor: 'bg-pink-500',
     rating: 3.2,
+    bio: 'Recém-formada em enfermagem, com foco em pediatria. Buscando ganhar experiência em home care.',
     corenStatus: 'inactive',
     specialties: ['Pediatria'],
     reviews: [
-         { from: 'Hospital Infantil', quote: 'Atrasou em 2 dos 3 plantões.' },
+         { from: 'Hospital Infantil', quote: 'Atrasou em 2 dos 3 plantões alocados.' },
     ]
   },
   {
@@ -189,10 +194,11 @@ export const professionals: Professional[] = [
     initials: 'BA',
     avatarColor: 'bg-blue-500',
     rating: 4.7,
+    bio: 'Enfermeiro experiente na área de cardiologia, com passagens por grandes hospitais. Agora focado em home care para reabilitação cardíaca.',
     corenStatus: 'active',
-    specialties: ['Cardiologia', 'Home Care'],
+    specialties: ['Cardiologia', 'Home Care', 'Reabilitação'],
     reviews: [
-      { from: 'Clínica do Coração', quote: 'Excelente profissional, muito conhecimento técnico.' },
+      { from: 'Clínica do Coração', quote: 'Excelente profissional, muito conhecimento técnico e ótimo com os pacientes.' },
     ]
   },
   {
@@ -201,8 +207,9 @@ export const professionals: Professional[] = [
     initials: 'JP',
     avatarColor: 'bg-red-500',
     rating: 4.9,
+    bio: 'Especialista em dermatologia e tratamento de lesões de pele. Muito cuidadosa e atenta aos detalhes, ideal para pacientes com necessidade de curativos especiais.',
     corenStatus: 'active',
-    specialties: ['Dermatologia', 'Curativos'],
+    specialties: ['Dermatologia', 'Curativos Especiais', 'Lesões por Pressão'],
     reviews: [
       { from: 'DermaClin', quote: 'Extremamente cuidadosa e atenta aos detalhes.' },
       { from: 'Home Care Senior', quote: 'Paciente adorou a atenção e o cuidado.' }
@@ -214,8 +221,9 @@ export const professionals: Professional[] = [
     initials: 'RG',
     avatarColor: 'bg-yellow-500',
     rating: 4.3,
+    bio: 'Fisioterapeuta com foco em reabilitação respiratória e motora. Experiência com pacientes pós-AVC e com doenças neuromusculares.',
     corenStatus: 'active',
-    specialties: ['Fisioterapia Respiratória'],
+    specialties: ['Fisioterapia Respiratória', 'Fisioterapia Motora'],
     reviews: []
   }
 ];
@@ -313,4 +321,15 @@ export const mockTasks: Task[] = [
     { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente' },
     { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta' },
     { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média' }
-]
+];
+
+const today = new Date();
+today.setUTCHours(0, 0, 0, 0);
+const sundayThisWeek = startOfWeek(today, { weekStartsOn: 0 });
+
+export const initialShifts: Record<string, ShiftState[]> = {
+  [`patient-123-${format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd')}`]: [ { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' }, 'pending', ],
+  [`patient-123-${format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd')}`]: [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' }, ],
+  [`patient-456-${format(addDays(sundayThisWeek, 2), 'yyyy-MM-dd')}`]: [ 'open', { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' }, ],
+  [`patient-789-${format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd')}`]: [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'night' }, ],
+};

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, History, XCircle } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
-import { professionals, initialActiveShiftsData, patients as mockPatients } from '@/lib/data';
+import { professionals, initialActiveShiftsData, patients as mockPatients, initialShifts } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -25,22 +25,6 @@ import { ptBR } from 'date-fns/locale';
 type ShiftState = Shift | null | 'open' | 'pending';
 
 const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
-
-
-const initialShifts: Record<string, ShiftState[]> = {
-  // Semana atual (base 2024-10-07)
-  'patient-123-2024-10-06': [ { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' }, 'pending', ],
-  'patient-123-2024-10-07': [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' }, ],
-  'patient-456-2024-10-09': [ 'open', { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' }, ],
-  'patient-789-2024-10-08': [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'night' }, ],
-  // Semana seguinte
-  'patient-123-2024-10-14': [ 'open', 'open' ],
-  'patient-456-2024-10-15': [ { professional: professionals.find(p => p.id === 'prof-5')!, shiftType: 'day' }, 'open' ],
-  'patient-789-2024-10-16': [ 'pending', 'open'],
-  // Mês seguinte
-  'patient-123-2024-11-01': [ 'open', 'open' ],
-};
-
 
 type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
 
@@ -208,6 +192,24 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
         </CardContent>
     </Card>
   );
+
+  const StatProgressCard = ({ title, value, total }: { title: string; value: number; total: number; }) => {
+    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+    return (
+        <Card>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{percentage}%</div>
+                <p className="text-xs text-muted-foreground">
+                    {value} de {total} vagas preenchidas
+                </p>
+                <Progress value={percentage} className="mt-2 h-2" />
+            </CardContent>
+        </Card>
+    );
+};
   
   const getPeriodLabel = () => {
     if (!displayedDays.length) return '';
@@ -215,6 +217,8 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     const end = displayedDays[displayedDays.length - 1];
     return `${format(start, 'd MMM', { locale: ptBR })} - ${format(end, 'd MMM, yyyy', { locale: ptBR })}`;
   }
+
+  const totalShifts = stats.open + stats.pending + stats.filled;
 
   return (
     <div className="p-4 sm:p-6">
@@ -250,10 +254,10 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
        </div>
 
        <div className="grid gap-6 md:grid-cols-4 mb-6">
-            <StatCard 
-                title="Total de Pacientes"
-                value={patients.length}
-                icon={UserPlus}
+             <StatProgressCard 
+                title="Taxa de Ocupação"
+                value={stats.filled}
+                total={totalShifts}
             />
             <StatCard 
                 title="Vagas em Aberto"
@@ -310,7 +314,8 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                         if (shift === 'pending') {
                             return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
                         }
-                        return <OpenShiftCard shiftType={type} urgent={patient.id === 'patient-456' && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                        const isUrgent = patient.id === 'patient-456' && dayKey === format(addDays(new Date(), 2), 'yyyy-MM-dd') && type === 'diurno';
+                        return <OpenShiftCard shiftType={type} urgent={isUrgent} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
                     }
 
                     return (
