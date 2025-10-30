@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -34,6 +33,7 @@ import {
 import Image from 'next/image';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
 import { logoutAction } from '@/app/logout/actions';
+import { useUser } from '@/firebase';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
@@ -59,6 +59,7 @@ const secondaryNavItems = [
 
 
 export function AppHeader({ title }: { title: string }) {
+  const { user } = useUser();
 
   const renderNavItem = (item: any) => {
     if (item.subItems) {
@@ -146,6 +147,15 @@ export function AppHeader({ title }: { title: string }) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
           <DropdownMenuSeparator />
+           {user && (
+              <>
+                <DropdownMenuItem className="flex-col items-start">
+                  <div className="text-xs text-muted-foreground">Seu UID de Admin</div>
+                  <div className="font-mono text-xs cursor-text" onClick={(e) => e.stopPropagation()}>{user.uid}</div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
             Perfil
