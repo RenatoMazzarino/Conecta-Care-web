@@ -1,10 +1,8 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    allowedDevOrigins: ["9003-firebase-studio-1761720804140.cluster-hkcruqmgzbd2aqcdnktmz6k7ba.cloudworkstations.dev"],
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
