@@ -76,7 +76,7 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
 const ShiftScaleView = () => {
   const [shifts, setShifts] = React.useState(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
-  const [openShiftInfo, setOpenShiftInfo] = React.useState<OpenShiftInfo | null>(null);
+  const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
 
   const handleOpenProfile = (professional: Professional) => {
@@ -91,6 +91,10 @@ const ShiftScaleView = () => {
     setOpenShiftInfo({ patient, dayKey, shiftType });
   };
   
+  const handlePublishFromScratch = () => {
+    setOpenShiftInfo('from_scratch');
+  }
+
   const handleCloseVacancy = () => {
     setOpenShiftInfo(null);
   };
@@ -242,14 +246,14 @@ const ShiftScaleView = () => {
           onApprove={candidacyShiftInfo ? handleApproveProfessional : undefined}
         />
       )}
-      {openShiftInfo && (
-        <PublishVacancyDialog
-          shiftInfo={openShiftInfo}
-          isOpen={!!openShiftInfo}
-          onOpenChange={handleCloseVacancy}
-          onVacancyPublished={handleVacancyPublished}
-        />
-      )}
+      
+      <PublishVacancyDialog
+        shiftInfo={openShiftInfo === 'from_scratch' ? null : openShiftInfo}
+        isOpen={!!openShiftInfo}
+        onOpenChange={handleCloseVacancy}
+        onVacancyPublished={handleVacancyPublished}
+      />
+      
        {candidacyShiftInfo && (
         <CandidacyManagementDialog
           shiftInfo={candidacyShiftInfo}
@@ -402,6 +406,13 @@ const ShiftMonitoringView = () => {
 
 export function ShiftManagement() {
   const [activeTab, setActiveTab] = React.useState("scale");
+  const [isPublishing, setIsPublishing] = React.useState(false);
+
+  const handlePublishFromScratch = () => {
+    // This will trigger the dialog to open in its "select patient" state
+    setIsPublishing(true);
+  };
+
 
   return (
     <div className="flex-1 flex flex-col">
@@ -419,7 +430,7 @@ export function ShiftManagement() {
                 <FileUp className="mr-2 h-4 w-4" />
                 Publicação em Massa
             </Button>
-            <Button>
+            <Button onClick={() => setIsPublishing(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Publicar Nova Vaga
             </Button>
@@ -433,6 +444,11 @@ export function ShiftManagement() {
               <ShiftMonitoringView />
           </TabsContent>
         </Tabs>
+         <PublishVacancyDialog
+            isOpen={isPublishing}
+            onOpenChange={setIsPublishing}
+            shiftInfo={null}
+        />
     </div>
   );
 }
