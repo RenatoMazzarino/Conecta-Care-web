@@ -78,16 +78,14 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
     </div>
 );
 
-const ShiftScaleView = () => {
+const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing } : { isBulkPublishing: boolean, setIsBulkPublishing: (value: boolean) => void }) => {
   const [shifts, setShifts] = React.useState(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   
-  // Fix for hydration error: ensure the date is initialized consistently.
-  // By creating a date from specific numbers, we avoid timezone parsing issues.
-  const [currentDate, setCurrentDate] = React.useState(new Date(2024, 9, 7)); // Month is 0-indexed (9 = October)
+  const [currentDate, setCurrentDate] = React.useState(() => new Date(2024, 9, 7)); // Month is 0-indexed (9 = October)
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   
   const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0, totalPatients: patients.length });
@@ -277,12 +275,15 @@ const ShiftScaleView = () => {
             />
       </div>
       
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className={cn(
+        "rounded-lg border bg-card overflow-hidden",
+        viewPeriod !== 'weekly' && "overflow-x-auto"
+      )}>
+        <div className="relative">
             <table className="min-w-full divide-y divide-border">
             <thead className="bg-muted/50">
                 <tr>
-                <th scope="col" className="sticky left-0 z-10 w-48 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider bg-muted/50 border-r">
+                <th scope="col" className="sticky left-0 z-20 w-48 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider bg-muted/50 border-r">
                     Paciente
                 </th>
                 {displayedDays.map(day => (
@@ -339,10 +340,10 @@ const ShiftScaleView = () => {
       )}
       
       <PublishVacancyDialog
-        isOpen={openShiftInfo === 'from_scratch'}
+        isOpen={openShiftInfo === 'from_scratch' || (openShiftInfo !== null && typeof openShiftInfo === 'object')}
         onOpenChange={handleCloseVacancy}
         onVacancyPublished={handleVacancyPublished}
-        shiftInfo={null}
+        shiftInfo={openShiftInfo === 'from_scratch' ? null : openShiftInfo}
       />
 
       <BulkPublishDialog
@@ -526,7 +527,7 @@ export function ShiftManagement() {
        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="scale" className="m-0">
-              <ShiftScaleView />
+              <ShiftScaleView isBulkPublishing={isBulkPublishing} setIsBulkPublishing={setIsBulkPublishing} />
           </TabsContent>
           <TabsContent value="monitoring" className="m-0">
               <ShiftMonitoringView />
