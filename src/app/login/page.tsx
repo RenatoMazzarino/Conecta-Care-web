@@ -74,7 +74,9 @@ export default function LoginPage() {
       formData.append('email', user.email || '');
       formData.append('name', user.displayName || '');
       
-      googleFormAction(formData);
+      React.startTransition(() => {
+        googleFormAction(formData);
+      });
 
     } catch (error) {
       console.error("Google Sign-In Error", error);
