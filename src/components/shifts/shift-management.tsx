@@ -85,7 +85,9 @@ const ShiftScaleView = () => {
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   
-  const [currentDate, setCurrentDate] = React.useState(new Date('2024-10-07'));
+  // Fix for hydration error: ensure the date is initialized consistently.
+  // By creating a date from specific numbers, we avoid timezone parsing issues.
+  const [currentDate, setCurrentDate] = React.useState(new Date(2024, 9, 7)); // Month is 0-indexed (9 = October)
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   
   const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0, totalPatients: patients.length });
@@ -204,6 +206,7 @@ const ShiftScaleView = () => {
   );
   
   const getPeriodLabel = () => {
+    if (!displayedDays.length) return '';
     const start = displayedDays[0];
     const end = displayedDays[displayedDays.length - 1];
     const startFormat = format(start, 'd MMM', { locale: ptBR });
@@ -232,7 +235,16 @@ const ShiftScaleView = () => {
                   <Button variant="ghost" size="icon" onClick={() => handleDateChange(numDays)}><ChevronsRight className="h-5 w-5" /></Button>
               </div>
           </div>
-          <div className="w-48"></div> {/* Spacer */}
+          <div className="flex items-center gap-2">
+             <Button variant="outline" onClick={() => setIsBulkPublishing(true)}>
+                <FileUp className="mr-2 h-4 w-4" />
+                Publicação em Massa
+            </Button>
+            <Button onClick={() => setOpenShiftInfo('from_scratch')}>
+                <Plus className="mr-2 h-4 w-4" />
+                Publicar Nova Vaga
+            </Button>
+        </div>
        </div>
 
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -327,11 +339,16 @@ const ShiftScaleView = () => {
       )}
       
       <PublishVacancyDialog
-        isOpen={!!openShiftInfo}
+        isOpen={openShiftInfo === 'from_scratch'}
         onOpenChange={handleCloseVacancy}
         onVacancyPublished={handleVacancyPublished}
-        shiftInfo={openShiftInfo === 'from_scratch' ? null : openShiftInfo}
+        shiftInfo={null}
       />
+
+      <BulkPublishDialog
+          isOpen={isBulkPublishing}
+          onOpenChange={setIsBulkPublishing}
+        />
       
        {candidacyShiftInfo && (
         <CandidacyManagementDialog
@@ -493,12 +510,10 @@ const ShiftMonitoringView = () => {
 
 export function ShiftManagement() {
   const [activeTab, setActiveTab] = React.useState("scale");
-  const [isPublishing, setIsPublishing] = React.useState(false);
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
 
-
   return (
-    <div className="flex-1 flex flex-col">
+    <>
        <div className="flex justify-between items-center p-4 sm:p-6 border-b bg-card">
          <div className="flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -507,16 +522,6 @@ export function ShiftManagement() {
                   <TabsTrigger value="monitoring">Monitoramento em Tempo Real</TabsTrigger>
               </TabsList>
             </Tabs>
-        </div>
-        <div className='flex items-center gap-2'>
-            <Button variant="outline" onClick={() => setIsBulkPublishing(true)}>
-                <FileUp className="mr-2 h-4 w-4" />
-                Publicação em Massa
-            </Button>
-            <Button onClick={() => setIsPublishing(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Publicar Nova Vaga
-            </Button>
         </div>
        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -527,17 +532,6 @@ export function ShiftManagement() {
               <ShiftMonitoringView />
           </TabsContent>
         </Tabs>
-         <PublishVacancyDialog
-            isOpen={isPublishing}
-            onOpenChange={setIsPublishing}
-            shiftInfo={null}
-        />
-        <BulkPublishDialog
-          isOpen={isBulkPublishing}
-          onOpenChange={setIsBulkPublishing}
-        />
-    </div>
+    </>
   );
 }
-
-    
