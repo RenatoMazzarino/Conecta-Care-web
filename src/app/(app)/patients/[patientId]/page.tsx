@@ -125,17 +125,17 @@ export default function PatientDetailPage() {
            <Button asChild variant="secondary"><Link href={`/patients/${patientId}/profile`}><FileText className="mr-2"/>Ver Ficha Cadastral</Link></Button>
             <Button onClick={() => setIsUploadOpen(true)} variant="outline"><Upload className="mr-2"/>Anexar Documento</Button>
             {!isEditing ? (
-            <Button onClick={handleEdit}>
+            <Button onClick={handleEdit} size="default">
                 <Edit className="w-4 h-4 mr-2" />
                 Editar Dashboard
             </Button>
             ) : (
             <div className="flex gap-2">
-                <Button onClick={handleCancel} variant="outline">
+                <Button onClick={handleCancel} variant="outline" size="default">
                 <X className="w-4 h-4 mr-2" />
                 Cancelar
                 </Button>
-                <Button onClick={handleSave} disabled={isSaveDisabled}>
+                <Button onClick={handleSave} disabled={isSaveDisabled} size="default">
                 <Save className="w-4 h-4 mr-2" />
                 Salvar
                 </Button>
@@ -145,44 +145,44 @@ export default function PatientDetailPage() {
       </div>
       
        <Card>
-        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             <div className="flex items-center gap-4">
-                 <div className="p-3 rounded-full bg-primary/10">
-                    <User className="w-6 h-6 text-primary" />
+                 <div className="p-2.5 rounded-full bg-primary/10">
+                    <User className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                     <p className="text-sm text-muted-foreground">Paciente</p>
-                    <p className="font-semibold text-lg">{displayData.name}</p>
+                    <p className="font-semibold text-base">{displayData.name}</p>
                     <p className="text-sm text-muted-foreground">{displayData.age} anos ({new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})})</p>
                 </div>
             </div>
             <div className="flex items-center gap-4">
-                <div className="p-3 rounded-full bg-primary/10">
-                    <Phone className="w-6 h-6 text-primary" />
+                <div className="p-2.5 rounded-full bg-primary/10">
+                    <Phone className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                      <p className="text-sm text-muted-foreground">Contato de Emergência</p>
-                    <p className="font-semibold text-lg">{displayData.familyContact.name}</p>
+                    <p className="font-semibold text-base">{displayData.familyContact.name}</p>
                     <p className="text-sm text-muted-foreground">{displayData.familyContact.phone}</p>
                 </div>
             </div>
-             <div className="flex items-start gap-4 col-span-1 md:col-span-2 lg:col-span-1">
-                <div className="p-3 rounded-full bg-destructive/10 mt-1">
-                    <AlertCircle className="w-6 h-6 text-destructive" />
+             <div className="flex items-start gap-4">
+                <div className="p-2.5 rounded-full bg-destructive/10 mt-1">
+                    <AlertCircle className="w-5 h-5 text-destructive" />
                 </div>
                 <div>
                      <p className="text-sm text-muted-foreground">Condições e Alergias</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                     {displayData.chronicConditions?.length > 0 ? (
                         displayData.chronicConditions.map((condition, i) => (
-                        <Badge key={i} variant="secondary">{condition}</Badge>
+                        <Badge key={`cond-${i}`} variant="secondary">{condition}</Badge>
                         ))
                     ) : (
                         <p className="text-sm text-muted-foreground">Nenhuma condição crônica</p>
                     )}
                      {displayData.allergies?.length > 0 ? (
                         displayData.allergies.map((allergy, i) => (
-                        <Badge key={i} variant="destructive">{allergy}</Badge>
+                        <Badge key={`allergy-${i}`} variant="destructive">{allergy}</Badge>
                         ))
                     ) : (
                         <p className="text-sm text-muted-foreground">Nenhuma alergia</p>
