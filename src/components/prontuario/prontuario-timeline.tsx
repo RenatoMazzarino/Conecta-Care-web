@@ -14,7 +14,7 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
             <div className="absolute left-6 top-0 h-full w-1 bg-muted rounded-full -translate-x-1/2" />
             {/* Progress Bar Fill */}
             <div 
-                className="absolute left-6 top-0 w-1 bg-primary rounded-full -translate-x-1/2 transition-all duration-500" 
+                className="absolute left-6 top-0 w-1 bg-primary rounded-full -translate-x-1/2 transition-all duration-500 animate-shimmer bg-[linear-gradient(110deg,hsl(var(--primary)),45%,hsl(var(--primary-foreground)),55%,hsl(var(--primary)))] bg-[length:200%_100%]" 
                 style={{ height: `${currentProgress}%`}} 
             />
             
