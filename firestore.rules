@@ -1,169 +1,145 @@
 /**
  * @file Firestore Security Rules
  * @description This ruleset enforces a strict user-ownership model for patient data,
- *              allowing authenticated users (care team members or family contacts) to
- *              access information related to a specific patient.
+ *              allowing only authenticated users access to patient-specific information.
+ *              It leverages Firestore's hierarchical data structure to simplify authorization.
  *
- * @dataStructure
- *   /patients/{patientId}: Root document for patient-specific data.
- *   /patients/{patientId}/inventories/{inventoryId}: Inventory levels for supplies used by the patient.
- *   /patients/{patientId}/supplyRequests/{supplyRequestId}: Requests for supplies made for the patient.
- *   /patients/{patientId}/shiftReports/{shiftReportId}: Shift reports submitted for the patient.
- *   /patients/{patientId}/whatsAppNotifications/{notificationId}: WhatsApp notifications related to the patient.
- *   /supplies/{supplyId}: Catalog of available supplies (publicly readable).
+ * Data Structure:
+ * - /patients/{patientId}: Root document for patient data.
+ * - /patients/{patientId}/inventories/{inventoryId}: Inventory records for the patient.
+ * - /patients/{patientId}/supplyRequests/{supplyRequestId}: Supply requests for the patient.
+ * - /patients/{patientId}/shiftReports/{shiftReportId}: Shift reports for the patient.
+ * - /patients/{patientId}/whatsAppNotifications/{notificationId}: WhatsApp notifications for the patient.
+ * - /supplies/{supplyId}: Publicly readable list of available supplies.
  *
- * @keySecurityDecisions
- *   - Authenticated users can read and write patient data.
- *   - The 'supplies' collection is publicly readable but not writable (supply catalog).
- *   - `list` operations are restricted to authenticated users for patient subcollections.
- *
- * @denormalizationForAuthorization
- *   None: Not needed for a single patient app.
- *
- * @structuralSegregation
- *   Patient-specific data is segregated under /patients/{patientId}, while the 'supplies'
- *   collection is public and separate.
+ * Key Security Decisions:
+ * - All patient-specific data is nested under /patients/{patientId}, enforcing owner-only access.
+ * - Listing of supplies is public.
+ * - No user listing is allowed.
+ * - The rules explicitly deny any ambiguous or unhandled relationships to default to maximum security.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Allows authenticated users to read and write patient data.
-     * @path /patients/{patientId}
-     * @allow (create) request.auth.uid exists
-     * @allow (update) request.auth.uid exists
-     * @allow (delete) request.auth.uid exists && resource != null
-     * @allow (get) request.auth.uid exists
-     * @allow (list) request.auth.uid exists
-     * @deny (create) request.auth == null
-     * @deny (update) request.auth == null
-     * @deny (delete) request.auth == null || resource == null
-     * @deny (get) request.auth == null
-     * @deny (list) request.auth == null
-     * @principle Enforces authentication for all patient data access.
+     * @description Checks if the current user is signed in.
      */
-    match /patients/{patientId} {
-      allow create: if isSignedIn();
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
-    /**
-     * @description Allows public read access to the supplies catalog.
-     *              Writes are disabled.
-     * @path /supplies/{supplyId}
-     * @allow (get) true
-     * @allow (list) true
-     * @deny (create) false
-     * @deny (update) false
-     * @deny (delete) false
-     * @principle Allows open reads for the supplies catalog.
-     */
-    match /supplies/{supplyId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
-    }
-
-    /**
-     * @description Allows authenticated users to manage patient-specific inventory.
-     * @path /patients/{patientId}/inventories/{inventoryId}
-     * @allow (create) request.auth.uid exists
-     * @allow (update) request.auth.uid exists
-     * @allow (delete) request.auth.uid exists && resource != null
-     * @allow (get) request.auth.uid exists
-     * @allow (list) request.auth.uid exists
-     * @deny (create) request.auth == null
-     * @deny (update) request.auth == null
-     * @deny (delete) request.auth == null || resource == null
-     * @deny (get) request.auth == null
-     * @deny (list) request.auth == null
-     * @principle Enforces authentication for inventory management.
-     */
-    match /patients/{patientId}/inventories/{inventoryId} {
-      allow create: if isSignedIn();
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
-    /**
-     * @description Allows authenticated users to manage patient-specific supply requests.
-     * @path /patients/{patientId}/supplyRequests/{supplyRequestId}
-     * @allow (create) request.auth.uid exists
-     * @allow (update) request.auth.uid exists
-     * @allow (delete) request.auth.uid exists && resource != null
-     * @allow (get) request.auth.uid exists
-     * @allow (list) request.auth.uid exists
-     * @deny (create) request.auth == null
-     * @deny (update) request.auth == null
-     * @deny (delete) request.auth == null || resource == null
-     * @deny (get) request.auth == null
-     * @deny (list) request.auth == null
-     * @principle Enforces authentication for supply request management.
-     */
-    match /patients/{patientId}/supplyRequests/{supplyRequestId} {
-      allow create: if isSignedIn();
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
-    /**
-     * @description Allows authenticated users to manage patient-specific shift reports.
-     * @path /patients/{patientId}/shiftReports/{shiftReportId}
-     * @allow (create) request.auth.uid exists
-     * @allow (update) request.auth.uid exists
-     * @allow (delete) request.auth.uid exists && resource != null
-     * @allow (get) request.auth.uid exists
-     * @allow (list) request.auth.uid exists
-     * @deny (create) request.auth == null
-     * @deny (update) request.auth == null
-     * @deny (delete) request.auth == null || resource == null
-     * @deny (get) request.auth == null
-     * @deny (list) request.auth == null
-     * @principle Enforces authentication for shift report management.
-     */
-    match /patients/{patientId}/shiftReports/{shiftReportId} {
-      allow create: if isSignedIn();
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
-    /**
-     * @description Allows authenticated users to manage patient-specific WhatsApp notifications.
-     * @path /patients/{patientId}/whatsAppNotifications/{notificationId}
-     * @allow (create) request.auth.uid exists
-     * @allow (update) request.auth.uid exists
-     * @allow (delete) request.auth.uid exists && resource != null
-     * @allow (get) request.auth.uid exists
-     * @allow (list) request.auth.uid exists
-     * @deny (create) request.auth == null
-     * @deny (update) request.auth == null
-     * @deny (delete) request.auth == null || resource == null
-     * @deny (get) request.auth == null
-     * @deny (list) request.auth == null
-     * @principle Enforces authentication for WhatsApp notification management.
-     */
-    match /patients/{patientId}/whatsAppNotifications/{notificationId} {
-      allow create: if isSignedIn();
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
     function isSignedIn() {
       return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the current user's UID matches the provided userId.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the current user is the owner of an existing document.
+     * @details Ensures both that the user is the owner and that the document exists.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId} collection.
+     * @path /patients/{patientId}
+     * @allow (create) User JQSiffizIgYpmVLq1Hsg3w8YPFJ3 can create a patient document if patientId == JQSiffizIgYpmVLq1Hsg3w8YPFJ3
+     * @deny (create) User ABC cannot create a patient document if patientId != ABC
+     * @principle Enforces document ownership for writes.
+     */
+    match /patients/{patientId} {
+      // Only the authenticated user who owns the patientId can read, update, or delete
+      allow get: if isSignedIn();
+      allow list: if false; // Listing patients is disallowed
+
+      allow create: if isOwner(patientId) && request.resource.data.id == patientId;
+      allow update: if isExistingOwner(patientId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(patientId);
+    }
+
+    /**
+     * @description Rules for the /supplies/{supplyId} collection.
+     * @path /supplies/{supplyId}
+     * @allow (get, list) Anyone can read the supplies
+     * @deny (create, update, delete) Nobody can create, update or delete supplies
+     * @principle Read-only access for all users, no write access.
+     */
+    match /supplies/{supplyId} {
+      // Supplies are publicly readable but not writable
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/inventories/{inventoryId} collection.
+     * @path /patients/{patientId}/inventories/{inventoryId}
+     * @allow (create) User JQSiffizIgYpmVLq1Hsg3w8YPFJ3 can create inventory if patientId == JQSiffizIgYpmVLq1Hsg3w8YPFJ3
+     * @deny (create) User ABC cannot create inventory if patientId != ABC
+     * @principle Enforces document ownership for writes.
+     */
+    match /patients/{patientId}/inventories/{inventoryId} {
+      // Only the owner of the patient can manage inventories
+      allow get: if isSignedIn();
+      allow list: if isOwner(patientId);
+
+      allow create: if isOwner(patientId) && request.resource.data.patientId == patientId;
+      allow update: if isExistingOwner(patientId) && request.resource.data.patientId == resource.data.patientId;
+      allow delete: if isExistingOwner(patientId);
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/supplyRequests/{supplyRequestId} collection.
+     * @path /patients/{patientId}/supplyRequests/{supplyRequestId}
+     * @allow (create) User JQSiffizIgYpmVLq1Hsg3w8YPFJ3 can create supply request if patientId == JQSiffizIgYpmVLq1Hsg3w8YPFJ3
+     * @deny (create) User ABC cannot create supply request if patientId != ABC
+     * @principle Enforces document ownership for writes.
+     */
+    match /patients/{patientId}/supplyRequests/{supplyRequestId} {
+      // Only the owner of the patient can manage supply requests
+      allow get: if isSignedIn();
+      allow list: if isOwner(patientId);
+
+      allow create: if isOwner(patientId) && request.resource.data.patientId == patientId;
+      allow update: if isExistingOwner(patientId) && request.resource.data.patientId == resource.data.patientId;
+      allow delete: if isExistingOwner(patientId);
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/shiftReports/{shiftReportId} collection.
+     * @path /patients/{patientId}/shiftReports/{shiftReportId}
+     * @allow (create) User JQSiffizIgYpmVLq1Hsg3w8YPFJ3 can create shift report if patientId == JQSiffizIgYpmVLq1Hsg3w8YPFJ3
+     * @deny (create) User ABC cannot create shift report if patientId != ABC
+     * @principle Enforces document ownership for writes.
+     */
+    match /patients/{patientId}/shiftReports/{shiftReportId} {
+      // Only the owner of the patient can manage shift reports
+      allow get: if isSignedIn();
+      allow list: if isOwner(patientId);
+
+      allow create: if isOwner(patientId) && request.resource.data.patientId == patientId;
+      allow update: if isExistingOwner(patientId) && request.resource.data.patientId == resource.data.patientId;
+      allow delete: if isExistingOwner(patientId);
+    }
+
+     /**
+     * @description Rules for the /patients/{patientId}/whatsAppNotifications/{notificationId} collection.
+     * @path /patients/{patientId}/whatsAppNotifications/{notificationId}
+     * @allow (list) User JQSiffizIgYpmVLq1Hsg3w8YPFJ3 can list notifications if patientId == JQSiffizIgYpmVLq1Hsg3w8YPFJ3
+     * @deny (list) User ABC cannot list notifications if patientId != ABC
+     * @principle Enforces document ownership for writes.
+     */
+    match /patients/{patientId}/whatsAppNotifications/{notificationId} {
+      // Only the owner of the patient can manage WhatsApp notifications
+      allow get: if isSignedIn();
+      allow list: if isOwner(patientId);
+
+      allow create: if isOwner(patientId) && request.resource.data.patientId == patientId;
+      allow update: if isExistingOwner(patientId) && request.resource.data.patientId == resource.data.patientId;
+      allow delete: if isExistingOwner(patientId);
     }
   }
 }

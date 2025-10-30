@@ -87,8 +87,6 @@
         "id",
         "name",
         "dateOfBirth",
-        "medicalHistory",
-        "carePlan",
         "familyContact"
       ]
     },
@@ -281,46 +279,31 @@
         "reportDate"
       ]
     },
-    "WhatsAppNotification": {
+    "Notification": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "WhatsAppNotification",
+      "title": "Notification",
       "type": "object",
-      "description": "Represents a WhatsApp notification sent by the system.",
+      "description": "Represents a notification for the dashboard.",
       "properties": {
         "id": {
-          "type": "string",
-          "description": "Unique identifier for the notification."
+          "type": "string"
         },
         "patientId": {
+          "type": "string"
+        },
+        "type": {
           "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N WhatsAppNotification)"
+          "enum": ["supply", "info", "alert"]
         },
         "message": {
-          "type": "string",
-          "description": "The content of the WhatsApp message."
+          "type": "string"
         },
-        "recipient": {
+        "timestamp": {
           "type": "string",
-          "description": "The recipient of the message (e.g., phone number)."
-        },
-        "sentTimestamp": {
-          "type": "string",
-          "description": "Timestamp of when the message was sent.",
           "format": "date-time"
-        },
-        "notificationType": {
-          "type": "string",
-          "description": "Type of notification (e.g., 'Supply Request', 'Rule Change', 'Shift Reminder')."
         }
       },
-      "required": [
-        "id",
-        "patientId",
-        "message",
-        "recipient",
-        "sentTimestamp",
-        "notificationType"
-      ]
+      "required": ["id", "patientId", "type", "message", "timestamp"]
     }
   },
   "auth": {
@@ -423,14 +406,14 @@
           ]
         }
       },
-      {
-        "path": "/patients/{patientId}/whatsAppNotifications/{notificationId}",
+       {
+        "path": "/patients/{patientId}/notifications/{notificationId}",
         "definition": {
-          "entityName": "WhatsAppNotification",
+          "entityName": "Notification",
           "schema": {
-            "$ref": "#/backend/entities/WhatsAppNotification"
+            "$ref": "#/backend/entities/Notification"
           },
-          "description": "Represents a WhatsApp notification sent related to the patient. Nested under the patient document.",
+          "description": "Represents a notification for a patient.",
           "params": [
             {
               "name": "patientId",
@@ -438,12 +421,12 @@
             },
             {
               "name": "notificationId",
-              "description": "Unique identifier for the notification."
+              "description": "Unique identifier for the notification record."
             }
           ]
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to manage homecare for a single patient, focusing on inventory, supply requests, communication, and AI-assisted features. Given that the application is centered around *one* patient, a top-level document for the patient can act as the root for much of the data, simplifying data access and security rules. The structure leverages path-based ownership for patient-related data and denormalization where needed to ensure authorization independence.\n\n**Authorization Independence (CRITICAL):**\n*   Most collections (Inventory, SupplyRequest, ShiftReport, WhatsAppNotification) are structured as subcollections under the `/patients/{patientId}` document. This allows for simple, path-based security rules, ensuring that only authorized care team members and family contacts can access patient-specific data. Because all data is nested under a specific `/patients/{patientId}`, authorization is simplified to the point of checking for the existence of an authenticated user. \n\n*   For Collaborative Data - there are no group permissions in this case, all data is related to a single patient.\n\n**Structural Segregation:**\n*   The structure separates different data types into distinct collections to maintain a homogeneous security posture. For example, `supplies` are stored in a top-level collection, separate from patient-specific data.\n\n**Access Modeling:**\n*   **Path-Based Ownership:** Collections like `inventories`, `supplyRequests`, `shiftReports`, and `whatsAppNotifications` are subcollections of `/patients/{patientId}`, enforcing ownership. This simplifies security rules based on the active patient.\n\n**QAPs (Rules are not Filters):**\n*   The structure supports secure `list` operations. The nesting of patient-specific data ensures that querying collections such as `/patients/{patientId}/inventories` only returns inventory data for the specific patient, preventing unauthorized data access.\n\n**Denormalization**: Given this is a single patient app, we have opted to not denormalize any data. With added complexity and a new patient requirement this would be updated."
+    ]
   }
 }
+    
