@@ -7,7 +7,6 @@ import {
   BotMessageSquare,
   PanelLeft,
   HeartPulse,
-  User,
   LogOut,
   Settings,
   Users,
@@ -15,6 +14,7 @@ import {
   DollarSign,
   CalendarCheck,
   MessageSquareWarning,
+  User,
 } from 'lucide-react';
 import {
   Sheet,
@@ -31,20 +31,70 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
-  { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
-  { href: '/inventory', label: 'Estoque', icon: ClipboardList },
+  { 
+    id: 'pessoas',
+    label: 'Pessoas', 
+    icon: Users,
+    subItems: [
+      { href: '/patients', label: 'Pacientes', icon: User },
+      { href: '/team', label: 'Equipe', icon: HeartPulse }
+    ]
+  },
   { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
-  { href: '/team', label: 'Equipe', icon: Users },
+];
+
+const secondaryNavItems = [
+  { href: '/inventory', label: 'Estoque', icon: ClipboardList },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
   { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
 ];
 
+
 export function AppHeader({ title }: { title: string }) {
+
+  const renderNavItem = (item: any) => {
+    if (item.subItems) {
+      return (
+         <Collapsible key={item.id}>
+            <CollapsibleTrigger className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground w-full">
+              <item.icon className="h-5 w-5" />
+              {item.label}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pl-10 mt-2 space-y-4">
+              {item.subItems.map((sub: any) => (
+                <Link
+                  key={sub.href}
+                  href={sub.href}
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <sub.icon className="h-5 w-5" />
+                  {sub.label}
+                </Link>
+              ))}
+            </CollapsibleContent>
+         </Collapsible>
+      )
+    }
+
+    return (
+       <Link
+          href={item.href}
+          key={item.href}
+          className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+        >
+          <item.icon className="h-5 w-5" />
+          {item.label}
+        </Link>
+    )
+  }
+
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <Sheet>
@@ -63,16 +113,9 @@ export function AppHeader({ title }: { title: string }) {
               <HeartPulse className="h-5 w-5 transition-all group-hover:scale-110" />
               <span className="sr-only">CareSync Home</span>
             </Link>
-            {navItems.map((item) => (
-              <Link
-                href={item.href}
-                key={item.href}
-                className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map(renderNavItem)}
+            <hr className="my-2" />
+            {secondaryNavItems.map(renderNavItem)}
           </nav>
         </SheetContent>
       </Sheet>

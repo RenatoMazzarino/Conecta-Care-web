@@ -7,8 +7,6 @@ import {
   Home,
   ClipboardList,
   BotMessageSquare,
-  Settings,
-  HeartPulse,
   Users,
   LineChart,
   DollarSign,
@@ -16,6 +14,9 @@ import {
   MessageSquareWarning,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  User,
+  HeartPulse,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,14 +27,25 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
-  { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
-  { href: '/inventory', label: 'Estoque', icon: ClipboardList },
+  { 
+    id: 'pessoas',
+    label: 'Pessoas', 
+    icon: Users,
+    subItems: [
+      { href: '/patients', label: 'Pacientes', icon: User },
+      { href: '/team', label: 'Equipe', icon: HeartPulse }
+    ]
+  },
   { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
-  { href: '/team', label: 'Equipe', icon: Users },
+];
+
+const secondaryNavItems = [
+  { href: '/inventory', label: 'Estoque', icon: ClipboardList },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
   { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
@@ -51,6 +63,77 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
     }
   }, [isMobile, setIsCollapsed]);
 
+  const renderNavItem = (item: any) => {
+    const isActive = item.href === pathname;
+
+    if (item.subItems) {
+      const isChildActive = item.subItems.some((sub: any) => sub.href === pathname);
+      return (
+        <Collapsible key={item.id} defaultOpen={isChildActive}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+               <CollapsibleTrigger className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent w-full',
+                  isChildActive && 'text-primary',
+                   isCollapsed && 'justify-center'
+                )}>
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'w-0 opacity-0')}>{item.label}</span>
+                  {!isCollapsed && <ChevronDown className="h-4 w-4 ml-auto transition-transform [&[data-state=open]]:rotate-180" />}
+              </CollapsibleTrigger>
+            </TooltipTrigger>
+             {isCollapsed && (
+                <TooltipContent side="right" align="center">
+                    {item.label}
+                </TooltipContent>
+            )}
+          </Tooltip>
+           <CollapsibleContent className={cn("pl-7 pr-2 space-y-1", isCollapsed && "hidden")}>
+              {item.subItems.map((subItem: any) => {
+                 const isSubItemActive = subItem.href === pathname;
+                return (
+                  <Link
+                    key={subItem.href}
+                    href={subItem.href}
+                    className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent',
+                        isSubItemActive && 'bg-accent text-primary',
+                    )}
+                    >
+                    <subItem.icon className="h-4 w-4 shrink-0" />
+                    <span>{subItem.label}</span>
+                </Link>
+                )
+              })}
+           </CollapsibleContent>
+        </Collapsible>
+      );
+    }
+
+    return (
+       <Tooltip key={item.href}>
+          <TooltipTrigger asChild>
+               <Link
+                  href={item.href}
+                  className={cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent',
+                      isActive && 'bg-accent text-primary',
+                      isCollapsed && 'justify-center'
+                  )}
+                  >
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'w-0 opacity-0')}>{item.label}</span>
+              </Link>
+          </TooltipTrigger>
+          {isCollapsed && (
+              <TooltipContent side="right" align="center">
+                  {item.label}
+              </TooltipContent>
+          )}
+       </Tooltip>
+    );
+  }
+
   return (
     <aside className={cn(
         "fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-card sm:flex transition-[width] duration-300",
@@ -67,32 +150,13 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
             <span className={cn("transition-opacity", isCollapsed && "w-0 opacity-0")}>CareSync</span>
           </Link>
         </div>
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 text-sm font-medium">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 text-sm font-medium">
           <ul className="flex flex-col gap-1">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                 <Tooltip>
-                    <TooltipTrigger asChild>
-                         <Link
-                            href={item.href}
-                            className={cn(
-                                'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent',
-                                pathname === item.href && 'bg-accent text-primary',
-                                isCollapsed && 'justify-center'
-                            )}
-                            >
-                            <item.icon className="h-5 w-5 shrink-0" />
-                            <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'w-0 opacity-0')}>{item.label}</span>
-                        </Link>
-                    </TooltipTrigger>
-                    {isCollapsed && (
-                        <TooltipContent side="right" align="center">
-                            {item.label}
-                        </TooltipContent>
-                    )}
-                 </Tooltip>
-              </li>
-            ))}
+            {navItems.map(item => <li key={item.id || item.href}>{renderNavItem(item)}</li>)}
+          </ul>
+           <hr className="my-4" />
+           <ul className="flex flex-col gap-1">
+            {secondaryNavItems.map(item => <li key={item.id || item.href}>{renderNavItem(item)}</li>)}
           </ul>
         </nav>
         <div className={cn("mt-auto p-4 border-t", isCollapsed && "p-2")}>
@@ -115,5 +179,3 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
     </aside>
   );
 }
-
-    
