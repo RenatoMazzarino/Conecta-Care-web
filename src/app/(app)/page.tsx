@@ -3,16 +3,15 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
-import { PatientInfoCard } from '@/components/dashboard/patient-info-card';
-import { LowStockCard } from '@/components/dashboard/low-stock-card';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
-import { NotificationsCard } from '@/components/dashboard/notifications-card';
-import type { Patient, InventoryItem, ShiftReport, Notification } from '@/lib/types';
+import { CommunicationsCard } from '@/components/dashboard/communications-card';
+import { TasksCard } from '@/components/dashboard/tasks-card';
+import type { Patient, InventoryItem, ShiftReport, Notification, Task } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
+import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications, mockTasks } from '@/lib/data';
 import { AlertTriangle, Clock, Package, FlaskConical } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -21,6 +20,7 @@ export default function DashboardPage() {
   const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
   const [reports, setReports] = React.useState<ShiftReport[]>([]);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -38,6 +38,7 @@ export default function DashboardPage() {
       setInventory(mockInventory);
       setReports(mockShiftReports);
       setNotifications(mockNotifications);
+      setTasks(mockTasks);
       setIsLoading(false);
     }, 1000); // Simulate network delay
 
@@ -104,8 +105,8 @@ export default function DashboardPage() {
                 </>
              ) : (
                 <>
-                    {inventory && <LowStockCard items={inventory} />}
-                    {notifications && <NotificationsCard notifications={notifications} />}
+                    {tasks && <TasksCard tasks={tasks} />}
+                    {notifications && <CommunicationsCard notifications={notifications} />}
                 </>
              )}
           </div>

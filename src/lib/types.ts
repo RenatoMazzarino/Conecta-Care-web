@@ -101,3 +101,10 @@ export type Notification = {
   message: string;
   timestamp: string;
 }
+
+export type Task = {
+    id: string;
+    title: string;
+    assignee: string;
+    priority: 'Urgente' | 'Alta' | 'Média' | 'Baixa';
+}

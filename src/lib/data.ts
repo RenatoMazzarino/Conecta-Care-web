@@ -1,4 +1,4 @@
-import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification } from './types';
+import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification, Task } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const patientAvatars = {
@@ -255,4 +255,11 @@ export const mockNotifications: Notification[] = [
     message: 'Profissional Carla Nogueira confirmou o plantão de amanhã.',
     timestamp: new Date(new Date().setDate(new Date().getDate() -1)).toISOString()
   },
+]
+
+export const mockTasks: Task[] = [
+    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta' },
+    { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente' },
+    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta' },
+    { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média' }
 ]

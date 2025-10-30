@@ -16,6 +16,7 @@ import {
   DollarSign,
   FileText,
   CalendarCheck,
+  MessageSquare,
 } from 'lucide-react';
 import {
   Sheet,
@@ -39,6 +40,7 @@ const navItems = [
   { href: '/schedule', label: 'Agenda', icon: Calendar },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
   { href: '/inventory', label: 'Estoque', icon: ClipboardList },
+  { href: '/communications', label: 'Comunicações', icon: MessageSquare },
   { href: '/team', label: 'Equipe', icon: Users },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
