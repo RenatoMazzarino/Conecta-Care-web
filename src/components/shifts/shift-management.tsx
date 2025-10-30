@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users, CircleCheck, CircleX, Pill, Footprints, FileText, FileUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users, FileText, FileUp } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialActiveShiftsData, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -17,6 +17,7 @@ import { ShiftChatDialog } from './shift-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { ShiftHistoryDialog } from './shift-history-dialog';
 import { cn } from '@/lib/utils';
+import { BulkPublishDialog } from './bulk-publish-dialog';
 
 
 type ShiftState = Shift | null | 'open' | 'pending';
@@ -159,21 +160,21 @@ const ShiftScaleView = () => {
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
             <StatCard 
                 title="Total de Pacientes"
-                value="124"
+                value="3"
                 icon={Users}
                 onClick={() => console.log('Filter all patients')}
             />
             <StatCard 
                 title="Vagas em Aberto"
-                value="17"
-                subValue="1 Publicada / 16 Não Publicadas"
+                value="2"
+                subValue="1 Publicada / 1 Não Publicada"
                 icon={FileText}
                 className="text-amber-600"
                 onClick={() => console.log('Filter open shifts')}
             />
             <StatCard 
                 title="Plantões Ocupados"
-                value="352"
+                value="4"
                 icon={CheckCircle}
                 className="text-green-600"
                 onClick={() => console.log('Filter filled shifts')}
@@ -407,11 +408,7 @@ const ShiftMonitoringView = () => {
 export function ShiftManagement() {
   const [activeTab, setActiveTab] = React.useState("scale");
   const [isPublishing, setIsPublishing] = React.useState(false);
-
-  const handlePublishFromScratch = () => {
-    // This will trigger the dialog to open in its "select patient" state
-    setIsPublishing(true);
-  };
+  const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
 
 
   return (
@@ -426,7 +423,7 @@ export function ShiftManagement() {
             </Tabs>
         </div>
         <div className='flex items-center gap-2'>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setIsBulkPublishing(true)}>
                 <FileUp className="mr-2 h-4 w-4" />
                 Publicação em Massa
             </Button>
@@ -448,6 +445,10 @@ export function ShiftManagement() {
             isOpen={isPublishing}
             onOpenChange={setIsPublishing}
             shiftInfo={null}
+        />
+        <BulkPublishDialog
+          isOpen={isBulkPublishing}
+          onOpenChange={setIsBulkPublishing}
         />
     </div>
   );
