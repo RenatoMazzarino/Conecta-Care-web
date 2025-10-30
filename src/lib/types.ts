@@ -80,6 +80,7 @@ export type Shift = {
   checkOut?: string;
   checkInStatus?: 'OK' | 'Pendente' | 'Falha';
   checkOutStatus?: 'OK' | 'Pendente' | 'Falha';
+  hasNotification?: boolean;
 };
 
 export type ShiftDetails = {

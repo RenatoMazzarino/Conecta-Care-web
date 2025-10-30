@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, MessageSquare } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialShifts, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -50,7 +50,10 @@ const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shi
   const config = statusConfig[shift.status] || statusConfig.active;
 
   return (
-    <div onClick={onClick} className={cn("flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+    <div onClick={onClick} className={cn("relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+       {shift.hasNotification && (
+        <MessageSquare className="absolute top-1.5 right-1.5 h-4 w-4 text-green-500 fill-green-500/20" />
+      )}
       <div className="flex items-center gap-2">
         <Avatar className="h-8 w-8">
             <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
@@ -70,7 +73,8 @@ const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shi
 const FilledShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => {
   const config = statusConfig.filled;
   return (
-    <div onClick={onClick} className={cn("flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+    <div onClick={onClick} className={cn("relative flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+       <MessageSquare className="absolute top-1.5 right-1.5 h-4 w-4 text-muted-foreground/20" />
        <Avatar className="h-8 w-8">
           <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
           <AvatarFallback>{professional.initials}</AvatarFallback>

@@ -60,13 +60,6 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                   <Button variant="outline" disabled><Calendar /> Agenda</Button>
                </div>
             </div>
-             <div className="pt-4 space-y-2">
-                  <div className="flex justify-between text-sm font-medium">
-                      <span className="text-muted-foreground">Progresso do Plantão</span>
-                      <span className="text-foreground">{currentProgress}%</span>
-                  </div>
-                  <Progress value={currentProgress} />
-             </div>
           </DialogHeader>
 
           <Tabs defaultValue="timeline" className="w-full">
@@ -77,7 +70,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
               <TabsContent value="timeline" className="mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6">
                       <ScrollArea className="h-96 pr-4 -mr-4">
-                          <ProntuarioTimeline />
+                          <ProntuarioTimeline currentProgress={currentProgress} />
                       </ScrollArea>
                       <div className="space-y-4">
                            <ShiftAuditDialog shift={shift} professional={professional} patient={patient} />

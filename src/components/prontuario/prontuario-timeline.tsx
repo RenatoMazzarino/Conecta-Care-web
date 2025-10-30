@@ -5,14 +5,18 @@ import { Clock, Stethoscope, Syringe, TestTube, User, Footprints, CircleCheck, C
 import { cn } from "@/lib/utils";
 import { mockShiftHistory } from "@/lib/data";
 
-export function ProntuarioTimeline() {
-    const currentProgress = 50; // Simulation
+export function ProntuarioTimeline({ currentProgress }: { currentProgress: number }) {
     const currentEventIndex = Math.floor((mockShiftHistory.length - 1) * (currentProgress / 100));
 
     return (
         <div className="relative pl-4">
-            {/* Vertical line */}
-            <div className="absolute left-6 top-0 h-full w-0.5 bg-border -translate-x-1/2" />
+             {/* Progress Bar Background */}
+            <div className="absolute left-6 top-0 h-full w-1 bg-muted rounded-full -translate-x-1/2" />
+            {/* Progress Bar Fill */}
+            <div 
+                className="absolute left-6 top-0 w-1 bg-primary rounded-full -translate-x-1/2 transition-all duration-500" 
+                style={{ height: `${currentProgress}%`}} 
+            />
             
             <div className="space-y-8">
                 {mockShiftHistory.map((event, index) => (

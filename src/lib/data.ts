@@ -343,7 +343,7 @@ export const initialShifts: Shift[] = [
 
   // Patient 456 - Has open, urgent, and completed shifts
   { patientId: 'patient-456', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'open', isUrgent: true },
-  { patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'issue', progress: 90, checkIn: '20:00', checkInStatus: 'OK' },
+  { patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'issue', progress: 90, checkIn: '20:00', checkInStatus: 'OK', hasNotification: true },
   { patientId: 'patient-456', professionalId: 'prof-6', dayKey: format(addDays(startOfCurrentWeek, -1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'completed', progress: 100, checkIn: '08:00', checkOut: '20:00', checkInStatus: 'OK', checkOutStatus: 'OK' },
 
   // Patient 789 - Mostly filled
