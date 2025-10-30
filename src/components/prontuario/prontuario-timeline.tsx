@@ -47,20 +47,18 @@ export function ProntuarioTimeline() {
         <CardDescription>Histórico de eventos importantes do paciente.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="relative pl-6 after:absolute after:inset-y-0 after:w-px after:bg-muted-foreground/20 after:left-0">
+        <div className="relative pl-6 after:absolute after:inset-y-0 after:w-px after:bg-muted-foreground/20 after:left-[19px]">
           {timelineEvents.map((event, index) => (
-            <div key={index} className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 mb-6">
-              <div className="flex items-center justify-center">
-                 <div className="relative">
-                  <div className="h-10 w-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center ring-8 ring-background">
+            <div key={index} className="relative grid grid-cols-[auto_1fr] items-start gap-x-4 pb-8">
+              <div className="flex-shrink-0 mt-1">
+                 <div className="h-10 w-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center ring-8 ring-background">
                     <event.icon className="w-5 h-5" />
                   </div>
-                </div>
               </div>
-              <div>
-                <p className="text-muted-foreground text-sm">{event.date}</p>
-                <h4 className="font-semibold">{event.title}</h4>
-                <p className="text-muted-foreground text-sm">{event.description}</p>
+              <div className="pt-1">
+                <p className="text-sm text-muted-foreground">{event.date}</p>
+                <h4 className="font-semibold text-base mt-1">{event.title}</h4>
+                <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
               </div>
             </div>
           ))}
