@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users, CircleCheck, CircleX, Pill, Footprints } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, Clock, CheckCircle, XCircle, Video, MessageCircle, History, Users, CircleCheck, CircleX, Pill, Footprints, FileText, FileUp } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialActiveShiftsData, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -16,6 +16,8 @@ import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { ShiftHistoryDialog } from './shift-history-dialog';
+import { cn } from '@/lib/utils';
+
 
 type ShiftState = Shift | null | 'open' | 'pending';
 
@@ -132,34 +134,46 @@ const ShiftScaleView = () => {
         handleCloseProfile();
     }
   };
+  
+  const StatCard = ({ title, value, subValue, icon: Icon, className, onClick } : { title: string, value: string, subValue?: string, icon: React.ElementType, className?: string, onClick?: () => void }) => (
+    <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer")}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className={cn("text-sm font-medium", className)}>{title}</CardTitle>
+            <Icon className={cn("h-5 w-5 text-muted-foreground", className)} />
+        </CardHeader>
+        <CardContent>
+            <div className={cn("text-2xl font-bold", className)}>{value}</div>
+            {subValue && (
+                <p className="text-xs text-muted-foreground">{subValue}</p>
+            )}
+        </CardContent>
+    </Card>
+);
 
   return (
     <div className="p-4 sm:p-6">
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Pacientes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">124</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-amber-600">Vagas em Aberto</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-600">17</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-600">Plantões Ocupados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">352</div>
-            </CardContent>
-          </Card>
+            <StatCard 
+                title="Total de Pacientes"
+                value="124"
+                icon={Users}
+                onClick={() => console.log('Filter all patients')}
+            />
+            <StatCard 
+                title="Vagas em Aberto"
+                value="17"
+                subValue="1 Publicada / 16 Não Publicadas"
+                icon={FileText}
+                className="text-amber-600"
+                onClick={() => console.log('Filter open shifts')}
+            />
+            <StatCard 
+                title="Plantões Ocupados"
+                value="352"
+                icon={CheckCircle}
+                className="text-green-600"
+                onClick={() => console.log('Filter filled shifts')}
+            />
           <div className="flex items-center justify-center gap-2 rounded-lg border bg-card text-card-foreground shadow-sm">
               <Button variant="ghost" size="icon">
                   <ChevronLeft className="h-5 w-5" />
@@ -400,12 +414,16 @@ export function ShiftManagement() {
               </TabsList>
             </Tabs>
         </div>
-        {activeTab === 'scale' && (
-         <Button disabled>
-            <Plus className="mr-2 h-4 w-4" />
-            Publicar Nova Vaga
-         </Button>
-        )}
+        <div className='flex items-center gap-2'>
+            <Button variant="outline">
+                <FileUp className="mr-2 h-4 w-4" />
+                Publicação em Massa
+            </Button>
+            <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Publicar Nova Vaga
+            </Button>
+        </div>
        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="scale" className="m-0">
@@ -418,3 +436,5 @@ export function ShiftManagement() {
     </div>
   );
 }
+
+    
