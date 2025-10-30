@@ -141,11 +141,11 @@ export default function CommunicationsPage() {
                         key={convo.id}
                         onClick={() => setSelectedConversation(convo)}
                         className={cn(
-                            "p-4 border-b cursor-pointer hover:bg-accent",
+                            "relative p-4 border-b cursor-pointer hover:bg-accent",
                             selectedConversation.id === convo.id && 'bg-muted',
-                            !convo.read && 'bg-primary/5'
                         )}
                     >
+                         {!convo.read && <div className="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Icon className="h-4 w-4 text-muted-foreground" />
@@ -155,7 +155,6 @@ export default function CommunicationsPage() {
                         </div>
                         <p className="font-medium mt-1 truncate">{convo.subject}</p>
                         <p className="text-sm text-muted-foreground mt-1 truncate">{convo.preview}</p>
-                         {!convo.read && <div className="absolute left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />}
                     </div>
                 )
             })}
@@ -236,3 +235,5 @@ export default function CommunicationsPage() {
     </>
   );
 }
+
+    
