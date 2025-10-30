@@ -50,15 +50,15 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
       <div className="flex h-full max-h-screen flex-col">
         <div className={cn(
             "flex h-16 items-center border-b px-6",
-            isCollapsed && "px-0 justify-center"
+            isCollapsed && "justify-center px-2"
         )}>
           <Link href="/" className="flex items-center gap-2 font-semibold font-headline text-primary">
             <HeartPulse className="h-6 w-6" />
-            <span className={cn("transition-opacity", isCollapsed && "opacity-0 w-0")}>CareSync</span>
+            <span className={cn("transition-opacity", isCollapsed && "w-0 opacity-0")}>CareSync</span>
           </Link>
         </div>
-        <nav className="flex-1 overflow-auto py-2 px-4 text-sm font-medium">
-          <ul className="flex flex-col gap-2">
+        <nav className="flex-1 overflow-auto py-2 px-2 text-sm font-medium">
+          <ul className="flex flex-col gap-1">
             {navItems.map((item) => (
               <li key={item.href}>
                  <Tooltip>
@@ -71,8 +71,8 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
                                 isCollapsed && 'justify-center'
                             )}
                             >
-                            <item.icon className="h-5 w-5" />
-                            <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'opacity-0 w-0')}>{item.label}</span>
+                            <item.icon className="h-5 w-5 shrink-0" />
+                            <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'w-0 opacity-0')}>{item.label}</span>
                         </Link>
                     </TooltipTrigger>
                     {isCollapsed && (
@@ -95,7 +95,7 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
             </TooltipTrigger>
              {isCollapsed && (
                 <TooltipContent side="right" align="center">
-                    Expandir
+                    {isCollapsed ? 'Expandir' : 'Recolher'}
                 </TooltipContent>
             )}
           </Tooltip>
