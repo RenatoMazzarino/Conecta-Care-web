@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import type { Professional } from '@/lib/types';
+import type { Professional, OpenShiftInfo } from '@/lib/types';
 import { Star, Shield, MessageCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -50,10 +50,6 @@ export function ProfessionalProfileDialog({
   const handleApprove = () => {
     if (onApprove) {
       onApprove(professional);
-      toast({
-        title: 'Profissional Aprovado!',
-        description: `${professional.name} foi alocado para o plantão.`,
-      });
     }
   };
 
@@ -114,7 +110,7 @@ export function ProfessionalProfileDialog({
         <DialogFooter className="grid grid-cols-3 gap-2">
           <Button variant="outline" onClick={handleReject}><XCircle className="mr-2 h-4 w-4" />Reprovar</Button>
           <Button variant="secondary"><MessageCircle className="mr-2 h-4 w-4" />Chat</Button>
-          <Button onClick={handleApprove} disabled={!onApprove}>Aprovar</Button>
+          <Button onClick={handleApprove} disabled={!onApprove || professional.corenStatus === 'inactive'}>Aprovar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

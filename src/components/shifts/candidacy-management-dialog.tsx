@@ -36,7 +36,7 @@ export function CandidacyManagementDialog({
   onOpenChange: (open: boolean) => void;
   shiftInfo: OpenShiftInfo;
   onOpenProfile: (professional: Professional) => void;
-  onApprove: (professional: Professional) => void;
+  onApprove: (professional: Professional, shiftInfo: OpenShiftInfo) => void;
 }) {
   const { toast } = useToast();
 
@@ -45,14 +45,14 @@ export function CandidacyManagementDialog({
   }
 
   const handleDirectApprove = (professional: Professional) => {
-     onApprove(professional);
+     onApprove(professional, shiftInfo);
      toast({
         title: 'Profissional Aprovado!',
         description: `${professional.name} foi alocado para o plantão.`,
       });
   }
 
-  const formattedDate = new Date(shiftInfo.dayKey).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const formattedDate = new Date(shiftInfo.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
   const shiftTime = shiftInfo.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
 
   return (

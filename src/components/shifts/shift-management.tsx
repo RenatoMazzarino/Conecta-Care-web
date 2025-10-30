@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ShiftHistoryDialog } from './shift-history-dialog';
 import { cn } from '@/lib/utils';
 import { BulkPublishDialog } from './bulk-publish-dialog';
+import { CandidacyListDialog } from './candidacy-list-dialog';
 
 
 type ShiftState = Shift | null | 'open' | 'pending';
@@ -79,6 +80,8 @@ const ShiftScaleView = () => {
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
+  const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
+
 
   const handleOpenProfile = (professional: Professional) => {
     setSelectedProfessional(professional);
@@ -121,9 +124,9 @@ const ShiftScaleView = () => {
     setCandidacyShiftInfo(null);
   }
 
-  const handleApproveProfessional = (professional: Professional) => {
-    if (candidacyShiftInfo) {
-        const { patient, dayKey, shiftType } = candidacyShiftInfo;
+  const handleApproveProfessional = (professional: Professional, shift: OpenShiftInfo) => {
+    if (shift) {
+        const { patient, dayKey, shiftType } = shift;
         const key = `${patient.id}-${dayKey}`;
         const shiftIndex = shiftType === 'diurno' ? 0 : 1;
 
@@ -135,7 +138,9 @@ const ShiftScaleView = () => {
             return newShifts;
         });
 
+        // Close all related dialogs
         handleCloseCandidacy();
+        setIsCandidacyListOpen(false);
         handleCloseProfile();
     }
   };
@@ -157,12 +162,11 @@ const ShiftScaleView = () => {
 
   return (
     <div className="p-4 sm:p-6">
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">
             <StatCard 
                 title="Total de Pacientes"
                 value="3"
                 icon={Users}
-                onClick={() => console.log('Filter all patients')}
             />
             <StatCard 
                 title="Vagas em Aberto"
@@ -170,14 +174,20 @@ const ShiftScaleView = () => {
                 subValue="1 Publicada / 1 Não Publicada"
                 icon={FileText}
                 className="text-amber-600"
-                onClick={() => console.log('Filter open shifts')}
+            />
+            <StatCard 
+                title="Vagas com Candidatos"
+                value="1"
+                subValue="Total de 4 candidatos"
+                icon={UserPlus}
+                className="text-blue-600"
+                onClick={() => setIsCandidacyListOpen(true)}
             />
             <StatCard 
                 title="Plantões Ocupados"
                 value="4"
                 icon={CheckCircle}
                 className="text-green-600"
-                onClick={() => console.log('Filter filled shifts')}
             />
           <div className="flex items-center justify-center gap-2 rounded-lg border bg-card text-card-foreground shadow-sm">
               <Button variant="ghost" size="icon">
@@ -244,7 +254,7 @@ const ShiftScaleView = () => {
           professional={selectedProfessional}
           isOpen={!!selectedProfessional}
           onOpenChange={handleCloseProfile}
-          onApprove={candidacyShiftInfo ? handleApproveProfessional : undefined}
+          onApprove={(prof) => candidacyShiftInfo && handleApproveProfessional(prof, candidacyShiftInfo)}
         />
       )}
       
@@ -261,9 +271,16 @@ const ShiftScaleView = () => {
           isOpen={!!candidacyShiftInfo}
           onOpenChange={handleCloseCandidacy}
           onOpenProfile={handleOpenProfile}
-          onApprove={handleApproveProfessional}
+          onApprove={(prof) => handleApproveProfessional(prof, candidacyShiftInfo)}
         />
       )}
+
+      <CandidacyListDialog
+          isOpen={isCandidacyListOpen}
+          onOpenChange={setIsCandidacyListOpen}
+          onOpenProfile={handleOpenProfile}
+          onApprove={handleApproveProfessional}
+      />
     </div>
   );
 }
