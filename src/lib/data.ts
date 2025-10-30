@@ -1,4 +1,4 @@
-import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification, Task, ShiftState } from './types';
+import type { Patient, InventoryItem, Professional, ActiveShift, ShiftReport, Notification, Task, Shift } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek } from 'date-fns';
 
@@ -334,9 +334,12 @@ const today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 const sundayThisWeek = startOfWeek(today, { weekStartsOn: 0 });
 
-export const initialShifts: Record<string, ShiftState[]> = {
-  [`patient-123-${format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd')}`]: [ { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'day' }, 'pending', ],
-  [`patient-123-${format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd')}`]: [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-3')!, shiftType: 'night' }, ],
-  [`patient-456-${format(addDays(sundayThisWeek, 2), 'yyyy-MM-dd')}`]: [ 'open', { professional: professionals.find(p => p.id === 'prof-4')!, shiftType: 'night' }, ],
-  [`patient-789-${format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd')}`]: [ { professional: professionals.find(p => p.id === 'prof-2')!, shiftType: 'day' }, { professional: professionals.find(p => p.id === 'prof-1')!, shiftType: 'night' }, ],
-};
+export const initialShifts: Shift[] = [
+    { patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'diurno' },
+    { patientId: 'patient-123', dayKey: format(addDays(sundayThisWeek, 0), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'pending' },
+    { patientId: 'patient-123', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'diurno' },
+    { patientId: 'patient-123', professionalId: 'prof-3', dayKey: format(addDays(sundayThisWeek, 1), 'yyyy-MM-dd'), shiftType: 'noturno' },
+    { patientId: 'patient-456', professionalId: 'prof-4', dayKey: format(addDays(sundayThisWeek, 2), 'yyyy-MM-dd'), shiftType: 'noturno' },
+    { patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'diurno' },
+    { patientId: 'patient-789', professionalId: 'prof-1', dayKey: format(addDays(sundayThisWeek, 3), 'yyyy-MM-dd'), shiftType: 'noturno' },
+];

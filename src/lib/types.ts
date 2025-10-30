@@ -69,8 +69,11 @@ export type Professional = {
 };
 
 export type Shift = {
-  professional: Professional;
-  shiftType: 'day' | 'night';
+  patientId: string;
+  professionalId?: string;
+  dayKey: string;
+  shiftType: 'diurno' | 'noturno';
+  status?: 'open' | 'pending' | 'filled';
 };
 
 export type ShiftDetails = {
@@ -93,7 +96,10 @@ export type OpenShiftInfo = {
 };
 
 
-export type ShiftState = Shift | null | 'open' | 'pending';
+export type ShiftState = {
+  professional: Professional;
+  status: 'filled' | 'pending' | 'open';
+} | null;
 
 export type ActiveShift = {
     patientName: string;

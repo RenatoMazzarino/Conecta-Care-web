@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, History, XCircle } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
+import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails, ShiftState } from '@/lib/types';
 import { professionals, initialActiveShiftsData, patients as mockPatients, initialShifts } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
@@ -19,9 +19,11 @@ import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import Image from 'next/image';
 
-type ShiftState = Shift | null | 'open' | 'pending';
+type GridShiftState = {
+  professional?: Professional;
+  status: 'open' | 'pending' | 'filled';
+};
 
 const patients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
 
@@ -63,18 +65,18 @@ const PendingShiftCard = ({ onClick }: { onClick: () => void }) => (
 );
 
 const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPublishing: boolean, setIsBulkPublishing: (value: boolean) => void }) => {
-  const [shifts, setShifts] = React.useState(initialShifts);
+  const [shiftsData, setShiftsData] = React.useState(initialShifts);
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   
   const [currentDate, setCurrentDate] = React.useState(() => {
-    // Consistent date initialization to prevent hydration mismatch
     const today = new Date();
     const utcDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
     return startOfWeek(utcDate, { weekStartsOn: 0 }); // Sunday
   });
+
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   
   const [stats, setStats] = React.useState({ open: 0, pending: 0, filled: 0 });
@@ -85,32 +87,47 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     Array.from({ length: numDays }, (_, i) => addDays(currentDate, i)),
     [currentDate, numDays]
   );
+  
+  const gridShifts = React.useMemo(() => {
+    const grid: Record<string, (GridShiftState | null)[]> = {};
+    
+    patients.forEach(patient => {
+      displayedDays.forEach(day => {
+        const dayKey = format(day, 'yyyy-MM-dd');
+        const shiftKey = `${patient.id}-${dayKey}`;
+
+        const dayShiftData = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === 'diurno');
+        const nightShiftData = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === 'noturno');
+
+        const getGridState = (shift: Shift | undefined): GridShiftState | null => {
+          if (!shift) return { status: 'open' };
+          if (shift.status === 'pending') return { status: 'pending' };
+          if (shift.professionalId) {
+            const professional = professionals.find(p => p.id === shift.professionalId);
+            if(professional) return { professional, status: 'filled' };
+          }
+          return { status: 'open' };
+        };
+
+        grid[shiftKey] = [getGridState(dayShiftData), getGridState(nightShiftData)];
+      });
+    });
+    return grid;
+  }, [shiftsData, displayedDays]);
 
   React.useEffect(() => {
     let openCount = 0;
     let pendingCount = 0;
     let filledCount = 0;
 
-    displayedDays.forEach(day => {
-        const dayKey = format(day, 'yyyy-MM-dd');
-        patients.forEach(patient => {
-            const shiftKey = `${patient.id}-${dayKey}`;
-            const dayShifts = shifts[shiftKey] || ['open', 'open'];
-
-            dayShifts.forEach(shift => {
-                if (shift === 'open') {
-                    openCount++;
-                } else if (shift === 'pending') {
-                    pendingCount++;
-                } else if (shift) {
-                    filledCount++;
-                }
-            });
-        });
+    Object.values(gridShifts).flat().forEach(shift => {
+      if (shift?.status === 'open') openCount++;
+      if (shift?.status === 'pending') pendingCount++;
+      if (shift?.status === 'filled') filledCount++;
     });
 
     setStats({ open: openCount, pending: pendingCount, filled: filledCount });
-  }, [displayedDays, shifts]);
+  }, [gridShifts]);
 
 
   const handleDateChange = (days: number) => {
@@ -139,15 +156,14 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   };
 
   const handleVacancyPublished = (info: ShiftDetails) => {
-    const key = `${info.patient.id}-${info.dayKey}`;
-    const shiftIndex = info.shiftType === 'diurno' ? 0 : 1;
-    
-    setShifts(prev => {
-        const newShifts = { ...prev };
-        const dayShifts = newShifts[key] ? [...newShifts[key]] : ['open', 'open'];
-        dayShifts[shiftIndex] = 'pending';
-        newShifts[key] = dayShifts;
-        return newShifts;
+     setShiftsData(prev => {
+        const existingIndex = prev.findIndex(s => s.patientId === info.patient.id && s.dayKey === info.dayKey && s.shiftType === info.shiftType);
+        if (existingIndex > -1) {
+            const updatedShifts = [...prev];
+            updatedShifts[existingIndex] = { ...updatedShifts[existingIndex], status: 'pending' };
+            return updatedShifts;
+        }
+        return [...prev, { patientId: info.patient.id, dayKey: info.dayKey, shiftType: info.shiftType, status: 'pending' }];
     });
   }
 
@@ -161,16 +177,21 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
 
   const handleApproveProfessional = (professional: Professional, shift: OpenShiftInfo) => {
     if (shift) {
-        const { patient, dayKey, shiftType } = shift;
-        const key = `${patient.id}-${dayKey}`;
-        const shiftIndex = shiftType === 'diurno' ? 0 : 1;
-
-        setShifts(prev => {
-            const newShifts = { ...prev };
-            const dayShifts = newShifts[key] ? [...newShifts[key]] : ['open', 'open'];
-            dayShifts[shiftIndex] = { professional, shiftType: shiftType === 'diurno' ? 'day' : 'night' };
-            newShifts[key] = dayShifts;
-            return newShifts;
+        setShiftsData(prev => {
+            const existingIndex = prev.findIndex(s => s.patientId === shift.patient.id && s.dayKey === shift.dayKey && s.shiftType === shift.shiftType);
+            const newShift: Shift = {
+                patientId: shift.patient.id,
+                dayKey: shift.dayKey,
+                shiftType: shift.shiftType,
+                professionalId: professional.id,
+                status: 'filled'
+            };
+            if (existingIndex > -1) {
+                const updatedShifts = [...prev];
+                updatedShifts[existingIndex] = newShift;
+                return updatedShifts;
+            }
+            return [...prev, newShift];
         });
 
         handleCloseCandidacy();
@@ -216,7 +237,9 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     if (!displayedDays.length) return '';
     const start = displayedDays[0];
     const end = displayedDays[displayedDays.length - 1];
-    return `${format(start, 'd MMM', { locale: ptBR })} - ${format(end, 'd MMM, yyyy', { locale: ptBR })}`;
+    const startFormat = format(start, 'd MMM', { locale: ptBR });
+    const endFormat = format(end, 'd MMM, yyyy', { locale: ptBR });
+    return `${startFormat} - ${endFormat}`;
   }
 
   const totalShifts = stats.open + stats.pending + stats.filled;
@@ -304,15 +327,16 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                     </td>
                     {displayedDays.map(day => {
                     const dayKey = format(day, 'yyyy-MM-dd');
-                    const dayShifts = shifts[`${patient.id}-${dayKey}`] || ['open', 'open'];
+                    const dayShifts = gridShifts[`${patient.id}-${dayKey}`] || [null, null];
                     const dayShift = dayShifts[0];
                     const nightShift = dayShifts[1];
                     
-                    const renderShift = (shift: ShiftState, type: 'diurno' | 'noturno') => {
-                        if (shift && typeof shift === 'object' && 'professional' in shift) {
-                            return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional)} />;
+                    const renderShift = (shift: GridShiftState | null, type: 'diurno' | 'noturno') => {
+                        if (!shift) return <OpenShiftCard shiftType={type} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                        if (shift.status === 'filled' && shift.professional) {
+                            return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional!)} />;
                         }
-                        if (shift === 'pending') {
+                        if (shift.status === 'pending') {
                             return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
                         }
                         const isUrgent = patient.id === 'patient-456' && dayKey === format(addDays(new Date(), 2), 'yyyy-MM-dd') && type === 'diurno';
