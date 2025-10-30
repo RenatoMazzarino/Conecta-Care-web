@@ -195,7 +195,7 @@
     }
   },
   "auth": {
-    "providers": [ "password", "anonymous" ]
+    "providers": [ "password", "google.com" ]
   },
   "firestore": {
     "/patients/{patientId}": { "schema": { "$ref": "#/backend/entities/Patient" }, "description": "Stores individual patient records." },
