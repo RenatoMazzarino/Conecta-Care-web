@@ -5,28 +5,25 @@ import { auth } from '@/auth'; // Simple auth using cookies
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // Allow requests for static files, API routes, and auth pages
-  if (
-    pathname.startsWith('/_next/') ||
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/static/') ||
-    pathname.includes('.') || // Allows files with extensions
-    pathname === '/login' ||
-    pathname === '/signup'
-  ) {
-    return NextResponse.next();
-  }
-  
   const session = await auth();
 
-  // If there's no session and the user is not on an auth page, redirect to login
-  if (!session) {
+  const isPublicPage = pathname === '/login' || pathname === '/signup';
+  const isApiOrStatic = pathname.startsWith('/api/') || 
+                        pathname.startsWith('/static/') || 
+                        pathname.startsWith('/_next/') || 
+                        pathname.includes('.');
+
+  if (isApiOrStatic) {
+    return NextResponse.next();
+  }
+
+  // If the user is not logged in and is trying to access a protected page
+  if (!session && !isPublicPage) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
-  
-  // If the user is logged in and tries to access login/signup, redirect to dashboard
-  if (session && (pathname === '/login' || pathname === '/signup')) {
+
+  // If the user is logged in and tries to access a public page (like login)
+  if (session && isPublicPage) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

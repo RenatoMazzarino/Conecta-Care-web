@@ -5,6 +5,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { loginAction } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { HeartPulse, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -25,8 +25,9 @@ function SubmitButton() {
 }
 
 export default function LoginPage() {
-  const [state, formAction] = useActionState(loginAction, { error: null });
+  const [state, formAction] = useActionState(loginAction, { error: null, success: false });
   const { toast } = useToast();
+  const router = useRouter();
 
   React.useEffect(() => {
     if (state.error) {
@@ -36,7 +37,14 @@ export default function LoginPage() {
         description: state.error,
       });
     }
-  }, [state.error, toast]);
+    if (state.success) {
+      toast({
+        title: 'Login bem-sucedido!',
+        description: 'Redirecionando para o dashboard...',
+      });
+      router.push('/');
+    }
+  }, [state, toast, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40">

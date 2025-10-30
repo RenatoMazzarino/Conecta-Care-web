@@ -12,9 +12,6 @@ export async function createSession(uid: string, email: string) {
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
   const session = { uid, email };
  
-  // Encrypt the session and set it in a cookie.
-  // In a real app, you'd use a library like 'iron-session' to encrypt.
-  // For this prototype, we'll store it as a plain object for simplicity.
   cookies().set(SESSION_COOKIE_NAME, JSON.stringify(session), {
     expires,
     httpOnly: true,
@@ -28,7 +25,6 @@ export async function auth(): Promise<Session> {
   if (!sessionCookie) return null;
   
   try {
-    // In a real app, you would decrypt the session here.
     return JSON.parse(sessionCookie);
   } catch {
     return null;
