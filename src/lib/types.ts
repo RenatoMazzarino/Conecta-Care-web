@@ -2,11 +2,29 @@ export type Patient = {
   id: string;
   name: string;
   cpf: string;
+  email: string;
+  phone: string;
   dateOfBirth: string;
   bloodType: string;
   age: number;
   avatarUrl: string;
   avatarHint: string;
+  address: {
+    street: string;
+    number: string;
+    complement?: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  financial: {
+    plan: 'particular' | 'plano_de_saude';
+    healthPlan?: string;
+    healthPlanId?: string;
+    monthlyFee: number;
+    billingDay: number;
+  };
   familyContact: {
     name: string;
     phone: string;

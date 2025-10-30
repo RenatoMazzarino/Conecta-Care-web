@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, CalendarDays } from 'lucide-react';
+import { FileText, CalendarDays, UserSquare } from 'lucide-react';
 import type { Patient } from '@/lib/types';
 
 function calculateAge(dateOfBirth: string) {
@@ -36,7 +36,7 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
             <TableHead>ID do Paciente</TableHead>
             <TableHead>Idade</TableHead>
             <TableHead>Contato Familiar</TableHead>
-            <TableHead className="text-right w-[200px]">Ações</TableHead>
+            <TableHead className="text-right w-[320px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -63,6 +63,12 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
                 </div>
               </TableCell>
               <TableCell className="text-right space-x-2">
+                 <Button asChild variant="outline" size="sm">
+                  <Link href={`/patients/${patient.id}/profile`}>
+                    <UserSquare className="mr-2 h-4 w-4" />
+                    Ficha Cadastral
+                  </Link>
+                </Button>
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/patients/${patient.id}`}>
                     <FileText className="mr-2 h-4 w-4" />
