@@ -256,14 +256,12 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                 title="Total de Pacientes"
                 value={String(patients.length)}
                 icon={UserPlus}
-                onClick={() => console.log('Filter all patients')}
             />
             <StatCard 
                 title="Vagas em Aberto"
                 value={String(stats.open)}
                 icon={FileText}
                 className="text-amber-600"
-                onClick={() => console.log('Filter open shifts')}
             />
             <StatCard 
                 title="Vagas com Candidatos"
@@ -277,14 +275,10 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                 value={String(stats.filled)}
                 icon={CheckCircle}
                 className="text-green-600"
-                onClick={() => console.log('Filter filled shifts')}
             />
       </div>
       
-      <div className={cn(
-        "rounded-lg border bg-card overflow-hidden",
-        viewPeriod !== 'weekly' && "overflow-x-auto"
-      )}>
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <div className="relative">
             <table className="min-w-full divide-y divide-border">
             <thead className="bg-muted/50">
@@ -520,7 +514,7 @@ export function ShiftManagement() {
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
 
   return (
-    <>
+    <div className="flex-1 flex flex-col">
        <div className="flex justify-between items-center p-4 sm:p-6 border-b bg-card">
          <div className="flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -539,6 +533,6 @@ export function ShiftManagement() {
               <ShiftMonitoringView />
           </TabsContent>
         </Tabs>
-    </>
+    </div>
   );
 }
