@@ -4,7 +4,7 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore';
 
 // This function can be called from anywhere, but the dynamic config part
 // should only happen on the client.
@@ -18,8 +18,8 @@ export function initializeFirebase() {
     };
   }
 
-  // If on the server, initialize with the base config.
-  // This path is for server components that might need a basic instance.
+  // On the server, initialize with the base config if needed for other services,
+  // but most auth-related client logic will re-initialize on the client.
   if (typeof window === 'undefined') {
     const serverApp = initializeApp(firebaseConfig);
     return {
@@ -29,7 +29,7 @@ export function initializeFirebase() {
     };
   }
   
-  // On the client, create the dynamic config.
+  // On the client, create the dynamic config to ensure authDomain is correct.
   const clientConfig = {
     ...firebaseConfig,
     authDomain: window.location.hostname,
