@@ -11,10 +11,8 @@ import {
   LogOut,
   Settings,
   Users,
-  Calendar,
   LineChart,
   DollarSign,
-  FileText,
   CalendarCheck,
   MessageSquareWarning,
 } from 'lucide-react';
@@ -37,7 +35,6 @@ import Image from 'next/image';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/patients', label: 'Pacientes', icon: Users },
-  { href: '/schedule', label: 'Agenda', icon: Calendar },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
   { href: '/inventory', label: 'Estoque', icon: ClipboardList },
   { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
