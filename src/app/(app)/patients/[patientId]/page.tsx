@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText, AlertCircle } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,6 +20,8 @@ import { ProntuarioMedico } from '@/components/prontuario/prontuario-medico';
 import { ProntuarioFisioterapia } from '@/components/prontuario/prontuario-fisioterapia';
 import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao';
 import { Badge } from '@/components/ui/badge';
+import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
+import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-upload-dialog';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -27,6 +29,7 @@ export default function PatientDetailPage() {
   const patientId = params.patientId as string;
 
   const [isEditing, setIsEditing] = React.useState(false);
+  const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
   const [patient, setPatient] = React.useState<Patient | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -120,6 +123,7 @@ export default function PatientDetailPage() {
         </div>
         <div className="flex gap-2">
            <Button asChild variant="secondary"><Link href={`/patients/${patientId}/profile`}><FileText className="mr-2"/>Ver Ficha Cadastral</Link></Button>
+            <Button onClick={() => setIsUploadOpen(true)} variant="outline"><Upload className="mr-2"/>Anexar Documento</Button>
             {!isEditing ? (
             <Button onClick={handleEdit}>
                 <Edit className="w-4 h-4 mr-2" />
@@ -190,12 +194,13 @@ export default function PatientDetailPage() {
        </Card>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="enfermagem">Enfermagem</TabsTrigger>
             <TabsTrigger value="medico">Médico</TabsTrigger>
             <TabsTrigger value="fisioterapia">Fisioterapia</TabsTrigger>
             <TabsTrigger value="nutricao">Nutrição</TabsTrigger>
+            <TabsTrigger value="documentos">Documentos</TabsTrigger>
         </TabsList>
         <TabsContent value="dashboard" className="mt-6">
              <ProntuarioDashboard 
@@ -216,8 +221,11 @@ export default function PatientDetailPage() {
          <TabsContent value="nutricao" className="mt-6">
             <ProntuarioNutricao />
         </TabsContent>
+        <TabsContent value="documentos" className="mt-6">
+            <ProntuarioDocumentos />
+        </TabsContent>
       </Tabs>
-
+      <ProntuarioUploadDialog isOpen={isUploadOpen} onOpenChange={setIsUploadOpen} />
     </main>
     </>
   );
