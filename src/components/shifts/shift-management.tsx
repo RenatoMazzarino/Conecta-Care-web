@@ -87,7 +87,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
   
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0); // Normalize to UTC start of day
     return startOfWeek(today, { weekStartsOn: 0 }); // Sunday
   });
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
@@ -194,7 +194,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     }
   };
   
-  const StatCard = ({ title, value, subValue, icon: Icon, className, onClick } : { title: string, value: string, subValue?: string, icon: React.ElementType, className?: string, onClick?: () => void }) => (
+  const StatCard = ({ title, value, subValue, icon: Icon, className, onClick }: { title: string, value: string | number, subValue?: string, icon: React.ElementType, className?: string, onClick?: () => void }) => (
     <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer")}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className={cn("text-sm font-medium", className)}>{title}</CardTitle>
@@ -213,9 +213,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
     if (!displayedDays.length) return '';
     const start = displayedDays[0];
     const end = displayedDays[displayedDays.length - 1];
-    const startFormat = format(start, 'd MMM', { locale: ptBR });
-    const endFormat = format(end, 'd MMM, yyyy', { locale: ptBR });
-    return `${startFormat} - ${endFormat}`;
+    return `${format(start, 'd MMM', { locale: ptBR })} - ${format(end, 'd MMM, yyyy', { locale: ptBR })}`;
   }
 
   return (
@@ -244,7 +242,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
                 <FileUp className="mr-2 h-4 w-4" />
                 Publicação em Massa
             </Button>
-            <Button onClick={() => setOpenShiftInfo('from_scratch')}>
+            <Button onClick={handlePublishFromScratch}>
                 <Plus className="mr-2 h-4 w-4" />
                 Publicar Nova Vaga
             </Button>
@@ -254,25 +252,25 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
        <div className="grid gap-6 md:grid-cols-4 mb-6">
             <StatCard 
                 title="Total de Pacientes"
-                value={String(patients.length)}
+                value={patients.length}
                 icon={UserPlus}
             />
             <StatCard 
                 title="Vagas em Aberto"
-                value={String(stats.open)}
+                value={stats.open}
                 icon={FileText}
                 className="text-amber-600"
             />
             <StatCard 
                 title="Vagas com Candidatos"
-                value={String(stats.pending)}
+                value={stats.pending}
                 icon={UserPlus}
                 className="text-blue-600"
                 onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
             />
             <StatCard 
                 title="Plantões Ocupados"
-                value={String(stats.filled)}
+                value={stats.filled}
                 icon={CheckCircle}
                 className="text-green-600"
             />
