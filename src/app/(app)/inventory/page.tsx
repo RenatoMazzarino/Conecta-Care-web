@@ -4,14 +4,23 @@ import * as React from 'react';
 import { AppHeader } from '@/components/app-header';
 import { InventoryTable } from '@/components/inventory/inventory-table';
 import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
-import type { InventoryItem, Patient } from '@/lib/types';
-import { useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
+import type { InventoryItem, Patient, Professional } from '@/lib/types';
+import { useFirestore } from '@/firebase';
+import { setDoc, collection, doc } from 'firebase/firestore';
+import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications, professionals as mockProfessionals, initialShifts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+
+async function seedCollection(firestore: any, collectionName: string, data: any[]) {
+    const collectionRef = collection(firestore, collectionName);
+    const promises = data.map(item => {
+        const docRef = doc(collectionRef, item.id);
+        return setDoc(docRef, item);
+    });
+    await Promise.all(promises);
+}
 
 export default function InventoryPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -39,7 +48,7 @@ export default function InventoryPage() {
     setIsDialogOpen(true);
   };
   
-  const handleSeedData = () => {
+  const handleSeedData = async () => {
     if (!firestore) {
         toast({
             title: "Erro",
@@ -51,43 +60,38 @@ export default function InventoryPage() {
     
     toast({
         title: "Populando dados...",
-        description: "Enviando dados de simulação para o Firestore."
+        description: "Enviando dados de simulação para o Firestore. Isso pode levar um momento."
     });
 
-    const patientsWithInventoryData: Patient[] = mockPatients.map(p => {
-        const lowStockCount = mockInventory.filter(item => item.stock > 0 && item.stock <= item.lowStockThreshold).length;
-        const criticalStockCount = mockInventory.filter(item => item.stock === 0).length;
-        return {
-            ...p,
-            lowStockCount,
-            criticalStockCount
+    try {
+        await seedCollection(firestore, 'patients', mockPatients);
+        await seedCollection(firestore, 'professionals', mockProfessionals);
+        await seedCollection(firestore, 'shifts', initialShifts);
+
+        for (const patient of mockPatients) {
+            const inventoryWithPatientId = mockInventory.map(item => ({...item, patientId: patient.id}));
+            await seedCollection(firestore, `patients/${patient.id}/inventories`, inventoryWithPatientId);
+            
+            const reportsForPatient = mockShiftReports.filter(sr => sr.patientId === patient.id);
+            await seedCollection(firestore, `patients/${patient.id}/shiftReports`, reportsForPatient);
+           
+            const notificationsForPatient = mockNotifications.filter(n => n.patientId === patient.id);
+            await seedCollection(firestore, `patients/${patient.id}/notifications`, notificationsForPatient);
         }
-    })
 
-    patientsWithInventoryData.forEach(patient => {
-        const patientDocRef = doc(firestore, 'patients', patient.id);
-        setDocumentNonBlocking(patientDocRef, patient, { merge: true });
-
-        mockInventory.forEach(item => {
-            const itemDocRef = doc(firestore, 'patients', patient.id, 'inventories', item.id);
-            setDocumentNonBlocking(itemDocRef, item, { merge: true });
+        toast({
+            title: "Sucesso!",
+            description: `Banco de dados populado com pacientes, profissionais, plantões e mais.`,
+            variant: 'default'
         });
 
-        mockShiftReports.filter(sr => sr.patientId === patient.id).forEach(report => {
-            const reportDocRef = doc(firestore, 'patients', patient.id, 'shiftReports', report.id);
-            setDocumentNonBlocking(reportDocRef, report, { merge: true });
-        })
-
-        mockNotifications.filter(n => n.patientId === patient.id).forEach(notification => {
-            const notifDocRef = doc(firestore, 'patients', patient.id, 'notifications', notification.id);
-            setDocumentNonBlocking(notifDocRef, notification, { merge: true });
-        })
-    });
-
-    toast({
-        title: "Sucesso!",
-        description: `${patientsWithInventoryData.length} pacientes, seus inventários e outros dados foram enviados para o Firestore.`
-    });
+    } catch (error: any) {
+         toast({
+            title: "Erro ao popular dados",
+            description: error.message || "Ocorreu um erro desconhecido.",
+            variant: "destructive"
+        });
+    }
 
     // Also update local state to reflect seeded data immediately
     setInventory(mockInventory);

@@ -8,7 +8,6 @@ import { AppHeader } from '@/components/app-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { professionals as mockProfessionals } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +17,8 @@ import { TeamShiftsTab } from '@/components/team/team-shifts-tab';
 import { TeamPatientsTab } from '@/components/team/team-patients-tab';
 import { TeamFinancialTab } from '@/components/team/team-financial-tab';
 import { TeamDocumentsTab } from '@/components/team/team-documents-tab';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
   return (
@@ -38,19 +39,14 @@ export default function ProfessionalProfilePage() {
   const params = useParams();
   const router = useRouter();
   const professionalId = params.professionalId as string;
+  const firestore = useFirestore();
 
-  const [professional, setProfessional] = React.useState<Professional | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const professionalDocRef = useMemoFirebase(() => {
+    if (!firestore || !professionalId) return null;
+    return doc(firestore, 'professionals', professionalId);
+  }, [firestore, professionalId]);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-        const found = mockProfessionals.find(p => p.id === professionalId);
-        setProfessional(found || null);
-        setIsLoading(false);
-    }, 500);
-     return () => clearTimeout(timer);
-  }, [professionalId]);
-  
+  const { data: professional, isLoading } = useDoc<Professional>(professionalDocRef);
 
   if (isLoading) {
     return (

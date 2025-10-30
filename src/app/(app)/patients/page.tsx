@@ -7,37 +7,32 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import Link from 'next/link';
 import type { Patient } from '@/lib/types';
-import { patients as mockPatients } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatientTable } from '@/components/patients/patient-table';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function PatientsPage() {
-  const [allPatients, setAllPatients] = React.useState<Patient[]>([]);
+  const firestore = useFirestore();
+  const patientsCollection = React.useMemo(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'patients');
+  }, [firestore]);
+  
+  const { data: allPatients, isLoading } = useCollection<Patient>(patientsCollection);
+
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
-    // Simulate fetching data
-    const timer = setTimeout(() => {
-      const patientsWithData = mockPatients.map(p => ({
-        ...p,
-        lowStockCount: 0,
-        criticalStockCount: 0,
-      }));
-      setAllPatients(patientsWithData);
-      setFilteredPatients(patientsWithData);
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-  
-  React.useEffect(() => {
-    const results = allPatients.filter(patient =>
-      patient.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredPatients(results);
+    if (allPatients) {
+      const results = allPatients.filter(patient =>
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredPatients(results);
+    } else {
+        setFilteredPatients([]);
+    }
   }, [searchTerm, allPatients]);
 
   const noData = !isLoading && (!filteredPatients || filteredPatients.length === 0);
@@ -76,7 +71,7 @@ export default function PatientsPage() {
             <p className="mb-4 text-sm text-muted-foreground">
               {searchTerm 
                 ? `Nenhum paciente corresponde à sua busca por "${searchTerm}".` 
-                : "Parece que não há pacientes cadastrados no sistema."
+                : "Parece que não há pacientes cadastrados. Popule os dados na página de 'Estoque'."
               }
             </p>
              <Button asChild>

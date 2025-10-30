@@ -6,38 +6,37 @@
       "type": "object",
       "description": "Represents a patient receiving homecare services.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the patient."
+        "id": { "type": "string", "description": "Unique identifier for the patient." },
+        "name": { "type": "string", "description": "The patient's full name." },
+        "cpf": { "type": "string", "description": "The patient's CPF document number." },
+        "email": { "type": "string", "description": "The patient's email address.", "format": "email" },
+        "phone": { "type": "string", "description": "The patient's phone number." },
+        "dateOfBirth": { "type": "string", "description": "The patient's date of birth.", "format": "date" },
+        "bloodType": { "type": "string", "description": "The patient's blood type." },
+        "age": { "type": "number", "description": "The patient's age." },
+        "avatarUrl": { "type": "string", "description": "URL for the patient's avatar image." },
+        "avatarHint": { "type": "string", "description": "A hint for AI to find a similar image." },
+        "address": {
+            "type": "object",
+            "properties": {
+                "street": {"type": "string"},
+                "number": {"type": "string"},
+                "complement": {"type": "string"},
+                "neighborhood": {"type": "string"},
+                "city": {"type": "string"},
+                "state": {"type": "string"},
+                "zipCode": {"type": "string"}
+            }
         },
-        "name": {
-          "type": "string",
-          "description": "The patient's full name."
-        },
-        "cpf": {
-            "type": "string",
-            "description": "The patient's CPF document number."
-        },
-        "dateOfBirth": {
-          "type": "string",
-          "description": "The patient's date of birth.",
-          "format": "date-time"
-        },
-         "bloodType": {
-            "type": "string",
-            "description": "The patient's blood type."
-        },
-        "age": {
-            "type": "number",
-            "description": "The patient's age."
-        },
-        "avatarUrl": {
-            "type": "string",
-            "description": "URL for the patient's avatar image."
-        },
-         "avatarHint": {
-            "type": "string",
-            "description": "A hint for AI to find a similar image."
+        "financial": {
+            "type": "object",
+            "properties": {
+                "plan": {"type": "string", "enum": ["particular", "plano_de_saude"]},
+                "healthPlan": {"type": "string"},
+                "healthPlanId": {"type": "string"},
+                "monthlyFee": {"type": "number"},
+                "billingDay": {"type": "number"}
+            }
         },
         "familyContact": {
             "type": "object",
@@ -46,16 +45,8 @@
                 "phone": {"type": "string"}
             }
         },
-        "allergies": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "A list of the patient's known allergies."
-        },
-        "chronicConditions": {
-             "type": "array",
-            "items": { "type": "string" },
-            "description": "A list of the patient's chronic conditions."
-        },
+        "allergies": { "type": "array", "items": { "type": "string" }, "description": "A list of the patient's known allergies." },
+        "chronicConditions": { "type": "array", "items": { "type": "string" }, "description": "A list of the patient's chronic conditions." },
         "medications": {
             "type": "array",
             "items": {
@@ -70,25 +61,65 @@
             },
             "description": "A list of medications the patient is taking."
         },
-        "diet": {
-            "type": "string",
-            "description": "Dietary restrictions and recommendations for the patient."
-        },
-        "medicalHistory": {
-          "type": "string",
-          "description": "A detailed record of the patient's medical history; consider storing a reference to an external document or system for full details."
-        },
-        "carePlan": {
-          "type": "string",
-          "description": "Description of the patient's care plan."
-        }
+        "diet": { "type": "string", "description": "Dietary restrictions and recommendations for the patient." }
       },
-      "required": [
-        "id",
-        "name",
-        "dateOfBirth",
-        "familyContact"
-      ]
+      "required": [ "id", "name", "dateOfBirth", "familyContact" ]
+    },
+    "Professional": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Professional",
+      "type": "object",
+      "description": "Represents a healthcare professional in the system.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "initials": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "cpf": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "address": { "$ref": "#/backend/entities/Patient/properties/address" },
+        "avatarUrl": { "type": "string" },
+        "avatarHint": { "type": "string" },
+        "rating": { "type": "number" },
+        "bio": { "type": "string" },
+        "coren": { "type": "string" },
+        "corenStatus": { "type": "string", "enum": ["active", "inactive"] },
+        "reviews": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "from": {"type": "string"},
+                    "quote": {"type": "string"}
+                }
+            }
+        },
+        "specialties": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "email", "coren"]
+    },
+    "Shift": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Shift",
+        "type": "object",
+        "description": "Represents a work shift for a professional with a patient.",
+        "properties": {
+            "id": { "type": "string" },
+            "patientId": { "type": "string" },
+            "professionalId": { "type": "string" },
+            "dayKey": { "type": "string", "description": "YYYY-MM-DD format" },
+            "shiftType": { "type": "string", "enum": ["diurno", "noturno"] },
+            "status": { "type": "string", "enum": ["open", "pending", "filled", "active", "completed", "issue"] },
+            "isUrgent": { "type": "boolean" },
+            "progress": { "type": "number" },
+            "checkIn": { "type": "string", "format": "time" },
+            "checkOut": { "type": "string", "format": "time" },
+            "checkInStatus": { "type": "string", "enum": ["OK", "Pendente", "Falha"] },
+            "checkOutStatus": { "type": "string", "enum": ["OK", "Pendente", "Falha"] },
+            "hasNotification": { "type": "boolean" }
+        },
+        "required": ["id", "patientId", "dayKey", "shiftType", "status"]
     },
     "Supply": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -96,29 +127,9 @@
       "type": "object",
       "description": "Represents a supply item used in patient care.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the supply item."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the supply item."
-        },
-        "description": {
-          "type": "string",
-          "description": "A description of the supply item."
-        },
-        "unit": {
-          "type": "string",
-          "description": "The unit of measure for the supply (e.g., 'mL', 'count')."
-        }
+        "id": { "type": "string" }, "name": { "type": "string" }, "description": { "type": "string" }, "unit": { "type": "string" }
       },
-      "required": [
-        "id",
-        "name",
-        "description",
-        "unit"
-      ]
+      "required": [ "id", "name", "description", "unit" ]
     },
     "Inventory": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -126,35 +137,13 @@
       "type": "object",
       "description": "Represents the inventory level of a specific supply item for a patient.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the inventory record."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N Inventory)"
-        },
-        "supplyId": {
-          "type": "string",
-          "description": "Reference to Supply. (Relationship: Supply 1:N Inventory)"
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The current quantity of the supply item in inventory."
-        },
-        "lastUpdated": {
-          "type": "string",
-          "description": "Timestamp of the last inventory update.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "supplyId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "patientId",
-        "supplyId",
-        "quantity",
-        "lastUpdated"
-      ]
+      "required": [ "id", "patientId", "supplyId", "quantity", "lastUpdated" ]
     },
     "SupplyRequest": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -162,74 +151,11 @@
       "type": "object",
       "description": "Represents a request for supplies made by the care team to the family.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the supply request."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N SupplyRequest)"
-        },
-        "supplyId": {
-          "type": "string",
-          "description": "Reference to Supply. (Relationship: Supply 1:N SupplyRequest)"
-        },
-        "quantityRequested": {
-          "type": "number",
-          "description": "The quantity of the supply item requested."
-        },
-        "requestDate": {
-          "type": "string",
-          "description": "The date and time the request was made.",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "description": "The status of the request (e.g., 'Pending', 'Approved', 'Denied')."
-        },
-        "notes": {
-          "type": "string",
-          "description": "Optional notes related to the supply request."
-        }
+        "id": { "type": "string" }, "patientId": { "type": "string" }, "supplyId": { "type": "string" },
+        "quantityRequested": { "type": "number" }, "requestDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Denied"] }, "notes": { "type": "string" }
       },
-      "required": [
-        "id",
-        "patientId",
-        "supplyId",
-        "quantityRequested",
-        "requestDate",
-        "status"
-      ]
-    },
-    "CareTeamMember": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "CareTeamMember",
-      "type": "object",
-      "description": "Represents a member of the patient's care team.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the care team member."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the care team member."
-        },
-        "role": {
-          "type": "string",
-          "description": "The role of the care team member (e.g., 'Nurse', 'Therapist')."
-        },
-        "contactNumber": {
-          "type": "string",
-          "description": "The contact number of the care team member."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "role",
-        "contactNumber"
-      ]
+      "required": [ "id", "patientId", "supplyId", "quantityRequested", "requestDate", "status" ]
     },
     "ShiftReport": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -237,47 +163,22 @@
       "type": "object",
       "description": "Represents a shift report submitted by a care team member.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the shift report."
-        },
-        "patientId": {
-          "type": "string",
-          "description": "Reference to Patient. (Relationship: Patient 1:N ShiftReport)"
-        },
-        "careTeamMemberId": {
-          "type": "string",
-          "description": "Reference to CareTeamMember. (Relationship: CareTeamMember 1:N ShiftReport)"
-        },
-        "shiftStartTime": {
-          "type": "string",
-          "description": "The start time of the shift.",
-          "format": "date-time"
-        },
-        "shiftEndTime": {
-          "type": "string",
-          "description": "The end time of the shift.",
-          "format": "date-time"
-        },
-        "observations": {
-          "type": "string",
-          "description": "Observations and notes from the shift."
-        },
-        "reportDate": {
-          "type": "string",
-          "description": "The date the report was submitted.",
-          "format": "date-time"
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "careTeamMemberName": { "type": "string" },
+        "shift": { "type": "string", "enum": ["Diurno", "Noturno"] },
+        "reportDate": { "type": "string", "format": "date-time" },
+        "observations": { "type": "string" },
+        "vitalSigns": {
+            "type": "object",
+            "properties": {
+                "bloodPressure": {"type": "string"},
+                "heartRate": {"type": "number"},
+                "oxygenSaturation": {"type": "number"}
+            }
         }
       },
-      "required": [
-        "id",
-        "patientId",
-        "careTeamMemberId",
-        "shiftStartTime",
-        "shiftEndTime",
-        "observations",
-        "reportDate"
-      ]
+      "required": [ "id", "patientId", "careTeamMemberName", "shift", "reportDate", "observations" ]
     },
     "Notification": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -285,148 +186,24 @@
       "type": "object",
       "description": "Represents a notification for the dashboard.",
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "patientId": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string",
-          "enum": ["supply", "info", "alert"]
-        },
-        "message": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "id": { "type": "string" }, "patientId": { "type": "string" },
+        "type": { "type": "string", "enum": ["supply", "info", "alert"] },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "patientId", "type", "message", "timestamp"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": [ "password", "anonymous" ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/patients/{patientId}",
-        "definition": {
-          "entityName": "Patient",
-          "schema": {
-            "$ref": "#/backend/entities/Patient"
-          },
-          "description": "Represents a single patient's core information. This document acts as a root for most patient-specific data.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "Unique identifier for the patient."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/supplies/{supplyId}",
-        "definition": {
-          "entityName": "Supply",
-          "schema": {
-            "$ref": "#/backend/entities/Supply"
-          },
-          "description": "Represents available supply items. No authorization context is needed.",
-          "params": [
-            {
-              "name": "supplyId",
-              "description": "Unique identifier for the supply item."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/patients/{patientId}/inventories/{inventoryId}",
-        "definition": {
-          "entityName": "Inventory",
-          "schema": {
-            "$ref": "#/backend/entities/Inventory"
-          },
-          "description": "Represents the inventory level of a specific supply item for a patient. Nested under the patient document for easy access and security.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "Unique identifier for the patient."
-            },
-            {
-              "name": "inventoryId",
-              "description": "Unique identifier for the inventory record."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/patients/{patientId}/supplyRequests/{supplyRequestId}",
-        "definition": {
-          "entityName": "SupplyRequest",
-          "schema": {
-            "$ref": "#/backend/entities/SupplyRequest"
-          },
-          "description": "Represents a supply request made for the patient. Nested under the patient document.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "Unique identifier for the patient."
-            },
-            {
-              "name": "supplyRequestId",
-              "description": "Unique identifier for the supply request."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/patients/{patientId}/shiftReports/{shiftReportId}",
-        "definition": {
-          "entityName": "ShiftReport",
-          "schema": {
-            "$ref": "#/backend/entities/ShiftReport"
-          },
-          "description": "Represents a shift report submitted for the patient. Nested under the patient document.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "Unique identifier for the patient."
-            },
-            {
-              "name": "shiftReportId",
-              "description": "Unique identifier for the shift report."
-            }
-          ]
-        }
-      },
-       {
-        "path": "/patients/{patientId}/notifications/{notificationId}",
-        "definition": {
-          "entityName": "Notification",
-          "schema": {
-            "$ref": "#/backend/entities/Notification"
-          },
-          "description": "Represents a notification for a patient.",
-          "params": [
-            {
-              "name": "patientId",
-              "description": "Unique identifier for the patient."
-            },
-            {
-              "name": "notificationId",
-              "description": "Unique identifier for the notification record."
-            }
-          ]
-        }
-      }
-    ]
+    "/patients/{patientId}": { "schema": { "$ref": "#/backend/entities/Patient" }, "description": "Stores individual patient records." },
+    "/professionals/{professionalId}": { "schema": { "$ref": "#/backend/entities/Professional" }, "description": "Stores individual professional records." },
+    "/shifts/{shiftId}": { "schema": { "$ref": "#/backend/entities/Shift" }, "description": "Stores all shifts for all patients. The shiftId is a composite key for easy lookup: {patientId}-{dayKey}-{shiftType}." },
+    "/patients/{patientId}/inventories/{inventoryId}": { "schema": { "$ref": "#/backend/entities/Inventory" }, "description": "Inventory for a specific patient." },
+    "/patients/{patientId}/supplyRequests/{supplyRequestId}": { "schema": { "$ref": "#/backend/entities/SupplyRequest" }, "description": "Supply requests for a patient." },
+    "/patients/{patientId}/shiftReports/{shiftReportId}": { "schema": { "$ref": "#/backend/entities/ShiftReport" }, "description": "Shift reports for a patient." },
+    "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/backend/entities/Notification" }, "description": "Notifications for a patient." }
   }
 }
-    

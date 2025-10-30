@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
-import { patients as mockPatients } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 
@@ -22,34 +21,32 @@ import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao'
 import { Badge } from '@/components/ui/badge';
 import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
 import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-upload-dialog';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function PatientDetailPage() {
   const params = useParams();
   const { toast } = useToast();
   const patientId = params.patientId as string;
+  const firestore = useFirestore();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
-  const [editedData, setEditedData] = React.useState<Patient | null>(null);
-  const [patient, setPatient] = React.useState<Patient | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  
+  const patientDocRef = useMemoFirebase(() => {
+      if (!firestore || !patientId) return null;
+      return doc(firestore, 'patients', patientId);
+  }, [firestore, patientId]);
 
+  const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
+
+  const [editedData, setEditedData] = React.useState<Patient | null>(null);
+  
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-        const foundPatient = mockPatients.find(p => p.id === patientId);
-        if (foundPatient) {
-            const patientWithCounts = {
-                ...foundPatient,
-                lowStockCount: 0,
-                criticalStockCount: 0,
-            };
-            setPatient(patientWithCounts);
-            setEditedData(JSON.parse(JSON.stringify(patientWithCounts)));
-        }
-        setIsLoading(false);
-    }, 500);
-     return () => clearTimeout(timer);
-  }, [patientId]);
+    if (patient) {
+      setEditedData(JSON.parse(JSON.stringify(patient)));
+    }
+  }, [patient]);
 
 
   const handleEdit = () => {
@@ -66,10 +63,10 @@ export default function PatientDetailPage() {
 
   const handleSave = () => {
     if (!editedData) return;
-    setPatient(editedData);
+    // TODO: Implement Firestore update logic here
     toast({
       title: "Prontuário Salvo",
-      description: `As informações de ${editedData.name} foram atualizadas.`,
+      description: `As informações de ${editedData.name} foram atualizadas (simulação).`,
     });
     setIsEditing(false);
   };
@@ -111,6 +108,8 @@ export default function PatientDetailPage() {
       </>
     );
   }
+  
+  const age = patient ? new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear() : 0;
 
   return (
     <>
@@ -153,7 +152,7 @@ export default function PatientDetailPage() {
                 <div>
                     <p className="text-xs text-muted-foreground">Paciente</p>
                     <p className="font-semibold">{displayData.name}</p>
-                    <p className="text-xs text-muted-foreground">{displayData.age} anos ({new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})})</p>
+                    <p className="text-xs text-muted-foreground">{age} anos ({new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})})</p>
                 </div>
             </div>
             <div className="flex items-center gap-3">

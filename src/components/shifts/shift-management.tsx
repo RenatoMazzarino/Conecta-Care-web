@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, UserCheck } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
-import { professionals, initialShifts, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -22,14 +21,14 @@ import { DirectAssignmentDialog } from './direct-assignment-dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ShiftMobileView } from './shift-mobile-view';
 import { ShiftGridView } from './shift-grid-view';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, doc, setDoc, query } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '../ui/skeleton';
 
 
 type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
 type StatusFilter = 'all' | 'open' | 'pending' | 'filled';
-
-
-const allPatients: Patient[] = mockPatients.map(p => ({...p, lowStockCount: 0, criticalStockCount: 0}));
-
 
 const periodConfig = {
   weekly: 7,
@@ -38,7 +37,17 @@ const periodConfig = {
 };
 
 export function ShiftManagement() {
-  const [shiftsData, setShiftsData] = React.useState<Shift[]>(initialShifts);
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  
+  const patientsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
+  const shiftsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'shifts') : null, [firestore]);
+  const professionalsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'professionals') : null, [firestore]);
+
+  const { data: allPatients, isLoading: patientsLoading } = useCollection<Patient>(patientsCollection);
+  const { data: shiftsData, isLoading: shiftsLoading } = useCollection<Shift>(shiftsCollection);
+  const { data: professionals, isLoading: profsLoading } = useCollection<Professional>(professionalsCollection);
+
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
   const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
   const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
@@ -57,7 +66,7 @@ export function ShiftManagement() {
   
   const [viewPeriod, setViewPeriod] = React.useState<ViewPeriod>('weekly');
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
-  const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>(allPatients);
+  const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
 
   const isMobile = useIsMobile();
   const numDays = isMobile ? 3 : periodConfig[viewPeriod];
@@ -69,7 +78,8 @@ export function ShiftManagement() {
   
   const gridShifts = React.useMemo(() => {
     const grid: { [key: string]: (GridShiftState | null)[] } = {};
-    
+    if (!allPatients || !shiftsData) return grid;
+
     allPatients.forEach(patient => {
       displayedDays.forEach(day => {
         const dayKey = format(day, 'yyyy-MM-dd');
@@ -79,7 +89,7 @@ export function ShiftManagement() {
           
           if (!shift) return { status: 'open', isUrgent: false, patient };
           
-          const professional = professionals.find(p => p.id === shift?.professionalId);
+          const professional = professionals?.find(p => p.id === shift?.professionalId);
 
           return {
             shift,
@@ -94,7 +104,7 @@ export function ShiftManagement() {
       });
     });
     return grid;
-  }, [shiftsData, displayedDays]);
+  }, [shiftsData, allPatients, professionals, displayedDays]);
 
   const stats = React.useMemo(() => {
     let openCount = 0;
@@ -113,6 +123,10 @@ export function ShiftManagement() {
 
 
    React.useEffect(() => {
+    if (!allPatients) {
+        setFilteredPatients([]);
+        return;
+    }
     if (statusFilter === 'all') {
       setFilteredPatients(allPatients);
       return;
@@ -134,7 +148,7 @@ export function ShiftManagement() {
 
     setFilteredPatients(allPatients.filter(p => patientIdsWithStatus.has(p.id)));
 
-  }, [statusFilter, gridShifts]);
+  }, [statusFilter, gridShifts, allPatients]);
 
 
   const handleDateChange = (days: number) => {
@@ -163,16 +177,20 @@ export function ShiftManagement() {
     setOpenShiftInfo(null);
   };
 
-  const handleVacancyPublished = (info: ShiftDetails) => {
-     setShiftsData(prev => {
-        const existingIndex = prev.findIndex(s => s.patientId === info.patient.id && s.dayKey === info.dayKey && s.shiftType === info.shiftType);
-        if (existingIndex > -1) {
-            const updatedShifts = [...prev];
-            updatedShifts[existingIndex] = { ...updatedShifts[existingIndex], status: 'pending' };
-            return updatedShifts;
-        }
-        return [...prev, { patientId: info.patient.id, dayKey: info.dayKey, shiftType: info.shiftType, status: 'pending' }];
-    });
+  const handleVacancyPublished = async (info: ShiftDetails) => {
+     if (!firestore) return;
+     const newShiftId = `${info.patient.id}-${info.dayKey}-${info.shiftType}`;
+     const shiftDocRef = doc(firestore, 'shifts', newShiftId);
+     const shiftData: Partial<Shift> = {
+        id: newShiftId,
+        patientId: info.patient.id,
+        dayKey: info.dayKey,
+        shiftType: info.shiftType,
+        status: 'pending', // Vacancy is published, awaiting candidates
+        isUrgent: info.isUrgent,
+     }
+     await setDoc(shiftDocRef, shiftData, { merge: true });
+     setOpenShiftInfo(null);
   }
 
   const handleOpenCandidacy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
@@ -183,24 +201,28 @@ export function ShiftManagement() {
     setCandidacyShiftInfo(null);
   }
   
-  const handleApproveProfessional = (professional: Professional, shift: OpenShiftInfo) => {
-    if (shift) {
-        setShiftsData(prev => {
-            const existingIndex = prev.findIndex(s => s.patientId === shift.patient.id && s.dayKey === shift.dayKey && s.shiftType === shift.shiftType);
-            const newShift: Shift = {
-                patientId: shift.patient.id,
+  const handleApproveProfessional = async (professional: Professional, shift: OpenShiftInfo) => {
+    if (shift && firestore) {
+        const shiftId = `${shift.patient.id}-${shift.dayKey}-${shift.shiftType}`;
+        const shiftDocRef = doc(firestore, 'shifts', shiftId);
+
+        try {
+            await setDoc(shiftDocRef, {
                 professionalId: professional.id,
-                dayKey: shift.dayKey,
-                shiftType: shift.shiftType,
                 status: 'filled'
-            };
-            if (existingIndex > -1) {
-                const updatedShifts = [...prev];
-                updatedShifts[existingIndex] = newShift;
-                return updatedShifts;
-            }
-            return [...prev, newShift];
-        });
+            }, { merge: true });
+
+            toast({
+                title: 'Profissional Aprovado!',
+                description: `${professional.name} foi alocado para o plantão.`,
+            });
+        } catch (error) {
+            toast({
+                title: 'Erro ao aprovar',
+                description: 'Não foi possível alocar o profissional.',
+                variant: 'destructive',
+            });
+        }
         
         handleCloseCandidacy();
         setIsCandidacyListOpen(false);
@@ -267,6 +289,7 @@ export function ShiftManagement() {
     return `${format(start, 'd')} - ${format(end, endFormat, { locale: ptBR })}`;
   }
 
+  const isLoading = patientsLoading || shiftsLoading || profsLoading;
   const totalShifts = stats.open + stats.pending + stats.filled;
 
   const viewHandlers = {
@@ -275,6 +298,17 @@ export function ShiftManagement() {
       handleOpenCandidacy,
       setDetailsShift,
   };
+  
+  if (isLoading) {
+    return (
+        <div className="p-4 sm:p-6 space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">
+                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
+            </div>
+            <Skeleton className="h-[60vh] w-full" />
+        </div>
+    )
+  }
 
   return (
     <div className="p-4 sm:p-6">
@@ -365,7 +399,7 @@ export function ShiftManagement() {
         />
       )}
       
-      {selectedProfessional && (
+      {selectedProfessional && professionals && (
         <ProfessionalProfileDialog 
           professional={selectedProfessional}
           isOpen={!!selectedProfessional}
@@ -386,7 +420,7 @@ export function ShiftManagement() {
           onOpenChange={setIsBulkPublishing}
         />
       
-       {candidacyShiftInfo && (
+       {candidacyShiftInfo && professionals && (
         <CandidacyManagementDialog
           shiftInfo={candidacyShiftInfo}
           isOpen={!!candidacyShiftInfo}
@@ -396,12 +430,12 @@ export function ShiftManagement() {
         />
       )}
 
-      <CandidacyListDialog
+      {professionals && <CandidacyListDialog
           isOpen={isCandidacyListOpen}
           onOpenChange={setIsCandidacyListOpen}
           onOpenProfile={handleOpenProfile}
           onApprove={handleApproveProfessional}
-      />
+      />}
       
       {detailsShift && (
         <ShiftDetailsDialog
@@ -435,7 +469,7 @@ export function ShiftManagement() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {assignmentShiftInfo && (
+      {assignmentShiftInfo && professionals && (
         <DirectAssignmentDialog
           isOpen={!!assignmentShiftInfo}
           onOpenChange={() => setAssignmentShiftInfo(null)}

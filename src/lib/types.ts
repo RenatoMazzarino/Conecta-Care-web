@@ -75,6 +75,7 @@ export type Professional = {
 };
 
 export type Shift = {
+  id: string;
   patientId: string;
   professionalId?: string;
   dayKey: string;

@@ -2,9 +2,8 @@ import Link from 'next/link';
 import { FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { ShiftReport } from '@/lib/types';
+import type { ShiftReport, Patient } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { patients as mockPatients } from '@/lib/data';
 
 function formatRelativeDate(dateString: string) {
     const date = new Date(dateString);
@@ -18,7 +17,7 @@ function formatRelativeDate(dateString: string) {
 }
 
 
-export function RecentReportsCard({ reports }: { reports: ShiftReport[] }) {
+export function RecentReportsCard({ reports, patients }: { reports: ShiftReport[], patients: Patient[] }) {
   return (
      <Card>
         <CardHeader>
@@ -31,7 +30,7 @@ export function RecentReportsCard({ reports }: { reports: ShiftReport[] }) {
         <CardContent>
         <div className="space-y-4">
             {reports.map((report) => {
-              const patient = mockPatients.find(p => p.id === report.patientId);
+              const patient = patients.find(p => p.id === report.patientId);
               return (
                 <div key={report.id} className="p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-start justify-between mb-3">

@@ -5,34 +5,34 @@ import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, UserPlus } from 'lucide-react';
-import Link from 'next/link';
 import type { Professional } from '@/lib/types';
-import { professionals as mockProfessionals } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TeamTable } from '@/components/team/team-table';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function TeamPage() {
-  const [allProfessionals, setAllProfessionals] = React.useState<Professional[]>([]);
+  const firestore = useFirestore();
+  const profCollection = React.useMemo(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'professionals');
+  }, [firestore]);
+
+  const { data: allProfessionals, isLoading } = useCollection<Professional>(profCollection);
+
   const [filteredProfessionals, setFilteredProfessionals] = React.useState<Professional[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setAllProfessionals(mockProfessionals);
-      setFilteredProfessionals(mockProfessionals);
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-  
-  React.useEffect(() => {
-    const results = allProfessionals.filter(prof =>
-      prof.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prof.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilteredProfessionals(results);
+    if (allProfessionals) {
+      const results = allProfessionals.filter(prof =>
+        prof.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        prof.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredProfessionals(results);
+    } else {
+        setFilteredProfessionals([]);
+    }
   }, [searchTerm, allProfessionals]);
 
   const noData = !isLoading && (!filteredProfessionals || filteredProfessionals.length === 0);
@@ -77,7 +77,7 @@ export default function TeamPage() {
             <p className="text-sm text-muted-foreground">
               {searchTerm 
                 ? `Nenhum profissional corresponde à sua busca por "${searchTerm}".` 
-                : "Parece que não há profissionais cadastrados no sistema."
+                : "Parece que não há profissionais cadastrados. Popule os dados na página de 'Estoque'."
               }
             </p>
           </div>

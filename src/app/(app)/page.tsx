@@ -11,33 +11,43 @@ import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { patients as mockPatients, mockShiftReports, mockNotifications, mockTasks } from '@/lib/data';
+import { mockTasks } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning } from 'lucide-react';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, limit } from 'firebase/firestore';
 
 export default function DashboardPage() {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [patient, setPatient] = React.useState<Patient | null>(null);
-  const [reports, setReports] = React.useState<ShiftReport[]>([]);
-  const [notifications, setNotifications] = React.useState<Notification[]>([]);
-  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const firestore = useFirestore();
 
-  React.useEffect(() => {
-    // Simulate fetching data
-    const timer = setTimeout(() => {
-      const mainPatientData = mockPatients[0];
-      if (mainPatientData) {
-        setPatient(mainPatientData);
-      }
-      setReports(mockShiftReports);
-      setNotifications(mockNotifications);
-      setTasks(mockTasks);
-      setIsLoading(false);
-    }, 1000); // Simulate network delay
-
-    return () => clearTimeout(timer);
-  }, []);
+  const patientsCollection = React.useMemo(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'patients');
+  }, [firestore]);
   
-  const noData = !isLoading && !patient;
+  const { data: patients, isLoading: patientsLoading } = useCollection<Patient>(patientsCollection);
+
+  // For now, we'll fetch reports and notifications for the first patient.
+  // A real-world scenario might aggregate this data differently.
+  const firstPatientId = patients?.[0]?.id;
+
+  const reportsCollection = React.useMemo(() => {
+    if (!firestore || !firstPatientId) return null;
+    return query(collection(firestore, `patients/${firstPatientId}/shiftReports`), limit(3));
+  }, [firestore, firstPatientId]);
+
+  const notificationsCollection = React.useMemo(() => {
+    if (!firestore || !firstPatientId) return null;
+    return query(collection(firestore, `patients/${firstPatientId}/notifications`), limit(4));
+  }, [firestore, firstPatientId]);
+
+  const { data: reports, isLoading: reportsLoading } = useCollection<ShiftReport>(reportsCollection);
+  const { data: notifications, isLoading: notifsLoading } = useCollection<Notification>(notificationsCollection);
+  
+  // Tasks are still mock data for now
+  const [tasks, setTasks] = React.useState<Task[]>(mockTasks);
+  
+  const isLoading = patientsLoading || reportsLoading || notifsLoading;
+  const noData = !isLoading && (!patients || patients.length === 0);
   
   const stats = [
     { title: "Vagas Abertas", value: 3, icon: FileWarning, color: "text-blue-600", link: "/shifts" },
@@ -85,7 +95,7 @@ export default function DashboardPage() {
               <Skeleton className="h-[400px] w-full" />
             ) : (
               <>
-                {reports && <RecentReportsCard reports={reports} />}
+                {reports && <RecentReportsCard reports={reports} patients={patients || []} />}
               </>
             )}
           </div>
