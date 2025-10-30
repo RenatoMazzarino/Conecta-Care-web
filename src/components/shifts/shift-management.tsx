@@ -162,11 +162,12 @@ const ShiftScaleView = () => {
 
   return (
     <div className="p-4 sm:p-6">
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
             <StatCard 
                 title="Total de Pacientes"
                 value="3"
                 icon={Users}
+                onClick={() => console.log('Filter all patients')}
             />
             <StatCard 
                 title="Vagas em Aberto"
@@ -174,6 +175,7 @@ const ShiftScaleView = () => {
                 subValue="1 Publicada / 1 Não Publicada"
                 icon={FileText}
                 className="text-amber-600"
+                onClick={() => console.log('Filter open shifts')}
             />
             <StatCard 
                 title="Vagas com Candidatos"
@@ -188,19 +190,20 @@ const ShiftScaleView = () => {
                 value="4"
                 icon={CheckCircle}
                 className="text-green-600"
+                onClick={() => console.log('Filter filled shifts')}
             />
-          <div className="flex items-center justify-center gap-2 rounded-lg border bg-card text-card-foreground shadow-sm">
-              <Button variant="ghost" size="icon">
-                  <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <div className="text-lg font-semibold">Outubro, 2024</div>
-              <Button variant="ghost" size="icon">
-                  <ChevronRight className="h-5 w-5" />
-              </Button>
-          </div>
       </div>
       
       <div className="overflow-x-auto rounded-lg border bg-card">
+        <div className="flex items-center justify-center gap-2 px-6 py-2 border-b bg-muted/50">
+            <Button variant="ghost" size="icon">
+                <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div className="text-sm font-semibold text-foreground">Outubro, 2024</div>
+            <Button variant="ghost" size="icon">
+                <ChevronRight className="h-5 w-5" />
+            </Button>
+        </div>
         <table className="min-w-full divide-y divide-border">
           <thead className="bg-muted/50">
             <tr>
