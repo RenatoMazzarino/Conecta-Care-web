@@ -45,8 +45,8 @@ const initialShifts: Record<string, ShiftState[]> = {
   ],
 };
 
-const days = ['Segunda, 06', 'Terça, 07', 'Quarta, 08', 'Quinta, 09', 'Sexta, 10'];
-const dayKeys = ['2024-10-06', '2024-10-07', '2024-10-08', '2024-10-09', '2024-10-10'];
+const days = ['Segunda, 06', 'Terça, 07', 'Quarta, 08', 'Quinta, 09', 'Sexta, 10', 'Sábado, 11', 'Domingo, 12'];
+const dayKeys = ['2024-10-06', '2024-10-07', '2024-10-08', '2024-10-09', '2024-10-10', '2024-10-11', '2024-10-12'];
 
 const ShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => (
   <div onClick={onClick} className="flex items-center gap-2 p-2 rounded-lg bg-card border cursor-pointer hover:bg-accent">
@@ -194,63 +194,65 @@ const ShiftScaleView = () => {
             />
       </div>
       
-      <div className="overflow-x-auto rounded-lg border bg-card">
-        <div className="flex items-center justify-center gap-2 px-6 py-2 border-b bg-muted/50">
+      <div className="rounded-lg border bg-card overflow-hidden">
+        <div className="flex items-center justify-center gap-2 px-4 py-2 border-b bg-muted/50 w-full">
             <Button variant="ghost" size="icon">
                 <ChevronLeft className="h-5 w-5" />
             </Button>
-            <div className="text-sm font-semibold text-foreground">Outubro, 2024</div>
+            <div className="text-sm font-semibold text-foreground text-center flex-1">Outubro, 2024</div>
             <Button variant="ghost" size="icon">
                 <ChevronRight className="h-5 w-5" />
             </Button>
         </div>
-        <table className="min-w-full divide-y divide-border">
-          <thead className="bg-muted/50">
-            <tr>
-              <th scope="col" className="w-64 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Paciente
-              </th>
-              {days.map(day => (
-                <th key={day} scope="col" className="min-w-64 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  {day}
+        <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
+                <tr>
+                <th scope="col" className="sticky left-0 z-10 w-48 md:w-64 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider bg-muted/50">
+                    Paciente
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {patients.map((patient) => (
-              <tr key={patient.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-foreground">{patient.name}</div>
-                </td>
-                {dayKeys.map(dayKey => {
-                  const dayShifts = shifts[`${patient.id}-${dayKey}`] || ['open', 'open'];
-                  const dayShift = dayShifts[0];
-                  const nightShift = dayShifts[1];
-                  
-                  const renderShift = (shift: ShiftState, type: 'diurno' | 'noturno') => {
-                    if (shift && typeof shift === 'object' && 'professional' in shift) {
-                        return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional)} />;
-                    }
-                    if (shift === 'pending') {
-                        return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
-                    }
-                    return <OpenShiftCard shiftType={type} urgent={patient.id === 'patient-456' && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
-                  }
-
-                  return (
-                    <td key={dayKey} className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-2">
-                        {renderShift(dayShift, 'diurno')}
-                        {renderShift(nightShift, 'noturno')}
-                      </div>
+                {days.map(day => (
+                    <th key={day} scope="col" className="min-w-64 px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {day}
+                    </th>
+                ))}
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+                {patients.map((patient) => (
+                <tr key={patient.id}>
+                    <td className="sticky left-0 z-10 px-6 py-4 whitespace-nowrap bg-card group-hover:bg-accent/50">
+                      <div className="text-sm font-medium text-foreground">{patient.name}</div>
                     </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    {dayKeys.map(dayKey => {
+                    const dayShifts = shifts[`${patient.id}-${dayKey}`] || ['open', 'open'];
+                    const dayShift = dayShifts[0];
+                    const nightShift = dayShifts[1];
+                    
+                    const renderShift = (shift: ShiftState, type: 'diurno' | 'noturno') => {
+                        if (shift && typeof shift === 'object' && 'professional' in shift) {
+                            return <ShiftCard professional={shift.professional} onClick={() => handleOpenProfile(shift.professional)} />;
+                        }
+                        if (shift === 'pending') {
+                            return <PendingShiftCard onClick={() => handleOpenCandidacy(patient, dayKey, type)} />;
+                        }
+                        return <OpenShiftCard shiftType={type} urgent={patient.id === 'patient-456' && dayKey === '2024-10-09' && type === 'diurno'} onClick={() => handleOpenVacancy(patient, dayKey, type)} />;
+                    }
+
+                    return (
+                        <td key={dayKey} className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-2">
+                            {renderShift(dayShift, 'diurno')}
+                            {renderShift(nightShift, 'noturno')}
+                        </div>
+                        </td>
+                    )
+                    })}
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
       </div>
       {selectedProfessional && (
         <ProfessionalProfileDialog 
