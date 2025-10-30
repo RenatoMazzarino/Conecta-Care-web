@@ -8,42 +8,42 @@ import { LowStockCard } from '@/components/dashboard/low-stock-card';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { NotificationsCard } from '@/components/dashboard/notifications-card';
-import { useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Patient, InventoryItem, ShiftReport, Notification } from '@/lib/types';
-import { doc, collection } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { patients as mockPatients, mockShiftReports, mockNotifications } from '@/lib/data';
+import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
 import { AlertTriangle, Clock, Package, FlaskConical } from 'lucide-react';
 
 export default function DashboardPage() {
-  const firestore = useFirestore();
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [patient, setPatient] = React.useState<Patient | null>(null);
+  const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
+
+  React.useEffect(() => {
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      const mainPatientData = mockPatients[0];
+      if (mainPatientData) {
+        const lowStockCount = mockInventory.filter(item => item.stock > 0 && item.stock <= item.lowStockThreshold).length;
+        const criticalStockCount = mockInventory.filter(item => item.stock === 0).length;
+        setPatient({
+            ...mainPatientData,
+            lowStockCount,
+            criticalStockCount,
+        });
+      }
+      setInventory(mockInventory);
+      setIsLoading(false);
+    }, 1000); // Simulate network delay
+
+    return () => clearTimeout(timer);
+  }, []);
   
-  // For the dashboard, we'll focus on the first patient from our mock data.
-  const mainPatientId = mockPatients[0]?.id;
-
-  const patientRef = useMemoFirebase(() => {
-    if (!firestore || !mainPatientId) return null;
-    return doc(firestore, 'patients', mainPatientId);
-  }, [firestore, mainPatientId]);
-
-  const inventoryCollectionRef = useMemoFirebase(() => {
-    if (!firestore || !mainPatientId) return null;
-    return collection(firestore, 'patients', mainPatientId, 'inventories');
-  }, [firestore, mainPatientId]);
-
-  const { data: patient, isLoading: isPatientLoading } = useDoc<Patient>(patientRef);
-  const { data: inventory, isLoading: isInventoryLoading } = useCollection<InventoryItem>(inventoryCollectionRef);
-
   // Use mock data directly to avoid permission errors for now
-  const reports: ShiftReport[] = mockShiftReports.filter(r => r.patientId === mainPatientId);
-  const notifications: Notification[] = mockNotifications.filter(n => n.patientId === mainPatientId);
-  const isReportsLoading = false;
-  const isNotificationsLoading = false;
-
-
-  const isLoading = isPatientLoading || isInventoryLoading || isReportsLoading || isNotificationsLoading;
+  const reports: ShiftReport[] = mockShiftReports.filter(r => r.patientId === patient?.id);
+  const notifications: Notification[] = mockNotifications.filter(n => n.patientId === patient?.id);
+  
   const noData = !isLoading && !patient;
   
   const stats = [
@@ -75,7 +75,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 space-y-6">
             {isLoading ? (
               <>
-                <Skeleton className="h-[180px] w-full" />
+                <Skeleton className="h-[100px] w-full" />
                 <Skeleton className="h-[300px] w-full" />
               </>
             ) : (
@@ -84,11 +84,11 @@ export default function DashboardPage() {
                    <Card>
                     <CardHeader>
                         <CardTitle>Bem-vindo ao CareSync</CardTitle>
-                        <CardDescription>Nenhum dado de paciente encontrado no Firestore.</CardDescription>
+                        <CardDescription>Nenhum dado de paciente encontrado.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className="mb-4 text-sm text-muted-foreground">
-                            Para começar, por favor, popule o banco de dados com dados de simulação.
+                            Para começar, por favor, popule o sistema com dados de simulação na página de Estoque.
                         </p>
                         <Button asChild>
                             <Link href="/inventory">Ir para a página de Estoque</Link>

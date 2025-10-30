@@ -1,10 +1,7 @@
-
 'use client';
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,8 +13,12 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, AlertCircle, Pill, Utensils, Phone, Edit, Save, X, Plus, HeartPulse } from 'lucide-react';
+import { User, AlertCircle, Pill, Utensils, Phone, Edit, Save, X, Plus } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
+import { patients as mockPatients } from '@/lib/data';
+import { useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
+
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -27,20 +28,26 @@ export default function PatientDetailPage() {
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
+  const [patient, setPatient] = React.useState<Patient | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const patientRef = useMemoFirebase(() => {
-    if (!firestore || !patientId) return null;
-    return doc(firestore, 'patients', patientId);
-  }, [firestore, patientId]);
-
-  const { data: patient, isLoading } = useDoc<Patient>(patientRef);
-  
-  // Set editedData when patient data is loaded
+  // Set patient data from mock
   React.useEffect(() => {
-    if (patient) {
-      setEditedData(JSON.parse(JSON.stringify(patient))); // Deep copy
-    }
-  }, [patient]);
+    const timer = setTimeout(() => {
+        const foundPatient = mockPatients.find(p => p.id === patientId);
+        if (foundPatient) {
+            const patientWithCounts = {
+                ...foundPatient,
+                lowStockCount: 0,
+                criticalStockCount: 0,
+            };
+            setPatient(patientWithCounts);
+            setEditedData(JSON.parse(JSON.stringify(patientWithCounts))); // Deep copy
+        }
+        setIsLoading(false);
+    }, 500);
+     return () => clearTimeout(timer);
+  }, [patientId]);
 
 
   const handleEdit = () => {
@@ -56,10 +63,14 @@ export default function PatientDetailPage() {
   };
 
   const handleSave = () => {
-    if (!patientRef || !editedData) return;
-
+    if (!firestore || !patientId || !editedData) return;
+    
+    const patientRef = doc(firestore, 'patients', patientId);
     setDocumentNonBlocking(patientRef, editedData, { merge: true });
     
+    // Optimistically update local state
+    setPatient(editedData);
+
     toast({
       title: "Prontuário Salvo",
       description: `As informações de ${editedData.name} foram atualizadas.`,
@@ -117,7 +128,7 @@ export default function PatientDetailPage() {
                 <CardContent className="p-12 text-center">
                     <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <h2 className="text-xl font-semibold mb-2">Paciente não encontrado</h2>
-                    <p className="text-muted-foreground">O prontuário para este ID de paciente não foi encontrado no banco de dados.</p>
+                    <p className="text-muted-foreground">O prontuário para este ID de paciente não foi encontrado.</p>
                 </CardContent>
                 </Card>
             </main>
@@ -381,7 +392,7 @@ export default function PatientDetailPage() {
                     <div className="col-span-2 sm:col-span-2">
                       <Label>Observações</Label>
                       <Input
-                        value={med.notes}
+                        value={med.notes || ''}
                         onChange={(e) => updateMedication(index, 'notes', e.target.value)}
                       />
                     </div>
@@ -438,5 +449,3 @@ export default function PatientDetailPage() {
     </>
   );
 }
-
-    

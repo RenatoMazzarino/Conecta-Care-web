@@ -1,17 +1,15 @@
-
 'use client';
 
 import * as React from 'react';
 import { AppHeader } from '@/components/app-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
 import type { Patient } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Phone, User, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { patients as mockPatients } from '@/lib/data';
 
 function PatientListItem({ patient }: { patient: Patient }) {
   const birthDate = new Date(patient.dateOfBirth);
@@ -58,15 +56,24 @@ function PatientListItem({ patient }: { patient: Patient }) {
 
 
 export default function PatientsPage() {
-  const firestore = useFirestore();
-
-  const patientsCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'patients');
-  }, [firestore]);
-
-  const { data: patients, isLoading } = useCollection<Patient>(patientsCollectionRef);
+  const [patients, setPatients] = React.useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   
+  React.useEffect(() => {
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      const patientsWithData = mockPatients.map(p => ({
+        ...p,
+        lowStockCount: 0, // Mock data, can be refined
+        criticalStockCount: 0,
+      }));
+      setPatients(patientsWithData);
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const noData = !isLoading && (!patients || patients.length === 0);
 
   return (

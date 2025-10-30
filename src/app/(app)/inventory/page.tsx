@@ -5,8 +5,8 @@ import { AppHeader } from '@/components/app-header';
 import { InventoryTable } from '@/components/inventory/inventory-table';
 import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
 import type { InventoryItem, Patient } from '@/lib/types';
-import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -19,15 +19,20 @@ export default function InventoryPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   
-  // Assuming we manage inventory for the first patient in the mock data for now
-  const firstPatientId = mockPatients[0]?.id;
+  // Use mock data locally, but keep Firestore seeding logic
+  const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const inventoryCollectionRef = useMemoFirebase(() => {
-    if (!firestore || !firstPatientId) return null;
-    return collection(firestore, 'patients', firstPatientId, 'inventories');
-  }, [firestore, firstPatientId]);
+  React.useEffect(() => {
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      setInventory(mockInventory);
+      setIsLoading(false);
+    }, 500);
 
-  const { data: inventory, isLoading } = useCollection<InventoryItem>(inventoryCollectionRef);
+    return () => clearTimeout(timer);
+  }, []);
+
 
   const handleOpenRequisition = (items: InventoryItem[]) => {
     setItemsToRequisition(items);
@@ -83,6 +88,9 @@ export default function InventoryPage() {
         title: "Sucesso!",
         description: `${patientsWithInventoryData.length} pacientes, seus inventários e outros dados foram enviados para o Firestore.`
     });
+
+    // Also update local state to reflect seeded data immediately
+    setInventory(mockInventory);
   }
 
   const noData = !isLoading && (!inventory || inventory.length === 0);
@@ -100,7 +108,7 @@ export default function InventoryPage() {
                         <CardTitle>Ferramentas de Desenvolvimento</CardTitle>
                         <CardDescription>Use este botão para popular o Firestore com dados de simulação.</CardDescription>
                     </div>
-                     <Button onClick={handleSeedData} disabled={isLoading}>
+                     <Button onClick={handleSeedData}>
                         Popular Dados de Simulação
                     </Button>
                 </div>
@@ -111,7 +119,7 @@ export default function InventoryPage() {
              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
                 <div className="text-lg font-semibold mb-2">Inventário do paciente está vazio.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Clique no botão acima para popular o banco de dados com dados de simulação. A tabela mostrará o inventário do primeiro paciente ({mockPatients[0]?.name}).
+                    Clique no botão acima para popular o banco de dados com dados de simulação.
                 </p>
             </div>
         )}
