@@ -137,7 +137,7 @@ export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: Pr
               )}
             </CardContent>
           </Card>
-          <ProntuarioTimeline />
+          <ProntuarioTimeline currentProgress={50} />
       </div>
 
       <div className="lg:col-span-1 space-y-6">
@@ -152,7 +152,7 @@ export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: Pr
           </CardHeader>
           <CardContent className="flex-grow space-y-4">
               {summaryCards.map((card, index) => (
-                  <div key={index} className="p-3 border-l-4 rounded-r-md" style={{ borderColor: `var(--${card.color.replace('text-', 'chart-')})`}}>
+                  <div key={index} className="p-3 border-l-4 rounded-r-md" style={{ borderColor: `var(--chart-${index + 1})`}}>
                       <div className={`flex items-center gap-2 text-md font-semibold ${card.color}`}>
                           <card.icon className="w-5 h-5" />
                           {card.title}
