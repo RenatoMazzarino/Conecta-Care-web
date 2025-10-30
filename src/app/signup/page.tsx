@@ -3,7 +3,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { signupAction } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -23,7 +24,7 @@ function SubmitButton() {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useFormState(signupAction, { error: null });
+  const [state, formAction] = useActionState(signupAction, { error: null });
   const { toast } = useToast();
 
   React.useEffect(() => {
