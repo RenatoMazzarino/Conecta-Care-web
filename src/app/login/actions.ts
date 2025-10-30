@@ -37,7 +37,6 @@ export async function loginAction(
     return { error: 'Ocorreu um erro desconhecido. Tente novamente.' };
   }
 
-  console.log('[loginAction] Redirecionando para /...');
   redirect('/');
 }
 
@@ -67,6 +66,5 @@ export async function googleLoginAction(
     return { error: 'Ocorreu um erro ao processar o login com Google.' };
   }
   
-  console.log('[googleLoginAction] Redirecionando para /...');
   redirect('/');
 }

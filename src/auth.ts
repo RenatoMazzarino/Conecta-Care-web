@@ -28,7 +28,8 @@ export async function createSession(uid: string, email: string) {
  
 export async function auth(): Promise<Session> {
   console.log('[auth] Verificando sessão...');
-  const sessionCookie = cookies().get(SESSION_COOKIE_NAME)?.value;
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   
   if (!sessionCookie) {
     console.log('[auth] Nenhum cookie de sessão encontrado.');
