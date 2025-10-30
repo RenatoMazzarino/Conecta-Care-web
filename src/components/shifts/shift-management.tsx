@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, History, XCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileText, FileUp, ChevronsLeft, ChevronsRight, Video, MessageCircle, ClipboardCheck, XCircle } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, ActiveShift, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialActiveShiftsData, patients as mockPatients, initialShifts } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
-import { ShiftHistoryDialog } from './shift-history-dialog';
+import { ShiftAuditDialog } from './shift-audit-dialog';
 import { cn } from '@/lib/utils';
 import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyListDialog } from './candidacy-list-dialog';
@@ -305,7 +305,11 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
             />
       </div>
       
-      <div className="rounded-lg border bg-card overflow-x-auto">
+      <div className={cn(
+        "rounded-lg border bg-card overflow-x-auto",
+        viewPeriod === 'weekly' && 'overflow-x-auto',
+        (viewPeriod === 'biweekly' || viewPeriod === 'monthly') && 'overflow-x-scroll'
+        )}>
         <div className="relative">
             <table className="min-w-full divide-y divide-border">
             <thead className="bg-muted/50">
@@ -405,7 +409,7 @@ const ShiftScaleView = ({ isBulkPublishing, setIsBulkPublishing }: { isBulkPubli
 const ShiftMonitoringView = () => {
     const [activeShifts, setActiveShifts] = React.useState<ActiveShift[]>(initialActiveShiftsData);
     const [selectedChatShift, setSelectedChatShift] = React.useState<ActiveShift | null>(null);
-    const [selectedHistoryShift, setSelectedHistoryShift] = React.useState<ActiveShift | null>(null);
+    const [selectedAuditShift, setSelectedAuditShift] = React.useState<ActiveShift | null>(null);
 
 
     React.useEffect(() => {
@@ -455,12 +459,12 @@ const ShiftMonitoringView = () => {
         setSelectedChatShift(null);
     }
 
-    const handleOpenHistory = (shift: ActiveShift) => {
-        setSelectedHistoryShift(shift);
+    const handleOpenAudit = (shift: ActiveShift) => {
+        setSelectedAuditShift(shift);
     }
 
-    const handleCloseHistory = () => {
-        setSelectedHistoryShift(null);
+    const handleCloseAudit = () => {
+        setSelectedAuditShift(null);
     }
 
     return (
@@ -470,52 +474,55 @@ const ShiftMonitoringView = () => {
                 <CardTitle>Monitoramento em Tempo Real</CardTitle>
                 <CardDescription>Acompanhe os plantões em andamento.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-4 space-y-4">
+            <CardContent className="pt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {activeShifts.map((shift, index) => (
-                    <Card key={index} className="bg-muted/30">
-                        <CardContent className="p-4 grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] lg:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center">
-                            <div className="flex items-center gap-4">
+                    <Card key={index} className="bg-muted/30 flex flex-col">
+                        <CardHeader>
+                             <div className="flex items-center gap-4">
                                 <Avatar className="h-12 w-12 text-xl font-bold">
                                      <AvatarImage src={shift.professional.avatarUrl} alt={shift.professional.name} data-ai-hint={shift.professional.avatarHint} />
                                     <AvatarFallback>{shift.professional.initials}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="font-semibold">{shift.patientName}</p>
-                                    <p className="text-sm text-muted-foreground">{shift.professional.name} - {shift.shift}</p>
+                                    <p className="font-semibold">{shift.professional.name}</p>
+                                    <p className="text-sm text-muted-foreground">{shift.patientName} - {shift.shift}</p>
                                 </div>
                             </div>
-                            
-                            <div>
+                        </CardHeader>
+                        <CardContent className="flex-grow space-y-4">
+                             <div>
                                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                                     <span>Progresso do Plantão</span>
                                     <span>{shift.progress}%</span>
                                 </div>
                                 <Progress value={shift.progress} className="h-2" />
                             </div>
-
-                            <div className="flex justify-around items-center text-sm">
+                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div className="flex items-center gap-2">
                                 <CheckCircle className={`h-5 w-5 ${shift.checkIn ? 'text-green-500' : 'text-muted-foreground/50'}`} />
-                                <span>{shift.checkIn || '--:--'}</span>
+                                <div>
+                                    <p className="text-xs text-muted-foreground">Check-in</p>
+                                    <p className="font-medium">{shift.checkIn || '--:--'}</p>
+                                </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                 <XCircle className={`h-5 w-5 ${shift.checkOut ? 'text-red-500' : 'text-muted-foreground/50'}`} />
-                                <span>{shift.checkOut || '--:--'}</span>
+                                 <div>
+                                    <p className="text-xs text-muted-foreground">Check-out</p>
+                                    <p className="font-medium">{shift.checkOut || '--:--'}</p>
+                                </div>
                                 </div>
                             </div>
-
-                            <div className="text-sm">
-                                <p className="font-semibold">Status Atual:</p>
-                                <p className={shift.statusColor}>{shift.status}</p>
+                             <div>
+                                <p className="text-xs font-semibold">Status Atual:</p>
+                                <p className={cn("font-medium", shift.statusColor)}>{shift.status}</p>
                             </div>
-
-                            <div className="flex gap-2 justify-end">
-                                <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleOpenChat(shift)}><MessageCircle className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleOpenHistory(shift)}><History className="h-4 w-4" /></Button>
-                            </div>
-
                         </CardContent>
+                         <div className="flex items-center justify-end gap-2 p-4 border-t">
+                            <Button variant="outline" size="icon"><Video className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleOpenChat(shift)}><MessageCircle className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleOpenAudit(shift)}><ClipboardCheck className="h-4 w-4" /></Button>
+                        </div>
                     </Card>
                 ))}
             </CardContent>
@@ -527,11 +534,11 @@ const ShiftMonitoringView = () => {
                     shift={selectedChatShift}
                 />
             )}
-             {selectedHistoryShift && (
-                <ShiftHistoryDialog
-                    isOpen={!!selectedHistoryShift}
-                    onOpenChange={handleCloseHistory}
-                    shift={selectedHistoryShift}
+             {selectedAuditShift && (
+                <ShiftAuditDialog
+                    isOpen={!!selectedAuditShift}
+                    onOpenChange={handleCloseAudit}
+                    shift={selectedAuditShift}
                 />
             )}
         </div>
