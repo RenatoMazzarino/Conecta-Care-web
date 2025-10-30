@@ -1,176 +1,129 @@
 /**
- * @file Firebase Security Rules for Homecare App
+ * @file Firestore Security Rules
+ * @version 2
  *
- * @core_philosophy This ruleset prioritizes security by enforcing strict ownership and role-based access control.
- * All write operations require authentication and authorization. Data validation is relaxed to allow for rapid prototyping.
+ * @description
+ * This ruleset provides basic authentication and authorization for the Homecare application.
  *
- * @data_structure The database is structured with top-level collections for 'patients' and 'professionals'.
- * Patient-specific data (inventories, supplyRequests, shiftReports, notifications) are stored in subcollections under each patient document.
- * Shifts are stored in a top-level collection and uses a composite ID key pattern.
+ * Core Philosophy:
+ * The rules are designed to allow all authenticated users to read all data but restricts write access.
+ * A specific user (defined as the 'admin' user) is granted full read/write access.
  *
- * @key_security_decisions
- * - User listing is generally disallowed to prevent information disclosure.
- * - The rules explicitly deny potentially ambiguous operations.
- * - Data validation is limited to authorization-critical fields like ownership and relational integrity.
+ * Data Structure:
+ * - /patients/{patientId}: Stores patient records.
+ * - /professionals/{professionalId}: Stores professional records.
+ * - /shifts/{shiftId}: Stores shift records.
+ * - /patients/{patientId}/inventories/{inventoryId}: Stores inventory data for patients.
+ * - /patients/{patientId}/supplyRequests/{supplyRequestId}: Stores supply requests for patients.
+ * - /patients/{patientId}/shiftReports/{shiftReportId}: Stores shift reports for patients.
+ * - /patients/{patientId}/notifications/{notificationId}: Stores notifications for patients.
  *
- * @denormalization_for_authorization N/A - Not applicable for this ruleset version.
- *
- * @structural_segregation N/A - Not applicable for this ruleset version.
+ * Key Security Decisions:
+ * - Authenticated users can read any data.
+ * - Only the admin user (defined in the `isAdmin()` function) can create, update, or delete data.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Root-level access check.
-     * @path /databases/{database}/documents
-     * @allow (read) If authenticated
-     * @deny (write) Always
-     * @principle All access must go through a specific collection path.
+     * @description Checks if the user is signed in.
+     * @return {boolean} True if the user is signed in, false otherwise.
      */
-    match /{document=**} {
-      allow read: if false;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
-    }
-
-    /**
-     * @description Grants read-only access to the 'professionals' collection.
-     * @path /databases/{database}/documents/professionals
-     * @allow (list) Any signed-in user can list professionals.
-     * @allow (get) Any signed-in user can get a specific professional.
-     * @deny (create) No one can create professional documents through the client.
-     * @deny (update) No one can update professional documents through the client.
-     * @deny (delete) No one can delete professional documents through the client.
-     * @principle Public read access with restricted writes.
-     */
-    match /professionals/{professionalId} {
-      allow get, list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
-    }
-
-    /**
-     * @description Manages access to patient documents.
-     * @path /databases/{database}/documents/patients/{patientId}
-     * @allow (create) Any authenticated user can create a patient document if the patient ID matches their user ID.
-     * @allow (get) Any authenticated user can retrieve a patient document if the patient ID matches their user ID.
-     * @allow (update) Any authenticated user can update a patient document if the patient ID matches their user ID and the document exists.
-     * @allow (delete) Any authenticated user can delete a patient document if the patient ID matches their user ID and the document exists.
-     * @allow (list) Not allowed.
-     * @principle Enforces document ownership for reads and writes.
-     */
-    match /patients/{patientId} {
-      allow get: if isSignedIn() && isOwner(patientId);
-      allow list: if false;
-      allow create: if isSignedIn() && isOwner(patientId);
-      allow update: if isSignedIn() && isExistingOwner(patientId);
-      allow delete: if isSignedIn() && isExistingOwner(patientId);
-    }
-
-        /**
-     * @description Manages access to shift documents.
-     * @path /databases/{database}/documents/shifts/{shiftId}
-     * @allow (create) Any authenticated user can create a shift document.
-     * @allow (get) Any authenticated user can retrieve a shift document.
-     * @allow (update) Any authenticated user can update a shift document if the document exists.
-     * @allow (delete) Any authenticated user can delete a shift document if the document exists.
-     * @allow (list) Not allowed.
-     * @principle Authenticated access for reads and writes.
-     */
-    match /shifts/{shiftId} {
-      allow get: if isSignedIn();
-      allow list: if false;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource != null;
-      allow delete: if isSignedIn() && resource != null;
-    }
-
-    /**
-     * @description Manages access to inventory documents for a specific patient.
-     * @path /databases/{database}/documents/patients/{patientId}/inventories/{inventoryId}
-     * @allow (create) Only the patient can create inventory documents.
-     * @allow (get) Only the patient can retrieve inventory documents.
-     * @allow (update) Only the patient can update inventory documents if it exists.
-     * @allow (delete) Only the patient can delete inventory documents if it exists.
-     * @allow (list) Only the patient can list their inventory documents.
-     * @principle Enforces document ownership for reads and writes.
-     */
-    match /patients/{patientId}/inventories/{inventoryId} {
-      allow get: if isSignedIn() && isOwner(patientId);
-      allow list: if isSignedIn() && isOwner(patientId);
-      allow create: if isSignedIn() && isOwner(patientId);
-      allow update: if isSignedIn() && isExistingOwner(patientId);
-      allow delete: if isSignedIn() && isExistingOwner(patientId);
-    }
-
-    /**
-     * @description Manages access to supply request documents for a specific patient.
-     * @path /databases/{database}/documents/patients/{patientId}/supplyRequests/{supplyRequestId}
-     * @allow (create) Only the patient can create supply request documents.
-     * @allow (get) Only the patient can retrieve supply request documents.
-     * @allow (update) Only the patient can update supply request documents if it exists.
-     * @allow (delete) Only the patient can delete supply request documents if it exists.
-     * @allow (list) Only the patient can list their supply request documents.
-     * @principle Enforces document ownership for reads and writes.
-     */
-    match /patients/{patientId}/supplyRequests/{supplyRequestId} {
-      allow get: if isSignedIn() && isOwner(patientId);
-      allow list: if isSignedIn() && isOwner(patientId);
-      allow create: if isSignedIn() && isOwner(patientId);
-      allow update: if isSignedIn() && isExistingOwner(patientId);
-      allow delete: if isSignedIn() && isExistingOwner(patientId);
-    }
-
-    /**
-     * @description Manages access to shift report documents for a specific patient.
-     * @path /databases/{database}/documents/patients/{patientId}/shiftReports/{shiftReportId}
-     * @allow (create) Only the patient can create shift report documents.
-     * @allow (get) Only the patient can retrieve shift report documents.
-     * @allow (update) Only the patient can update shift report documents if it exists.
-     * @allow (delete) Only the patient can delete shift report documents if it exists.
-     * @allow (list) Only the patient can list their shift report documents.
-     * @principle Enforces document ownership for reads and writes.
-     */
-    match /patients/{patientId}/shiftReports/{shiftReportId} {
-      allow get: if isSignedIn() && isOwner(patientId);
-      allow list: if isSignedIn() && isOwner(patientId);
-      allow create: if isSignedIn() && isOwner(patientId);
-      allow update: if isSignedIn() && isExistingOwner(patientId);
-      allow delete: if isSignedIn() && isExistingOwner(patientId);
-    }
-
-    /**
-     * @description Manages access to notification documents for a specific patient.
-     * @path /databases/{database}/documents/patients/{patientId}/notifications/{notificationId}
-     * @allow (create) Only the patient can create notification documents.
-     * @allow (get) Only the patient can retrieve notification documents.
-     * @allow (update) Only the patient can update notification documents if it exists.
-     * @allow (delete) Only the patient can delete notification documents if it exists.
-     * @allow (list) Only the patient can list their notification documents.
-     * @principle Enforces document ownership for reads and writes.
-     */
-    match /patients/{patientId}/notifications/{notificationId} {
-      allow get: if isSignedIn() && isOwner(patientId);
-      allow list: if isSignedIn() && isOwner(patientId);
-      allow create: if isSignedIn() && isOwner(patientId);
-      allow update: if isSignedIn() && isExistingOwner(patientId);
-      allow delete: if isSignedIn() && isExistingOwner(patientId);
-    }
-
-    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    /**
+     * @description Checks if the user is the admin user.
+     * @return {boolean} True if the user is the admin, false otherwise.
+     */
+    function isAdmin() {
+      return request.auth.uid == 'REPLACE_WITH_ADMIN_USER_ID';
     }
 
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+    /**
+     * @description Rules for the /patients collection.
+     * @path /patients/{patientId}
+     * @allow (read) Authenticated user can read patient data.
+     * @deny (create, update, delete) Non-admin user cannot write patient data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /patients/{patientId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Rules for the /professionals collection.
+     * @path /professionals/{professionalId}
+     * @allow (read) Authenticated user can read professional data.
+     * @deny (create, update, delete) Non-admin user cannot write professional data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /professionals/{professionalId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Rules for the /shifts collection.
+     * @path /shifts/{shiftId}
+     * @allow (read) Authenticated user can read shift data.
+     * @deny (create, update, delete) Non-admin user cannot write shift data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /shifts/{shiftId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/inventories collection.
+     * @path /patients/{patientId}/inventories/{inventoryId}
+     * @allow (read) Authenticated user can read inventory data.
+     * @deny (create, update, delete) Non-admin user cannot write inventory data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /patients/{patientId}/inventories/{inventoryId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/supplyRequests collection.
+     * @path /patients/{patientId}/supplyRequests/{supplyRequestId}
+     * @allow (read) Authenticated user can read supply request data.
+     * @deny (create, update, delete) Non-admin user cannot write supply request data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /patients/{patientId}/supplyRequests/{supplyRequestId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/shiftReports collection.
+     * @path /patients/{patientId}/shiftReports/{shiftReportId}
+     * @allow (read) Authenticated user can read shift report data.
+     * @deny (create, update, delete) Non-admin user cannot write shift report data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /patients/{patientId}/shiftReports/{shiftReportId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Rules for the /patients/{patientId}/notifications collection.
+     * @path /patients/{patientId}/notifications/{notificationId}
+     * @allow (read) Authenticated user can read notification data.
+     * @deny (create, update, delete) Non-admin user cannot write notification data.
+     * @principle Allows read all to signed-in users, restricts writes to a single admin user.
+     */
+    match /patients/{patientId}/notifications/{notificationId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
     }
   }
 }

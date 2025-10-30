@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -32,6 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
+import { logoutAction } from '@/app/logout/actions';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home },
@@ -142,21 +144,25 @@ export function AppHeader({ title }: { title: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
-            Profile
+            Perfil
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
-            Settings
+            Configurações
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </DropdownMenuItem>
+          <form action={logoutAction}>
+            <DropdownMenuItem asChild>
+                <button type="submit" className="w-full">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sair
+                </button>
+            </DropdownMenuItem>
+          </form>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

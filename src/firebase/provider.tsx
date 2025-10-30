@@ -1,11 +1,11 @@
+
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged } from 'firebase/auth';
+import { Auth, User, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
-import { initiateAnonymousSignIn } from './non-blocking-login';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -78,17 +78,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => {
-        if (firebaseUser) {
-          // User is signed in.
-          setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
-        } else {
-          // No user is signed in, attempt anonymous sign-in.
-          initiateAnonymousSignIn(auth);
-          // The onAuthStateChanged listener will be triggered again with the new anonymous user,
-          // so we can just keep the loading state until then.
-          // We set the user to null for now.
-          setUserAuthState({ user: null, isUserLoading: true, userError: null });
-        }
+        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
       },
       (error) => {
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
