@@ -7,17 +7,16 @@ import { StatsCard } from '@/components/dashboard/stats-card';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { CommunicationsCard } from '@/components/dashboard/communications-card';
 import { TasksCard } from '@/components/dashboard/tasks-card';
-import type { Patient, InventoryItem, ShiftReport, Notification, Task } from '@/lib/types';
+import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications, mockTasks } from '@/lib/data';
-import { AlertTriangle, Clock, Package, FlaskConical } from 'lucide-react';
+import { patients as mockPatients, mockShiftReports, mockNotifications, mockTasks } from '@/lib/data';
+import { AlertTriangle, Clock, FileWarning, MessageSquareWarning } from 'lucide-react';
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [patient, setPatient] = React.useState<Patient | null>(null);
-  const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
   const [reports, setReports] = React.useState<ShiftReport[]>([]);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [tasks, setTasks] = React.useState<Task[]>([]);
@@ -27,15 +26,8 @@ export default function DashboardPage() {
     const timer = setTimeout(() => {
       const mainPatientData = mockPatients[0];
       if (mainPatientData) {
-        const lowStockCount = mockInventory.filter(item => item.stock > 0 && item.stock <= item.lowStockThreshold).length;
-        const criticalStockCount = mockInventory.filter(item => item.stock === 0).length;
-        setPatient({
-            ...mainPatientData,
-            lowStockCount,
-            criticalStockCount,
-        });
+        setPatient(mainPatientData);
       }
-      setInventory(mockInventory);
       setReports(mockShiftReports);
       setNotifications(mockNotifications);
       setTasks(mockTasks);
@@ -48,10 +40,10 @@ export default function DashboardPage() {
   const noData = !isLoading && !patient;
   
   const stats = [
-    { title: "Vagas Abertas", value: 3, icon: Clock, color: "text-blue-600", link: "/shifts" },
-    { title: "Plantões Atrasados", value: 1, icon: AlertTriangle, color: "text-amber-600", link: "/shifts" },
-    { title: "Estoque Baixo", value: patient?.lowStockCount ?? 0, icon: Package, color: "text-orange-600", link: "/inventory" },
-    { title: "Estoque Crítico", value: patient?.criticalStockCount ?? 0, icon: FlaskConical, color: "text-red-600", link: "/inventory" },
+    { title: "Vagas Abertas", value: 3, icon: FileWarning, color: "text-blue-600", link: "/shifts" },
+    { title: "Plantões Atrasados", value: 1, icon: Clock, color: "text-amber-600", link: "/shifts" },
+    { title: "Tarefas Urgentes", value: tasks.filter(t => t.priority === 'Urgente').length, icon: AlertTriangle, color: "text-red-600", link: "#" },
+    { title: "Comunicações Pendentes", value: 2, icon: MessageSquareWarning, color: "text-orange-600", link: "/communications" },
   ]
 
   return (

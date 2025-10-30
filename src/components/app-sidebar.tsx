@@ -14,7 +14,7 @@ import {
   DollarSign,
   FileText,
   CalendarCheck,
-  MessageSquare,
+  MessageSquareWarning,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ const navItems = [
   { href: '/schedule', label: 'Agenda', icon: Calendar },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
   { href: '/inventory', label: 'Estoque', icon: ClipboardList },
-  { href: '/communications', label: 'Comunicações', icon: MessageSquare },
+  { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
   { href: '/team', label: 'Equipe', icon: Users },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
