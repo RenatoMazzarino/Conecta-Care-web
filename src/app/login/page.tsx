@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { HeartPulse, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { initializeFirebase } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, UserCredential } from 'firebase/auth';
 import { Separator } from '@/components/ui/separator';
 
 function SubmitButton() {
@@ -40,6 +40,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [state, formAction] = useActionState(loginAction, { error: null });
   const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null });
+  const [isGoogleLoading, setIsGoogleLoading] = React.useState(true); // Start as true to check for redirect
 
   React.useEffect(() => {
     const error = state.error || googleState.error;
@@ -51,45 +52,53 @@ export default function LoginPage() {
       });
     }
   }, [state.error, googleState.error, toast]);
-
-
-  const handleGoogleSignIn = async () => {
+  
+  React.useEffect(() => {
     const { auth } = initializeFirebase();
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      
-      const formData = new FormData();
-      formData.append('uid', user.uid);
-      formData.append('email', user.email || '');
-      formData.append('name', user.displayName || '');
-      
-      React.startTransition(() => {
-        googleFormAction(formData);
-      });
-
-    } catch (error: any) {
-       if (error.code === 'auth/popup-closed-by-user') {
-          // User closed the popup, do nothing or show a subtle message
-          console.log("Login popup closed by user.");
-       } else if (error.code === 'auth/unauthorized-domain') {
-          toast({
-            variant: 'destructive',
-            title: 'Erro de Domínio',
-            description: 'Este domínio não está autorizado para operações de login. Por favor, contate o suporte.',
+    getRedirectResult(auth)
+      .then((result: UserCredential | null) => {
+        if (result) {
+          const user = result.user;
+          const formData = new FormData();
+          formData.append('uid', user.uid);
+          formData.append('email', user.email || '');
+          formData.append('name', user.displayName || '');
+          
+          React.startTransition(() => {
+            googleFormAction(formData);
           });
-       }
-       else {
-        console.error("Google Sign-In Error", error);
+        } else {
+            setIsGoogleLoading(false);
+        }
+      }).catch((error: any) => {
+        console.error("Google Redirect Result Error", error);
         toast({
           variant: 'destructive',
           title: 'Erro de Login com Google',
-          description: 'Não foi possível fazer login com o Google. Tente novamente.',
+          description: 'Não foi possível obter os dados do Google. Tente novamente.',
         });
-      }
-    }
+        setIsGoogleLoading(false);
+      });
+  }, [googleFormAction, toast]);
+
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const { auth } = initializeFirebase();
+    const provider = new GoogleAuthProvider();
+    await signInWithRedirect(auth, provider);
   };
+
+  if (isGoogleLoading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-muted/40">
+            <Card className="w-full max-w-sm p-8 text-center">
+                <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto"/>
+                <p className="mt-4 text-muted-foreground">Processando login com Google...</p>
+            </Card>
+        </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40">
