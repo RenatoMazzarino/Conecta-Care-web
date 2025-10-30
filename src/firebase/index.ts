@@ -19,8 +19,7 @@ export function initializeFirebase() {
   }
 
   // If on the server, initialize with the base config.
-  // The client-provider will handle re-initialization if needed for authDomain.
-  // This path is less likely with the new structure but provides a safe fallback.
+  // This path is for server components that might need a basic instance.
   if (typeof window === 'undefined') {
     const serverApp = initializeApp(firebaseConfig);
     return {
