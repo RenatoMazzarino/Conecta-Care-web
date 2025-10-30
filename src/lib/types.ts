@@ -20,6 +20,8 @@ export type Patient = {
     notes: string;
   }[];
   diet: string;
+  lowStockCount: number;
+  criticalStockCount: number;
 };
 
 export type InventoryItem = {

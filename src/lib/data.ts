@@ -7,7 +7,7 @@ const patientAvatars = {
   'patient-789': PlaceHolderImages.find(img => img.id === 'patient-avatar-3'),
 };
 
-export const patients: Patient[] = [
+export const patients: Omit<Patient, 'lowStockCount' | 'criticalStockCount'>[] = [
   {
     id: 'patient-123',
     name: 'João da Silva',

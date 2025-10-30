@@ -52,15 +52,11 @@ export default function DashboardPage() {
   const isLoading = isPatientLoading || isInventoryLoading || isReportsLoading || isNotificationsLoading;
   const noData = !isLoading && !patient;
   
-  const lowStockCount = inventory?.filter(item => item.stock > 0 && item.stock <= item.lowStockThreshold).length ?? 0;
-  const criticalStockCount = inventory?.filter(item => item.stock === 0).length ?? 0;
-
-
   const stats = [
     { title: "Vagas Abertas", value: 3, icon: Clock, color: "text-blue-600", link: "/shifts" },
     { title: "Plantões Atrasados", value: 1, icon: AlertTriangle, color: "text-amber-600", link: "/shifts" },
-    { title: "Estoque Baixo", value: lowStockCount, icon: Package, color: "text-orange-600", link: "/inventory" },
-    { title: "Estoque Crítico", value: criticalStockCount, icon: FlaskConical, color: "text-red-600", link: "/inventory" },
+    { title: "Estoque Baixo", value: patient?.lowStockCount ?? 0, icon: Package, color: "text-orange-600", link: "/inventory" },
+    { title: "Estoque Crítico", value: patient?.criticalStockCount ?? 0, icon: FlaskConical, color: "text-red-600", link: "/inventory" },
   ]
 
   return (

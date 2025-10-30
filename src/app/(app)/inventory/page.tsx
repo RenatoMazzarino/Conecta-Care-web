@@ -4,10 +4,10 @@ import * as React from 'react';
 import { AppHeader } from '@/components/app-header';
 import { InventoryTable } from '@/components/inventory/inventory-table';
 import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
-import type { InventoryItem } from '@/lib/types';
+import type { InventoryItem, Patient } from '@/lib/types';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { patients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
+import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,7 @@ export default function InventoryPage() {
   const firestore = useFirestore();
   
   // Assuming we manage inventory for the first patient in the mock data for now
-  const firstPatientId = patients[0]?.id;
+  const firstPatientId = mockPatients[0]?.id;
 
   const inventoryCollectionRef = useMemoFirebase(() => {
     if (!firestore || !firstPatientId) return null;
@@ -49,7 +49,17 @@ export default function InventoryPage() {
         description: "Enviando dados de simulação para o Firestore."
     });
 
-    patients.forEach(patient => {
+    const patientsWithInventoryData: Patient[] = mockPatients.map(p => {
+        const lowStockCount = mockInventory.filter(item => item.stock > 0 && item.stock <= item.lowStockThreshold).length;
+        const criticalStockCount = mockInventory.filter(item => item.stock === 0).length;
+        return {
+            ...p,
+            lowStockCount,
+            criticalStockCount
+        }
+    })
+
+    patientsWithInventoryData.forEach(patient => {
         const patientDocRef = doc(firestore, 'patients', patient.id);
         setDocumentNonBlocking(patientDocRef, patient, { merge: true });
 
@@ -71,7 +81,7 @@ export default function InventoryPage() {
 
     toast({
         title: "Sucesso!",
-        description: `${patients.length} pacientes, seus inventários e outros dados foram enviados para o Firestore.`
+        description: `${patientsWithInventoryData.length} pacientes, seus inventários e outros dados foram enviados para o Firestore.`
     });
   }
 
@@ -101,7 +111,7 @@ export default function InventoryPage() {
              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
                 <div className="text-lg font-semibold mb-2">Inventário do paciente está vazio.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Clique no botão acima para popular o banco de dados com dados de simulação. A tabela mostrará o inventário do primeiro paciente ({patients[0]?.name}).
+                    Clique no botão acima para popular o banco de dados com dados de simulação. A tabela mostrará o inventário do primeiro paciente ({mockPatients[0]?.name}).
                 </p>
             </div>
         )}
