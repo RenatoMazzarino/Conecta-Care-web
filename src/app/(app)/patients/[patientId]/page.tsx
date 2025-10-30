@@ -14,10 +14,11 @@ import { patients as mockPatients } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 
-import { ProntuarioResumo } from '@/components/prontuario/prontuario-resumo';
-import { ProntuarioTimeline } from '@/components/prontuario/prontuario-timeline';
-import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
-import { ProntuarioExames } from '@/components/prontuario/prontuario-exames';
+import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
+import { ProntuarioEnfermagem } from '@/components/prontuario/prontuario-enfermagem';
+import { ProntuarioMedico } from '@/components/prontuario/prontuario-medico';
+import { ProntuarioFisioterapia } from '@/components/prontuario/prontuario-fisioterapia';
+import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -114,14 +115,14 @@ export default function PatientDetailPage() {
        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Prontuário do Paciente</h1>
-          <p className="text-muted-foreground mt-1">Informações clínicas, histórico e documentos.</p>
+          <p className="text-muted-foreground mt-1">Central de informações clínicas e assistenciais.</p>
         </div>
         <div className="flex gap-2">
            <Button asChild variant="secondary"><Link href={`/patients/${patientId}/profile`}><FileText className="mr-2"/>Ver Ficha Cadastral</Link></Button>
             {!isEditing ? (
             <Button onClick={handleEdit}>
                 <Edit className="w-4 h-4 mr-2" />
-                Editar Resumo
+                Editar Dashboard
             </Button>
             ) : (
             <div className="flex gap-2">
@@ -181,28 +182,32 @@ export default function PatientDetailPage() {
             </Card>
       </div>
 
-      <Tabs defaultValue="resumo" className="w-full">
-        <TabsList>
-            <TabsTrigger value="resumo">Resumo Clínico</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-            <TabsTrigger value="documentos">Documentos</TabsTrigger>
-            <TabsTrigger value="exames">Exames</TabsTrigger>
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="enfermagem">Enfermagem</TabsTrigger>
+            <TabsTrigger value="medico">Médico</TabsTrigger>
+            <TabsTrigger value="fisioterapia">Fisioterapia</TabsTrigger>
+            <TabsTrigger value="nutricao">Nutrição</TabsTrigger>
         </TabsList>
-        <TabsContent value="resumo" className="mt-6">
-             <ProntuarioResumo 
+        <TabsContent value="dashboard" className="mt-6">
+             <ProntuarioDashboard 
                 isEditing={isEditing}
                 editedData={editedData}
                 setEditedData={setEditedData}
              />
         </TabsContent>
-        <TabsContent value="timeline" className="mt-6">
-            <ProntuarioTimeline />
+        <TabsContent value="enfermagem" className="mt-6">
+            <ProntuarioEnfermagem />
         </TabsContent>
-        <TabsContent value="documentos" className="mt-6">
-            <ProntuarioDocumentos />
+        <TabsContent value="medico" className="mt-6">
+            <ProntuarioMedico />
         </TabsContent>
-         <TabsContent value="exames" className="mt-6">
-            <ProntuarioExames />
+         <TabsContent value="fisioterapia" className="mt-6">
+            <ProntuarioFisioterapia />
+        </TabsContent>
+         <TabsContent value="nutricao" className="mt-6">
+            <ProntuarioNutricao />
         </TabsContent>
       </Tabs>
 

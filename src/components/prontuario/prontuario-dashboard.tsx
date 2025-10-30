@@ -2,21 +2,22 @@
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Pill, Utensils, Plus, X } from 'lucide-react';
+import { AlertCircle, Pill, Utensils, Plus, X, Stethoscope, Dumbbell, Apple } from 'lucide-react';
+import { Skeleton } from '../ui/skeleton';
 
-type ProntuarioResumoProps = {
+type ProntuarioDashboardProps = {
     isEditing: boolean;
     editedData: Patient | null;
     setEditedData: (data: Patient | null) => void;
 };
 
-export function ProntuarioResumo({ isEditing, editedData, setEditedData }: ProntuarioResumoProps) {
+export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: ProntuarioDashboardProps) {
 
    const addMedication = () => {
     if (!editedData) return;
@@ -41,8 +42,31 @@ export function ProntuarioResumo({ isEditing, editedData, setEditedData }: Pront
 
   if (!displayData) return null;
 
+  const summaryCards = [
+    { title: "Resumo Médico", icon: Stethoscope, content: "Paciente estável, seguindo plano terapêutico. Pressão arterial controlada com medicação. Reavaliação em 30 dias.", color: "text-blue-600" },
+    { title: "Resumo de Fisioterapia", icon: Dumbbell, content: "Realizando exercícios de fortalecimento para membros inferiores. Apresenta melhora na mobilidade.", color: "text-orange-600" },
+    { title: "Resumo de Nutrição", icon: Apple, content: "Dieta com boa aceitação. Manter restrição de sódio e açúcar. Acompanhar hidratação.", color: "text-green-600" },
+  ];
+
   return (
     <div className="space-y-6">
+      <div className="grid lg:grid-cols-3 gap-6">
+        {summaryCards.map((card, index) => (
+            <Card key={index} className="flex flex-col">
+                <CardHeader>
+                    <CardTitle className={`flex items-center gap-2 text-lg ${card.color}`}>
+                        <card.icon className="w-5 h-5" />
+                        {card.title}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <p className="text-sm text-muted-foreground">{card.content}</p>
+                </CardContent>
+            </Card>
+        ))}
+      </div>
+
+
        <Card>
         <CardHeader className="bg-muted/30">
           <CardTitle className="flex items-center gap-2 text-lg">
