@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, MessageSquare, ListFilter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, MessageSquare, ListFilter, UserCheck } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
 import { professionals, initialShifts, patients as mockPatients } from '@/lib/data';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
@@ -17,6 +17,9 @@ import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ShiftDetailsDialog } from './shift-details-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
+import { DirectAssignmentDialog } from './direct-assignment-dialog';
+
 
 type GridShiftState = {
   shift?: Shift;
@@ -40,12 +43,12 @@ const periodConfig = {
 };
 
 const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  active: { base: 'bg-blue-500/10 hover:bg-blue-500/20', border: 'border-l-blue-500', text: 'text-blue-800' },
-  issue: { base: 'bg-amber-500/10 hover:bg-amber-500/20', border: 'border-l-amber-500', text: 'text-amber-800' },
-  completed: { base: 'bg-green-500/10 hover:bg-green-500/20', border: 'border-l-green-500', text: 'text-green-700' },
+  active: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  issue: { base: 'bg-amber-100 dark:bg-amber-950 hover:bg-amber-200/60 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
+  completed: { base: 'bg-green-100 dark:bg-green-950 hover:bg-green-200/60 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
   filled: { base: 'bg-secondary hover:bg-secondary/80', border: 'border-l-gray-400', text: 'text-secondary-foreground' },
-  pending: { base: 'bg-blue-500/10 hover:bg-blue-500/20 border-blue-500', border: 'border-l-blue-500', text: 'text-blue-800' },
-  open: { base: 'bg-card', border: 'border-l-border', text: 'text-foreground' },
+  pending: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900 border-blue-500', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  open: { base: 'bg-card hover:bg-accent', border: 'border-l-border', text: 'text-foreground' },
 };
 
 
@@ -66,7 +69,7 @@ const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shi
       </div>
       {shift.progress !== undefined && (
         <div className="px-1 pb-1">
-           <Progress value={shift.progress} className="h-1.5 w-full [&>div]:animate-shimmer [&>div]:bg-[linear-gradient(110deg,hsl(var(--primary)),45%,hsl(var(--primary-foreground)),55%,hsl(var(--primary)))] [&>div]:bg-[length:200%_100%]" />
+           <Progress value={shift.progress} className="h-1.5 w-full" />
         </div>
       )}
     </div>
@@ -116,6 +119,9 @@ export function ShiftManagement() {
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
   const [detailsShift, setDetailsShift] = React.useState<{shift: Shift, professional?: Professional, patient: Patient} | null>(null);
+  const [assignmentShiftInfo, setAssignmentShiftInfo] = React.useState<OpenShiftInfo | null>(null);
+  const [decisionDialogOpen, setDecisionDialogOpen] = React.useState(false);
+  const [currentDecisionShift, setCurrentDecisionShift] = React.useState<OpenShiftInfo | null>(null);
 
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
@@ -216,11 +222,12 @@ export function ShiftManagement() {
   const handleCloseProfile = () => {
     setSelectedProfessional(null);
   };
-
-  const handleOpenVacancy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
-    setOpenShiftInfo({ patient, dayKey, shiftType });
-  };
   
+  const handleOpenVacancy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
+    setCurrentDecisionShift({ patient, dayKey, shiftType });
+    setDecisionDialogOpen(true);
+  };
+
   const handlePublishFromScratch = () => {
     setOpenShiftInfo('from_scratch');
   }
@@ -248,7 +255,7 @@ export function ShiftManagement() {
   const handleCloseCandidacy = () => {
     setCandidacyShiftInfo(null);
   }
-
+  
   const handleApproveProfessional = (professional: Professional, shift: OpenShiftInfo) => {
     if (shift) {
         setShiftsData(prev => {
@@ -267,10 +274,23 @@ export function ShiftManagement() {
             }
             return [...prev, newShift];
         });
-
+        
         handleCloseCandidacy();
         setIsCandidacyListOpen(false);
+        setAssignmentShiftInfo(null);
         handleCloseProfile();
+    }
+  };
+
+  const handleOpenAssignment = () => {
+    if (currentDecisionShift) {
+        setAssignmentShiftInfo(currentDecisionShift);
+    }
+  };
+  
+  const handleOpenPublication = () => {
+    if (currentDecisionShift) {
+        setOpenShiftInfo(currentDecisionShift);
     }
   };
   
@@ -508,6 +528,36 @@ export function ShiftManagement() {
           professional={detailsShift.professional}
           patient={detailsShift.patient}
           onOpenProfile={handleOpenProfile}
+        />
+      )}
+      
+       <AlertDialog open={decisionDialogOpen} onOpenChange={setDecisionDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Como você deseja preencher esta vaga?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você pode publicar a vaga para que os profissionais se candidatem ou pode atribuir
+              diretamente um profissional específico da sua equipe.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleOpenAssignment} className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
+              <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleOpenPublication}>
+              <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {assignmentShiftInfo && (
+        <DirectAssignmentDialog
+          isOpen={!!assignmentShiftInfo}
+          onOpenChange={() => setAssignmentShiftInfo(null)}
+          shiftInfo={assignmentShiftInfo}
+          onApprove={handleApproveProfessional}
         />
       )}
     </div>
