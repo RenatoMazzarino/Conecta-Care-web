@@ -30,9 +30,11 @@ export function initializeFirebase() {
   }
   
   // On the client, create the dynamic config to ensure authDomain is correct.
+  // Use the conventional Firebase authDomain (projectId.firebaseapp.com) instead of the
+  // raw window hostname which may be invalid for Firebase Auth operations.
   const clientConfig = {
     ...firebaseConfig,
-    authDomain: window.location.hostname,
+    authDomain: `${firebaseConfig.projectId}.firebaseapp.com`,
   };
 
   const clientApp = initializeApp(clientConfig);

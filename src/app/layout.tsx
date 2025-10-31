@@ -11,6 +11,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Debug render
+  // eslint-disable-next-line no-console
+  console.log('[RootLayout] render');
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

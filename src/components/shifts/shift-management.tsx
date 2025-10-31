@@ -39,10 +39,20 @@ const periodConfig = {
 export function ShiftManagement() {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const adminFeaturesEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN_FEATURES === '1';
   
-  const patientsCollection = React.useMemo(() => firestore ? collection(firestore, 'patients') : null, [firestore]);
-  const shiftsCollection = React.useMemo(() => firestore ? collection(firestore, 'shifts') : null, [firestore]);
-  const professionalsCollection = React.useMemo(() => firestore ? collection(firestore, 'professionals') : null, [firestore]);
+  const patientsCollection = React.useMemo(
+    () => (firestore && adminFeaturesEnabled ? collection(firestore, 'patients') : null),
+    [firestore, adminFeaturesEnabled]
+  );
+  const shiftsCollection = React.useMemo(
+    () => (firestore && adminFeaturesEnabled ? collection(firestore, 'shifts') : null),
+    [firestore, adminFeaturesEnabled]
+  );
+  const professionalsCollection = React.useMemo(
+    () => (firestore && adminFeaturesEnabled ? collection(firestore, 'professionals') : null),
+    [firestore, adminFeaturesEnabled]
+  );
 
   const { data: allPatients, isLoading: patientsLoading } = useCollection<Patient>(patientsCollection);
   const { data: shiftsData, isLoading: shiftsLoading } = useCollection<Shift>(shiftsCollection);
@@ -75,6 +85,26 @@ export function ShiftManagement() {
     Array.from({ length: numDays }, (_, i) => addDays(currentDate, i)),
     [currentDate, numDays]
   );
+
+  if (!adminFeaturesEnabled) {
+    return (
+      <Card className="border-dashed">
+        <CardHeader>
+          <CardTitle>Gestão de plantões indisponível</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>Sua conta não possui permissão para acessar o módulo administrativo de plantões.</p>
+          <p>
+            Solicite a um administrador que habilite o recurso definindo{' '}
+            <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs font-semibold">
+              NEXT_PUBLIC_ENABLE_ADMIN_FEATURES=1
+            </code>{' '}
+            no ambiente ou utilize um usuário com privilégios administrativos.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
   
   const gridShifts = React.useMemo(() => {
     const grid: { [key: string]: (GridShiftState | null)[] } = {};

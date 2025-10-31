@@ -1,45 +1,26 @@
 
 'use server';
 
-import { redirect } from 'next/navigation';
 import { createSession } from '@/auth';
-import { initializeFirebase } from '@/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { verifyIdToken } from '@/server/firebase-auth';
+
+type SignupState = { error: string | null; success?: boolean };
 
 export async function signupAction(
-  prevState: { error: string | null },
+  _prevState: SignupState,
   formData: FormData
-): Promise<{ error: string | null }> {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const confirmPassword = formData.get('confirmPassword') as string;
+): Promise<SignupState> {
+  const idToken = formData.get('idToken') as string | null;
 
-  if (!email || !password || !confirmPassword) {
-    return { error: 'Por favor, preencha todos os campos.' };
-  }
-  
-  if (password !== confirmPassword) {
-    return { error: 'As senhas não coincidem.' };
-  }
-
-  if (password.length < 6) {
-    return { error: 'A senha deve ter pelo menos 6 caracteres.' };
+  if (!idToken) {
+    return { error: 'Token de autenticação ausente.' };
   }
 
   try {
-    const { auth } = initializeFirebase();
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    await createSession(user.uid, user.email || '');
-
+    const { uid, email } = await verifyIdToken(idToken);
+    await createSession(uid, email);
+    return { error: null, success: true };
   } catch (error: any) {
-    console.error('Signup error:', error);
-     if (error.code === 'auth/email-already-in-use') {
-      return { error: 'Este e-mail já está em uso.' };
-    }
-    return { error: 'Ocorreu um erro desconhecido. Tente novamente.' };
+    return { error: 'Não foi possível validar o token de cadastro.' };
   }
-
-  redirect('/');
 }

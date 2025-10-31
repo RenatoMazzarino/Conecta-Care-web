@@ -4,7 +4,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { loginAction, googleLoginAction } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,12 +11,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { HeartPulse, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import { initializeFirebase } from '@/firebase';
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, UserCredential } from 'firebase/auth';
-import { Separator } from '@/components/ui/separator';
+import { useUser } from '@/firebase/provider';
+import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { resolveAuthErrorMessage } from '@/lib/auth-errors';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending?: boolean }) {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -38,9 +39,11 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const [state, formAction] = useActionState(loginAction, { error: null });
-  const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null });
+  const [state, formAction] = useActionState(loginAction, { error: null, success: false });
+  const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null, success: false });
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(true); // Start as true to check for redirect
+  const [awaitingEmailSignIn, setAwaitingEmailSignIn] = React.useState(false);
+  const user = useUser();
 
   React.useEffect(() => {
     const error = state.error || googleState.error;
@@ -53,32 +56,60 @@ export default function LoginPage() {
     }
   }, [state.error, googleState.error, toast]);
   
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (state.success || googleState.success) {
+      router.push('/dashboard');
+    }
+  }, [state.success, googleState.success, router]);
+
+  React.useEffect(() => {
+    if (!awaitingEmailSignIn) {
+      return;
+    }
+    if (state.error || state.success) {
+      setAwaitingEmailSignIn(false);
+    }
+  }, [awaitingEmailSignIn, state.error, state.success]);
+
+  React.useEffect(() => {
+    if (!isGoogleLoading) {
+      return;
+    }
+    if (googleState.error || googleState.success) {
+      setIsGoogleLoading(false);
+    }
+  }, [isGoogleLoading, googleState.error, googleState.success]);
+
   React.useEffect(() => {
     const { auth } = initializeFirebase();
-    getRedirectResult(auth)
-      .then((result: UserCredential | null) => {
-        if (result) {
-          const user = result.user;
-          const formData = new FormData();
-          formData.append('uid', user.uid);
-          formData.append('email', user.email || '');
-          formData.append('name', user.displayName || '');
-          
-          React.startTransition(() => {
-            googleFormAction(formData);
-          });
-        } else {
-            setIsGoogleLoading(false);
+
+    const resolveRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result) {
+          setIsGoogleLoading(false);
+          return;
         }
-      }).catch((error: any) => {
-        console.error("Google Redirect Result Error", error);
+
+        const idToken = await result.user.getIdToken();
+        const formData = new FormData();
+        formData.append('idToken', idToken);
+        setIsGoogleLoading(true);
+        googleFormAction(formData);
+      } catch (error) {
+        console.error('Google Redirect Result Error', error);
         toast({
           variant: 'destructive',
           title: 'Erro de Login com Google',
-          description: 'Não foi possível obter os dados do Google. Tente novamente.',
+          description: resolveAuthErrorMessage(error),
         });
         setIsGoogleLoading(false);
-      });
+      }
+    };
+
+    resolveRedirect();
   }, [googleFormAction, toast]);
 
 
@@ -86,8 +117,52 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     const { auth } = initializeFirebase();
     const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
+
+    try {
+      await signInWithRedirect(auth, provider);
+    } catch (error) {
+      console.error('signInWithRedirect error', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro de Login com Google',
+        description: resolveAuthErrorMessage(error),
+      });
+      setIsGoogleLoading(false);
+    }
   };
+
+  // Watch for client-side email sign-in completion (non-blocking flow).
+  React.useEffect(() => {
+    if (!user || !awaitingEmailSignIn) {
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const idToken = await user.getIdToken();
+        if (cancelled) {
+          return;
+        }
+        const formData = new FormData();
+        formData.append('idToken', idToken);
+        formAction(formData);
+      } catch (error) {
+        console.error('Erro ao obter ID token', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro de Login',
+          description: resolveAuthErrorMessage(error),
+        });
+        setAwaitingEmailSignIn(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, awaitingEmailSignIn, formAction, toast]);
 
   if (isGoogleLoading) {
     return (
@@ -127,7 +202,34 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            <form action={formAction} className="space-y-4">
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                if (awaitingEmailSignIn) {
+                  return;
+                }
+                const form = e.currentTarget as HTMLFormElement;
+                const fd = new FormData(form);
+                const email = fd.get('email') as string;
+                const password = fd.get('password') as string;
+
+                if (!email || !password) {
+                  toast({ variant: 'destructive', title: 'Erro', description: 'Por favor preencha email e senha.' });
+                  return;
+                }
+
+                const { auth } = initializeFirebase();
+                // start non-blocking client-side sign-in
+                setAwaitingEmailSignIn(true);
+                initiateEmailSignIn(auth, email, password).catch((error) => {
+                  console.error('signInWithEmailAndPassword error', error);
+                  toast({
+                    variant: 'destructive',
+                    title: 'Erro de Login',
+                    description: resolveAuthErrorMessage(error),
+                  });
+                  setAwaitingEmailSignIn(false);
+                });
+              }} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
@@ -136,7 +238,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Senha</Label>
                 <Input id="password" name="password" type="password" required />
               </div>
-              <SubmitButton />
+              <SubmitButton pending={awaitingEmailSignIn} />
             </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">

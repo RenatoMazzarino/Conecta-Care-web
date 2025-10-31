@@ -1,0 +1,55 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "name": "Launch Chrome",
+        "request": "launch",
+        "type": "chrome",
+        "url": "http://localhost:8080",
+        "webRoot": "${workspaceFolder}"
+    },
+    {
+        "name": "Launch Chrome",
+        "request": "launch",
+        "type": "chrome",
+        "url": "http://localhost:8080",
+        "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Launch Chrome (localhost)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9003",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "Start Dev Server"
+    },
+    {
+      "name": "Launch Next (Node)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--inspect-brk=9229"],
+      "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
+      "args": ["dev", "--", "-p", "9003"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "name": "Attach to Node (Next)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": false,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Client + Server",
+      "configurations": ["Launch Next (Node)", "Launch Chrome (localhost)"]
+    }
+  ]
+}

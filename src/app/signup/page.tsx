@@ -4,7 +4,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { signupAction } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,9 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { HeartPulse, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { initializeFirebase } from '@/firebase';
+import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
+import { useUser } from '@/firebase/provider';
+import { useRouter } from 'next/navigation';
+import { resolveAuthErrorMessage } from '@/lib/auth-errors';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending?: boolean }) {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -24,8 +27,10 @@ function SubmitButton() {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useActionState(signupAction, { error: null });
+  const [state, formAction] = useActionState(signupAction, { error: null, success: false });
   const { toast } = useToast();
+  const [awaitingSignup, setAwaitingSignup] = React.useState(false);
+  const user = useUser();
 
   React.useEffect(() => {
     if (state.error) {
@@ -37,6 +42,55 @@ export default function SignupPage() {
     }
   }, [state.error, toast]);
 
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (state.success) {
+      router.push('/dashboard');
+    }
+  }, [state.success, router]);
+
+  React.useEffect(() => {
+    if (!awaitingSignup) {
+      return;
+    }
+    if (state.error || state.success) {
+      setAwaitingSignup(false);
+    }
+  }, [awaitingSignup, state.error, state.success]);
+
+  React.useEffect(() => {
+    if (!user || !awaitingSignup) {
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const idToken = await user.getIdToken();
+        if (cancelled) {
+          return;
+        }
+        const formData = new FormData();
+        formData.append('idToken', idToken);
+        formAction(formData);
+      } catch (error) {
+        console.error('Erro ao obter ID token para cadastro', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro no Cadastro',
+          description: resolveAuthErrorMessage(error),
+        });
+        setAwaitingSignup(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, awaitingSignup, formAction, toast]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40">
       <Card className="w-full max-w-sm">
@@ -47,7 +101,39 @@ export default function SignupPage() {
           <CardTitle className="text-2xl">Crie sua conta</CardTitle>
           <CardDescription>Forneça seus dados para começar.</CardDescription>
         </CardHeader>
-        <form action={formAction}>
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            if (awaitingSignup) {
+              return;
+            }
+            const form = e.currentTarget as HTMLFormElement;
+            const fd = new FormData(form);
+            const email = fd.get('email') as string;
+            const password = fd.get('password') as string;
+            const confirmPassword = fd.get('confirmPassword') as string;
+
+            if (!email || !password || !confirmPassword) {
+              toast({ variant: 'destructive', title: 'Erro', description: 'Por favor preencha todos os campos.' });
+              return;
+            }
+
+            if (password !== confirmPassword) {
+              toast({ variant: 'destructive', title: 'Erro', description: 'As senhas não coincidem.' });
+              return;
+            }
+
+            const { auth } = initializeFirebase();
+            setAwaitingSignup(true);
+            initiateEmailSignUp(auth, email, password).catch((error) => {
+              console.error('createUserWithEmailAndPassword error', error);
+              toast({
+                variant: 'destructive',
+                title: 'Erro no Cadastro',
+                description: resolveAuthErrorMessage(error),
+              });
+              setAwaitingSignup(false);
+            });
+          }}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -63,7 +149,7 @@ export default function SignupPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <SubmitButton />
+            <SubmitButton pending={awaitingSignup} />
              <p className="text-sm text-center text-muted-foreground">
               Já tem uma conta?{' '}
               <Link href="/login" className="font-semibold text-primary hover:underline">

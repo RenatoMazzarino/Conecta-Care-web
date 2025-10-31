@@ -13,10 +13,11 @@ import { collection } from 'firebase/firestore';
 
 export default function TeamPage() {
   const firestore = useFirestore();
+  const adminFeaturesEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN_FEATURES === '1';
   const profCollection = React.useMemo(() => {
-    if (!firestore) return null;
+    if (!firestore || !adminFeaturesEnabled) return null;
     return collection(firestore, 'professionals');
-  }, [firestore]);
+  }, [firestore, adminFeaturesEnabled]);
 
   const { data: allProfessionals, isLoading } = useCollection<Professional>(profCollection);
 
@@ -36,6 +37,23 @@ export default function TeamPage() {
   }, [searchTerm, allProfessionals]);
 
   const noData = !isLoading && (!allProfessionals || allProfessionals.length === 0);
+
+  if (!adminFeaturesEnabled) {
+    return (
+      <>
+        <AppHeader title="Equipe" />
+        <main className="flex-1 p-4 sm:p-6 bg-background">
+          <div className="rounded-lg border border-dashed bg-card p-8 text-center text-sm text-muted-foreground">
+            Este módulo é restrito a administradores. Para habilitar, defina{' '}
+            <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs font-semibold">
+              NEXT_PUBLIC_ENABLE_ADMIN_FEATURES=1
+            </code>{' '}
+            no ambiente ou utilize uma conta com privilégios administrativos.
+          </div>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>

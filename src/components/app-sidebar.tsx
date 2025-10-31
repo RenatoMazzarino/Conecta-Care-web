@@ -30,7 +30,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/dashboard', label: 'Dashboard', icon: Home },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
   { 
     id: 'pessoas',
@@ -152,11 +152,15 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
         </div>
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 text-sm font-medium">
           <ul className="flex flex-col gap-1">
-            {navItems.map(item => <li key={item.id || item.href}>{renderNavItem(item)}</li>)}
+            {navItems.map(item => (
+              <li key={item.href ?? item.id}>{renderNavItem(item)}</li>
+            ))}
           </ul>
            <hr className="my-4" />
            <ul className="flex flex-col gap-1">
-            {secondaryNavItems.map(item => <li key={item.id || item.href}>{renderNavItem(item)}</li>)}
+            {secondaryNavItems.map(item => (
+              <li key={item.href}>{renderNavItem(item)}</li>
+            ))}
           </ul>
         </nav>
         <div className={cn("mt-auto p-4 border-t", isCollapsed && "p-2")}>
