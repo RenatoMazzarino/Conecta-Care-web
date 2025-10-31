@@ -21,32 +21,34 @@ import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao'
 import { Badge } from '@/components/ui/badge';
 import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
 import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-upload-dialog';
-import { useDoc, useFirestore } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { patients as mockPatients } from '@/lib/data';
 
 export default function PatientDetailPage() {
   const params = useParams();
   const { toast } = useToast();
   const patientId = params.patientId as string;
-  const firestore = useFirestore();
+  
+  const [patient, setPatient] = React.useState<Patient | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   
-  const patientDocRef = React.useMemo(() => {
-      if (!firestore || !patientId) return null;
-      return doc(firestore, 'patients', patientId);
-  }, [firestore, patientId]);
-
-  const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
-
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
   
   React.useEffect(() => {
-    if (patient) {
-      setEditedData(JSON.parse(JSON.stringify(patient)));
-    }
-  }, [patient]);
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      const foundPatient = mockPatients.find(p => p.id === patientId);
+      setPatient(foundPatient || null);
+      if (foundPatient) {
+        setEditedData(JSON.parse(JSON.stringify(foundPatient)));
+      }
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [patientId]);
 
 
   const handleEdit = () => {
@@ -63,7 +65,9 @@ export default function PatientDetailPage() {
 
   const handleSave = () => {
     if (!editedData) return;
-    // TODO: Implement Firestore update logic here
+    // In a real app, this would be a Firestore update.
+    // For now, we update the local state.
+    setPatient(editedData);
     toast({
       title: "Prontuário Salvo",
       description: `As informações de ${editedData.name} foram atualizadas (simulação).`,

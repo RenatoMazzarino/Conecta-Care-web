@@ -11,41 +11,30 @@ import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockTasks } from '@/lib/data';
+import { mockTasks, patients as mockPatients, mockShiftReports, mockNotifications } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning } from 'lucide-react';
-import { useCollection, useDoc, useFirestore, useUser } from '@/firebase';
-import { collection, doc, query, limit } from 'firebase/firestore';
 
 export default function DashboardPage() {
-  const firestore = useFirestore();
-  const user = useUser();
-
-  const patientDocRef = React.useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'patients', user.uid);
-  }, [firestore, user]);
-
-  const { data: patient, isLoading: patientLoading } = useDoc<Patient>(patientDocRef);
-
-  const patientId = user?.uid ?? null;
-
-  const reportsCollection = React.useMemo(() => {
-    if (!firestore || !patientId) return null;
-    return query(collection(firestore, `patients/${patientId}/shiftReports`), limit(3));
-  }, [firestore, patientId]);
-
-  const notificationsCollection = React.useMemo(() => {
-    if (!firestore || !patientId) return null;
-    return query(collection(firestore, `patients/${patientId}/notifications`), limit(4));
-  }, [firestore, patientId]);
-
-  const { data: reports, isLoading: reportsLoading } = useCollection<ShiftReport>(reportsCollection);
-  const { data: notifications, isLoading: notifsLoading } = useCollection<Notification>(notificationsCollection);
   
-  // Tasks are still mock data for now
-  const [tasks, setTasks] = React.useState<Task[]>(mockTasks);
-  
-  const isLoading = patientLoading || reportsLoading || notifsLoading;
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [patient, setPatient] = React.useState<Patient | null>(null);
+  const [reports, setReports] = React.useState<ShiftReport[]>([]);
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+
+  React.useEffect(() => {
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      setPatient(mockPatients[0] || null);
+      setReports(mockShiftReports.filter(r => r.patientId === mockPatients[0]?.id));
+      setNotifications(mockNotifications.filter(n => n.patientId === mockPatients[0]?.id));
+      setTasks(mockTasks);
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const noData = !isLoading && !patient;
   
   const stats = [

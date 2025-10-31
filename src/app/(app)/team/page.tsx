@@ -8,21 +8,26 @@ import { Search, UserPlus } from 'lucide-react';
 import type { Professional } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TeamTable } from '@/components/team/team-table';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { professionals as mockProfessionals } from '@/lib/data';
 
 export default function TeamPage() {
-  const firestore = useFirestore();
-  const adminFeaturesEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN_FEATURES === '1';
-  const profCollection = React.useMemo(() => {
-    if (!firestore || !adminFeaturesEnabled) return null;
-    return collection(firestore, 'professionals');
-  }, [firestore, adminFeaturesEnabled]);
-
-  const { data: allProfessionals, isLoading } = useCollection<Professional>(profCollection);
+  const adminFeaturesEnabled = true; // Bypassing for development
+  
+  const [allProfessionals, setAllProfessionals] = React.useState<Professional[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const [filteredProfessionals, setFilteredProfessionals] = React.useState<Professional[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
+
+  React.useEffect(() => {
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+        setAllProfessionals(mockProfessionals);
+        setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
 
   React.useEffect(() => {
     if (allProfessionals) {

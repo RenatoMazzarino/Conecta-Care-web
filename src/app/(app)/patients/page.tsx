@@ -9,33 +9,36 @@ import Link from 'next/link';
 import type { Patient } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatientTable } from '@/components/patients/patient-table';
-import { useDoc, useFirestore, useUser } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { patients as mockPatients } from '@/lib/data';
+
 
 export default function PatientsPage() {
-  const firestore = useFirestore();
-  const user = useUser();
-
-  const patientDocRef = React.useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'patients', user.uid);
-  }, [firestore, user]);
-
-  const { data: patient, isLoading } = useDoc<Patient>(patientDocRef);
-
+  const [allPatients, setAllPatients] = React.useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
-    if (patient) {
-      const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase());
-      setFilteredPatients(matchesSearch ? [patient] : []);
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      setAllPatients(mockPatients);
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
+  React.useEffect(() => {
+    if (allPatients) {
+      const matchesSearch = allPatients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      setFilteredPatients(matchesSearch);
     } else {
       setFilteredPatients([]);
     }
-  }, [searchTerm, patient]);
+  }, [searchTerm, allPatients]);
 
-  const noData = !isLoading && !patient;
+  const noData = !isLoading && !allPatients.length;
 
   return (
     <>

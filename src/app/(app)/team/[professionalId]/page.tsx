@@ -17,8 +17,7 @@ import { TeamShiftsTab } from '@/components/team/team-shifts-tab';
 import { TeamPatientsTab } from '@/components/team/team-patients-tab';
 import { TeamFinancialTab } from '@/components/team/team-financial-tab';
 import { TeamDocumentsTab } from '@/components/team/team-documents-tab';
-import { useDoc, useFirestore } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { professionals as mockProfessionals } from '@/lib/data';
 
 function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
   return (
@@ -39,14 +38,21 @@ export default function ProfessionalProfilePage() {
   const params = useParams();
   const router = useRouter();
   const professionalId = params.professionalId as string;
-  const firestore = useFirestore();
 
-  const professionalDocRef = React.useMemo(() => {
-    if (!firestore || !professionalId) return null;
-    return doc(firestore, 'professionals', professionalId);
-  }, [firestore, professionalId]);
+  const [professional, setProfessional] = React.useState<Professional | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const { data: professional, isLoading } = useDoc<Professional>(professionalDocRef);
+  React.useEffect(() => {
+    // Simulate fetching data
+    const timer = setTimeout(() => {
+      const foundProf = mockProfessionals.find(p => p.id === professionalId);
+      setProfessional(foundProf || null);
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [professionalId]);
+
 
   if (isLoading) {
     return (
