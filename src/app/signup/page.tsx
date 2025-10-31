@@ -13,7 +13,6 @@ import { HeartPulse, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { initializeFirebase } from '@/firebase';
 import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { useUser } from '@/firebase/provider';
 import { useRouter } from 'next/navigation';
 import { resolveAuthErrorMessage } from '@/lib/auth-errors';
 
@@ -30,8 +29,8 @@ export default function SignupPage() {
   const [state, formAction, isPending] = useActionState(signupAction, { error: null, success: false });
   const { toast } = useToast();
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
-  const user = useUser();
   const router = useRouter();
+  const user = null; // Bypassing auth
 
   React.useEffect(() => {
     if (state.error) {

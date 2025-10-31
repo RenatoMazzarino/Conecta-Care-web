@@ -1,34 +1,39 @@
+
 'use client';
 
 import * as React from 'react';
 import { AppHeader } from '@/components/app-header';
 import { InventoryTable } from '@/components/inventory/inventory-table';
 import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
-import type { InventoryItem, Patient, Professional } from '@/lib/types';
-import { useFirestore } from '@/firebase';
-import { setDoc, collection, doc } from 'firebase/firestore';
+import type { InventoryItem } from '@/lib/types';
 import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications, professionals as mockProfessionals, initialShifts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-async function seedCollection(firestore: any, collectionName: string, data: any[]) {
-    const collectionRef = collection(firestore, collectionName);
-    const promises = data.map(item => {
-        const docRef = doc(collectionRef, item.id);
-        return setDoc(docRef, item);
-    });
-    await Promise.all(promises);
-}
+// Firestore related imports are removed as we are disconnecting Firebase.
+// import { useFirestore } from '@/firebase';
+// import { setDoc, collection, doc } from 'firebase/firestore';
+// import { Firestore } from 'firebase/firestore';
+
+
+// This function is commented out as it depends on Firestore.
+// async function seedCollection(firestore: Firestore, collectionName: string, data: any[]) {
+//     const collectionRef = collection(firestore, collectionName);
+//     const promises = data.map(item => {
+//         const docRef = doc(collectionRef, item.id);
+//         return setDoc(docRef, item);
+//     });
+//     await Promise.all(promises);
+// }
 
 export default function InventoryPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [itemsToRequisition, setItemsToRequisition] = React.useState<InventoryItem[]>([]);
   const { toast } = useToast();
-  const firestore = useFirestore();
+  // const firestore = useFirestore(); // Disconnecting Firebase
   
-  // Use mock data locally, but keep Firestore seeding logic
   const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -49,50 +54,12 @@ export default function InventoryPage() {
   };
   
   const handleSeedData = async () => {
-    if (!firestore) {
-        toast({
-            title: "Erro",
-            description: "Conexão com o Firestore não estabelecida.",
-            variant: "destructive"
-        });
-        return;
-    }
-    
+    // This functionality is disabled as we are disconnecting from Firebase.
     toast({
-        title: "Populando dados...",
-        description: "Enviando dados de simulação para o Firestore. Isso pode levar um momento."
+        title: "Funcionalidade Desativada",
+        description: "A conexão com o Firestore está temporariamente desativada.",
+        variant: "destructive"
     });
-
-    try {
-        await seedCollection(firestore, 'patients', mockPatients);
-        await seedCollection(firestore, 'professionals', mockProfessionals);
-        await seedCollection(firestore, 'shifts', initialShifts);
-
-        for (const patient of mockPatients) {
-            const inventoryWithPatientId = mockInventory.map(item => ({...item, patientId: patient.id}));
-            await seedCollection(firestore, `patients/${patient.id}/inventories`, inventoryWithPatientId);
-            
-            const reportsForPatient = mockShiftReports.filter(sr => sr.patientId === patient.id);
-            await seedCollection(firestore, `patients/${patient.id}/shiftReports`, reportsForPatient);
-           
-            const notificationsForPatient = mockNotifications.filter(n => n.patientId === patient.id);
-            await seedCollection(firestore, `patients/${patient.id}/notifications`, notificationsForPatient);
-        }
-
-        toast({
-            title: "Sucesso!",
-            description: `Banco de dados populado com pacientes, profissionais, plantões e mais.`,
-            variant: 'default'
-        });
-
-    } catch (error: any) {
-         toast({
-            title: "Erro ao popular dados",
-            description: error.message || "Ocorreu um erro desconhecido.",
-            variant: "destructive"
-        });
-    }
-
     // Also update local state to reflect seeded data immediately
     setInventory(mockInventory);
   }
@@ -110,7 +77,7 @@ export default function InventoryPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Ferramentas de Desenvolvimento</CardTitle>
-                        <CardDescription>Use este botão para popular o Firestore com dados de simulação.</CardDescription>
+                        <CardDescription>Use este botão para popular o sistema com dados de simulação.</CardDescription>
                     </div>
                      <Button onClick={handleSeedData}>
                         Popular Dados de Simulação

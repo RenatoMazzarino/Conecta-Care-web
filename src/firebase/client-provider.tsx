@@ -1,14 +1,13 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, type ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
-import { initializeFirebase } from '@/firebase';
-import { onAuthStateChanged, User, Auth } from 'firebase/auth';
-import { Skeleton } from '@/components/ui/skeleton';
-import { DebugPanel } from '@/components/dev/debug-panel';
 import { FirebaseApp } from 'firebase/app';
+import { Auth, User } from 'firebase/auth';
 import { Firestore } from 'firebase/firestore';
+import { DebugPanel } from '@/components/dev/debug-panel';
+
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -25,8 +24,6 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
 
   const { firebaseApp, auth, firestore } = firebaseServices;
   const user = null;
-  const isUserLoading = false;
-
 
   // Once loading is complete, provide the Firebase services and user state.
   return (
@@ -34,7 +31,7 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
       firebaseApp={firebaseApp as FirebaseApp}
       auth={auth as Auth}
       firestore={firestore as Firestore}
-      user={user}
+      user={user as User | null}
     >
       {children}
       {process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && localStorage.getItem('conecta:dev') === '1' ? (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -12,7 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { FirebaseClientProvider } from '@/firebase';
+import { Toaster } from '@/components/ui/toaster';
 
 
 export default function AppLayout({
@@ -30,7 +31,7 @@ export default function AppLayout({
   }, [isMobile]);
 
   return (
-      <FirebaseClientProvider>
+      <>
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <AppSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
             <div className={cn(
@@ -57,6 +58,7 @@ export default function AppLayout({
             </Tooltip>
             </TooltipProvider>
         </div>
-      </FirebaseClientProvider>
+        <Toaster />
+      </>
   );
 }

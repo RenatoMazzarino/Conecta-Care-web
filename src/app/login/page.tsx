@@ -13,7 +13,6 @@ import { HeartPulse, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { initializeFirebase } from '@/firebase';
-import { useUser } from '@/firebase/provider';
 import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { resolveAuthErrorMessage } from '@/lib/auth-errors';
@@ -41,17 +40,18 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [state, formAction, isPending] = useActionState(loginAction, { error: null, success: false });
   const [googleState, googleFormAction, isGooglePending] = useActionState(googleLoginAction, { error: null, success: false });
-  const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(true); // Start as true to check for redirect
+  const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(false); // Changed initial to false
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
-  const user = useUser();
   const router = useRouter();
+  const user = null; // Bypassing auth, so user is always null here.
 
-  // If we are bypassing auth, and a user object exists, redirect immediately.
+  // If we are bypassing auth, we want to redirect immediately from login page.
   React.useEffect(() => {
-    if (user && process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH) {
+    // This env var is set to temporarily disable authentication for development.
+    if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH) {
         router.push('/dashboard');
     }
-  }, [user, router]);
+  }, [router]);
 
 
   React.useEffect(() => {
@@ -83,6 +83,9 @@ export default function LoginPage() {
   }, [isGoogleRedirectLoading, googleState.error, googleState.success]);
 
   React.useEffect(() => {
+    // Don't check for redirect if we are bypassing auth
+    if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH) return;
+
     const { auth } = initializeFirebase();
     if (!auth) {
         setIsGoogleRedirectLoading(false);
@@ -91,6 +94,8 @@ export default function LoginPage() {
 
     const resolveRedirect = async () => {
       try {
+        // Set loading true only when we start checking
+        setIsGoogleRedirectLoading(true);
         const result = await getRedirectResult(auth);
         if (!result) {
           setIsGoogleRedirectLoading(false);
@@ -126,45 +131,22 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     await signInWithRedirect(auth, provider);
   };
-
-  // Watch for client-side email sign-in completion (non-blocking flow).
-  React.useEffect(() => {
-    if (!user || !isEmailLoading) {
-      return;
-    }
-
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const idToken = await user.getIdToken();
-        if (cancelled) {
-          return;
-        }
-        const formData = new FormData();
-        formData.append('idToken', idToken);
-        React.startTransition(() => {
-          formAction(formData);
-        });
-      } catch (error) {
-        console.error('Erro ao obter ID token', error);
-        toast({
-          variant: 'destructive',
-          title: 'Erro de Login',
-          description: resolveAuthErrorMessage(error),
-        });
-        setIsEmailLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, isEmailLoading, formAction, toast]);
   
   const isLoading = isGoogleRedirectLoading || isPending || isGooglePending;
 
-  if (isLoading || (user && process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH)) {
+  // This will show a loading screen while bypassing auth.
+  if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-muted/40">
+            <Card className="w-full max-w-sm p-8 text-center">
+                <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto"/>
+                <p className="mt-4 text-muted-foreground">Carregando...</p>
+            </Card>
+        </div>
+    )
+  }
+
+  if (isLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/40">
             <Card className="w-full max-w-sm p-8 text-center">
@@ -254,5 +236,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
