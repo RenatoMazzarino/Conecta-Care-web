@@ -1,6 +1,5 @@
-'use server';
 
-import { firebaseConfig } from '@/firebase/config';
+'use server';
 
 interface AccountsLookupResponse {
   users?: Array<{
@@ -25,9 +24,9 @@ export async function verifyIdToken(idToken: string) {
     throw new Error('Token de autenticação ausente.');
   }
 
-  const apiKey = firebaseConfig.apiKey;
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
   if (!apiKey) {
-    throw new Error('firebaseConfig.apiKey não está configurado.');
+    throw new Error('A variável de ambiente NEXT_PUBLIC_FIREBASE_API_KEY não está configurada.');
   }
 
   const response = await fetch(`${LOOKUP_ENDPOINT}?key=${apiKey}`, {
