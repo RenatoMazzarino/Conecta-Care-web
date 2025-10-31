@@ -1,10 +1,12 @@
-'use client';
-
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import { FirebaseClientProvider } from '@/firebase';
+
+export const metadata: Metadata = {
+  title: 'CareSync',
+  description: 'Homecare Management Platform',
+}
 
 export default function RootLayout({
   children,
@@ -12,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -25,10 +27,8 @@ export default function RootLayout({
         className={cn('font-body antialiased', 'min-h-screen bg-background font-sans')}
         suppressHydrationWarning={true}
       >
-        <FirebaseClientProvider>
-          {children}
-          <Toaster />
-        </FirebaseClientProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   );

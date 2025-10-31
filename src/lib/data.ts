@@ -1,6 +1,6 @@
-import type { Patient, Professional, Shift, ShiftHistoryEvent } from './types';
+import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense } from './types';
 import { PlaceHolderImages } from './placeholder-images';
-import { format, addDays, startOfWeek } from 'date-fns';
+import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube } from 'lucide-react';
 
 const patientAvatars = {
@@ -380,4 +380,32 @@ export const mockTasks = [
     { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente' },
     { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta' },
     { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média' }
+];
+
+const mockInvoices: Invoice[] = [
+  { id: 'inv-001', patientId: 'patient-123', patientName: 'João da Silva', issueDate: '2024-07-01', dueDate: '2024-07-10', amount: 1200.00, status: 'Paga' },
+  { id: 'inv-002', patientId: 'patient-456', patientName: 'Maria Lopes', issueDate: '2024-07-01', dueDate: '2024-07-05', amount: 8500.00, status: 'Paga' },
+  { id: 'inv-003', patientId: 'patient-789', patientName: 'Jorge Mendes', issueDate: '2024-07-01', dueDate: '2024-07-15', amount: 950.00, status: 'Pendente' },
+  { id: 'inv-004', patientId: 'patient-123', patientName: 'João da Silva', issueDate: '2024-06-01', dueDate: '2024-06-10', amount: 1200.00, status: 'Paga' },
+  { id: 'inv-005', patientId: 'patient-456', patientName: 'Maria Lopes', issueDate: '2024-06-01', dueDate: '2024-06-05', amount: 8500.00, status: 'Atrasada' },
+];
+
+const mockExpenses: Expense[] = [
+  { id: 'exp-001', professionalId: 'prof-1', professionalName: 'Carla Nogueira', paymentDate: '2024-07-05', description: 'Pagamento ref. plantões Junho', amount: 2500.00, status: 'Paga' },
+  { id: 'exp-002', professionalId: 'prof-2', professionalName: 'Fábio Bastos', paymentDate: '2024-07-05', description: 'Pagamento ref. plantões Junho', amount: 1800.00, status: 'Paga' },
+  { id: 'exp-003', professionalId: 'prof-3', professionalName: 'Diogo Lima', paymentDate: '2024-07-20', description: 'Pagamento ref. plantões Julho', amount: 2100.00, status: 'Pendente' },
+];
+
+export const mockTransactions: Transaction[] = [
+  ...mockInvoices.map(inv => ({ type: 'receita' as const, data: inv, transactionDate: inv.issueDate })),
+  ...mockExpenses.map(exp => ({ type: 'despesa' as const, data: exp, transactionDate: exp.paymentDate })),
+].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
+
+export const mockMonthlyRevenue = [
+  { month: format(subMonths(today, 5), 'MMM', { locale: ptBR }), revenue: 15200 },
+  { month: format(subMonths(today, 4), 'MMM', { locale: ptBR }), revenue: 17800 },
+  { month: format(subMonths(today, 3), 'MMM', { locale: ptBR }), revenue: 16500 },
+  { month: format(subMonths(today, 2), 'MMM', { locale: ptBR }), revenue: 19800 },
+  { month: format(subMonths(today, 1), 'MMM', { locale: ptBR }), revenue: 21500 },
+  { month: format(today, 'MMM', { locale: ptBR }), revenue: 10650 },
 ];

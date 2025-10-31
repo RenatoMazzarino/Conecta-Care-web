@@ -161,3 +161,28 @@ export type Task = {
     assignee: string;
     priority: 'Urgente' | 'Alta' | 'Média' | 'Baixa';
 }
+
+export type Invoice = {
+  id: string;
+  patientName: string;
+  patientId: string;
+  issueDate: string;
+  dueDate: string;
+  amount: number;
+  status: 'Pendente' | 'Paga' | 'Atrasada';
+};
+
+export type Expense = {
+  id: string;
+  professionalName: string;
+  professionalId: string;
+  paymentDate: string;
+  description: string;
+  amount: number;
+  status: 'Paga' | 'Pendente';
+}
+
+export type Transaction = (
+  | { type: 'receita', data: Invoice }
+  | { type: 'despesa', data: Expense }
+) & { transactionDate: string };
