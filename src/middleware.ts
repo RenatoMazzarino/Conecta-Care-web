@@ -4,6 +4,10 @@ import type { NextRequest } from 'next/server';
 import { auth } from '@/auth'; // Simple auth using cookies
 
 export async function middleware(request: NextRequest) {
+  // DEVELOPMENT BYPASS: Temporarily disabled to allow development without login.
+  return NextResponse.next();
+
+  /*
   const { pathname } = request.nextUrl;
   
   const isPublicPage = pathname === '/login' || pathname === '/signup';
@@ -31,6 +35,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+  */
 }
 
 // See "Matching Paths" below to learn more

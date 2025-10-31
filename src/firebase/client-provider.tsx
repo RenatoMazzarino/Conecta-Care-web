@@ -32,6 +32,32 @@ const LoadingSkeleton = () => (
       </div>
 );
 
+// --- DEVELOPMENT BYPASS ---
+// This creates a mock user object to bypass the login requirement for development.
+// The real onAuthStateChanged is commented out below.
+const createMockUser = (uid: string): User => {
+  return {
+    uid: uid,
+    email: 'dev.user@example.com',
+    displayName: 'Dev User',
+    photoURL: null,
+    phoneNumber: null,
+    emailVerified: true,
+    isAnonymous: false,
+    tenantId: null,
+    providerData: [],
+    metadata: {},
+    providerId: 'password',
+    getIdToken: async () => 'mock-id-token',
+    getIdTokenResult: async () => ({ token: 'mock-id-token' } as any),
+    reload: async () => {},
+    delete: async () => {},
+    toJSON: () => ({}),
+  };
+};
+// --- END DEVELOPMENT BYPASS ---
+
+
 /**
  * This provider initializes Firebase on the client, listens for auth state changes,
  * and passes the user state down to the FirebaseProvider. It shows a loading
@@ -45,17 +71,25 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
 
   useEffect(() => {
     if (!auth) {
-        // This can happen on the initial server render.
-        // We wait for the client-side `useMemo` to run.
-        return;
+      return;
     }
+    
+    // --- DEVELOPMENT BYPASS ---
+    // We're using a mock user to avoid login.
+    const mockUser = createMockUser('3Z9uhaJbnUdBNwMXWXaw0m1B9ey2');
+    setUser(mockUser);
+    setIsUserLoading(false);
+    // --- END DEVELOPMENT BYPASS ---
 
+    /*
+    // --- REAL AUTHENTICATION LOGIC (Currently disabled) ---
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setIsUserLoading(false);
     });
 
     return () => unsubscribe();
+    */
   }, [auth]);
 
   // While initializing Firebase or waiting for the first auth state change, show a skeleton.
