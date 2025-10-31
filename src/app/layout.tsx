@@ -11,11 +11,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Debug render
-  // eslint-disable-next-line no-console
-  // console.log('[RootLayout] render');
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -24,7 +21,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={cn('font-body antialiased', 'min-h-screen bg-background font-sans')}>
+      <body
+        className={cn('font-body antialiased', 'min-h-screen bg-background font-sans')}
+        suppressHydrationWarning={true}
+      >
         <FirebaseClientProvider>
           {children}
           <Toaster />
