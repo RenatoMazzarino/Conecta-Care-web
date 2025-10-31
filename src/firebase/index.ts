@@ -2,8 +2,8 @@
 'use client';
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Load configuration from environment variables
 const firebaseConfig = {
@@ -15,10 +15,26 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+type FirebaseServices = {
+  firebaseApp: FirebaseApp;
+  auth: Auth;
+  firestore: Firestore;
+} | {
+  firebaseApp: null;
+  auth: null;
+  firestore: null;
+};
+
 
 // This function can be called from anywhere, but the dynamic config part
 // should only happen on the client.
-export function initializeFirebase() {
+export function initializeFirebase(): FirebaseServices {
+  if (typeof window === 'undefined') {
+    // On the server, return nulls to prevent any SDK operations.
+    return { firebaseApp: null, auth: null, firestore: null };
+  }
+  
+  // On the client, proceed with initialization.
   if (getApps().length) {
     const app = getApp();
     return {
@@ -28,20 +44,9 @@ export function initializeFirebase() {
     };
   }
 
-  // On the server, initialize with the base config if needed for other services,
-  // but most auth-related client logic will re-initialize on the client.
-  if (typeof window === 'undefined') {
-    const serverApp = initializeApp(firebaseConfig);
-    return {
-      firebaseApp: serverApp,
-      auth: getAuth(serverApp),
-      firestore: getFirestore(serverApp)
-    };
-  }
-  
-  // On the client, ensure the authDomain is correct for the environment.
   const clientConfig = {
     ...firebaseConfig,
+    // Use dynamic hostname on the client to solve auth domain issues in dev environments.
     authDomain: window.location.hostname,
   };
 
