@@ -46,6 +46,14 @@ export default function LoginPage() {
   const user = useUser();
   const router = useRouter();
 
+  // If we are bypassing auth, and a user object exists, redirect immediately.
+  React.useEffect(() => {
+    if (user && process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH) {
+        router.push('/dashboard');
+    }
+  }, [user, router]);
+
+
   React.useEffect(() => {
     if (state.error || googleState.error) {
       toast({
@@ -156,7 +164,7 @@ export default function LoginPage() {
   
   const isLoading = isGoogleRedirectLoading || isPending || isGooglePending;
 
-  if (isLoading) {
+  if (isLoading || (user && process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH)) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/40">
             <Card className="w-full max-w-sm p-8 text-center">
@@ -246,3 +254,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
