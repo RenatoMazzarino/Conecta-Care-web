@@ -27,9 +27,9 @@ function SubmitButton({ pending }: { pending?: boolean }) {
 }
 
 export default function SignupPage() {
-  const [state, formAction] = useActionState(signupAction, { error: null, success: false });
+  const [state, formAction, isPending] = useActionState(signupAction, { error: null, success: false });
   const { toast } = useToast();
-  const [awaitingSignup, setAwaitingSignup] = React.useState(false);
+  const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const user = useUser();
 
   React.useEffect(() => {
@@ -51,16 +51,13 @@ export default function SignupPage() {
   }, [state.success, router]);
 
   React.useEffect(() => {
-    if (!awaitingSignup) {
-      return;
+    if (isEmailLoading && (state.error || state.success)) {
+        setIsEmailLoading(false);
     }
-    if (state.error || state.success) {
-      setAwaitingSignup(false);
-    }
-  }, [awaitingSignup, state.error, state.success]);
+  }, [isEmailLoading, state.error, state.success]);
 
   React.useEffect(() => {
-    if (!user || !awaitingSignup) {
+    if (!user || !isEmailLoading) {
       return;
     }
 
@@ -74,7 +71,9 @@ export default function SignupPage() {
         }
         const formData = new FormData();
         formData.append('idToken', idToken);
-        formAction(formData);
+        React.startTransition(() => {
+            formAction(formData);
+        });
       } catch (error) {
         console.error('Erro ao obter ID token para cadastro', error);
         toast({
@@ -82,14 +81,16 @@ export default function SignupPage() {
           title: 'Erro no Cadastro',
           description: resolveAuthErrorMessage(error),
         });
-        setAwaitingSignup(false);
+        setIsEmailLoading(false);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [user, awaitingSignup, formAction, toast]);
+  }, [user, isEmailLoading, formAction, toast]);
+  
+  const isLoading = isPending || isEmailLoading;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40">
@@ -103,7 +104,7 @@ export default function SignupPage() {
         </CardHeader>
         <form onSubmit={(e) => {
             e.preventDefault();
-            if (awaitingSignup) {
+            if (isLoading) {
               return;
             }
             const form = e.currentTarget as HTMLFormElement;
@@ -123,7 +124,9 @@ export default function SignupPage() {
             }
 
             const { auth } = initializeFirebase();
-            setAwaitingSignup(true);
+            if (!auth) return;
+            
+            setIsEmailLoading(true);
             initiateEmailSignUp(auth, email, password).catch((error) => {
               console.error('createUserWithEmailAndPassword error', error);
               toast({
@@ -131,7 +134,7 @@ export default function SignupPage() {
                 title: 'Erro no Cadastro',
                 description: resolveAuthErrorMessage(error),
               });
-              setAwaitingSignup(false);
+              setIsEmailLoading(false);
             });
           }}>
           <CardContent className="space-y-4">
@@ -149,7 +152,7 @@ export default function SignupPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <SubmitButton pending={awaitingSignup} />
+            <SubmitButton pending={isLoading} />
              <p className="text-sm text-center text-muted-foreground">
               Já tem uma conta?{' '}
               <Link href="/login" className="font-semibold text-primary hover:underline">

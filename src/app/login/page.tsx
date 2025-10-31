@@ -39,10 +39,10 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const [state, formAction] = useActionState(loginAction, { error: null, success: false });
-  const [googleState, googleFormAction] = useActionState(googleLoginAction, { error: null, success: false });
-  const [isGoogleLoading, setIsGoogleLoading] = React.useState(true); // Start as true to check for redirect
-  const [awaitingEmailSignIn, setAwaitingEmailSignIn] = React.useState(false);
+  const [state, formAction, isPending] = useActionState(loginAction, { error: null, success: false });
+  const [googleState, googleFormAction, isGooglePending] = useActionState(googleLoginAction, { error: null, success: false });
+  const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(true); // Start as true to check for redirect
+  const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const user = useUser();
 
   React.useEffect(() => {
@@ -65,39 +65,40 @@ export default function LoginPage() {
   }, [state.success, googleState.success, router]);
 
   React.useEffect(() => {
-    if (!awaitingEmailSignIn) {
-      return;
+    if (isEmailLoading && (state.error || state.success)) {
+      setIsEmailLoading(false);
     }
-    if (state.error || state.success) {
-      setAwaitingEmailSignIn(false);
-    }
-  }, [awaitingEmailSignIn, state.error, state.success]);
+  }, [isEmailLoading, state.error, state.success]);
 
   React.useEffect(() => {
-    if (!isGoogleLoading) {
-      return;
+    if (isGoogleRedirectLoading && (googleState.error || googleState.success)) {
+      setIsGoogleRedirectLoading(false);
     }
-    if (googleState.error || googleState.success) {
-      setIsGoogleLoading(false);
-    }
-  }, [isGoogleLoading, googleState.error, googleState.success]);
+  }, [isGoogleRedirectLoading, googleState.error, googleState.success]);
 
   React.useEffect(() => {
     const { auth } = initializeFirebase();
+    if (!auth) {
+        setIsGoogleRedirectLoading(false);
+        return;
+    };
 
     const resolveRedirect = async () => {
       try {
         const result = await getRedirectResult(auth);
         if (!result) {
-          setIsGoogleLoading(false);
+          setIsGoogleRedirectLoading(false);
           return;
         }
 
         const idToken = await result.user.getIdToken();
         const formData = new FormData();
         formData.append('idToken', idToken);
-        setIsGoogleLoading(true);
-        googleFormAction(formData);
+        
+        React.startTransition(() => {
+            googleFormAction(formData);
+        });
+
       } catch (error) {
         console.error('Google Redirect Result Error', error);
         toast({
@@ -105,7 +106,7 @@ export default function LoginPage() {
           title: 'Erro de Login com Google',
           description: resolveAuthErrorMessage(error),
         });
-        setIsGoogleLoading(false);
+        setIsGoogleRedirectLoading(false);
       }
     };
 
@@ -114,26 +115,15 @@ export default function LoginPage() {
 
 
   const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
     const { auth } = initializeFirebase();
+    if (!auth) return;
     const provider = new GoogleAuthProvider();
-
-    try {
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-      console.error('signInWithRedirect error', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Login com Google',
-        description: resolveAuthErrorMessage(error),
-      });
-      setIsGoogleLoading(false);
-    }
+    await signInWithRedirect(auth, provider);
   };
 
   // Watch for client-side email sign-in completion (non-blocking flow).
   React.useEffect(() => {
-    if (!user || !awaitingEmailSignIn) {
+    if (!user || !isEmailLoading) {
       return;
     }
 
@@ -147,7 +137,9 @@ export default function LoginPage() {
         }
         const formData = new FormData();
         formData.append('idToken', idToken);
-        formAction(formData);
+        React.startTransition(() => {
+          formAction(formData);
+        });
       } catch (error) {
         console.error('Erro ao obter ID token', error);
         toast({
@@ -155,21 +147,23 @@ export default function LoginPage() {
           title: 'Erro de Login',
           description: resolveAuthErrorMessage(error),
         });
-        setAwaitingEmailSignIn(false);
+        setIsEmailLoading(false);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [user, awaitingEmailSignIn, formAction, toast]);
+  }, [user, isEmailLoading, formAction, toast]);
+  
+  const isLoading = isGoogleRedirectLoading || isPending || isGooglePending;
 
-  if (isGoogleLoading) {
+  if (isLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/40">
             <Card className="w-full max-w-sm p-8 text-center">
                 <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto"/>
-                <p className="mt-4 text-muted-foreground">Processando login com Google...</p>
+                <p className="mt-4 text-muted-foreground">Processando login...</p>
             </Card>
         </div>
     )
@@ -204,7 +198,7 @@ export default function LoginPage() {
 
             <form onSubmit={(e) => {
                 e.preventDefault();
-                if (awaitingEmailSignIn) {
+                if (isEmailLoading) {
                   return;
                 }
                 const form = e.currentTarget as HTMLFormElement;
@@ -218,8 +212,9 @@ export default function LoginPage() {
                 }
 
                 const { auth } = initializeFirebase();
+                if (!auth) return;
                 // start non-blocking client-side sign-in
-                setAwaitingEmailSignIn(true);
+                setIsEmailLoading(true);
                 initiateEmailSignIn(auth, email, password).catch((error) => {
                   console.error('signInWithEmailAndPassword error', error);
                   toast({
@@ -227,7 +222,7 @@ export default function LoginPage() {
                     title: 'Erro de Login',
                     description: resolveAuthErrorMessage(error),
                   });
-                  setAwaitingEmailSignIn(false);
+                  setIsEmailLoading(false);
                 });
               }} className="space-y-4">
               <div className="space-y-2">
@@ -238,7 +233,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Senha</Label>
                 <Input id="password" name="password" type="password" required />
               </div>
-              <SubmitButton pending={awaitingEmailSignIn} />
+              <SubmitButton pending={isEmailLoading} />
             </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
