@@ -44,20 +44,18 @@ export default function LoginPage() {
   const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(true); // Start as true to check for redirect
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const user = useUser();
+  const router = useRouter();
 
   React.useEffect(() => {
-    const error = state.error || googleState.error;
-    if (error) {
+    if (state.error || googleState.error) {
       toast({
         variant: 'destructive',
         title: 'Erro de Login',
-        description: error,
+        description: state.error || googleState.error,
       });
     }
   }, [state.error, googleState.error, toast]);
   
-  const router = useRouter();
-
   React.useEffect(() => {
     if (state.success || googleState.success) {
       router.push('/dashboard');

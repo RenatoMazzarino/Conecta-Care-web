@@ -31,6 +31,7 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const user = useUser();
+  const router = useRouter();
 
   React.useEffect(() => {
     if (state.error) {
@@ -41,8 +42,6 @@ export default function SignupPage() {
       });
     }
   }, [state.error, toast]);
-
-  const router = useRouter();
 
   React.useEffect(() => {
     if (state.success) {
