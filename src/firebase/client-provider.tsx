@@ -31,13 +31,7 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
   useEffect(() => {
     if (!auth) return;
 
-    // Debug: log when subscribing to auth state changes
-    // eslint-disable-next-line no-console
-    console.log('[FirebaseClientProvider] subscribing to onAuthStateChanged', { auth });
-
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      // eslint-disable-next-line no-console
-      console.log('[FirebaseClientProvider] onAuthStateChanged ->', { firebaseUser });
       setUser(firebaseUser);
       setIsUserLoading(false); // Auth check is complete
     });

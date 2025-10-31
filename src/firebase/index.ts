@@ -1,10 +1,19 @@
 
 'use client';
 
-import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+
+// Load configuration from environment variables
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+};
+
 
 // This function can be called from anywhere, but the dynamic config part
 // should only happen on the client.
@@ -29,12 +38,10 @@ export function initializeFirebase() {
     };
   }
   
-  // On the client, create the dynamic config to ensure authDomain is correct.
-  // Use the conventional Firebase authDomain (projectId.firebaseapp.com) instead of the
-  // raw window hostname which may be invalid for Firebase Auth operations.
+  // On the client, ensure the authDomain is correct for the environment.
   const clientConfig = {
     ...firebaseConfig,
-    authDomain: `${firebaseConfig.projectId}.firebaseapp.com`,
+    authDomain: window.location.hostname,
   };
 
   const clientApp = initializeApp(clientConfig);
