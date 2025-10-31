@@ -1,6 +1,7 @@
 import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube } from 'lucide-react';
 
 const patientAvatars = {
