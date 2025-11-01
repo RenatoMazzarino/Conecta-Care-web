@@ -9,45 +9,44 @@ import type { Patient, ShiftReport, Notification, Task, Shift } from '@/lib/type
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockTasks, patients as mockPatients, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
+import { mockTasks, patients as mockPatients, professionals, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning, RefreshCw } from 'lucide-react';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { TaskDialog } from '@/components/tasks/task-dialog';
 
 export default function DashboardPage() {
   
   const [isLoading, setIsLoading] = React.useState(true);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const [patient, setPatient] = React.useState<Patient | null>(null);
-  const [reports, setReports] = React.useState<ShiftReport[]>([]);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [tasks, setTasks] = React.useState<Task[]>([]);
   const [shifts, setShifts] = React.useState<Shift[]>([]);
   const [activityEvents, setActivityEvents] = React.useState<(ShiftReport | Notification | Task)[]>([]);
   const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null);
 
+  // State for Task Dialog
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = React.useState(false);
+  const [editingTask, setEditingTask] = React.useState<Task | null>(null);
+
   const fetchData = React.useCallback(() => {
     setIsRefreshing(true);
     // Simulate fetching data
     const timer = setTimeout(() => {
-      const mainPatient = mockPatients[0] || null;
-      setPatient(mainPatient);
-      if (mainPatient) {
-        const patientReports = mockShiftReports.filter(r => r.patientId === mainPatient.id);
-        const patientNotifications = mockNotifications.filter(n => n.patientId === mainPatient.id);
-        const patientTasks = mockTasks.filter(t => t.patientId === mainPatient.id);
-        
-        setReports(patientReports);
-        setNotifications(patientNotifications);
+      const patientReports = mockShiftReports;
+      const allNotifications = mockNotifications;
+      const allTasks = mockTasks;
+      
+      setNotifications(allNotifications);
 
-        // Combine and sort events for the activity feed
-        const allEvents = [...patientReports, ...patientNotifications, ...patientTasks]
-            .sort((a, b) => new Date('reportDate' in a ? a.reportDate : 'timestamp' in a ? a.timestamp : a.dueDate || 0).getTime() - new Date('reportDate' in b ? b.reportDate : 'timestamp' in b ? b.timestamp : b.dueDate || 0).getTime());
-        setActivityEvents(allEvents);
-      }
-      setTasks(mockTasks); // Keep all tasks for the tasks card
+      // Combine and sort events for the activity feed
+      const allEvents = [...patientReports, ...allNotifications, ...allTasks]
+          .sort((a, b) => new Date('reportDate' in a ? a.reportDate : 'timestamp' in a ? a.timestamp : a.dueDate || 0).getTime() - new Date('reportDate' in b ? b.reportDate : 'timestamp' in b ? b.timestamp : b.dueDate || 0).getTime());
+      setActivityEvents(allEvents.reverse());
+
+      setTasks(allTasks); // Keep all tasks for the tasks card
       setShifts(initialShifts);
       setLastUpdated(new Date());
       setIsLoading(false);
@@ -65,9 +64,29 @@ export default function DashboardPage() {
 
   const handleTaskUpdate = (updatedTask: Task) => {
     setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+  };
+  
+  const handleCreateOrUpdateTask = (taskData: Task) => {
+    if (editingTask) {
+        // Update existing task
+        setTasks(prev => prev.map(t => t.id === taskData.id ? taskData : t));
+    } else {
+        // Create new task
+        setTasks(prev => [...prev, { ...taskData, id: `task-${Date.now()}` }]);
+    }
+  };
+
+  const handleTaskClick = (task: Task) => {
+    setEditingTask(task);
+    setIsTaskDialogOpen(true);
+  };
+
+  const handleCloseTaskDialog = () => {
+    setIsTaskDialogOpen(false);
+    setEditingTask(null);
   }
 
-  const noData = !isLoading && !patient;
+  const noData = !isLoading && mockPatients.length === 0;
 
   const openShiftsCount = shifts.filter(s => s.status === 'open').length;
   const lateShiftsCount = shifts.filter(s => s.status === 'issue').length;
@@ -131,7 +150,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 flex">
           {isLoading ? (
             <Skeleton className="h-full w-full min-h-[500px]" />
-          ) : patient ? (
+          ) : !noData ? (
             <ActivityFeed events={activityEvents} />
           ) : null}
         </div>
@@ -141,9 +160,9 @@ export default function DashboardPage() {
                   <Skeleton className="h-[250px] w-full" />
                   <Skeleton className="h-[300px] w-full" />
               </>
-            ) : patient ? (
+            ) : !noData ? (
               <>
-                  <TasksCard tasks={tasks} onTaskUpdate={handleTaskUpdate}/>
+                  <TasksCard tasks={tasks} onTaskUpdate={handleTaskUpdate} onTaskClick={handleTaskClick} />
                   <CommunicationsCard notifications={notifications} />
               </>
             ) : null}
@@ -153,10 +172,19 @@ export default function DashboardPage() {
       <div className="mt-6">
            {isLoading ? (
             <Skeleton className="h-[200px] w-full" />
-          ) : patient ? (
-            <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />
+          ) : !noData ? (
+            <RecentReportsCard reports={mockShiftReports} patients={mockPatients} />
           ) : null}
       </div>
+
+       <TaskDialog
+        isOpen={isTaskDialogOpen}
+        onOpenChange={handleCloseTaskDialog}
+        task={editingTask}
+        onSave={handleCreateOrUpdateTask}
+        professionals={professionals}
+        patients={mockPatients}
+      />
     </>
   );
 }
