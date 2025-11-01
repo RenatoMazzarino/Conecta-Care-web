@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const priorityVariantMap = {
     'Urgente': 'destructive',
@@ -57,22 +58,36 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
       </CardHeader>
       <CardContent>
         {tasks.length > 0 ? (
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {tasks.slice(0, 5).map((task) => (
-              <li key={task.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer">
-                <Checkbox 
-                    id={`task-check-${task.id}`}
-                    checked={task.status === 'done'}
-                    onCheckedChange={(checked) => handleToggle(task, !!checked)}
-                    aria-label={`Marcar tarefa "${task.title}" como concluída`}
-                />
-                <label htmlFor={`task-check-${task.id}`} className="flex-1">
-                  <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Para: {task.assignee}
-                  </p>
-                </label>
-                <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
+                <li key={task.id} className="rounded-md hover:bg-muted/50 border">
+                    <Collapsible>
+                         <CollapsibleTrigger className="flex items-center gap-3 p-2 w-full text-left group">
+                            <Checkbox 
+                                id={`task-check-${task.id}`}
+                                checked={task.status === 'done'}
+                                onCheckedChange={(checked) => handleToggle(task, !!checked)}
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label={`Marcar tarefa "${task.title}" como concluída`}
+                            />
+                            <label htmlFor={`task-check-${task.id}`} className="flex-1 cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                                <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Para: {task.assignee}
+                                </p>
+                            </label>
+                            <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-90" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <div className="px-4 pb-3 space-y-3">
+                                {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
+                                <Button variant="secondary" size="sm" asChild>
+                                    <Link href="/tasks">Ver Detalhes</Link>
+                                </Button>
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
               </li>
             ))}
           </ul>
