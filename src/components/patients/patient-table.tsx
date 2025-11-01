@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, UserSquare } from 'lucide-react';
+import { FileText, UserSquare, Edit } from 'lucide-react';
 import type { Patient } from '@/lib/types';
 import { Badge } from '../ui/badge';
 
@@ -141,6 +141,12 @@ export function PatientTable({
                   <Link href={`/patients/${patient.id}`}>
                     <FileText className="mr-2 h-4 w-4" />
                     Prontuário
+                  </Link>
+                </Button>
+                 <Button asChild variant="outline" size="sm">
+                  <Link href={`/patients/${patient.id}/profile`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar
                   </Link>
                 </Button>
               </TableCell>
