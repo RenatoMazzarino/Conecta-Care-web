@@ -67,7 +67,6 @@
 }
 
 @layer components {
-  /* --- Novo Layout de Fichário Empilhado --- */
   .fichario-container {
       @apply flex flex-row-reverse h-full w-full relative;
   }
@@ -92,8 +91,8 @@
   .fichario-pagina[data-active="false"] {
       @apply shadow-md;
       transform:
-          translateX(calc(var(--stack-index) * -0.5%))
-          translateZ(calc(var(--stack-index) * -50px))
+          translateX(calc(var(--stack-index, 0) * -0.5%))
+          translateZ(calc(var(--stack-index, 0) * -50px))
           rotateY(5deg);
       opacity: 0.9;
   }
@@ -103,15 +102,15 @@
   }
   .fichario-pagina[data-active="false"]:hover {
     transform:
-        translateX(calc(var(--stack-index) * -0.5% + 10px))
-        translateZ(calc(var(--stack-index) * -50px))
+        translateX(calc(var(--stack-index, 0) * -0.5% + 10px))
+        translateZ(calc(var(--stack-index, 0) * -50px))
         rotateY(5deg);
   }
 
 
   /* Wrapper da navegação das abas */
   .fichario-nav {
-      @apply relative z-30 pt-16 pr-1;
+      @apply relative z-30 pt-16 pr-1 order-first;
   }
   .fichario-nav ul {
       @apply list-none p-0 m-0 space-y-2;
@@ -149,7 +148,7 @@
   /* Responsividade para telas menores */
   @media (max-width: 1024px) {
     .fichario-container {
-        @apply flex-col;
+        @apply flex-col-reverse;
     }
     .fichario-nav {
         @apply flex-shrink-0 order-first p-2 flex flex-row overflow-x-auto;
