@@ -162,6 +162,7 @@ export type Notification = {
   type: 'supply' | 'info' | 'alert';
   message: string;
   timestamp: string;
+  read?: boolean;
 }
 
 export type Task = {

@@ -1,5 +1,5 @@
 
-import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification } from './types';
+import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -338,7 +338,7 @@ export const mockPatients = patients.map(p => ({
   criticalStockCount: 0,
 }));
 
-export const inventory = [
+export const inventory: InventoryItem[] = [
   { id: 'item-001', name: 'Gaze Estéril', description: 'Pacote com 10 unidades 10x10cm', stock: 45, lowStockThreshold: 20 },
   { id: 'item-002', name: 'Pomada Antibiótica', description: 'Tubo de 30g', stock: 8, lowStockThreshold: 5 },
   { id: 'item-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', stock: 12, lowStockThreshold: 10 },
@@ -350,7 +350,7 @@ export const inventory = [
 ];
 export const mockInventory = inventory;
 
-export const mockShiftReports = [
+export const mockShiftReports: ShiftReport[] = [
   {
     id: 'sr-001',
     patientId: 'patient-123',
@@ -386,29 +386,41 @@ export const mockNotifications: Notification[] = [
     patientId: 'patient-123',
     type: 'supply',
     message: 'Solicitação de Soro Fisiológico (2 unidades) enviada para a família.',
-    timestamp: new Date(new Date().setHours(new Date().getHours() - 2)).toISOString()
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 2)).toISOString(),
+    read: false,
   },
   {
     id: 'notif-002',
     patientId: 'patient-123',
     type: 'alert',
     message: 'Nível de estoque de Seringas está crítico (2 unidades).',
-    timestamp: new Date(new Date().setHours(new Date().getHours() - 5)).toISOString()
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 5)).toISOString(),
+    read: false,
   },
     {
     id: 'notif-003',
     patientId: 'patient-456',
     type: 'info',
     message: 'Profissional Carla Nogueira confirmou o plantão de amanhã.',
-    timestamp: new Date(new Date().setDate(new Date().getDate() -1)).toISOString()
+    timestamp: new Date(new Date().setDate(new Date().getDate() -1)).toISOString(),
+    read: true,
   },
+  {
+    id: 'notif-004',
+    patientId: 'patient-123',
+    type: 'info',
+    message: 'Família confirmou a compra dos medicamentos solicitados.',
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 1)).toISOString(),
+    read: false,
+  }
 ];
 
 export const mockTasks: Task[] = [
-    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta', status: 'todo' },
+    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta', status: 'todo', patientId: 'patient-789' },
     { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente', status: 'inprogress' },
-    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta', status: 'todo' },
-    { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média', status: 'done' }
+    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta', status: 'todo', patientId: 'patient-456' },
+    { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média', status: 'done', dueDate: new Date(new Date().setDate(new Date().getDate() - 3)).toISOString() },
+    { id: 'task-5', title: 'Verificar estoque de gaze para o Sr. João', assignee: 'Enf. Chefe', priority: 'Média', status: 'todo', patientId: 'patient-123', dueDate: new Date().toISOString() }
 ];
 
 const mockInvoices: Invoice[] = [

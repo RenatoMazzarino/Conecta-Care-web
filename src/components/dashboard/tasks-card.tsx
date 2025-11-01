@@ -1,10 +1,12 @@
-import { CheckCircle2, ChevronRight } from 'lucide-react';
+import { Check, CheckCircle2, ChevronRight, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { Task } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Checkbox } from '../ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
 
 const priorityVariantMap = {
     'Urgente': 'destructive',
@@ -13,10 +15,22 @@ const priorityVariantMap = {
     'Baixa': 'outline'
 } as const;
 
-export function TasksCard({ tasks }: { tasks: Task[] }) {
+export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate: (task: Task) => void; }) {
+  const { toast } = useToast();
   const urgentTasks = tasks
     .filter((task) => (task.priority === 'Urgente' || task.priority === 'Alta') && task.status !== 'done')
     .slice(0, 4);
+    
+  const handleToggle = (task: Task, checked: boolean) => {
+    const newStatus = checked ? 'done' : 'inprogress';
+    onTaskUpdate({ ...task, status: newStatus });
+    if(newStatus === 'done') {
+        toast({
+            title: "Tarefa Concluída!",
+            description: `"${task.title}" foi marcada como concluída.`,
+        });
+    }
+  }
 
   return (
     <Card>
@@ -25,7 +39,7 @@ export function TasksCard({ tasks }: { tasks: Task[] }) {
           <div>
             <CardTitle>
               <Link href="/tasks" className="hover:underline">
-                Tarefas Urgentes
+                Tarefas da Equipe
               </Link>
             </CardTitle>
             <CardDescription>
@@ -36,22 +50,28 @@ export function TasksCard({ tasks }: { tasks: Task[] }) {
         </div>
       </CardHeader>
       <CardContent>
-        {urgentTasks.length > 0 ? (
+        {tasks.length > 0 ? (
           <ul className="space-y-3">
-            {urgentTasks.map((task) => (
-              <li key={task.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 cursor-pointer">
-                <div>
-                  <p className="font-medium text-sm">{task.title}</p>
+            {tasks.slice(0, 5).map((task) => (
+              <li key={task.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer">
+                <Checkbox 
+                    id={`task-check-${task.id}`}
+                    checked={task.status === 'done'}
+                    onCheckedChange={(checked) => handleToggle(task, !!checked)}
+                    aria-label={`Marcar tarefa "${task.title}" como concluída`}
+                />
+                <label htmlFor={`task-check-${task.id}`} className="flex-1">
+                  <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    Responsável: {task.assignee}
+                    Para: {task.assignee}
                   </p>
-                </div>
+                </label>
                 <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">Nenhuma tarefa urgente no momento.</p>
+          <p className="text-sm text-muted-foreground">Nenhuma tarefa no momento.</p>
         )}
       </CardContent>
     </Card>

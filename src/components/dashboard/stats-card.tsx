@@ -1,31 +1,61 @@
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { LucideIcon } from 'lucide-react';
+import { Button } from '../ui/button';
+import { ArrowDown, ArrowRight, ArrowUp, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 interface StatsCardProps {
     title: string;
     value: string | number;
     icon: LucideIcon;
-    color: string;
-    link: string;
+    trend: string;
+    trendDirection: 'up' | 'down' | 'none';
+    actions?: { label: string, href?: string, action?: () => void }[];
 }
 
-export function StatsCard({ title, value, icon: Icon, color, link }: StatsCardProps) {
+const trendConfig = {
+    up: { icon: ArrowUp, color: 'text-red-600' },
+    down: { icon: ArrowDown, color: 'text-green-600' },
+    none: { icon: ArrowRight, color: 'text-muted-foreground' }
+}
+
+export function StatsCard({ title, value, icon: Icon, trend, trendDirection, actions }: StatsCardProps) {
+  const TrendIcon = trendConfig[trendDirection].icon;
+  const trendColor = trendConfig[trendDirection].color;
+
   return (
-    <Link href={link}>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">{title}</p>
-              <p className="text-3xl font-bold mt-1">{value}</p>
-            </div>
-            <div className="p-3 rounded-xl bg-muted">
-              <Icon className={`w-6 h-6 ${color}`} />
-            </div>
+      <Card className="flex flex-col">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            {actions && actions.length > 0 ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <MoreHorizontal className="h-4 w-4"/>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        {actions.map((action, i) => (
+                           <DropdownMenuItem key={i} asChild>
+                             {action.href ? <Link href={action.href}>{action.label}</Link> : <button onClick={action.action} className="w-full text-left">{action.label}</button>}
+                           </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : (
+                 <Icon className="h-4 w-4 text-muted-foreground" />
+            )}
+        </CardHeader>
+        <CardContent>
+          <div className="text-4xl font-bold">{value}</div>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <TrendIcon className={cn("h-3 w-3", trendColor)} />
+            <span className={cn("font-semibold", trendColor)}>{trend}</span>
+            <span>em relação a ontem</span>
           </div>
         </CardContent>
       </Card>
-    </Link>
   );
 }
