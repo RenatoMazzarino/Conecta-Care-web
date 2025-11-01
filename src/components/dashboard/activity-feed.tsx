@@ -16,6 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 
 
@@ -136,24 +137,29 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     const IconComp = icon;
 
     return (
-        <li>
-            <Link href={href} className="relative flex items-start gap-4 pb-8 last:pb-0 group hover:bg-accent/50 p-2 -m-2 rounded-md transition-colors">
-              <div className="absolute left-[15px] top-9 h-full w-px bg-border group-last:h-0" />
-               <div className="relative flex-shrink-0">
-                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-card z-10">
-                      <IconComp className={cn("h-5 w-5", color)} />
+      <li className="relative flex gap-4 pb-8 group">
+          {/* Timeline line */}
+          <div className="absolute left-[15px] top-5 h-full w-px bg-border group-last:hidden" />
+
+          {/* Icon container */}
+          <div className="flex-shrink-0 z-10">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background ring-4 ring-card">
+                  <IconComp className={cn("h-5 w-5", color)} />
+              </div>
+          </div>
+          
+          {/* Content container */}
+          <div className="flex-1 min-w-0">
+              <Link href={href} className="block hover:bg-accent/50 p-2 -m-2 rounded-md transition-colors">
+                  <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold truncate">{title}</p>
+                      <time className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatRelativeDate(timestamp)}</time>
                   </div>
-              </div>
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold">{title}</p>
-                  <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">{details}</p>
-                <p className="text-xs text-muted-foreground">Por: {author}</p>
-              </div>
-          </Link>
-        </li>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{details}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Por: {author}</p>
+              </Link>
+          </div>
+      </li>
     );
   };
   
@@ -213,8 +219,8 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-6 pt-0">
         {filteredEvents.length > 0 ? (
-          <ScrollArea className="flex-1 pr-4 -mr-4">
-            <ul className="relative pt-2">
+          <ScrollArea className="flex-1 -m-6 p-6">
+            <ul className="relative">
             {filteredEvents.map((event, index) => (
                 <EventItem key={index} event={event} />
             ))}
