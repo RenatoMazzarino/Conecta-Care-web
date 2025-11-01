@@ -3,12 +3,12 @@
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload, CheckSquare, ArrowLeft, HeartPulse, UserCheck, Home, DollarSign } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload, CheckSquare, ArrowLeft } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
@@ -21,9 +21,8 @@ import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao'
 import { Badge } from '@/components/ui/badge';
 import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
 import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-upload-dialog';
-import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
+import { patients as mockPatients } from '@/lib/data';
 import { FichaCadastral } from './ficha-cadastral';
-import { cn } from '@/lib/utils';
 
 interface PatientDetailsPanelProps {
     patientId: string;
@@ -87,12 +86,12 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
         const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : 0;
         
         return (
-             <div className="flex-1 space-y-1">
-                <h1 className="text-2xl font-bold text-foreground">{displayData.name}</h1>
-                <p className="text-sm text-muted-foreground">
+             <SheetHeader className="text-left">
+                <SheetTitle className="text-2xl">{displayData.name}</SheetTitle>
+                <SheetDescription>
                     {age} anos &bull; {displayData.cpf}
-                </p>
-            </div>
+                </SheetDescription>
+            </SheetHeader>
         )
     };
     
@@ -206,8 +205,8 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
                 <SheetContent className="w-full sm:max-w-[90vw] lg:max-w-[80vw] p-0 flex flex-col">
-                    <header className="flex items-center justify-between p-4 border-b">
-                        <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between p-4 border-b">
+                        <div className="flex items-center gap-4 flex-1">
                            {currentView === 'ficha' && (
                                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
                                     <ArrowLeft className="h-4 w-4" />
@@ -241,7 +240,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                 </div>
                             )}
                         </div>
-                    </header>
+                    </div>
                     <div className="flex-1 overflow-y-auto bg-muted/40 p-6">
                         {renderContent()}
                     </div>
@@ -259,4 +258,3 @@ const UserSquare = (props: React.SVGProps<SVGSVGElement>) => (
         <rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2"/>
     </svg>
 )
-
