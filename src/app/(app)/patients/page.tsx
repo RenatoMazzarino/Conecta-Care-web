@@ -4,20 +4,14 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, UserPlus, Upload, Trash, Archive } from 'lucide-react';
+import { Search, UserPlus, Upload, Trash, Archive, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { Patient } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatientTable } from '@/components/patients/patient-table';
-import { patients as mockPatients } from '@/lib/data';
+import { patients as mockPatients, professionals } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 
 
 export default function PatientsPage() {
@@ -27,6 +21,7 @@ export default function PatientsPage() {
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedPatients, setSelectedPatients] = React.useState<Set<string>>(new Set());
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -61,6 +56,14 @@ export default function PatientsPage() {
     setAllPatients(prev => prev.filter(p => !selectedPatients.has(p.id)));
     setSelectedPatients(new Set());
   }
+  
+  const handleAssignmentSuccess = () => {
+    toast({
+        title: 'Pacientes Atribuídos',
+        description: 'A atribuição de supervisor e escalista foi registrada com sucesso.'
+    });
+    setSelectedPatients(new Set());
+  }
 
   const noData = !isLoading && !allPatients.length;
 
@@ -86,6 +89,10 @@ export default function PatientsPage() {
                     <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                         {selectedPatients.size} selecionado(s)
                     </span>
+                     <Button variant="outline" size="sm" onClick={() => setIsAssignmentDialogOpen(true)}>
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      Atribuir
+                    </Button>
                     <Button variant="outline" size="sm">
                       <Archive className="mr-2 h-4 w-4" />
                       Arquivar
@@ -141,6 +148,15 @@ export default function PatientsPage() {
           </p>
         </div>
       )}
+      
+      <AssignmentDialog
+        isOpen={isAssignmentDialogOpen}
+        onOpenChange={setIsAssignmentDialogOpen}
+        selectedPatientIds={Array.from(selectedPatients)}
+        allPatients={allPatients}
+        allProfessionals={professionals}
+        onSuccess={handleAssignmentSuccess}
+      />
     </>
   );
 }

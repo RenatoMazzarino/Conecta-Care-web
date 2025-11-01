@@ -1,4 +1,4 @@
-import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task } from './types';
+import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -362,7 +362,7 @@ export const mockShiftReports = [
   }
 ]
 
-export const mockNotifications = [
+export const mockNotifications: Notification[] = [
   {
     id: 'notif-001',
     patientId: 'patient-123',
@@ -384,7 +384,7 @@ export const mockNotifications = [
     message: 'Profissional Carla Nogueira confirmou o plantão de amanhã.',
     timestamp: new Date(new Date().setDate(new Date().getDate() -1)).toISOString()
   },
-]
+];
 
 export const mockTasks: Task[] = [
     { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta', status: 'todo' },
