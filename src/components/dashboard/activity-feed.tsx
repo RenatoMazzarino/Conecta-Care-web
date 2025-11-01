@@ -91,25 +91,23 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
     const IconComp = icon;
 
     return (
-        <li className="relative flex gap-4 pl-8 pb-8">
-            {/* Timeline line */}
-            <div className="absolute left-4 top-2 h-full w-px bg-border -translate-x-1/2"></div>
+      <li className="relative flex items-start gap-4 pb-8 last:pb-0">
+        {/* Timeline line and Icon */}
+        <div className="absolute left-0 top-1 flex flex-col items-center">
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-background z-10">
+            <IconComp className={cn("h-5 w-5", color)} />
+          </div>
+          <div className="flex-grow w-px bg-border -mt-1"></div>
+        </div>
     
-            {/* Icon and content */}
-            <div className="absolute left-4 -translate-x-1/2 mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-card ring-4 ring-card">
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-2 ring-primary z-10">
-                <IconComp className={cn("h-4 w-4", color)} />
-              </div>
-            </div>
-    
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">{title}</p>
-                <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
-              </div>
-              <p className="text-sm text-muted-foreground">{details}</p>
-              <p className="text-xs text-muted-foreground">Por: {author}</p>
-            </div>
+        <div className="pl-12 flex-1 space-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold">{title}</p>
+            <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
+          </div>
+          <p className="text-sm text-muted-foreground">{details}</p>
+          <p className="text-xs text-muted-foreground">Por: {author}</p>
+        </div>
       </li>
     );
   };
@@ -132,16 +130,14 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
             </TooltipProvider>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col p-6 pt-0">
         {events.length > 0 ? (
-          <ScrollArea className="h-full">
-            <div className="p-1">
-                <ul className="relative">
-                {events.map((event, index) => (
-                    <EventItem key={index} event={event} />
-                ))}
-                </ul>
-            </div>
+          <ScrollArea className="h-full -mr-4 pr-4">
+            <ul className="relative">
+            {events.map((event, index) => (
+                <EventItem key={index} event={event} />
+            ))}
+            </ul>
           </ScrollArea>
         ) : (
           <div className="flex h-full items-center justify-center text-center">
