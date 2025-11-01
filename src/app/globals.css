@@ -2,36 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* -- Root colors e tema (mantive o seu original) -- */
 @layer base {
   :root {
     --background: 210 40% 98%;
     --foreground: 224 10% 10%;
-
     --card: 0 0% 100%;
     --card-foreground: 224 10% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 10% 10%;
-
+    --muted: 220 20% 94%;
+    --muted-foreground: 220 9% 45%;
+    --border: 220 13% 91%;
     --primary: 145 63% 24%;
     --primary-foreground: 145 25% 95%;
 
     --secondary: 145 60% 94%;
     --secondary-foreground: 145 25% 25%;
-
-    --muted: 220 20% 94%;
-    --muted-foreground: 220 9% 45%;
-
     --accent: 145 63% 90%;
     --accent-foreground: 145 25% 25%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 91%;
+    
     --input: 220 13% 91%;
     --ring: 145 63% 34%;
-
+    
     --chart-1: 145 63% 24%;
     --chart-2: 145 50% 40%;
     --chart-3: 145 40% 50%;
@@ -42,31 +36,103 @@
   .dark {
     --background: 224 10% 10%;
     --foreground: 210 20% 98%;
-
     --card: 224 10% 12%;
     --card-foreground: 210 20% 98%;
-
-    --popover: 224 10% 10%;
-    --popover-foreground: 210 20% 98%;
-
+    --muted: 240 5% 15%;
+    --muted-foreground: 215 15% 65%;
+    --border: 240 5% 15%;
     --primary: 145 63% 34%;
     --primary-foreground: 145 25% 95%;
 
     --secondary: 145 10% 20%;
     --secondary-foreground: 210 20% 98%;
-
-    --muted: 240 5% 15%;
-    --muted-foreground: 215 15% 65%;
-
     --accent: 145 40% 40%;
     --accent-foreground: 210 20% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5% 15%;
+    
     --input: 240 5% 15%;
     --ring: 145 63% 44%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* --- Fichario Styles aprimorados --- */
+@layer components {
+  .fichario-container {
+    @apply flex w-full h-full items-stretch flex-row-reverse;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+  }
+
+  /* página principal (conteúdo) */
+  .fichario-pagina {
+    @apply flex-grow p-10 bg-card relative z-10 rounded-r-lg;
+    min-height: 420px;
+  }
+
+  .conteudo-wrapper {
+    @apply transition-opacity duration-200 ease-in-out;
+  }
+  .conteudo-wrapper.fade-out {
+    @apply opacity-0;
+  }
+
+  /* nav (abas) wrapper */
+  .fichario-nav {
+    @apply flex flex-col py-10 bg-transparent;
+    margin-right: -25px;
+  }
+
+  .fichario-nav ul {
+    @apply list-none p-0 m-0 flex flex-col gap-3;
+  }
+
+  /* As Abas Individuais */
+  .fichario-nav .tab {
+      @apply relative z-[1] cursor-pointer select-none text-center font-semibold text-gray-700;
+      background-color: #ffffff;
+      padding: 2rem 2.2rem 2rem 1rem;
+      border-right: 5px solid;
+      margin-bottom: 10px;
+      border-radius: 10px 0 0 10px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+  }
+
+  .fichario-nav .tab:hover {
+      transform: translateX(5px) rotate(180deg);
+  }
+  
+  .fichario-nav .tab.active {
+      @apply z-[11] font-bold;
+      box-shadow: 4px 2px 8px rgba(0,0,0,0.15);
+      transform: translateX(0) rotate(180deg);
+  }
+}
+
+/* responsiveness: compress tabs on small screens */
+@media (max-width: 768px) {
+  .fichario-container {
+    flex-direction: column;
+  }
+  .fichario-nav {
+    @apply flex-row gap-2 overflow-x-auto px-4 py-3;
+    margin-right: 0;
+  }
+  .fichario-nav ul {
+    @apply flex-row gap-2;
+  }
+  .fichario-nav .tab {
+    @apply w-auto rounded-md [writing-mode:horizontal-tb] transform-none h-12 px-4;
+  }
+  .fichario-pagina {
+    @apply rounded-b-lg rounded-tr-none;
   }
 }
 
@@ -74,52 +140,4 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* --- Fichario Styles --- */
-@layer components {
-    .fichario-container {
-        @apply flex w-full h-full filter drop-shadow-lg;
-    }
-
-    .fichario-pagina {
-        @apply flex-grow p-10 bg-card relative z-10 rounded-r-lg;
-    }
-
-    .conteudo-wrapper {
-        @apply transition-opacity duration-200 ease-in-out;
-    }
-
-    .conteudo-wrapper.fade-out {
-        @apply opacity-0;
-    }
-
-    .fichario-nav {
-        @apply -ml-[25px] pt-10;
-    }
-
-    .fichario-nav ul {
-        @apply list-none p-0 m-0;
-    }
-
-    .fichario-nav .tab {
-        @apply relative cursor-pointer py-8 pr-8 pl-4 mb-2.5 bg-card rounded-tl-lg rounded-bl-lg font-semibold text-gray-800 transition-all duration-200 ease-in-out border-r-[5px];
-        box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-        text-align: center;
-    }
-    
-    .fichario-nav .tab:hover {
-        transform: translateX(-5px) rotate(180deg);
-    }
-    
-    .fichario-nav .tab.active {
-        @apply z-20 font-bold;
-        box-shadow: -4px 2px 8px rgba(0,0,0,0.15);
-        transform: translateX(0) rotate(180deg);
-    }
 }
