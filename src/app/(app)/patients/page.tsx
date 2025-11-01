@@ -83,25 +83,17 @@ export default function PatientsPage() {
             </div>
             {selectedPatients.size > 0 ? (
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                         {selectedPatients.size} selecionado(s)
                     </span>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">Ações</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                             <DropdownMenuItem>
-                                <Archive className="mr-2 h-4 w-4" />
-                                Arquivar
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive" onClick={handleDeleteSelected}>
-                                <Trash className="mr-2 h-4 w-4" />
-                                Excluir
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button variant="outline" size="sm">
+                      <Archive className="mr-2 h-4 w-4" />
+                      Arquivar
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
+                      <Trash className="mr-2 h-4 w-4" />
+                      Excluir
+                    </Button>
                 </div>
             ) : (
                 <div className="flex items-center gap-2">
