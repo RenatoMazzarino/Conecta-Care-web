@@ -11,7 +11,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -19,6 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 // Mock candidates for pending shifts
 const mockCandidates: Professional[] = [
@@ -45,19 +47,21 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     onVacancyPublished: (shift: Shift) => void;
 }) {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
-  const [view, setView] = React.useState<'default' | 'assign'>('default');
+  const [view, setView] = React.useState<'default' | 'assign' | 'publish'>('default');
   const [search, setSearch] = React.useState('');
+  const [isUrgent, setIsUrgent] = React.useState(false);
   const { toast } = useToast();
   
   React.useEffect(() => {
     if (isOpen) {
       setView('default');
       setSearch('');
+      setIsUrgent(shift.isUrgent || false);
     }
-  }, [isOpen]);
+  }, [isOpen, shift.isUrgent]);
 
   const handlePublishVacancy = () => {
-    onVacancyPublished({ ...shift, status: 'pending' });
+    onVacancyPublished({ ...shift, status: 'pending', isUrgent: isUrgent });
      toast({
       title: 'Vaga Publicada com Sucesso!',
       description: `A vaga para ${patient.name} agora está visível para os profissionais.`,
@@ -70,6 +74,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   }
   
   const filteredProfessionals = allProfessionals.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) && p.corenStatus === 'active');
+  const shiftTime = shift.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
 
   const renderOpenContent = () => {
     if (view === 'assign') {
@@ -116,6 +121,43 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
         )
     }
 
+    if (view === 'publish') {
+      return (
+        <div className="py-4 max-h-[60vh] flex flex-col gap-6">
+          <h4 className="font-semibold text-lg text-center">Revisar e Publicar Vaga</h4>
+          <Card className="bg-muted/50">
+            <CardContent className="p-4 grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground"/>
+                    <span className="font-medium">{new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long' })}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground"/>
+                    <span className="font-medium">Plantão {shift.shiftType} ({shiftTime})</span>
+                </div>
+                <div className="col-span-2">
+                    <p className="text-muted-foreground">Esta vaga será publicada para que profissionais qualificados possam se candidatar.</p>
+                </div>
+            </CardContent>
+          </Card>
+          <div className="grid gap-2">
+            <Label htmlFor="notes">Observações para os Profissionais (Opcional)</Label>
+            <Textarea id="notes" placeholder="Ex: Paciente necessita de atenção especial para mobilidade." />
+          </div>
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center gap-3">
+                <AlertTriangle className="h-6 w-6 text-destructive"/>
+                <div>
+                    <Label htmlFor="urgent-switch" className="font-semibold">Publicação Urgente</Label>
+                    <p className="text-xs text-muted-foreground">Vagas urgentes são destacadas e notificam mais profissionais.</p>
+                </div>
+            </div>
+            <Switch id="urgent-switch" checked={isUrgent} onCheckedChange={setIsUrgent} />
+          </div>
+        </div>
+      )
+    }
+
     return (
         <div className="flex flex-col items-center justify-center h-96 gap-6 text-center">
             <h3 className="text-xl font-semibold">Preencher Vaga em Aberto</h3>
@@ -126,7 +168,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                  <Button size="lg" variant="secondary" onClick={() => setView('assign')}>
                     <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
                 </Button>
-                <Button size="lg" onClick={handlePublishVacancy}>
+                <Button size="lg" onClick={() => setView('publish')}>
                     <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
                 </Button>
             </div>
@@ -268,7 +310,8 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
           {renderContent()}
           
           <DialogFooter className="pt-4 mt-4 border-t">
-            {view === 'assign' && <Button variant="outline" onClick={() => setView('default')}>Voltar</Button>}
+            {(view === 'assign' || view === 'publish') && <Button variant="outline" onClick={() => setView('default')}>Voltar</Button>}
+            {view === 'publish' && <Button onClick={handlePublishVacancy}><FileUp className="mr-2 h-4 w-4" />Confirmar e Publicar</Button>}
             <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
