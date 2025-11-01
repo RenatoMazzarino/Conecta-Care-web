@@ -117,9 +117,11 @@ export function PatientTable({
                   </Badge>
               </TableCell>
                <TableCell>
-                  <Badge variant="outline" className={planVariant[patient.financial.plan]}>
-                      {patient.financial.plan === 'plano_de_saude' ? 'Plano de Saúde' : 'Particular'}
-                  </Badge>
+                    <Badge variant="outline" className={planVariant[patient.financial.plan]}>
+                        {patient.financial.plan === 'plano_de_saude' 
+                        ? `Plano: ${patient.financial.healthPlan || 'Não especificado'}` 
+                        : 'Particular'}
+                    </Badge>
               </TableCell>
               <TableCell className="text-muted-foreground">{calculateAge(patient.dateOfBirth)} anos</TableCell>
               <TableCell>
