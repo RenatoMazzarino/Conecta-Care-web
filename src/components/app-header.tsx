@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -7,7 +6,6 @@ import {
   Bell,
   BotMessageSquare,
   CalendarCheck,
-  ChevronDown,
   ClipboardList,
   DollarSign,
   HeartPulse,
@@ -20,6 +18,8 @@ import {
   Settings,
   User,
   Users,
+  Package,
+  AlertCircle,
 } from 'lucide-react';
 import {
   Sheet,
@@ -39,6 +39,10 @@ import Image from 'next/image';
 import { logoutAction } from '@/app/logout/actions';
 import { Input } from './ui/input';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
+import { mockNotifications } from '@/lib/data';
+import type { Notification } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
@@ -62,30 +66,29 @@ const secondaryNavItems = [
   { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
 ];
 
-// Helper to find the current page title
-const getPageTitle = (pathname: string): string => {
-  for (const item of [...navItems, ...secondaryNavItems]) {
-    if (item.href === pathname) {
-      return item.label;
-    }
-    if (item.subItems) {
-      for (const subItem of item.subItems) {
-        if (pathname.startsWith(subItem.href)) {
-          // More specific patient/professional pages
-          if (pathname.includes('/patients/')) return 'Prontuário do Paciente';
-          if (pathname.includes('/team/')) return 'Perfil do Profissional';
-          return subItem.label;
-        }
-      }
-    }
-  }
-  return 'Dashboard'; // Default title
+const iconMap: { [key in Notification['type']]: { icon: React.ElementType, color: string } } = {
+    supply: { icon: Package, color: 'text-blue-500' },
+    alert: { icon: AlertCircle, color: 'text-red-500' },
+    info: { icon: Bell, color: 'text-gray-500' },
 };
+
+function formatRelativeDate(dateString: string) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 60) return `${diffInMinutes}m atrás`;
+    if (diffInHours < 24) return `${diffInHours}h atrás`;
+    if (diffInDays === 1) return 'Ontem';
+    return `${diffInDays}d atrás`;
+}
 
 
 export function AppHeader() {
   const pathname = usePathname();
-  const title = getPageTitle(pathname);
 
   const renderNavItem = (item: any) => {
     if (item.subItems) {
@@ -94,7 +97,6 @@ export function AppHeader() {
             <CollapsibleTrigger className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground w-full">
               <item.icon className="h-5 w-5" />
               {item.label}
-              <ChevronDown className="ml-auto h-4 w-4 transition-transform [&[data-state=open]]:rotate-180" />
             </CollapsibleTrigger>
             <CollapsibleContent className="pl-10 mt-2 space-y-4">
               {item.subItems.map((sub: any) => (
@@ -159,10 +161,43 @@ export function AppHeader() {
         />
       </div>
 
-      <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
-         <Bell className="h-5 w-5" />
-         <span className="sr-only">Notificações</span>
-      </Button>
+       <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="relative overflow-hidden rounded-full">
+                <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />
+                <Bell className="h-5 w-5" />
+                <span className="sr-only">Notificações</span>
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel className="flex justify-between items-center">
+                <span>Notificações</span>
+                <Badge variant="secondary">{mockNotifications.length}</Badge>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-80 overflow-y-auto">
+            {mockNotifications.map(notif => {
+                const Icon = iconMap[notif.type].icon;
+                const color = iconMap[notif.type].color;
+                return (
+                    <DropdownMenuItem key={notif.id} className="flex items-start gap-3 p-2 cursor-pointer">
+                        <Icon className={cn("h-5 w-5 mt-1 flex-shrink-0", color)} />
+                        <div className="flex-1">
+                            <p className="text-sm font-medium leading-tight whitespace-normal">{notif.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{formatRelativeDate(notif.timestamp)}</p>
+                        </div>
+                    </DropdownMenuItem>
+                )
+            })}
+            </div>
+            <DropdownMenuSeparator />
+             <DropdownMenuItem asChild>
+                <Link href="/communications" className="justify-center cursor-pointer">
+                    Ver todas as comunicações
+                </Link>
+            </DropdownMenuItem>
+        </DropdownMenuContent>
+       </DropdownMenu>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -195,7 +230,7 @@ export function AppHeader() {
           <DropdownMenuSeparator />
           <form action={logoutAction}>
             <DropdownMenuItem asChild>
-                <button type="submit" className="w-full">
+                <button type="submit" className="w-full cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sair
                 </button>

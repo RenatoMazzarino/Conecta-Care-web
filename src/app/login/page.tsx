@@ -43,7 +43,6 @@ export default function LoginPage() {
   const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(false); // Changed initial to false
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const router = useRouter();
-  const user = null; // Bypassing auth, so user is always null here.
 
   // If we are bypassing auth, we want to redirect immediately from login page.
   React.useEffect(() => {
