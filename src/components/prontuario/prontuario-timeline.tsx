@@ -29,23 +29,26 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                     {mockShiftHistory.map((event, index) => {
                          const isEventActive = index * (100 / (mockShiftHistory.length - 1)) <= currentProgress;
                         return (
-                            <div key={index} className={cn("relative", !isEventActive && "opacity-40")}>
-                                <Link href="#" className="absolute left-6 -translate-x-1/2 mt-1 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-card transition-colors z-10">
+                             <Link href="#" key={index} className={cn("relative group flex items-center p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
+                                {/* Icon and line */}
+                                <div className="absolute left-6 top-1/2 -translate-x-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-card transition-colors z-10">
                                     <div className={cn(
                                         "flex h-full w-full items-center justify-center rounded-full",
                                         isEventActive ? 'bg-primary' : 'bg-muted'
                                     )}>
                                         <event.icon className={cn("h-4 w-4 transition-colors", isEventActive ? 'text-primary-foreground' : 'text-muted-foreground')} />
                                     </div>
-                                </Link>
-                                <Link href="#" className="group block ml-12 p-2 -m-2 rounded-lg transition-colors hover:bg-accent">
+                                </div>
+                                
+                                {/* Content */}
+                                <div className="ml-12 min-w-0">
                                     <div className="flex justify-between items-center">
                                         <p className="font-semibold text-sm text-foreground">{event.event}</p>
                                         <p className="text-xs text-muted-foreground">{event.time}</p>
                                     </div>
                                     <p className="text-sm text-muted-foreground mt-1">{event.details}</p>
-                                </Link>
-                            </div>
+                                </div>
+                            </Link>
                         )
                     })}
                 </div>
