@@ -11,12 +11,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { mockTasks, patients as mockPatients, professionals, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
-import { AlertTriangle, Clock, FileWarning, MessageSquareWarning, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Clock, FileWarning, MessageSquareWarning, RefreshCw, Loader2 } from 'lucide-react';
 import { RecentEvolutionsCard } from '@/components/dashboard/recent-evolutions-card';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { TaskDialog } from '@/components/tasks/task-dialog';
+import { cn } from '@/lib/utils';
+
+const LoadingOverlay = () => (
+  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/50 backdrop-blur-sm">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 export default function DashboardPage() {
   
@@ -52,7 +59,7 @@ export default function DashboardPage() {
       setLastUpdated(new Date());
       setIsLoading(false);
       setIsRefreshing(false);
-    }, 500);
+    }, 1500); // Increased delay to make spinner visible
 
     return () => clearTimeout(timer);
   }, []);
@@ -113,9 +120,9 @@ export default function DashboardPage() {
             variant="outline"
             size="sm"
             onClick={fetchData}
-            disabled={isRefreshing}
+            disabled={isRefreshing || isLoading}
         >
-            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn("mr-2 h-4 w-4", (isRefreshing || isLoading) && 'animate-spin')} />
             {isRefreshing ? 'Atualizando...' : 'Atualizar'}
         </Button>
       </div>
@@ -157,17 +164,29 @@ export default function DashboardPage() {
               </>
             ) : !noData ? (
               <>
-                  <TasksCard tasks={tasks} onTaskUpdate={handleTaskUpdate} onTaskClick={handleTaskClick} />
-                  <CommunicationsCard notifications={notifications} />
-                  <RecentEvolutionsCard reports={mockShiftReports} patients={mockPatients} />
+                  <div className="relative">
+                    {isRefreshing && <LoadingOverlay />}
+                    <TasksCard tasks={tasks} onTaskUpdate={handleTaskUpdate} onTaskClick={handleTaskClick} />
+                  </div>
+                  <div className="relative">
+                     {isRefreshing && <LoadingOverlay />}
+                    <CommunicationsCard notifications={notifications} />
+                  </div>
+                  <div className="relative">
+                     {isRefreshing && <LoadingOverlay />}
+                    <RecentEvolutionsCard reports={mockShiftReports} patients={mockPatients} />
+                  </div>
               </>
             ) : null}
         </div>
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 relative h-full">
           {isLoading ? (
             <Skeleton className="h-full w-full min-h-[500px]" />
           ) : !noData ? (
-            <ActivityFeed events={activityEvents} />
+            <>
+              {isRefreshing && <LoadingOverlay />}
+              <ActivityFeed events={activityEvents} />
+            </>
           ) : null}
         </div>
       </div>
