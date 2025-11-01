@@ -106,13 +106,13 @@
     }
 
     .fichario-nav .tab {
-        @apply relative cursor-pointer py-8 pr-8 pl-4 mb-2.5 bg-card rounded-tl-lg rounded-bl-lg font-semibold text-gray-800 transition-all duration-200 ease-in-out border-l-[5px];
+        @apply relative cursor-pointer py-8 pr-8 pl-4 mb-2.5 bg-card rounded-tl-lg rounded-bl-lg font-semibold text-gray-800 transition-all duration-200 ease-in-out border-r-[5px];
         box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
         writing-mode: vertical-rl;
         transform: rotate(180deg);
         text-align: center;
     }
-
+    
     .fichario-nav .tab:hover {
         transform: translateX(-5px) rotate(180deg);
     }
