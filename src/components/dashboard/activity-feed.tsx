@@ -215,10 +215,10 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
             </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-6 pt-0">
+      <CardContent className="flex-1 overflow-hidden p-6 pt-0">
         {filteredEvents.length > 0 ? (
-          <ScrollArea className="flex-1 -m-6 p-6">
-            <ul className="relative">
+          <ScrollArea className="h-full">
+            <ul className="relative pr-4">
             {filteredEvents.map((event, index) => (
                 <EventItem key={index} event={event} />
             ))}
