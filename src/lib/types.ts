@@ -10,6 +10,7 @@ export type Patient = {
   age: number;
   avatarUrl: string;
   avatarHint: string;
+  status: 'Ativo' | 'Inativo';
   complexity: 'baixa' | 'media' | 'alta';
   servicePackage: 'Básico' | 'Intermediário' | 'Completo';
   supervisorId?: string;

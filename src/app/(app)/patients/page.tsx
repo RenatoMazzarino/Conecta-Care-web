@@ -13,7 +13,6 @@ import { patients as mockPatients, professionals as mockProfessionals } from '@/
 import { useToast } from '@/hooks/use-toast';
 import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
 
@@ -32,6 +31,7 @@ export default function PatientsPage() {
   const [packageFilter, setPackageFilter] = React.useState('all');
   const [planFilter, setPlanFilter] = React.useState('all');
   const [supervisorFilter, setSupervisorFilter] = React.useState('all');
+  const [statusFilter, setStatusFilter] = React.useState<'all' | 'Ativo' | 'Inativo'>('all');
   const [cityFilter, setCityFilter] = React.useState('');
   const [stateFilter, setStateFilter] = React.useState('');
 
@@ -57,6 +57,7 @@ export default function PatientsPage() {
     setPackageFilter('all');
     setPlanFilter('all');
     setSupervisorFilter('all');
+    setStatusFilter('all');
     setCityFilter('');
     setStateFilter('');
   }
@@ -67,6 +68,7 @@ export default function PatientsPage() {
     packageFilter, 
     planFilter, 
     supervisorFilter,
+    statusFilter,
     cityFilter,
     stateFilter
   ].filter(f => f && f !== 'all').length;
@@ -87,6 +89,9 @@ export default function PatientsPage() {
     if (planFilter !== 'all') {
         results = results.filter(p => p.financial.plan === planFilter);
     }
+     if (statusFilter !== 'all') {
+      results = results.filter(p => p.status === statusFilter);
+    }
     if (supervisorFilter !== 'all') {
         results = results.filter(p => p.supervisorId === supervisorFilter);
     }
@@ -98,7 +103,7 @@ export default function PatientsPage() {
     }
 
     setFilteredPatients(results);
-  }, [searchTerm, complexityFilter, packageFilter, planFilter, supervisorFilter, cityFilter, stateFilter, allPatients]);
+  }, [searchTerm, complexityFilter, packageFilter, planFilter, statusFilter, supervisorFilter, cityFilter, stateFilter, allPatients]);
 
   const handleSelectionChange = (newSelection: Set<string>) => {
     setSelectedPatients(newSelection);
@@ -224,6 +229,17 @@ export default function PatientsPage() {
                         <SelectContent>
                             <SelectItem value="all">Todos Supervisores</SelectItem>
                             {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
+                    <Label>Status do Paciente</Label>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos</SelectItem>
+                            <SelectItem value="Ativo">Ativo</SelectItem>
+                            <SelectItem value="Inativo">Inativo</SelectItem>
                         </SelectContent>
                     </Select>
                   </div>

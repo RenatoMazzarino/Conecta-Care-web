@@ -1,3 +1,4 @@
+
 import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
@@ -20,6 +21,7 @@ export const patients: Patient[] = [
     dateOfBirth: '1946-05-20',
     bloodType: 'A+',
     age: 78,
+    status: 'Ativo',
     complexity: 'alta',
     servicePackage: 'Completo',
     supervisorId: 'prof-1',
@@ -65,6 +67,7 @@ export const patients: Patient[] = [
     dateOfBirth: '1942-11-15',
     bloodType: 'O-',
     age: 82,
+    status: 'Ativo',
     complexity: 'media',
     servicePackage: 'Intermediário',
     supervisorId: 'prof-3',
@@ -106,6 +109,7 @@ export const patients: Patient[] = [
     phone: '+55 (31) 96666-3333',
     dateOfBirth: '1959-03-01',
     age: 65,
+    status: 'Inativo',
     complexity: 'baixa',
     servicePackage: 'Básico',
     supervisorId: 'prof-1',

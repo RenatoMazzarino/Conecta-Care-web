@@ -14,9 +14,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, UserSquare, Edit, User } from 'lucide-react';
+import { FileText, UserSquare, Edit, User, Shield } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
 
 function calculateAge(dateOfBirth: string) {
   const birthDate = new Date(dateOfBirth);
@@ -44,6 +45,11 @@ const packageVariant: { [key in Patient['servicePackage']]: string } = {
     Básico: 'border-cyan-200 bg-cyan-100 text-cyan-800',
     Intermediário: 'border-purple-200 bg-purple-100 text-purple-800',
     Completo: 'border-pink-200 bg-pink-100 text-pink-800',
+}
+
+const statusVariant: { [key in Patient['status']]: string } = {
+    Ativo: 'bg-green-100 text-green-800',
+    Inativo: 'bg-gray-100 text-gray-800',
 }
 
 
@@ -96,6 +102,7 @@ export function PatientTable({
               />
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Pacote de Serviços</TableHead>
             <TableHead>Vínculo</TableHead>
@@ -129,6 +136,11 @@ export function PatientTable({
                     </Avatar>
                     <span className="font-medium group-hover:underline">{patient.name}</span>
                     </Link>
+                </TableCell>
+                 <TableCell>
+                    <Badge variant="outline" className={cn("capitalize", statusVariant[patient.status])}>
+                         {patient.status}
+                    </Badge>
                 </TableCell>
                 <TableCell>
                     <Badge variant="outline" className={complexityVariant[patient.complexity]}>
