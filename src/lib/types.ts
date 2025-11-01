@@ -11,6 +11,7 @@ export type Patient = {
   avatarUrl: string;
   avatarHint: string;
   complexity: 'baixa' | 'media' | 'alta';
+  servicePackage: 'Básico' | 'Intermediário' | 'Completo';
   supervisorId?: string;
   schedulerId?: string;
   address: {

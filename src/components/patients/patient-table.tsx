@@ -40,6 +40,13 @@ const planVariant: { [key in Patient['financial']['plan']]: string } = {
     plano_de_saude: 'bg-indigo-100 text-indigo-800 border-indigo-200',
 }
 
+const packageVariant: { [key in Patient['servicePackage']]: string } = {
+    Básico: 'border-cyan-200 bg-cyan-100 text-cyan-800',
+    Intermediário: 'border-purple-200 bg-purple-100 text-purple-800',
+    Completo: 'border-pink-200 bg-pink-100 text-pink-800',
+}
+
+
 export function PatientTable({ 
     patients,
     professionals,
@@ -90,7 +97,8 @@ export function PatientTable({
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
             <TableHead>Complexidade</TableHead>
-            <TableHead>Plano</TableHead>
+            <TableHead>Pacote de Serviços</TableHead>
+            <TableHead>Vínculo</TableHead>
             <TableHead>Supervisor</TableHead>
             <TableHead>Escalista</TableHead>
             <TableHead className="text-right w-[240px]">Ações</TableHead>
@@ -125,6 +133,11 @@ export function PatientTable({
                 <TableCell>
                     <Badge variant="outline" className={complexityVariant[patient.complexity]}>
                         {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)}
+                    </Badge>
+                </TableCell>
+                 <TableCell>
+                    <Badge variant="outline" className={packageVariant[patient.servicePackage]}>
+                        {patient.servicePackage}
                     </Badge>
                 </TableCell>
                 <TableCell>
