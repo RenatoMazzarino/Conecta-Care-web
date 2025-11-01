@@ -10,21 +10,26 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { mockTasks, patients as mockPatients, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
-import { AlertTriangle, Clock, FileWarning, MessageSquareWarning } from 'lucide-react';
+import { AlertTriangle, Clock, FileWarning, MessageSquareWarning, RefreshCw } from 'lucide-react';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function DashboardPage() {
   
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [patient, setPatient] = React.useState<Patient | null>(null);
   const [reports, setReports] = React.useState<ShiftReport[]>([]);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [tasks, setTasks] = React.useState<Task[]>([]);
   const [shifts, setShifts] = React.useState<Shift[]>([]);
   const [activityEvents, setActivityEvents] = React.useState<(ShiftReport | Notification | Task)[]>([]);
+  const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null);
 
-  React.useEffect(() => {
+  const fetchData = React.useCallback(() => {
+    setIsRefreshing(true);
     // Simulate fetching data
     const timer = setTimeout(() => {
       const mainPatient = mockPatients[0] || null;
@@ -44,11 +49,19 @@ export default function DashboardPage() {
       }
       setTasks(mockTasks); // Keep all tasks for the tasks card
       setShifts(initialShifts);
+      setLastUpdated(new Date());
       setIsLoading(false);
+      setIsRefreshing(false);
     }, 500);
 
     return () => clearTimeout(timer);
   }, []);
+
+  React.useEffect(() => {
+    setIsLoading(true);
+    fetchData();
+  }, [fetchData]);
+
 
   const handleTaskUpdate = (updatedTask: Task) => {
     setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
@@ -70,6 +83,23 @@ export default function DashboardPage() {
 
   return (
     <>
+       <div className="flex justify-end items-center gap-4 mb-6 text-sm text-muted-foreground">
+        {lastUpdated && !isRefreshing && (
+            <span>
+              Atualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
+            </span>
+        )}
+        <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchData}
+            disabled={isRefreshing}
+        >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+        </Button>
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {isLoading ? (
               [...Array(4)].map((_,i) => <Skeleton key={i} className="h-32 w-full" />)
@@ -81,7 +111,7 @@ export default function DashboardPage() {
       </div>
 
       {noData && (
-          <Card>
+          <Card className="mt-6">
               <CardHeader>
                   <CardTitle>Bem-vindo ao CareSync</CardTitle>
                   <CardDescription>Parece que você ainda não tem pacientes cadastrados.</CardDescription>
@@ -98,9 +128,9 @@ export default function DashboardPage() {
       )}
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 flex">
           {isLoading ? (
-            <Skeleton className="h-[550px] w-full" />
+            <Skeleton className="h-full w-full min-h-[500px]" />
           ) : patient ? (
             <ActivityFeed events={activityEvents} patient={patient}/>
           ) : null}
