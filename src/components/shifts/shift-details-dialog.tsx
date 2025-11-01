@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, Calendar } from 'lucide-react';
+import { FileText, MessageCircle, User, Calendar, CheckSquare } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -57,7 +57,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                <div className="flex items-center gap-2">
                   <Button variant="outline" onClick={() => setIsChatOpen(true)}><MessageCircle /> Chat</Button>
                   <Button variant="outline" asChild><Link href={`/patients/${patient.id}`}><FileText /> Prontuário</Link></Button>
-                  <Button variant="outline" disabled><Calendar /> Agenda</Button>
+                  <Button variant="outline" disabled><CheckSquare /> Criar Tarefa</Button>
                </div>
             </div>
           </DialogHeader>

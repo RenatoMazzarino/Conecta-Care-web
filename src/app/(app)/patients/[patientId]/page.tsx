@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload, CheckSquare } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
@@ -115,10 +115,11 @@ export default function PatientDetailPage() {
           <p className="text-muted-foreground mt-1">Central de informações clínicas e assistenciais.</p>
         </div>
         <div className="flex gap-2 items-center">
-           <Button asChild variant="secondary"><Link href={`/patients/${patientId}/profile`}><FileText className="mr-2"/>Ver Ficha Cadastral</Link></Button>
-            <Button onClick={() => setIsUploadOpen(true)} variant="outline"><Upload className="mr-2"/>Anexar Documento</Button>
+           <Button asChild variant="outline"><Link href={`/patients/${patientId}/profile`}><FileText className="mr-2"/>Ficha Cadastral</Link></Button>
+            <Button onClick={() => setIsUploadOpen(true)} variant="outline"><Upload className="mr-2"/>Anexar</Button>
+            <Button variant="outline" disabled><CheckSquare className="mr-2"/>Criar Tarefa</Button>
             {!isEditing ? (
-            <Button onClick={handleEdit} size="sm" variant="ghost">
+            <Button onClick={handleEdit} size="sm">
                 <Edit className="w-4 h-4 mr-2" />
                 Editar
             </Button>
