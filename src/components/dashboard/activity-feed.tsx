@@ -112,7 +112,7 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
   };
   
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <div className="flex items-center justify-between">
             <div>
@@ -129,9 +129,9 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
             </TooltipProvider>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         {events.length > 0 ? (
-          <ScrollArea className="h-[450px] pr-4">
+          <ScrollArea className="h-full pr-4">
             <ul className="space-y-6">
               {events.map((event, index) => (
                 <EventItem key={index} event={event} />
@@ -139,7 +139,7 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
             </ul>
           </ScrollArea>
         ) : (
-          <div className="flex h-[450px] items-center justify-center text-center">
+          <div className="flex h-full items-center justify-center text-center">
             <p className="text-sm text-muted-foreground">Nenhuma atividade recente para este paciente.</p>
           </div>
         )}
