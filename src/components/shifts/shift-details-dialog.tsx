@@ -10,7 +10,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -20,7 +20,7 @@ import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Mock candidates for pending shifts
 const mockCandidates: Professional[] = [
@@ -49,19 +49,36 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [view, setView] = React.useState<'default' | 'assign' | 'publish'>('default');
   const [search, setSearch] = React.useState('');
-  const [isUrgent, setIsUrgent] = React.useState(false);
+  
+  const defaultStartTime = shift.shiftType === 'diurno' ? '08:00' : '20:00';
+  const defaultEndTime = shift.shiftType === 'diurno' ? '20:00' : '08:00';
+
+  const [publishData, setPublishData] = React.useState({
+    startTime: defaultStartTime,
+    endTime: defaultEndTime,
+    valueOffered: 150,
+    notes: '',
+    isUrgent: shift.isUrgent || false,
+  });
+
   const { toast } = useToast();
   
   React.useEffect(() => {
     if (isOpen) {
       setView('default');
       setSearch('');
-      setIsUrgent(shift.isUrgent || false);
+      setPublishData({
+        startTime: defaultStartTime,
+        endTime: defaultEndTime,
+        valueOffered: 150,
+        notes: '',
+        isUrgent: shift.isUrgent || false,
+      });
     }
-  }, [isOpen, shift.isUrgent]);
+  }, [isOpen, shift.isUrgent, defaultStartTime, defaultEndTime]);
 
   const handlePublishVacancy = () => {
-    onVacancyPublished({ ...shift, status: 'pending', isUrgent: isUrgent });
+    onVacancyPublished({ ...shift, status: 'pending', isUrgent: publishData.isUrgent });
      toast({
       title: 'Vaga Publicada com Sucesso!',
       description: `A vaga para ${patient.name} agora está visível para os profissionais.`,
@@ -74,8 +91,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   }
   
   const filteredProfessionals = allProfessionals.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) && p.corenStatus === 'active');
-  const shiftTime = shift.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
-
+  
   const renderOpenContent = () => {
     if (view === 'assign') {
         return (
@@ -122,38 +138,77 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     }
 
     if (view === 'publish') {
+      const fullAddress = `${patient.address.street}, ${patient.address.number} - ${patient.address.neighborhood}, ${patient.address.city}/${patient.address.state}`;
       return (
-        <div className="py-4 max-h-[60vh] flex flex-col gap-6">
-          <h4 className="font-semibold text-lg text-center">Revisar e Publicar Vaga</h4>
-          <Card className="bg-muted/50">
-            <CardContent className="p-4 grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground"/>
-                    <span className="font-medium">{new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long' })}</span>
+        <div className="py-4 max-h-[70vh]">
+          <h4 className="font-semibold text-lg text-center mb-4">Revisar e Publicar Vaga</h4>
+          <ScrollArea className="h-[55vh] pr-4">
+            <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base"><Calendar className="h-5 w-5 text-primary" />Detalhes do Plantão</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Data</Label>
+                      <Input value={new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' })} disabled />
+                    </div>
+                    <div>
+                      <Label>Tipo de Plantão</Label>
+                      <Input value={`Plantão ${shift.shiftType}`} disabled />
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground"/>
-                    <span className="font-medium">Plantão {shift.shiftType} ({shiftTime})</span>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <Label>Hora Início</Label>
+                        <Input value={publishData.startTime} onChange={e => setPublishData({...publishData, startTime: e.target.value})} type="time" />
+                    </div>
+                    <div>
+                        <Label>Hora Fim</Label>
+                        <Input value={publishData.endTime} onChange={e => setPublishData({...publishData, endTime: e.target.value})} type="time" />
+                    </div>
                 </div>
-                <div className="col-span-2">
-                    <p className="text-muted-foreground">Esta vaga será publicada para que profissionais qualificados possam se candidatar.</p>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <Label>Título da Vaga</Label>
+                        <Input defaultValue={`Plantão ${shift.shiftType} - ${patient.name}`} />
+                    </div>
+                     <div>
+                        <Label>Valor Oferecido (R$)</Label>
+                        <Input type="number" value={publishData.valueOffered} onChange={e => setPublishData({...publishData, valueOffered: Number(e.target.value)})} />
+                    </div>
                 </div>
-            </CardContent>
-          </Card>
-          <div className="grid gap-2">
-            <Label htmlFor="notes">Observações para os Profissionais (Opcional)</Label>
-            <Textarea id="notes" placeholder="Ex: Paciente necessita de atenção especial para mobilidade." />
-          </div>
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="flex items-center gap-3">
-                <AlertTriangle className="h-6 w-6 text-destructive"/>
-                <div>
-                    <Label htmlFor="urgent-switch" className="font-semibold">Publicação Urgente</Label>
-                    <p className="text-xs text-muted-foreground">Vagas urgentes são destacadas e notificam mais profissionais.</p>
-                </div>
+              </CardContent>
+            </Card>
+
+             <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base"><MapPin className="h-5 w-5 text-primary" />Endereço</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md">{fullAddress}</p>
+              </CardContent>
+            </Card>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Observações para os Profissionais</Label>
+              <Textarea id="notes" placeholder="Ex: Paciente necessita de atenção especial para mobilidade." value={publishData.notes} onChange={e => setPublishData({...publishData, notes: e.target.value})} />
             </div>
-            <Switch id="urgent-switch" checked={isUrgent} onCheckedChange={setIsUrgent} />
-          </div>
+            
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                  <AlertTriangle className="h-6 w-6 text-destructive"/>
+                  <div>
+                      <Label htmlFor="urgent-switch" className="font-semibold">Publicação Urgente</Label>
+                      <p className="text-xs text-muted-foreground">Vagas urgentes são destacadas e notificam mais profissionais.</p>
+                  </div>
+              </div>
+              <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
+            </div>
+
+            </div>
+          </ScrollArea>
         </div>
       )
     }
@@ -281,7 +336,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                             <Link href={`/patients/${patient.id}`} className="hover:underline">{patient.name || 'Nova Vaga'}</Link>
                          </DialogTitle>
                          {patient.complexity && (
-                            <Badge className={complexityVariant[patient.complexity]}>
+                            <Badge className={cn("hidden sm:inline-flex", complexityVariant[patient.complexity])}>
                                 {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)} Complexidade
                             </Badge>
                          )}
