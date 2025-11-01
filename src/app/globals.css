@@ -70,7 +70,7 @@
 
   /* página principal (conteúdo) */
   .fichario-pagina {
-    @apply flex-grow p-10 bg-card relative z-10 rounded-r-lg;
+    @apply flex-grow p-8 bg-card relative z-10 rounded-l-lg;
     min-height: 420px;
   }
 
@@ -83,36 +83,98 @@
 
   /* nav (abas) wrapper */
   .fichario-nav {
-    @apply flex flex-col py-10 bg-transparent;
-    margin-right: -25px;
+    @apply pl-2 pr-6 py-6 bg-transparent flex flex-col;
+    margin-left: -25px; 
   }
 
   .fichario-nav ul {
     @apply list-none p-0 m-0 flex flex-col gap-3;
   }
 
-  /* As Abas Individuais */
+  .fichario-nav .tab-wrapper {
+    @apply relative;
+  }
+
+  /* botão / aba */
   .fichario-nav .tab {
-      @apply relative z-[1] cursor-pointer select-none text-center font-semibold text-gray-700;
-      background-color: #ffffff;
-      padding: 2rem 2.2rem 2rem 1rem;
-      border-right: 5px solid;
-      margin-bottom: 10px;
-      border-radius: 10px 0 0 10px;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
+    @apply relative cursor-pointer select-none w-14 h-20 flex items-center justify-center bg-card rounded-tr-lg rounded-br-lg transition-transform duration-200 ease-in-out border-l-[6px] border-transparent text-center overflow-visible;
+    box-shadow: 2px 4px 8px rgba(0,0,0,0.06);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    padding: 0.5rem;
+    background-clip: padding-box;
+    outline: none;
   }
 
   .fichario-nav .tab:hover {
-      transform: translateX(5px) rotate(180deg);
+    transform: translateX(6px) rotate(180deg);
   }
-  
+
+  .fichario-nav .tab:focus {
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  }
+
+  .fichario-nav .tab .h-5 { /* keep icon sizing consistent */
+    @apply block;
+  }
+
   .fichario-nav .tab.active {
-      @apply z-[11] font-bold;
-      box-shadow: 4px 2px 8px rgba(0,0,0,0.15);
-      transform: translateX(0) rotate(180deg);
+    @apply z-30 font-bold;
+    transform: translateX(0) rotate(180deg);
+    box-shadow: 6px 6px 14px rgba(0,0,0,0.12);
+  }
+
+  /*
+    Pseudo-element superior (o "lombinho" arredondado colorido da aba)
+    - usamos :before para criar a aba superior arredondada
+    - a cor é definida inline via data-color (o componente define style/borderLeftColor)
+  */
+  .fichario-nav .tab::before {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: -6px;
+    transform: translateX(50%) rotate(180deg);
+    width: 56px;
+    height: 46px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    z-index: -1;
+    background: transparent;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.06);
+    transition: background 180ms ease, transform 180ms ease, opacity 180ms ease;
+    opacity: 0;
+  }
+
+  /* when tab has .active, show the colored lombinho */
+  .fichario-nav .tab.active::before {
+    opacity: 1;
+    transform: translateX(50%) rotate(180deg) scale(1.03);
+  }
+
+  /* We use attribute selector to paint the pseudo via inline style color on the element:
+     The component sets `data-color` (hex). Add a small helper to map inline computed color
+     into the pseudo using box-shadow trick: we set a transparent background and a right border color,
+     but since we cannot read data-color in pure css to set background, we fallback to using the
+     element's border-left-color to tint the pseudo via box-shadow.
+  */
+  .fichario-nav .tab[data-color]::before {
+    /* use a subtle gradient derived from border-left-color via currentColor hack */
+    /* fallback */
+    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.86));
+  }
+
+  /* when tab has inline border-left-color (component sets style), reflect to pseudo via drop shadow */
+  .fichario-nav .tab.active[style]::before {
+    /* create a colored top by using a shadow with the same color as the border */
+    box-shadow: 0 8px 12px rgba(0,0,0,0.06), 0 -2px 0 4px currentColor inset;
+  }
+
+  /* set currentColor to the tab's border-left-color */
+  .fichario-nav .tab[style] {
+    color: inherit; /* keep text color */
   }
 }
 
@@ -123,16 +185,16 @@
   }
   .fichario-nav {
     @apply flex-row gap-2 overflow-x-auto px-4 py-3;
-    margin-right: 0;
+    margin-left: 0;
   }
   .fichario-nav ul {
     @apply flex-row gap-2;
   }
   .fichario-nav .tab {
-    @apply w-auto rounded-md [writing-mode:horizontal-tb] transform-none h-12 px-4;
+    @apply w-auto rounded-md [writing-mode:horizontal-tb] rotate-0 h-12 px-4;
   }
   .fichario-pagina {
-    @apply rounded-b-lg rounded-tr-none;
+    @apply rounded-b-lg rounded-tl-none;
   }
 }
 

@@ -217,6 +217,11 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
             {!isLoading && displayData && currentView === 'prontuario' && (
               <div className="fichario-container">
+                <main id="pagina-ativa" className="fichario-pagina" aria-live="polite">
+                  <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
+                    {renderProntuarioContent()}
+                  </div>
+                </main>
                 <nav className="fichario-nav" aria-label="Navegação do prontuário">
                   <ul id="tabs-list" role="tablist" onKeyDown={handleKeyDownOnTabs}>
                     {prontuarioTabs.map((tab, idx) => {
@@ -232,7 +237,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                             onClick={() => handleTabClick(tab.id)}
                             className={cn("tab", isActive && "active")}
                             data-color={tab.color}
-                            style={isActive ? { borderRightColor: tab.color } : undefined}
+                            style={isActive ? { borderLeftColor: tab.color } : undefined}
                           >
                             <div className="flex flex-col items-center justify-center h-full gap-2">
                               <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-600")} />
@@ -246,12 +251,6 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                     })}
                   </ul>
                 </nav>
-
-                <main id="pagina-ativa" className="fichario-pagina" aria-live="polite">
-                  <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
-                    {renderProntuarioContent()}
-                  </div>
-                </main>
               </div>
             )}
           </div>
