@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -14,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, UserSquare, Edit, User, Shield } from 'lucide-react';
+import { FileText, UserSquare, Edit } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
@@ -35,23 +34,6 @@ const complexityVariant: { [key in Patient['complexity']]: string } = {
     media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     alta: 'bg-red-100 text-red-800 border-red-200',
 }
-
-const planVariant: { [key in Patient['financial']['plan']]: string } = {
-    particular: 'bg-blue-100 text-blue-800 border-blue-200',
-    plano_de_saude: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-}
-
-const packageVariant: { [key in Patient['servicePackage']]: string } = {
-    Básico: 'border-cyan-200 bg-cyan-100 text-cyan-800',
-    Intermediário: 'border-purple-200 bg-purple-100 text-purple-800',
-    Completo: 'border-pink-200 bg-pink-100 text-pink-800',
-}
-
-const statusVariant: { [key in Patient['status']]: string } = {
-    Ativo: 'bg-green-100 text-green-800',
-    Inativo: 'bg-gray-100 text-gray-800',
-}
-
 
 export function PatientTable({ 
     patients,
@@ -102,7 +84,6 @@ export function PatientTable({
               />
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Pacote de Serviços</TableHead>
             <TableHead>Vínculo</TableHead>
@@ -130,17 +111,18 @@ export function PatientTable({
                     href={`/patients/${patient.id}`}
                     className="flex items-center gap-3 group"
                     >
-                    <Avatar className="h-9 w-9">
-                        <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
-                        <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
+                            <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <span className={cn(
+                            "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-card",
+                            patient.status === 'Ativo' ? 'bg-green-500' : 'bg-gray-400'
+                        )} />
+                    </div>
                     <span className="font-medium group-hover:underline">{patient.name}</span>
                     </Link>
-                </TableCell>
-                 <TableCell>
-                    <Badge variant="outline" className={cn("capitalize", statusVariant[patient.status])}>
-                         {patient.status}
-                    </Badge>
                 </TableCell>
                 <TableCell>
                     <Badge variant="outline" className={complexityVariant[patient.complexity]}>
@@ -148,16 +130,16 @@ export function PatientTable({
                     </Badge>
                 </TableCell>
                  <TableCell>
-                    <Badge variant="outline" className={packageVariant[patient.servicePackage]}>
+                    <Badge variant="outline">
                         {patient.servicePackage}
                     </Badge>
                 </TableCell>
                 <TableCell>
-                        <Badge variant="outline" className={planVariant[patient.financial.plan]}>
-                            {patient.financial.plan === 'plano_de_saude' 
-                            ? `Plano: ${patient.financial.healthPlan || 'Não especificado'}` 
-                            : 'Particular'}
-                        </Badge>
+                    <Badge variant="outline">
+                        {patient.financial.plan === 'plano_de_saude' 
+                        ? `Plano: ${patient.financial.healthPlan || 'Não especificado'}` 
+                        : 'Particular'}
+                    </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{supervisorName}</TableCell>
                 <TableCell className="text-muted-foreground">{schedulerName}</TableCell>
