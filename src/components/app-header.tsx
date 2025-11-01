@@ -163,10 +163,17 @@ export function AppHeader() {
         />
       </div>
 
+       <Button asChild variant="outline" size="icon" className="rounded-full">
+            <Link href="/assistant">
+                <BotMessageSquare className="h-5 w-5" />
+                <span className="sr-only">AI Assistant</span>
+            </Link>
+        </Button>
+
        <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" className="relative overflow-hidden rounded-full">
-                <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />
+                {mockNotifications.length > 0 && <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />}
                 <Bell className="h-5 w-5" />
                 <span className="sr-only">Notificações</span>
             </Button>

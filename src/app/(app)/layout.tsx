@@ -2,15 +2,11 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppHeader } from '@/components/app-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Toaster } from '@/components/ui/toaster';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { BotMessageSquare } from 'lucide-react';
 
 
 export default function AppLayout({
@@ -42,20 +38,6 @@ export default function AppLayout({
             </div>
         </div>
         <Toaster />
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                     <Button asChild className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg" size="icon">
-                        <Link href="/assistant">
-                            <BotMessageSquare className="h-7 w-7" />
-                        </Link>
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                    <p>AI Assistant</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
       </>
   );
 }
