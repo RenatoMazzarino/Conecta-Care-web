@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -141,8 +142,24 @@ export function PatientTable({
                         : 'Particular'}
                     </Badge>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{supervisorName}</TableCell>
-                <TableCell className="text-muted-foreground">{schedulerName}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {patient.supervisorId && supervisorName ? (
+                    <Link href={`/team/${patient.supervisorId}`} className="hover:underline hover:text-primary transition-colors">
+                      {supervisorName}
+                    </Link>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {patient.schedulerId && schedulerName ? (
+                    <Link href={`/team/${patient.schedulerId}`} className="hover:underline hover:text-primary transition-colors">
+                      {schedulerName}
+                    </Link>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
                 <TableCell className="text-right space-x-2">
                     <Button asChild variant="outline" size="sm">
                     <Link href={`/patients/${patient.id}/profile`}>
