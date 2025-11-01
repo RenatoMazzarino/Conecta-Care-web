@@ -86,7 +86,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
                           </div>
                       </TooltipTrigger>
                       {task.description && (
-                        <TooltipContent side="top" align="start">
+                        <TooltipContent side="top" align="start" className="border bg-popover text-popover-foreground">
                            <p className="max-w-xs">{task.description}</p>
                         </TooltipContent>
                       )}

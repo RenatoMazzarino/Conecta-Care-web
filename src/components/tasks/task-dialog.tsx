@@ -86,7 +86,7 @@ export function TaskDialog({
           <div className="grid gap-4 py-6">
             <div className="grid gap-2">
               <Label htmlFor="title">Título</Label>
-              <Input id="title" value={formData.title || ''} onChange={e => handleChange('title', e.target.value)} placeholder="Ex: Comprar novos suprimentos para o paciente X" />
+              <Input id="title" value={formData.title || ''} onChange={e => handleChange('title', e.target.value)} placeholder="Ex: Comprar novos suprimentos para o paciente X" autoFocus={false} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Descrição (Opcional)</Label>
