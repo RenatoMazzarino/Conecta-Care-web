@@ -264,7 +264,7 @@ export function ShiftManagement() {
       handleShiftClick,
   };
   
-  if (isLoading) {
+  if (isLoading || isMobile === undefined) {
     return (
         <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">

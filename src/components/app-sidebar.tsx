@@ -58,6 +58,9 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
   const isMobile = useIsMobile();
   
    React.useEffect(() => {
+    // Evita a mudança de estado na renderização inicial do servidor
+    if (isMobile === undefined) return;
+
     if (isMobile) {
       setIsCollapsed(true);
     } else {
@@ -135,6 +138,17 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
        </Tooltip>
     );
   }
+
+  // Não renderiza a sidebar no lado do servidor se o status móvel for desconhecido
+  if (isMobile === undefined) {
+    return (
+       <aside className={cn(
+        "fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-card sm:flex transition-[width] duration-300",
+        isCollapsed ? "w-16" : "w-64"
+    )} />
+    );
+  }
+
 
   return (
     <aside className={cn(
