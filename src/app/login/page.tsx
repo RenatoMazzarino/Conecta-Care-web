@@ -40,7 +40,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [state, formAction, isPending] = useActionState(loginAction, { error: null, success: false });
   const [googleState, googleFormAction, isGooglePending] = useActionState(googleLoginAction, { error: null, success: false });
-  const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(false); // Changed initial to false
+  const [isGoogleRedirectLoading, setIsGoogleRedirectLoading] = React.useState(true); // Start as true
   const [isEmailLoading, setIsEmailLoading] = React.useState(false);
   const router = useRouter();
 
@@ -93,8 +93,6 @@ export default function LoginPage() {
 
     const resolveRedirect = async () => {
       try {
-        // Set loading true only when we start checking
-        setIsGoogleRedirectLoading(true);
         const result = await getRedirectResult(auth);
         if (!result) {
           setIsGoogleRedirectLoading(false);
