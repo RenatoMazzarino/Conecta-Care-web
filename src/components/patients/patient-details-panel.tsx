@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart, Edit } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit, FileHeart } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -135,16 +135,16 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                 </Button>
                            )}
                            <div className="flex text-center sm:text-left flex-col space-y-1.5">
-                            <SheetTitle>
-                                {isLoading ? <Skeleton className="h-8 w-48" /> : displayData?.name}
-                            </SheetTitle>
-                            <div className="text-sm text-muted-foreground">
-                                {isLoading ? (
-                                    <Skeleton className="h-4 w-32 mt-1" />
-                                ) : (
-                                    <span>{age ? `${age} anos` : ''}{age && displayData?.cpf ? ' \u2022 ' : ''}{displayData?.cpf}</span>
-                                )}
-                            </div>
+                                <SheetTitle>
+                                    {isLoading ? <Skeleton className="h-8 w-48" /> : <span>{displayData?.name}</span>}
+                                </SheetTitle>
+                                <div className="text-sm text-muted-foreground">
+                                    {isLoading ? (
+                                        <Skeleton className="h-4 w-32 mt-1" />
+                                    ) : (
+                                        <span>{age ? `${age} anos` : ''}{age && displayData?.cpf ? ' \u2022 ' : ''}{displayData?.cpf}</span>
+                                    )}
+                                </div>
                            </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -191,15 +191,9 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
                             <div className="fichario-container">
-                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
-                                    <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
-                                        {renderProntuarioContent()}
-                                    </div>
-                                </main>
-
                                 <nav className="fichario-nav">
                                     <ul id="tabs-list">
-                                        {prontuarioTabs.map((tab, index) => {
+                                        {prontuarioTabs.map((tab) => {
                                             const isActive = activeProntuarioTab === tab.id;
                                             return (
                                                 <li 
@@ -220,6 +214,11 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                         })}
                                     </ul>
                                 </nav>
+                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
+                                    <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
+                                        {renderProntuarioContent()}
+                                    </div>
+                                </main>
                            </div>
                         )}
                     </div>

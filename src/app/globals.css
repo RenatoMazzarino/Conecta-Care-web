@@ -88,7 +88,7 @@
     }
 
     .fichario-pagina {
-        @apply flex-grow p-10 rounded-l-lg relative z-10 transition-colors duration-300 ease-in-out;
+        @apply flex-grow p-10 rounded-r-lg relative z-10 transition-colors duration-300 ease-in-out;
     }
 
     .conteudo-wrapper {
@@ -100,7 +100,7 @@
     }
 
     .fichario-nav {
-        @apply -ml-[25px] pt-10;
+        @apply -mr-[25px] pt-10;
     }
 
     .fichario-nav ul {
@@ -108,14 +108,14 @@
     }
 
     .fichario-nav .tab {
-        @apply relative cursor-pointer py-8 px-4 mb-2.5 rounded-r-lg font-semibold text-gray-800 shadow-md transition-all duration-200 ease-in-out;
+        @apply relative cursor-pointer py-8 px-4 mb-2.5 rounded-l-lg font-semibold text-gray-800 shadow-md transition-all duration-200 ease-in-out;
         writing-mode: vertical-rl;
         transform: rotate(180deg);
         text-align: center;
     }
 
     .fichario-nav .tab:hover {
-        transform: translateX(-5px) rotate(180deg);
+        transform: translateX(5px) rotate(180deg);
     }
     
     .fichario-nav .tab.active {
