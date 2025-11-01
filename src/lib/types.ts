@@ -10,6 +10,7 @@ export type Patient = {
   age: number;
   avatarUrl: string;
   avatarHint: string;
+  complexity: 'baixa' | 'media' | 'alta';
   address: {
     street: string;
     number: string;

@@ -20,6 +20,7 @@ export const patients: Patient[] = [
     dateOfBirth: '1946-05-20',
     bloodType: 'A+',
     age: 78,
+    complexity: 'alta',
     avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
     avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
     address: {
@@ -61,6 +62,7 @@ export const patients: Patient[] = [
     dateOfBirth: '1942-11-15',
     bloodType: 'O-',
     age: 82,
+    complexity: 'media',
     avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
     avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
      address: {
@@ -100,6 +102,7 @@ export const patients: Patient[] = [
     dateOfBirth: '1959-03-01',
     bloodType: 'B+',
     age: 65,
+    complexity: 'baixa',
     avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
     avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
      address: {

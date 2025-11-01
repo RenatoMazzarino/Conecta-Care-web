@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -14,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FileText, UserSquare } from 'lucide-react';
 import type { Patient } from '@/lib/types';
+import { Badge } from '../ui/badge';
 
 function calculateAge(dateOfBirth: string) {
   const birthDate = new Date(dateOfBirth);
@@ -26,6 +28,12 @@ function calculateAge(dateOfBirth: string) {
   return age;
 }
 
+const complexityVariant: { [key in Patient['complexity']]: string } = {
+    baixa: 'bg-green-100 text-green-800',
+    media: 'bg-yellow-100 text-yellow-800',
+    alta: 'bg-red-100 text-red-800',
+}
+
 export function PatientTable({ patients }: { patients: Patient[] }) {
   return (
     <div className="rounded-lg border shadow-sm bg-card">
@@ -33,7 +41,7 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[300px]">Paciente</TableHead>
-            <TableHead>ID do Paciente</TableHead>
+            <TableHead>Complexidade</TableHead>
             <TableHead>Idade</TableHead>
             <TableHead>Contato Familiar</TableHead>
             <TableHead className="text-right w-[240px]">Ações</TableHead>
@@ -54,7 +62,11 @@ export function PatientTable({ patients }: { patients: Patient[] }) {
                   <span className="font-medium group-hover:underline">{patient.name}</span>
                 </Link>
               </TableCell>
-              <TableCell className="text-muted-foreground font-mono text-xs">{patient.id}</TableCell>
+              <TableCell>
+                  <Badge variant="outline" className={complexityVariant[patient.complexity]}>
+                      {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)}
+                  </Badge>
+              </TableCell>
               <TableCell className="text-muted-foreground">{calculateAge(patient.dateOfBirth)} anos</TableCell>
               <TableCell>
                 <div className="flex flex-col">

@@ -6,12 +6,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { mockShiftHistory, patients as allPatients, professionals as allProfessionals } from '@/lib/data';
+import { professionals as allProfessionals } from '@/lib/data';
 import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, Calendar, CheckSquare, FileUp, UserCheck, Star, Shield, Search } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -28,6 +28,11 @@ const mockCandidates: Professional[] = [
     allProfessionals.find(p => p.id === 'prof-5')!,
 ].filter(Boolean);
 
+const complexityVariant: { [key in Patient['complexity']]: string } = {
+    baixa: 'bg-green-100 text-green-800',
+    media: 'bg-yellow-100 text-yellow-800',
+    alta: 'bg-red-100 text-red-800',
+}
 
 export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, patient, onOpenProfile, onApprove, onVacancyPublished }: { 
     isOpen: boolean; 
@@ -40,7 +45,16 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     onVacancyPublished: (shift: Shift) => void;
 }) {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const [view, setView] = React.useState<'default' | 'assign'>('default');
+  const [search, setSearch] = React.useState('');
   const { toast } = useToast();
+  
+  React.useEffect(() => {
+    if (isOpen) {
+      setView('default');
+      setSearch('');
+    }
+  }, [isOpen]);
 
   const handlePublishVacancy = () => {
     onVacancyPublished({ ...shift, status: 'pending' });
@@ -54,23 +68,71 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   const handleAssignDirectly = (prof: Professional) => {
     onApprove(prof, shift);
   }
+  
+  const filteredProfessionals = allProfessionals.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) && p.corenStatus === 'active');
 
-  const renderOpenContent = () => (
-    <div className="flex flex-col items-center justify-center h-96 gap-6 text-center">
-        <h3 className="text-xl font-semibold">Preencher Vaga em Aberto</h3>
-        <p className="text-muted-foreground max-w-md">
-            Você pode publicar esta vaga para que os profissionais disponíveis se candidatem, ou pode atribuir diretamente a um profissional específico da sua equipe.
-        </p>
-        <div className="flex gap-4">
-             <Button size="lg" variant="secondary" onClick={() => { /* TODO: Open assignment modal */ }}>
-                <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
-            </Button>
-            <Button size="lg" onClick={handlePublishVacancy}>
-                <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
-            </Button>
+  const renderOpenContent = () => {
+    if (view === 'assign') {
+        return (
+             <div className="py-4 max-h-[60vh] flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-semibold">Atribuir Profissional Diretamente</h4>
+                    <div className="relative w-72">
+                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                         <Input 
+                            placeholder="Buscar por nome..." 
+                            className="pl-8" 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <ScrollArea className="flex-1 -mr-2 pr-2">
+                    <div className="space-y-2">
+                    {filteredProfessionals.map(prof => (
+                        <div key={prof.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer" onClick={() => handleAssignDirectly(prof)}>
+                             <div className="flex items-center gap-3">
+                                 <Avatar className="h-10 w-10">
+                                    <AvatarImage src={prof.avatarUrl} alt={prof.name} data-ai-hint={prof.avatarHint} />
+                                    <AvatarFallback>{prof.initials}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold">{prof.name}</p>
+                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+                                        <span>{prof.rating.toFixed(1)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                             <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="outline" size="sm" onClick={() => onOpenProfile(prof)}>Ver Perfil</Button>
+                                <Button size="sm" onClick={() => handleAssignDirectly(prof)}>Atribuir</Button>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                </ScrollArea>
+             </div>
+        )
+    }
+
+    return (
+        <div className="flex flex-col items-center justify-center h-96 gap-6 text-center">
+            <h3 className="text-xl font-semibold">Preencher Vaga em Aberto</h3>
+            <p className="text-muted-foreground max-w-md">
+                Você pode publicar esta vaga para que os profissionais disponíveis se candidatem, ou pode atribuir diretamente a um profissional específico da sua equipe.
+            </p>
+            <div className="flex gap-4">
+                 <Button size="lg" variant="secondary" onClick={() => setView('assign')}>
+                    <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
+                </Button>
+                <Button size="lg" onClick={handlePublishVacancy}>
+                    <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
+                </Button>
+            </div>
         </div>
-    </div>
-  );
+    );
+  }
 
   const renderPendingContent = () => (
      <div className="py-4 max-h-[60vh] overflow-y-auto pr-2 space-y-3">
@@ -172,7 +234,16 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                     </Avatar>
                  }
                 <div>
-                    <DialogTitle className="text-2xl">{patient.name || 'Nova Vaga'}</DialogTitle>
+                    <div className="flex items-center gap-3">
+                         <DialogTitle className="text-2xl">
+                            <Link href={`/patients/${patient.id}`} className="hover:underline">{patient.name || 'Nova Vaga'}</Link>
+                         </DialogTitle>
+                         {patient.complexity && (
+                            <Badge className={complexityVariant[patient.complexity]}>
+                                {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)} Complexidade
+                            </Badge>
+                         )}
+                    </div>
                     <DialogDescription>
                         {professional ? (
                             <>Plantão {shift.shiftType} - Em andamento com <Button variant="link" className="p-0 h-auto text-base" onClick={() => onOpenProfile(professional)}>{professional.name}</Button></>
@@ -196,7 +267,8 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
 
           {renderContent()}
           
-          <DialogFooter>
+          <DialogFooter className="pt-4 mt-4 border-t">
+            {view === 'assign' && <Button variant="outline" onClick={() => setView('default')}>Voltar</Button>}
             <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
@@ -213,5 +285,3 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
    </>
   );
 }
-
-    
