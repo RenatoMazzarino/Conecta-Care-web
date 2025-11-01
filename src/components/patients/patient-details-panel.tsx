@@ -44,7 +44,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     const [currentView, setCurrentView] = React.useState<'prontuario' | 'ficha'>('prontuario');
 
     React.useEffect(() => {
-        if (patientId) {
+        if (isOpen && patientId) {
             setIsLoading(true);
             setCurrentView('prontuario'); // Reset to default view when patient changes
             setIsEditing(false); // Reset editing mode
@@ -54,15 +54,19 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                 setPatient(foundPatient || null);
                 if (foundPatient) {
                     setEditedData(JSON.parse(JSON.stringify(foundPatient)));
+                } else {
+                    setEditedData(null);
                 }
                 setIsLoading(false);
             }, 300);
             return () => clearTimeout(timer);
-        } else {
+        } else if (!isOpen) {
+             // Clear data when panel closes to ensure fresh load next time
             setPatient(null);
-            setIsLoading(false);
+            setEditedData(null);
+            setIsLoading(true);
         }
-    }, [patientId]);
+    }, [patientId, isOpen]);
 
     const handleSave = () => {
         if (!editedData) return;
@@ -77,29 +81,11 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
     const displayData = isEditing ? editedData : patient;
     const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
-
-    const renderHeader = () => {
-        if (isLoading || !displayData) {
-            return <Skeleton className="h-10 w-2/3" />;
-        }
-        
-        const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : 0;
-        
-        return (
-             <SheetHeader className="text-left">
-                <SheetTitle className="text-2xl">{displayData.name}</SheetTitle>
-                <SheetDescription>
-                    {age} anos &bull; {displayData.cpf}
-                </SheetDescription>
-            </SheetHeader>
-        )
-    };
     
     const renderContent = () => {
         if (isLoading) {
              return (
                 <div className="space-y-6 p-6">
-                    <Skeleton className="h-10 w-1/3" />
                     <div className="grid lg:grid-cols-3 gap-6">
                         <Skeleton className="h-48 w-full" />
                         <Skeleton className="h-48 w-full" />
@@ -200,36 +186,55 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
              </div>
         );
     }
+    
+    const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : null;
 
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
                 <SheetContent className="w-full sm:max-w-[90vw] lg:max-w-[80vw] p-0 flex flex-col">
-                    <div className="flex items-center justify-between p-4 border-b">
-                        <div className="flex items-center gap-4 flex-1">
+                    <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0">
+                         <div className="flex items-center gap-4 flex-1">
                            {currentView === 'ficha' && (
                                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                            )}
-                           {renderHeader()}
+                           <div>
+                                {isLoading || !displayData ? (
+                                    <>
+                                        <SheetTitle><Skeleton className="h-8 w-48" /></SheetTitle>
+                                        <SheetDescription><Skeleton className="h-4 w-32 mt-1" /></SheetDescription>
+                                    </>
+                                ) : (
+                                    <>
+                                        <SheetTitle className="text-2xl">{displayData.name}</SheetTitle>
+                                        <SheetDescription>
+                                            {age ? `${age} anos` : ''}{age && displayData.cpf ? ' \u2022 ' : ''}{displayData.cpf}
+                                        </SheetDescription>
+                                    </>
+                                )}
+                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            {currentView === 'prontuario' ? (
-                               <Button variant="outline" onClick={() => setCurrentView('ficha')}><UserSquare className="mr-2 h-4 w-4"/>Ficha Cadastral</Button>
+                             {currentView === 'prontuario' ? (
+                               <Button variant="outline" onClick={() => setCurrentView('ficha')} disabled={isLoading}><UserSquare className="mr-2 h-4 w-4"/>Ficha Cadastral</Button>
                             ) : (
-                                <Button variant="outline" onClick={() => setCurrentView('prontuario')}><FileText className="mr-2 h-4 w-4" />Ver Prontuário</Button>
+                                <Button variant="outline" onClick={() => setCurrentView('prontuario')} disabled={isLoading}><FileText className="mr-2 h-4 w-4" />Ver Prontuário</Button>
                             )}
-                            <Button onClick={() => setIsUploadOpen(true)} variant="outline"><Upload className="mr-2 h-4 w-4"/>Anexar</Button>
+                            <Button onClick={() => setIsUploadOpen(true)} variant="outline" disabled={isLoading}><Upload className="mr-2 h-4 w-4"/>Anexar</Button>
                             <Button variant="outline" disabled><CheckSquare className="mr-2 h-4 w-4"/>Criar Tarefa</Button>
                             {!isEditing ? (
-                                <Button onClick={() => setIsEditing(true)}>
+                                <Button onClick={() => setIsEditing(true)} disabled={isLoading}>
                                     <Edit className="w-4 h-4 mr-2" />
                                     Editar
                                 </Button>
                             ) : (
                                 <div className="flex gap-2">
-                                    <Button onClick={() => setIsEditing(false)} variant="outline">
+                                    <Button onClick={() => {
+                                        setIsEditing(false);
+                                        setEditedData(JSON.parse(JSON.stringify(patient))); // Reset changes
+                                    }} variant="outline">
                                         <X className="w-4 h-4 mr-2" />
                                         Cancelar
                                     </Button>
@@ -240,7 +245,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </SheetHeader>
                     <div className="flex-1 overflow-y-auto bg-muted/40 p-6">
                         {renderContent()}
                     </div>
@@ -258,3 +263,5 @@ const UserSquare = (props: React.SVGProps<SVGSVGElement>) => (
         <rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2"/>
     </svg>
 )
+
+    
