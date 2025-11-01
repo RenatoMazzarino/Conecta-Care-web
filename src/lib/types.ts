@@ -156,11 +156,15 @@ export type Notification = {
 }
 
 export type Task = {
-    id: string;
-    title: string;
-    assignee: string;
-    priority: 'Urgente' | 'Alta' | 'Média' | 'Baixa';
-}
+  id: string;
+  title: string;
+  description?: string;
+  status: 'todo' | 'inprogress' | 'done';
+  priority: 'Urgente' | 'Alta' | 'Média' | 'Baixa';
+  assignee?: string; // Should be Professional['id']
+  dueDate?: string;
+  patientId?: string; // Optional link to a patient
+};
 
 export type Invoice = {
   id: string;

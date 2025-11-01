@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Archive, Edit, Inbox, Send, Search, Users, FileText, Trash2, Mail, Bot, Phone } from 'lucide-react';
+import { Archive, Edit, Inbox, Send, Search, Users, FileText, Trash2, Mail, Bot, Phone, CheckSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -182,6 +182,12 @@ export default function CommunicationsPage() {
                                 <Button variant="ghost" size="icon"><Users className="h-5 w-5"/></Button>
                             </TooltipTrigger>
                             <TooltipContent><p>Atribuir a um membro da equipe</p></TooltipContent>
+                        </Tooltip>
+                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><CheckSquare className="h-5 w-5"/></Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Criar Tarefa</p></TooltipContent>
                         </Tooltip>
                          <Tooltip>
                             <TooltipTrigger asChild>

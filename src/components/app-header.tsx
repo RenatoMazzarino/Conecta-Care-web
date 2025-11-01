@@ -20,6 +20,7 @@ import {
   Users,
   Package,
   AlertCircle,
+  CheckSquare,
 } from 'lucide-react';
 import {
   Sheet,
@@ -57,6 +58,7 @@ const navItems = [
     ]
   },
   { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
+  { href: '/tasks', label: 'Tarefas', icon: CheckSquare },
 ];
 
 const secondaryNavItems = [

@@ -15,7 +15,7 @@ const priorityVariantMap = {
 
 export function TasksCard({ tasks }: { tasks: Task[] }) {
   const urgentTasks = tasks
-    .filter((task) => task.priority === 'Urgente' || task.priority === 'Alta')
+    .filter((task) => (task.priority === 'Urgente' || task.priority === 'Alta') && task.status !== 'done')
     .slice(0, 4);
 
   return (
@@ -23,7 +23,11 @@ export function TasksCard({ tasks }: { tasks: Task[] }) {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle>Tarefas Urgentes</CardTitle>
+            <CardTitle>
+              <Link href="/tasks" className="hover:underline">
+                Tarefas Urgentes
+              </Link>
+            </CardTitle>
             <CardDescription>
               {urgentTasks.length} tarefas precisam de atenção.
             </CardDescription>

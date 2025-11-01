@@ -17,6 +17,7 @@ import {
   ChevronDown,
   User,
   HeartPulse,
+  CheckSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ const navItems = [
     ]
   },
   { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
+  { href: '/tasks', label: 'Tarefas', icon: CheckSquare },
 ];
 
 const secondaryNavItems = [

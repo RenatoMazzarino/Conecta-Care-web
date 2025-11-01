@@ -1,4 +1,4 @@
-import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense } from './types';
+import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -376,11 +376,11 @@ export const mockNotifications = [
   },
 ]
 
-export const mockTasks = [
-    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta' },
-    { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente' },
-    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta' },
-    { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média' }
+export const mockTasks: Task[] = [
+    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta', status: 'todo' },
+    { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente', status: 'inprogress' },
+    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta', status: 'todo' },
+    { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média', status: 'done' }
 ];
 
 const mockInvoices: Invoice[] = [
