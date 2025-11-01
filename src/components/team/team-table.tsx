@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -25,6 +26,7 @@ export function TeamTable({ professionals }: { professionals: Professional[] }) 
           <TableRow>
             <TableHead className="w-[300px]">Profissional</TableHead>
             <TableHead>Função</TableHead>
+            <TableHead>Vínculo</TableHead>
             <TableHead>Especialidade Principal</TableHead>
             <TableHead>Status COREN</TableHead>
             <TableHead>Avaliação</TableHead>
@@ -47,6 +49,7 @@ export function TeamTable({ professionals }: { professionals: Professional[] }) 
                 </Link>
               </TableCell>
               <TableCell className="text-muted-foreground">{prof.role}</TableCell>
+              <TableCell className="text-muted-foreground capitalize">{prof.employmentType}</TableCell>
               <TableCell className="text-muted-foreground">{prof.specialties[0]}</TableCell>
               <TableCell>
                  <Badge variant={prof.corenStatus === 'active' ? 'secondary' : 'destructive'} className="py-1 px-2">

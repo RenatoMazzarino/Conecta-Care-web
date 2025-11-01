@@ -163,6 +163,7 @@ export const professionals: Professional[] = [
     coren: 'SP-123456-ENF',
     corenStatus: 'active',
     role: 'Supervisor(a)',
+    employmentType: 'interno',
     specialties: ['Home Care', 'Geriatria', 'Administração de Medicamentos IV', 'Curativos'],
     reviews: [
       { from: 'Família Silva', quote: 'Profissional exemplar, sempre pontual e muito carinhosa com nosso pai.' },
@@ -185,6 +186,7 @@ export const professionals: Professional[] = [
     coren: 'RJ-654321-TEC',
     corenStatus: 'active',
     role: 'Cuidador(a)',
+    employmentType: 'fixo',
     specialties: ['Curativos Complexos', 'Monitoramento de Sinais Vitais'],
     reviews: [
         { from: 'Hospital Central', quote: 'Muito atencioso e técnico. Um ótimo profissional para se ter na equipe.' },
@@ -206,6 +208,7 @@ export const professionals: Professional[] = [
     coren: 'MG-112233-ENF',
     corenStatus: 'active',
     role: 'Supervisor(a)',
+    employmentType: 'interno',
     specialties: ['UTI', 'Ventilação Mecânica', 'Cuidados Paliativos'],
     reviews: []
   },
@@ -225,6 +228,7 @@ export const professionals: Professional[] = [
     coren: 'SP-998877-ENF',
     corenStatus: 'inactive',
     role: 'Cuidador(a)',
+    employmentType: 'externo',
     specialties: ['Pediatria'],
     reviews: [
          { from: 'Hospital Infantil', quote: 'Atrasou em 2 dos 3 plantões alocados.' },
@@ -246,6 +250,7 @@ export const professionals: Professional[] = [
     coren: 'PR-445566-ENF',
     corenStatus: 'active',
     role: 'Escalista',
+    employmentType: 'interno',
     specialties: ['Cardiologia', 'Home Care', 'Reabilitação'],
     reviews: [
       { from: 'Clínica do Coração', quote: 'Excelente profissional, muito conhecimento técnico e ótimo com os pacientes.' },
@@ -267,6 +272,7 @@ export const professionals: Professional[] = [
     coren: 'RS-778899-ENF',
     corenStatus: 'active',
     role: 'Cuidador(a)',
+    employmentType: 'externo',
     specialties: ['Dermatologia', 'Curativos Especiais', 'Lesões por Pressão'],
     reviews: [
       { from: 'DermaClin', quote: 'Extremamente cuidadosa e atenta aos detalhes.' },
@@ -289,6 +295,7 @@ export const professionals: Professional[] = [
     coren: 'BA-223344-FST',
     corenStatus: 'active',
     role: 'Fisioterapeuta',
+    employmentType: 'fixo',
     specialties: ['Fisioterapia Respiratória', 'Fisioterapia Motora'],
     reviews: []
   }
