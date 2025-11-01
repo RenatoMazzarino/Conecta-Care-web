@@ -147,8 +147,8 @@ export default function DashboardPage() {
           </Card>
       )}
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        <div className="lg:col-span-1 space-y-6">
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="lg:col-span-1 space-y-6 flex flex-col">
            {isLoading ? (
               <>
                   <Skeleton className="h-[250px] w-full" />
@@ -163,7 +163,7 @@ export default function DashboardPage() {
               </>
             ) : null}
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-1">
           {isLoading ? (
             <Skeleton className="h-full w-full min-h-[500px]" />
           ) : !noData ? (
