@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -191,6 +191,11 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
                             <div className="fichario-container">
+                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
+                                    <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
+                                        {renderProntuarioContent()}
+                                    </div>
+                                </main>
                                 <nav className="fichario-nav">
                                     <ul id="tabs-list">
                                         {prontuarioTabs.map((tab) => {
@@ -201,7 +206,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                                     onClick={() => handleTabClick(tab.id)}
                                                     className={cn("tab", isActive && "active")}
                                                     data-color={tab.color}
-                                                    style={{ backgroundColor: isActive ? tab.color : '#d1d5db' }} // Use gray for inactive
+                                                    style={{ backgroundColor: isActive ? tab.color : '#d1d5db' }}
                                                 >
                                                     <div className="flex flex-col items-center justify-center h-full gap-2">
                                                         <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-600")} />
@@ -211,15 +216,9 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                                     </div>
                                                 </li>
                                             );
-js
                                         })}
                                     </ul>
                                 </nav>
-                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
-                                    <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
-                                        {renderProntuarioContent()}
-                                    </div>
-                                </main>
                            </div>
                         )}
                     </div>
