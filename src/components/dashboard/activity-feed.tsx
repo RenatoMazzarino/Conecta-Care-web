@@ -91,14 +91,16 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
     const IconComp = icon;
 
     return (
-      <li className="flex gap-4">
-        <div className="relative flex flex-col items-center">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background ring-2 ring-primary z-10">
-                <IconComp className={cn("h-4 w-4", color)} />
-            </div>
-            <div className="h-full w-px bg-border -mt-1"></div>
+      <li className="relative flex gap-4">
+        {/* Timeline line */}
+        <div className="absolute left-4 top-5 h-full w-px bg-border"></div>
+
+        {/* Icon and content */}
+        <div className="flex-shrink-0 w-8 h-8 mt-1 flex items-center justify-center rounded-full bg-background ring-2 ring-primary z-10">
+          <IconComp className={cn("h-4 w-4", color)} />
         </div>
-        <div className="flex-1 space-y-1 pt-1.5 pb-6">
+
+        <div className="flex-1 space-y-1 pb-6">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">{title}</p>
             <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
