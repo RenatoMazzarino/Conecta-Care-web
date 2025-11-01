@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart, Edit } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -19,7 +19,6 @@ import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-uploa
 import { patients as mockPatients } from '@/lib/data';
 import { FichaCadastral } from './ficha-cadastral';
 import { cn } from '@/lib/utils';
-import { Edit } from 'lucide-react';
 
 interface PatientDetailsPanelProps {
     patientId: string;
@@ -118,7 +117,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
                 <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col">
-                    <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0">
+                     <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0">
                          <div className="flex items-center gap-4 flex-1">
                            {(currentView === 'ficha') && (
                                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
@@ -180,37 +179,32 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
                             <div className="flex h-full">
-                                <div className="relative pt-8">
-                                    <div className="flex flex-col items-start -mr-px">
-                                        {prontuarioTabs.map((tab, index) => {
-                                            const isActive = activeProntuarioTab === tab.id;
-                                            return (
-                                                <button
-                                                    key={tab.id}
-                                                    onClick={() => setActiveProntuarioTab(tab.id)}
-                                                    className={cn(
-                                                        "relative flex items-center h-12 pl-4 pr-6 w-[190px] text-sm font-medium transition-all duration-200 ease-in-out",
-                                                        isActive 
-                                                          ? 'bg-card text-primary z-10' 
-                                                          : `${tab.color} text-gray-600 hover:w-[200px] hover:z-20`
-                                                    )}
-                                                    style={{
-                                                        clipPath: 'polygon(0% 0%, 100% 0, calc(100% - 20px) 50%, 100% 100%, 0% 100%)'
-                                                    }}
-                                                >
-                                                     <div 
-                                                        className={cn(
-                                                            "absolute left-0 top-0 h-full w-1",
-                                                            isActive && "bg-primary"
-                                                        )}
-                                                     />
-                                                    <tab.icon className={cn("h-5 w-5 mr-3", isActive ? "text-primary" : "text-gray-500")} />
-                                                    <span>{tab.label}</span>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
+                               <nav className="flex flex-col items-start pt-8 bg-muted/70">
+                                {prontuarioTabs.map((tab, index) => {
+                                    const isActive = activeProntuarioTab === tab.id;
+                                    return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveProntuarioTab(tab.id)}
+                                        className={cn(
+                                        "relative flex flex-col items-center justify-center h-24 w-20 transition-all duration-200 ease-in-out -mb-6",
+                                        isActive
+                                            ? 'bg-card text-primary z-10'
+                                            : 'bg-muted text-muted-foreground hover:bg-card/80 hover:z-20'
+                                        )}
+                                        style={{
+                                            borderTopLeftRadius: '0.5rem',
+                                            borderTopRightRadius: '0.5rem',
+                                        }}
+                                    >
+                                        <tab.icon className={cn("h-5 w-5 mb-1", isActive ? "text-primary" : "")} />
+                                        <span className="text-xs font-medium" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
+                                            {tab.label}
+                                        </span>
+                                    </button>
+                                    );
+                                })}
+                                </nav>
                                 <main className="flex-1 p-6 overflow-y-auto bg-card shadow-lg z-20">
                                     {renderProntuarioContent()}
                                 </main>
