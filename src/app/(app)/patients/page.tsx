@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, UserPlus, Upload, Trash, Archive, UserCheck } from 'lucide-react';
+import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X } from 'lucide-react';
 import Link from 'next/link';
 import type { Patient, Professional } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +12,8 @@ import { PatientTable } from '@/components/patients/patient-table';
 import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { AssignmentDialog } from '@/components/patients/assignment-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 
 
 export default function PatientsPage() {
@@ -20,9 +22,16 @@ export default function PatientsPage() {
   const [professionals, setProfessionals] = React.useState<Professional[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
-  const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedPatients, setSelectedPatients] = React.useState<Set<string>>(new Set());
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = React.useState(false);
+
+  // State for filters
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [complexityFilter, setComplexityFilter] = React.useState('all');
+  const [packageFilter, setPackageFilter] = React.useState('all');
+  const [planFilter, setPlanFilter] = React.useState('all');
+  const [supervisorFilter, setSupervisorFilter] = React.useState('all');
+
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -35,15 +44,43 @@ export default function PatientsPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const supervisors = React.useMemo(() => 
+    mockProfessionals.filter(p => p.role === 'Supervisor(a)'), 
+    []
+  );
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setComplexityFilter('all');
+    setPackageFilter('all');
+    setPlanFilter('all');
+    setSupervisorFilter('all');
+  }
+
+  const activeFilterCount = [searchTerm, complexityFilter, packageFilter, planFilter, supervisorFilter].filter(f => f && f !== 'all').length;
+
 
   React.useEffect(() => {
-    if (allPatients) {
-      const matchesSearch = allPatients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-      setFilteredPatients(matchesSearch);
-    } else {
-      setFilteredPatients([]);
+    let results = allPatients;
+
+    if (searchTerm) {
+      results = results.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
-  }, [searchTerm, allPatients]);
+    if (complexityFilter !== 'all') {
+      results = results.filter(p => p.complexity === complexityFilter);
+    }
+    if (packageFilter !== 'all') {
+        results = results.filter(p => p.servicePackage === packageFilter);
+    }
+    if (planFilter !== 'all') {
+        results = results.filter(p => p.financial.plan === planFilter);
+    }
+    if (supervisorFilter !== 'all') {
+        results = results.filter(p => p.supervisorId === supervisorFilter);
+    }
+
+    setFilteredPatients(results);
+  }, [searchTerm, complexityFilter, packageFilter, planFilter, supervisorFilter, allPatients]);
 
   const handleSelectionChange = (newSelection: Set<string>) => {
     setSelectedPatients(newSelection);
@@ -77,15 +114,6 @@ export default function PatientsPage() {
           <p className="text-muted-foreground">Gerencie todos os pacientes em um só lugar.</p>
         </div>
         <div className="flex items-center gap-2">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar paciente por nome..." 
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
             {selectedPatients.size > 0 ? (
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
@@ -112,6 +140,61 @@ export default function PatientsPage() {
             )}
         </div>
       </div>
+       <Card className="mb-6">
+        <CardContent className="p-4 flex flex-col md:flex-row items-center gap-4">
+            <div className="relative w-full md:flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar paciente por nome..." 
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+                 <ListFilter className="h-4 w-4 text-muted-foreground" />
+                 <Select value={complexityFilter} onValueChange={setComplexityFilter}>
+                    <SelectTrigger className="w-full md:w-auto"><SelectValue placeholder="Complexidade" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Toda Complexidade</SelectItem>
+                        <SelectItem value="baixa">Baixa</SelectItem>
+                        <SelectItem value="media">Média</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                    </SelectContent>
+                 </Select>
+                 <Select value={packageFilter} onValueChange={setPackageFilter}>
+                    <SelectTrigger className="w-full md:w-auto"><SelectValue placeholder="Pacote" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Todos os Pacotes</SelectItem>
+                        <SelectItem value="Básico">Básico</SelectItem>
+                        <SelectItem value="Intermediário">Intermediário</SelectItem>
+                        <SelectItem value="Completo">Completo</SelectItem>
+                    </SelectContent>
+                 </Select>
+                 <Select value={planFilter} onValueChange={setPlanFilter}>
+                    <SelectTrigger className="w-full md:w-auto"><SelectValue placeholder="Vínculo" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Todos Vínculos</SelectItem>
+                        <SelectItem value="particular">Particular</SelectItem>
+                        <SelectItem value="plano_de_saude">Plano de Saúde</SelectItem>
+                    </SelectContent>
+                 </Select>
+                 <Select value={supervisorFilter} onValueChange={setSupervisorFilter}>
+                    <SelectTrigger className="w-full md:w-[200px]"><SelectValue placeholder="Supervisor" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Todos Supervisores</SelectItem>
+                        {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    </SelectContent>
+                 </Select>
+                 {activeFilterCount > 0 && (
+                    <Button variant="ghost" size="icon" onClick={resetFilters}>
+                        <X className="h-4 w-4"/>
+                    </Button>
+                 )}
+            </div>
+        </CardContent>
+       </Card>
+
       {isLoading ? (
         <div className="rounded-lg border shadow-sm">
             <div className="p-4 space-y-4">
@@ -125,10 +208,7 @@ export default function PatientsPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center h-96">
           <div className="text-lg font-semibold mb-2">Nenhum paciente encontrado.</div>
           <p className="mb-4 text-sm text-muted-foreground">
-            {searchTerm 
-              ? `Nenhum paciente corresponde à sua busca por "${searchTerm}".` 
-              : "Comece adicionando seu primeiro paciente para gerenciar."
-            }
+            Comece adicionando seu primeiro paciente para gerenciar.
           </p>
             <Button asChild>
               <Link href="#">Adicionar Paciente</Link>
@@ -145,10 +225,9 @@ export default function PatientsPage() {
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center h-96">
           <div className="text-lg font-semibold mb-2">Nenhum paciente encontrado.</div>
           <p className="mb-4 text-sm text-muted-foreground">
-            {searchTerm
-              ? `Nenhum paciente corresponde à sua busca por "${searchTerm}".`
-              : 'Seu perfil ainda não está cadastrado como paciente. Solicite suporte.'}
+            Nenhum paciente corresponde aos filtros selecionados.
           </p>
+           <Button variant="secondary" onClick={resetFilters}>Limpar Filtros</Button>
         </div>
       )}
       
