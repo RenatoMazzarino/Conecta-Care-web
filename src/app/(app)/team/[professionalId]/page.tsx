@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -103,7 +104,9 @@ export default function ProfessionalProfilePage() {
                 </div>
                 <div className="flex gap-2">
                     <Button><MessageCircle className="mr-2 h-4 w-4" />Enviar Mensagem</Button>
-                    <Button variant="outline"><Edit className="mr-2 h-4 w-4" />Editar Perfil</Button>
+                    {!isExternal && (
+                      <Button variant="outline"><Edit className="mr-2 h-4 w-4" />Editar Perfil</Button>
+                    )}
                 </div>
            </CardContent>
        </Card>
