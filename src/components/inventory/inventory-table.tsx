@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -100,9 +101,17 @@ export function InventoryTable({
           <TableRow>
             <TableHead className="w-[50px]">
               <Checkbox
-                checked={selectedItems.size > 0 && selectedItems.size === items.length}
+                checked={
+                  selectedItems.size > 0 && selectedItems.size === items.length
+                }
                 onCheckedChange={handleToggleSelectAll}
                 aria-label="Select all"
+                ref={(el) =>
+                  el &&
+                  (el.indeterminate =
+                    selectedItems.size > 0 &&
+                    selectedItems.size < items.length)
+                }
               />
             </TableHead>
             <TableHead>Item</TableHead>

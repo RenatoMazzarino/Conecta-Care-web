@@ -80,10 +80,18 @@ export function PatientTable({
           <TableRow>
             <TableHead className="w-[50px]">
               <Checkbox
-                checked={selectedPatients.size > 0 && selectedPatients.size === patients.length}
-                indeterminate={selectedPatients.size > 0 && selectedPatients.size < patients.length}
+                checked={
+                  selectedPatients.size > 0 &&
+                  selectedPatients.size === patients.length
+                }
                 onCheckedChange={handleToggleSelectAll}
                 aria-label="Selecionar todos"
+                ref={(el) =>
+                  el &&
+                  (el.indeterminate =
+                    selectedPatients.size > 0 &&
+                    selectedPatients.size < patients.length)
+                }
               />
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
