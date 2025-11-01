@@ -1,3 +1,4 @@
+
 'use client';
 
 import { CheckCircle2 } from 'lucide-react';
@@ -42,7 +43,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col flex-1">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
@@ -89,7 +90,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
                             </div>
                         </TooltipTrigger>
                         {task.description && (
-                          <TooltipContent>
+                          <TooltipContent className="border bg-popover text-popover-foreground">
                              <p className="max-w-xs">{task.description}</p>
                           </TooltipContent>
                         )}
