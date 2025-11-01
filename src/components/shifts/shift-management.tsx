@@ -4,21 +4,17 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, UserCheck } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, Patient, ShiftDetails } from '@/lib/types';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter } from 'lucide-react';
+import type { Professional, Shift, OpenShiftInfo, Patient } from '@/lib/types';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
-import { PublishVacancyDialog } from './publish-vacancy-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { cn } from '@/lib/utils';
 import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyListDialog } from './candidacy-list-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ShiftDetailsDialog } from './shift-details-dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
-import { DirectAssignmentDialog } from './direct-assignment-dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ShiftMobileView } from './shift-mobile-view';
 import { ShiftGridView } from './shift-grid-view';
@@ -38,8 +34,8 @@ const periodConfig = {
 
 export function ShiftManagement() {
   const { toast } = useToast();
-  const adminFeaturesEnabled = true; // Bypassing for dev
-  
+  const adminFeaturesEnabled = true;
+
   const [allPatients, setAllPatients] = React.useState<Patient[]>([]);
   const [shiftsData, setShiftsData] = React.useState<Shift[]>([]);
   const [professionals, setProfessionals] = React.useState<Professional[]>([]);
@@ -56,15 +52,10 @@ export function ShiftManagement() {
   }, []);
 
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
-  const [openShiftInfo, setOpenShiftInfo] = React.useState<{ patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno' } | null | 'from_scratch'>(null);
-  const [candidacyShiftInfo, setCandidacyShiftInfo] = React.useState<OpenShiftInfo | null>(null);
   const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
   const [detailsShift, setDetailsShift] = React.useState<{shift: Shift, professional?: Professional, patient: Patient} | null>(null);
-  const [assignmentShiftInfo, setAssignmentShiftInfo] = React.useState<OpenShiftInfo | null>(null);
-  const [decisionDialogOpen, setDecisionDialogOpen] = React.useState(false);
-  const [currentDecisionShift, setCurrentDecisionShift] = React.useState<OpenShiftInfo | null>(null);
-
+  
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
     const utcDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
@@ -83,26 +74,6 @@ export function ShiftManagement() {
     [currentDate, numDays]
   );
 
-  if (!adminFeaturesEnabled) {
-    return (
-      <Card className="border-dashed">
-        <CardHeader>
-          <CardTitle>Gestão de plantões indisponível</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>Sua conta não possui permissão para acessar o módulo administrativo de plantões.</p>
-          <p>
-            Solicite a um administrador que habilite o recurso definindo{' '}
-            <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs font-semibold">
-              NEXT_PUBLIC_ENABLE_ADMIN_FEATURES=1
-            </code>{' '}
-            no ambiente ou utilize um usuário com privilégios administrativos.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-  
   const gridShifts = React.useMemo(() => {
     const grid: { [key: string]: (GridShiftState | null)[] } = {};
     if (!allPatients || !shiftsData) return grid;
@@ -114,7 +85,10 @@ export function ShiftManagement() {
         const getGridState = (shiftType: 'diurno' | 'noturno'): GridShiftState | null => {
           let shift = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType);
           
-          if (!shift) return { status: 'open', isUrgent: false, patient };
+          if (!shift) {
+              const id = `${patient.id}-${dayKey}-${shiftType}`;
+              shift = { id, patientId: patient.id, dayKey, shiftType, status: 'open' };
+          }
           
           const professional = professionals?.find(p => p.id === shift?.professionalId);
 
@@ -138,11 +112,12 @@ export function ShiftManagement() {
     let pendingCount = 0;
     let filledCount = 0;
 
-    Object.values(gridShifts).flat().forEach(shift => {
-      if (!shift) return;
-      if (shift.status === 'open') openCount++;
-      if (shift.status === 'pending') pendingCount++;
-      if (shift.status === 'filled' || shift.status === 'active' || shift.status === 'completed' || shift.status === 'issue') filledCount++;
+    Object.values(gridShifts).flat().forEach(shiftState => {
+      if (!shiftState) return;
+      const { status } = shiftState.shift;
+      if (status === 'open') openCount++;
+      if (status === 'pending') pendingCount++;
+      if (['filled', 'active', 'completed', 'issue'].includes(status)) filledCount++;
     });
 
     return { open: openCount, pending: pendingCount, filled: filledCount };
@@ -160,16 +135,15 @@ export function ShiftManagement() {
     }
     
     const patientIdsWithStatus = new Set<string>();
-    
     const filledStatuses: GridShiftState['status'][] = ['filled', 'active', 'completed', 'issue'];
 
-    Object.values(gridShifts).flat().forEach(shift => {
-      if (!shift) return;
-      
+    Object.values(gridShifts).flat().forEach(shiftState => {
+      if (!shiftState) return;
+      const { shift } = shiftState;
       const match = (statusFilter === 'filled' && filledStatuses.includes(shift.status)) || shift.status === statusFilter;
 
       if (match) {
-        patientIdsWithStatus.add(shift.patient.id);
+        patientIdsWithStatus.add(shift.patientId);
       }
     });
 
@@ -191,76 +165,52 @@ export function ShiftManagement() {
     setSelectedProfessional(null);
   };
   
-  const handleOpenVacancy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
-    setCurrentDecisionShift({ patient, dayKey, shiftType });
-    setDecisionDialogOpen(true);
-  };
+  const handleShiftClick = (shiftState: GridShiftState) => {
+    setDetailsShift({
+      shift: shiftState.shift,
+      professional: shiftState.professional,
+      patient: shiftState.patient,
+    });
+  }
 
   const handlePublishFromScratch = () => {
-    setOpenShiftInfo('from_scratch');
-  }
-
-  const handleCloseVacancy = () => {
-    setOpenShiftInfo(null);
-  };
-
-  const handleVacancyPublished = (info: ShiftDetails) => {
-     const newShiftId = `${info.patient.id}-${info.dayKey}-${info.shiftType}`;
-     const newShift: Shift = {
-        id: newShiftId,
-        patientId: info.patient.id,
-        dayKey: info.dayKey,
-        shiftType: info.shiftType,
-        status: 'pending', // Vacancy is published, awaiting candidates
-        isUrgent: info.isUrgent,
-     }
-     setShiftsData(prev => [...prev, newShift]);
-     setOpenShiftInfo(null);
-  }
-
-  const handleOpenCandidacy = (patient: Patient, dayKey: string, shiftType: 'diurno' | 'noturno') => {
-    setCandidacyShiftInfo({ patient, dayKey, shiftType });
-  }
-
-  const handleCloseCandidacy = () => {
-    setCandidacyShiftInfo(null);
+    // This will open the details dialog in "create new shift" mode
+    const dummyShift: Shift = {
+        id: `new-shift-${Date.now()}`,
+        patientId: '',
+        dayKey: format(new Date(), 'yyyy-MM-dd'),
+        shiftType: 'diurno',
+        status: 'open',
+    };
+     setDetailsShift({
+      shift: dummyShift,
+      patient: {} as Patient, // A blank patient, the user will select one in the modal
+      professional: undefined
+    });
   }
   
-  const handleApproveProfessional = (professional: Professional, shiftInfo: OpenShiftInfo) => {
-    if (shiftInfo) {
-        const shiftId = `${shiftInfo.patient.id}-${shiftInfo.dayKey}-${shiftInfo.shiftType}`;
-        
-        setShiftsData(prevShifts => prevShifts.map(s => {
-          if (s.id === shiftId || (s.patientId === shiftInfo.patient.id && s.dayKey === shiftInfo.dayKey && s.shiftType === shiftInfo.shiftType)) {
-            return { ...s, professionalId: professional.id, status: 'filled' };
-          }
-          return s;
-        }));
+  const handleApproveProfessional = (professional: Professional, shift: Shift) => {
+    if (shift) {
+        setShiftsData(prevShifts => {
+            const existingShift = prevShifts.find(s => s.id === shift.id);
+            if (existingShift) {
+                return prevShifts.map(s => s.id === shift.id ? { ...s, professionalId: professional.id, status: 'filled' } : s);
+            }
+            // If shift doesn't exist (e.g. was 'open' and thus virtual), add it
+            return [...prevShifts, { ...shift, professionalId: professional.id, status: 'filled' }];
+        });
 
         toast({
             title: 'Profissional Aprovado!',
             description: `${professional.name} foi alocado para o plantão.`,
         });
-        
-        handleCloseCandidacy();
+
         setIsCandidacyListOpen(false);
-        setAssignmentShiftInfo(null);
+        setDetailsShift(null); // Close the main dialog
         handleCloseProfile();
     }
   };
 
-  const handleOpenAssignment = () => {
-    if (currentDecisionShift) {
-        setAssignmentShiftInfo(currentDecisionShift);
-    }
-  };
-  
-  const handleOpenPublication = () => {
-    if (currentDecisionShift) {
-        setOpenShiftInfo(currentDecisionShift);
-    }
-  };
-  
   const StatCard = ({ title, value, icon: Icon, className, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, className?: string, isActive?: boolean, onClick?: () => void }) => (
     <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer", isActive && "ring-2 ring-primary")}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -311,9 +261,7 @@ export function ShiftManagement() {
 
   const viewHandlers = {
       handleOpenProfile,
-      handleOpenVacancy,
-      handleOpenCandidacy,
-      setDetailsShift,
+      handleShiftClick,
   };
   
   if (isLoading) {
@@ -325,6 +273,26 @@ export function ShiftManagement() {
             <Skeleton className="h-[60vh] w-full" />
         </div>
     )
+  }
+
+  if (!adminFeaturesEnabled) {
+    return (
+      <Card className="border-dashed">
+        <CardHeader>
+          <CardTitle>Gestão de plantões indisponível</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>Sua conta não possui permissão para acessar o módulo administrativo de plantões.</p>
+          <p>
+            Solicite a um administrador que habilite o recurso definindo{' '}
+            <code className="mx-1 rounded bg-muted px-1 py-0.5 text-xs font-semibold">
+              NEXT_PUBLIC_ENABLE_ADMIN_FEATURES=1
+            </code>{' '}
+            no ambiente ou utilize um usuário com privilégios administrativos.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -421,37 +389,20 @@ export function ShiftManagement() {
           professional={selectedProfessional}
           isOpen={!!selectedProfessional}
           onOpenChange={handleCloseProfile}
-          onApprove={(prof) => candidacyShiftInfo && handleApproveProfessional(prof, candidacyShiftInfo)}
+          onApprove={detailsShift ? (prof) => handleApproveProfessional(prof, detailsShift.shift) : undefined}
         />
       )}
       
-      <PublishVacancyDialog
-        isOpen={openShiftInfo === 'from_scratch' || (openShiftInfo !== null && typeof openShiftInfo === 'object')}
-        onOpenChange={handleCloseVacancy}
-        onVacancyPublished={handleVacancyPublished}
-        shiftInfo={openShiftInfo === 'from_scratch' ? null : openShiftInfo}
-      />
-
       <BulkPublishDialog
           isOpen={isBulkPublishing}
           onOpenChange={setIsBulkPublishing}
         />
       
-       {candidacyShiftInfo && professionals && (
-        <CandidacyManagementDialog
-          shiftInfo={candidacyShiftInfo}
-          isOpen={!!candidacyShiftInfo}
-          onOpenChange={handleCloseCandidacy}
-          onOpenProfile={handleOpenProfile}
-          onApprove={(prof) => handleApproveProfessional(prof, candidacyShiftInfo)}
-        />
-      )}
-
       {professionals && <CandidacyListDialog
           isOpen={isCandidacyListOpen}
           onOpenChange={setIsCandidacyListOpen}
           onOpenProfile={handleOpenProfile}
-          onApprove={handleApproveProfessional}
+          onApprove={(prof, shiftInfo) => handleApproveProfessional(prof, shiftInfo as unknown as Shift)}
       />}
       
       {detailsShift && (
@@ -462,36 +413,8 @@ export function ShiftManagement() {
           professional={detailsShift.professional}
           patient={detailsShift.patient}
           onOpenProfile={handleOpenProfile}
-        />
-      )}
-      
-       <AlertDialog open={decisionDialogOpen} onOpenChange={setDecisionDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Como você deseja preencher esta vaga?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Você pode publicar a vaga para que os profissionais se candidatem ou pode atribuir
-              diretamente um profissional específico da sua equipe.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleOpenAssignment} className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
-              <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
-            </AlertDialogAction>
-            <AlertDialogAction onClick={handleOpenPublication}>
-              <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {assignmentShiftInfo && professionals && (
-        <DirectAssignmentDialog
-          isOpen={!!assignmentShiftInfo}
-          onOpenChange={() => setAssignmentShiftInfo(null)}
-          shiftInfo={assignmentShiftInfo}
           onApprove={handleApproveProfessional}
+          onVacancyPublished={() => {}}
         />
       )}
     </div>
@@ -499,7 +422,7 @@ export function ShiftManagement() {
 }
 
 export type GridShiftState = {
-  shift?: Shift;
+  shift: Shift;
   professional?: Professional;
   patient: Patient;
   status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
@@ -516,7 +439,7 @@ export const statusConfig: { [key in GridShiftState['status']]: { base: string, 
 };
 
 
-export const ActiveShiftCard = ({ shift, professional, patient, onClick }: { shift: Shift, professional: Professional, patient: Patient, onClick: () => void }) => {
+export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift, professional: Professional, onClick: () => void }) => {
   const config = statusConfig[shift.status] || statusConfig.active;
 
   return (
@@ -574,3 +497,5 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
         </div>
     );
 }
+
+    

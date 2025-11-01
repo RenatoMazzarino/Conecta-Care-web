@@ -1,3 +1,4 @@
+
 export type Patient = {
   id: string;
   name: string;
@@ -90,6 +91,7 @@ export type Shift = {
   hasNotification?: boolean;
 };
 
+// This type is deprecated and will be removed. Use Shift.
 export type ShiftDetails = {
   patient: Patient;
   dayKey: string;
@@ -190,3 +192,5 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
+
+    

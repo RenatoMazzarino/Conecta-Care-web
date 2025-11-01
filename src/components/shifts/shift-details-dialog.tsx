@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,64 +6,111 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
-import { mockShiftHistory } from '@/lib/data';
+import { mockShiftHistory, patients as allPatients, professionals as allProfessionals } from '@/lib/data';
 import type { Shift, Professional, Patient } from '@/lib/types';
-import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, Calendar, CheckSquare } from 'lucide-react';
+import { FileText, MessageCircle, User, Calendar, CheckSquare, FileUp, UserCheck, Star, Shield, Search } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '../ui/input';
+import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
 
-export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, patient, onOpenProfile }: { 
+// Mock candidates for pending shifts
+const mockCandidates: Professional[] = [
+    allProfessionals.find(p => p.id === 'prof-1')!,
+    allProfessionals.find(p => p.id === 'prof-2')!,
+    allProfessionals.find(p => p.id === 'prof-4')!,
+    allProfessionals.find(p => p.id === 'prof-5')!,
+].filter(Boolean);
+
+
+export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, patient, onOpenProfile, onApprove, onVacancyPublished }: { 
     isOpen: boolean; 
     onOpenChange: (open: boolean) => void; 
     shift: Shift;
     professional?: Professional;
-    patient?: Patient;
+    patient: Patient;
     onOpenProfile: (professional: Professional) => void;
+    onApprove: (professional: Professional, shift: Shift) => void;
+    onVacancyPublished: (shift: Shift) => void;
 }) {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const { toast } = useToast();
 
-  if (!shift || !professional || !patient) return null;
+  const handlePublishVacancy = () => {
+    onVacancyPublished({ ...shift, status: 'pending' });
+     toast({
+      title: 'Vaga Publicada com Sucesso!',
+      description: `A vaga para ${patient.name} agora está visível para os profissionais.`,
+    });
+    onOpenChange(false);
+  }
+  
+  const handleAssignDirectly = (prof: Professional) => {
+    onApprove(prof, shift);
+  }
 
-  const currentProgress = shift.progress ?? 0;
-  
-  const handleOpenProfile = () => {
-    onOpenProfile(professional);
-  };
-  
-  return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-4xl">
-          <DialogHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
-                    <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <DialogTitle className="text-2xl">{patient.name}</DialogTitle>
-                    <DialogDescription>
-                        Plantão {shift.shiftType} - Em andamento com <Button variant="link" className="p-0 h-auto text-base" onClick={handleOpenProfile}>{professional.name}</Button>
-                    </DialogDescription>
+  const renderOpenContent = () => (
+    <div className="flex flex-col items-center justify-center h-96 gap-6 text-center">
+        <h3 className="text-xl font-semibold">Preencher Vaga em Aberto</h3>
+        <p className="text-muted-foreground max-w-md">
+            Você pode publicar esta vaga para que os profissionais disponíveis se candidatem, ou pode atribuir diretamente a um profissional específico da sua equipe.
+        </p>
+        <div className="flex gap-4">
+             <Button size="lg" variant="secondary" onClick={() => { /* TODO: Open assignment modal */ }}>
+                <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
+            </Button>
+            <Button size="lg" onClick={handlePublishVacancy}>
+                <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
+            </Button>
+        </div>
+    </div>
+  );
+
+  const renderPendingContent = () => (
+     <div className="py-4 max-h-[60vh] overflow-y-auto pr-2 space-y-3">
+        <h4 className="font-semibold">{mockCandidates.length} Candidatos</h4>
+        {mockCandidates.map(candidate => (
+            <div key={candidate.id} className="grid grid-cols-[1fr_auto] items-center gap-4 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer" onClick={() => onOpenProfile(candidate)}>
+                <div className="flex items-center gap-3">
+                     <Avatar className="h-10 w-10">
+                        <AvatarImage src={candidate.avatarUrl} alt={candidate.name} data-ai-hint={candidate.avatarHint} />
+                        <AvatarFallback>{candidate.initials}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <p className="font-semibold">{candidate.name}</p>
+                            <Badge variant={candidate.corenStatus === 'active' ? 'secondary' : 'destructive'} className="py-0 px-1.5 text-xs">
+                                 <Shield className="mr-1 h-3 w-3" />
+                                COREN {candidate.corenStatus === 'active' ? 'Ativo' : 'Inativo'}
+                            </Badge>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+                            <span>{candidate.rating.toFixed(1)}</span>
+                        </div>
+                    </div>
                 </div>
-              </div>
-               <div className="flex items-center gap-2">
-                  <Button variant="outline" onClick={() => setIsChatOpen(true)}><MessageCircle /> Chat</Button>
-                  <Button variant="outline" asChild><Link href={`/patients/${patient.id}`}><FileText /> Prontuário</Link></Button>
-                  <Button variant="outline" disabled><CheckSquare /> Criar Tarefa</Button>
-               </div>
+                 <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="outline" size="sm" onClick={() => onApprove(candidate, shift)}>
+                        <CheckSquare className="mr-2 h-4 w-4" />Aprovar
+                    </Button>
+                </div>
             </div>
-          </DialogHeader>
+        ))}
+    </div>
+  );
 
-          <Tabs defaultValue="timeline" className="w-full">
+  const renderActiveContent = () => {
+      if (!professional) return <div className="text-center p-8">Profissional não encontrado.</div>;
+      const currentProgress = shift.progress ?? 0;
+      return (
+         <Tabs defaultValue="timeline" className="w-full mt-4">
               <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
                   <TabsTrigger value="notes">Anotações Internas</TabsTrigger>
@@ -87,13 +135,73 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                   </div>
               </TabsContent>
           </Tabs>
+      );
+  };
+
+  const renderContent = () => {
+    switch (shift.status) {
+      case 'open':
+        return renderOpenContent();
+      case 'pending':
+        return renderPendingContent();
+      case 'active':
+      case 'filled':
+      case 'completed':
+      case 'issue':
+        return renderActiveContent();
+      default:
+        return <div className="h-96 flex items-center justify-center">Status do plantão desconhecido.</div>;
+    }
+  };
+  
+  if (!shift || !patient) return null;
+
+  const isCreatingNew = !patient.id;
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                 {patient.avatarUrl && 
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
+                        <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                 }
+                <div>
+                    <DialogTitle className="text-2xl">{patient.name || 'Nova Vaga'}</DialogTitle>
+                    <DialogDescription>
+                        {professional ? (
+                            <>Plantão {shift.shiftType} - Em andamento com <Button variant="link" className="p-0 h-auto text-base" onClick={() => onOpenProfile(professional)}>{professional.name}</Button></>
+                        ) : (
+                            <>Plantão {shift.shiftType} - {new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long' })}</>
+                        )}
+                    </DialogDescription>
+                </div>
+              </div>
+               <div className="flex items-center gap-2">
+                   {patient.id && (
+                     <>
+                        <Button variant="outline" onClick={() => professional && setIsChatOpen(true)} disabled={!professional}><MessageCircle /> Chat</Button>
+                        <Button variant="outline" asChild><Link href={`/patients/${patient.id}`}><FileText /> Prontuário</Link></Button>
+                        <Button variant="outline"><CheckSquare /> Criar Tarefa</Button>
+                     </>
+                   )}
+               </div>
+            </div>
+          </DialogHeader>
+
+          {renderContent()}
           
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {isChatOpen && (
+      {isChatOpen && professional && patient && (
         <ShiftChatDialog
           isOpen={isChatOpen}
           onOpenChange={setIsChatOpen}
@@ -105,3 +213,5 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
    </>
   );
 }
+
+    

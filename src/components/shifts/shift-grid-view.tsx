@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -18,30 +19,36 @@ interface ShiftGridViewProps {
   gridShifts: { [key: string]: (GridShiftState | null)[] };
   handlers: {
     handleOpenProfile: (professional: any) => void;
-    handleOpenVacancy: (patient: any, dayKey: string, shiftType: 'diurno' | 'noturno') => void;
-    handleOpenCandidacy: (patient: any, dayKey: string, shiftType: 'diurno' | 'noturno') => void;
-    setDetailsShift: (details: any) => void;
+    handleShiftClick: (shiftState: GridShiftState) => void;
   };
 }
 
 export function ShiftGridView({ patients, days, gridShifts, handlers }: ShiftGridViewProps) {
   
   const renderShift = (shiftState: GridShiftState | null, type: 'diurno' | 'noturno', patient: Patient, dayKey: string) => {
-    if (!shiftState) return <OpenShiftCard shiftType={type} onClick={() => handlers.handleOpenVacancy(patient, dayKey, type)} />;
+    if (!shiftState) {
+        // This case should ideally not happen with the new logic, but as a fallback:
+        const dummyShift: GridShiftState = {
+            shift: { id: `${patient.id}-${dayKey}-${type}`, patientId: patient.id, dayKey, shiftType: type, status: 'open' },
+            patient: patient,
+            status: 'open'
+        }
+        return <OpenShiftCard shiftType={type} onClick={() => handlers.handleShiftClick(dummyShift)} />;
+    }
     
     const { shift, professional, status, isUrgent } = shiftState;
 
-    if ((status === 'active' || status === 'issue' || status === 'completed') && professional && shift) {
-        return <ActiveShiftCard shift={shift} professional={professional} patient={patient} onClick={() => handlers.setDetailsShift({ shift, professional, patient })} />;
+    if (['active', 'issue', 'completed'].includes(status) && professional && shift) {
+        return <ActiveShiftCard shift={shift} professional={professional} onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
     if (status === 'filled' && professional) {
-        return <FilledShiftCard professional={professional} onClick={() => handlers.handleOpenProfile(professional!)} />;
+        return <FilledShiftCard professional={professional} onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
     if (status === 'pending') {
-        return <PendingShiftCard onClick={() => handlers.handleOpenCandidacy(patient, dayKey, type)} />;
+        return <PendingShiftCard onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
     
-    return <OpenShiftCard shiftType={type} urgent={isUrgent} onClick={() => handlers.handleOpenVacancy(patient, dayKey, type)} />;
+    return <OpenShiftCard shiftType={type} urgent={isUrgent} onClick={() => handlers.handleShiftClick(shiftState)} />;
   }
 
   return (
@@ -96,3 +103,5 @@ export function ShiftGridView({ patients, days, gridShifts, handlers }: ShiftGri
       </div>
   );
 }
+
+    
