@@ -191,11 +191,6 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
                             <div className="fichario-container">
-                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
-                                    <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
-                                        {renderProntuarioContent()}
-                                    </div>
-                                </main>
                                 <nav className="fichario-nav">
                                     <ul id="tabs-list">
                                         {prontuarioTabs.map((tab) => {
@@ -219,6 +214,11 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                         })}
                                     </ul>
                                 </nav>
+                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
+                                    <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
+                                        {renderProntuarioContent()}
+                                    </div>
+                                </main>
                            </div>
                         )}
                     </div>
