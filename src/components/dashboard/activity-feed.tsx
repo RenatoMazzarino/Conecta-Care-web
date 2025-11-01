@@ -137,26 +137,26 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     const IconComp = icon;
 
     return (
-      <li className="relative flex items-start gap-4 pb-8 group">
+      <li className="relative group">
           {/* Timeline line */}
-          <div className="absolute left-4 top-5 h-full w-px bg-border group-last:hidden" />
-
-          <Link href={href} className="flex-shrink-0 z-10 -m-2 p-2 rounded-full">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-card ring-4 ring-card">
-              <IconComp className={cn("h-5 w-5", color)} />
-            </div>
-          </Link>
+          <div className="absolute left-4 top-5 h-full w-px bg-border group-last:h-0" />
           
-          <div className="flex-1 min-w-0">
-              <Link href={href} className="block hover:bg-accent/50 p-2 -m-2 rounded-md transition-colors">
-                  <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold truncate">{title}</p>
-                      <time className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatRelativeDate(timestamp)}</time>
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{details}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Por: {author}</p>
-              </Link>
-          </div>
+          <Link href={href} className="flex items-start gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent/50">
+              <div className="flex-shrink-0 z-10 mt-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-card ring-4 ring-card">
+                  <IconComp className={cn("h-5 w-5", color)} />
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold truncate">{title}</p>
+                          <time className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatRelativeDate(timestamp)}</time>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{details}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Por: {author}</p>
+              </div>
+          </Link>
       </li>
     );
   };
@@ -218,7 +218,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
       <CardContent className="flex-1 overflow-hidden p-6 pt-0">
         {filteredEvents.length > 0 ? (
           <ScrollArea className="h-full">
-            <ul className="relative pr-4">
+            <ul className="relative pr-4 space-y-4">
             {filteredEvents.map((event, index) => (
                 <EventItem key={index} event={event} />
             ))}

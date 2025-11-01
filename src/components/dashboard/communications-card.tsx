@@ -28,21 +28,23 @@ export function CommunicationsCard({ notifications }: { notifications: Notificat
       <CardContent className="flex-1 flex flex-col min-h-0">
         {notifications.length > 0 ? (
           <ScrollArea className="flex-1">
-            <ul className="space-y-4 pr-2">
+            <ul className="space-y-2 pr-2">
               {notifications.map((notif) => {
                 const Icon = iconMap[notif.type].icon;
                 const color = iconMap[notif.type].color;
                 return (
-                <li key={notif.id} className="flex items-start gap-3 cursor-pointer hover:bg-muted/50 p-2 rounded-md">
-                    <div className="mt-1">
-                      <Icon className={cn("h-5 w-5", color)} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium leading-tight">{notif.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(notif.timestamp).toLocaleString('pt-BR', { timeZone: 'UTC'})}
-                      </p>
-                    </div>
+                <li key={notif.id}>
+                  <Link href="/communications" className="flex items-start gap-3 cursor-pointer hover:bg-muted/50 p-2 -m-2 rounded-md">
+                      <div className="mt-1">
+                        <Icon className={cn("h-5 w-5", color)} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium leading-tight">{notif.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(notif.timestamp).toLocaleString('pt-BR', { timeZone: 'UTC'})}
+                        </p>
+                      </div>
+                  </Link>
                 </li>
               )})}
             </ul>
