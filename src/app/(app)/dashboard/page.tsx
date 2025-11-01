@@ -132,7 +132,7 @@ export default function DashboardPage() {
           {isLoading ? (
             <Skeleton className="h-full w-full min-h-[500px]" />
           ) : patient ? (
-            <ActivityFeed events={activityEvents} patient={patient}/>
+            <ActivityFeed events={activityEvents} />
           ) : null}
         </div>
         <div className="space-y-6">

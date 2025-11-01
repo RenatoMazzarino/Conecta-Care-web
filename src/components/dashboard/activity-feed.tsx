@@ -55,7 +55,7 @@ const eventIcons: { [key: string]: { icon: React.ElementType, color: string } } 
 };
 
 
-export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient: Patient }) {
+export function ActivityFeed({ events }: { events: FeedEvent[] }) {
   
   const EventItem: React.FC<{ event: FeedEvent }> = ({ event }) => {
     let icon, color, title, details, timestamp, author;
@@ -91,14 +91,14 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
     const IconComp = icon;
 
     return (
-      <li className="relative flex items-start gap-4 pb-8 last:pb-0">
-        <div className="absolute left-4 top-1 h-full w-px bg-border" />
-        <div className="relative flex-shrink-0">
-          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-card z-10">
-            <IconComp className={cn("h-5 w-5", color)} />
-          </div>
-        </div>
-        <div className="flex-1 space-y-1">
+        <li className="relative flex items-start gap-4 pb-8 last:pb-0">
+         <div className="absolute left-4 top-1 h-full w-px bg-border" />
+         <div className="relative flex-shrink-0">
+             <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-card z-10">
+                 <IconComp className={cn("h-5 w-5", color)} />
+             </div>
+         </div>
+         <div className="flex-1 space-y-1">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">{title}</p>
             <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
@@ -115,8 +115,8 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
       <CardHeader>
         <div className="flex items-center justify-between">
             <div>
-                 <CardTitle>Feed de Atividades - {patient.name}</CardTitle>
-                <CardDescription>Últimos acontecimentos do paciente.</CardDescription>
+                 <CardTitle>Feed de Atividades</CardTitle>
+                <CardDescription>Últimos acontecimentos dos seus pacientes.</CardDescription>
             </div>
             <TooltipProvider>
                 <Tooltip>
@@ -130,7 +130,7 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-6 pt-0">
         {events.length > 0 ? (
-          <ScrollArea className="h-full">
+          <ScrollArea className="h-full pr-4 -mr-4">
             <ul className="relative">
             {events.map((event, index) => (
                 <EventItem key={index} event={event} />
