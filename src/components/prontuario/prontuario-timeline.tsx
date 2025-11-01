@@ -31,8 +31,11 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                          const isEventActive = index * (100 / (mockShiftHistory.length - 1)) <= currentProgress;
                         return (
                              <Link href="#" key={index} className={cn("relative group flex items-center gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
+                                {/* Timeline line */}
+                                <div className="absolute left-4 top-5 -bottom-5 w-px bg-border group-last:hidden" />
+                                
                                 {/* Icon and line */}
-                                <div className="flex-shrink-0 z-10 -ml-2">
+                                <div className="flex-shrink-0 z-10">
                                      <div className={cn(
                                         "flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-colors z-10",
                                         isEventActive ? 'bg-primary' : 'bg-muted'
