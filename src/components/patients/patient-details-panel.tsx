@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart, Edit } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -29,7 +29,7 @@ interface PatientDetailsPanelProps {
 
 const prontuarioTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Activity, color: 'bg-blue-100' },
-    { id: 'enfermagem', label: 'Enfermagem', icon: FileHeart, color: 'bg-rose-100' },
+    { id: 'enfermagem', label: 'Enfermagem', icon: FileText, color: 'bg-rose-100' },
     { id: 'medico', label: 'Médico', icon: Stethoscope, color: 'bg-lime-100' },
     { id: 'fisioterapia', label: 'Fisioterapia', icon: Dumbbell, color: 'bg-amber-100' },
     { id: 'nutricao', label: 'Nutrição', icon: Apple, color: 'bg-purple-100' },
