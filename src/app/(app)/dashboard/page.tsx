@@ -97,10 +97,10 @@ export default function DashboardPage() {
           </Card>
       )}
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 lg:h-[550px] gap-6">
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           {isLoading ? (
-            <Skeleton className="h-full w-full" />
+            <Skeleton className="h-[550px] w-full" />
           ) : patient ? (
             <ActivityFeed events={activityEvents} patient={patient}/>
           ) : null}
