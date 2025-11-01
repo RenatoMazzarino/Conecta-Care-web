@@ -162,7 +162,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
   };
   
   return (
-    <Card className="flex flex-col flex-1 max-h-[600px]">
+    <Card className="flex flex-col flex-1 h-full">
       <CardHeader>
         <div className="flex items-center justify-between">
             <div>

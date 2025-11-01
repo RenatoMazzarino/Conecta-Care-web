@@ -1,4 +1,3 @@
-
 'use client';
 
 import { CheckCircle2 } from 'lucide-react';
@@ -59,7 +58,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
            <CheckCircle2 className="h-6 w-6 text-primary" />
         </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col min-h-0">
         {tasks.length > 0 ? (
           <ScrollArea className="flex-1">
             <ul className="space-y-2 pr-2">
@@ -101,7 +100,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
             </ul>
           </ScrollArea>
         ) : (
-          <p className="text-sm text-muted-foreground">Nenhuma tarefa no momento.</p>
+          <p className="text-sm text-muted-foreground text-center flex-1 flex items-center justify-center">Nenhuma tarefa no momento.</p>
         )}
       </CardContent>
     </Card>

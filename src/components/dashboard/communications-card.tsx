@@ -1,4 +1,3 @@
-
 import { Bell, AlertCircle, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Notification } from '@/lib/types';
@@ -17,7 +16,7 @@ const iconMap = {
 export function CommunicationsCard({ notifications }: { notifications: Notification[] }) {
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col flex-1">
       <CardHeader>
         <CardTitle>
            <Link href="/communications" className="hover:underline">
@@ -26,7 +25,7 @@ export function CommunicationsCard({ notifications }: { notifications: Notificat
         </CardTitle>
         <CardDescription>Últimos alertas e avisos do sistema.</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col min-h-0">
         {notifications.length > 0 ? (
           <ScrollArea className="flex-1">
             <ul className="space-y-4 pr-2">
@@ -49,7 +48,7 @@ export function CommunicationsCard({ notifications }: { notifications: Notificat
             </ul>
           </ScrollArea>
         ) : (
-          <p className="text-sm text-muted-foreground text-center py-8">Nenhuma notificação.</p>
+          <p className="text-sm text-muted-foreground text-center flex-1 flex items-center justify-center">Nenhuma notificação.</p>
         )}
       </CardContent>
     </Card>
