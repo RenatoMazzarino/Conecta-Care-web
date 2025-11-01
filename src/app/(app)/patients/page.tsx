@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, UserPlus, Upload, Trash, Archive, UserCheck } from 'lucide-react';
 import Link from 'next/link';
-import type { Patient } from '@/lib/types';
+import type { Patient, Professional } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatientTable } from '@/components/patients/patient-table';
-import { patients as mockPatients, professionals } from '@/lib/data';
+import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 
@@ -17,6 +17,7 @@ import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 export default function PatientsPage() {
   const { toast } = useToast();
   const [allPatients, setAllPatients] = React.useState<Patient[]>([]);
+  const [professionals, setProfessionals] = React.useState<Professional[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -27,6 +28,7 @@ export default function PatientsPage() {
     // Simulate fetching data
     const timer = setTimeout(() => {
       setAllPatients(mockPatients);
+      setProfessionals(mockProfessionals);
       setIsLoading(false);
     }, 500);
 
@@ -135,6 +137,7 @@ export default function PatientsPage() {
       ) : filteredPatients.length > 0 ? (
         <PatientTable 
             patients={filteredPatients} 
+            professionals={professionals}
             selectedPatients={selectedPatients}
             onSelectionChange={handleSelectionChange}
         />

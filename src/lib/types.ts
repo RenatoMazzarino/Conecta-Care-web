@@ -11,6 +11,8 @@ export type Patient = {
   avatarUrl: string;
   avatarHint: string;
   complexity: 'baixa' | 'media' | 'alta';
+  supervisorId?: string;
+  schedulerId?: string;
   address: {
     street: string;
     number: string;

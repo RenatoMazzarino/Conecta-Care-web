@@ -14,8 +14,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, UserSquare, Edit } from 'lucide-react';
-import type { Patient } from '@/lib/types';
+import { FileText, UserSquare, Edit, User } from 'lucide-react';
+import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 
 function calculateAge(dateOfBirth: string) {
@@ -41,11 +41,13 @@ const planVariant: { [key in Patient['financial']['plan']]: string } = {
 }
 
 export function PatientTable({ 
-    patients, 
+    patients,
+    professionals,
     selectedPatients, 
     onSelectionChange 
 }: { 
     patients: Patient[];
+    professionals: Professional[];
     selectedPatients: Set<string>;
     onSelectionChange: (selection: Set<string>) => void;
 }) {
@@ -67,6 +69,11 @@ export function PatientTable({
       onSelectionChange(new Set(patients.map((p) => p.id)));
     }
   };
+  
+  const professionalMap = React.useMemo(() => 
+    new Map(professionals.map(p => [p.id, p.name])),
+    [professionals]
+  );
 
   return (
     <div className="rounded-lg border shadow-sm bg-card">
@@ -84,74 +91,74 @@ export function PatientTable({
             <TableHead className="w-[250px]">Paciente</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Plano</TableHead>
-            <TableHead>Idade</TableHead>
-            <TableHead>Contato Familiar</TableHead>
+            <TableHead>Supervisor</TableHead>
+            <TableHead>Escalista</TableHead>
             <TableHead className="text-right w-[240px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {patients.map((patient) => (
-            <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
-              <TableCell>
-                 <Checkbox
-                    checked={selectedPatients.has(patient.id)}
-                    onCheckedChange={() => handleToggleSelect(patient.id)}
-                    aria-label={`Selecionar ${patient.name}`}
-                  />
-              </TableCell>
-              <TableCell>
-                <Link
-                  href={`/patients/${patient.id}`}
-                  className="flex items-center gap-3 group"
-                >
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
-                    <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium group-hover:underline">{patient.name}</span>
-                </Link>
-              </TableCell>
-              <TableCell>
-                  <Badge variant="outline" className={complexityVariant[patient.complexity]}>
-                      {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)}
-                  </Badge>
-              </TableCell>
-               <TableCell>
-                    <Badge variant="outline" className={planVariant[patient.financial.plan]}>
-                        {patient.financial.plan === 'plano_de_saude' 
-                        ? `Plano: ${patient.financial.healthPlan || 'Não especificado'}` 
-                        : 'Particular'}
+          {patients.map((patient) => {
+            const supervisorName = patient.supervisorId ? professionalMap.get(patient.supervisorId) : '-';
+            const schedulerName = patient.schedulerId ? professionalMap.get(patient.schedulerId) : '-';
+            
+            return (
+                <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
+                <TableCell>
+                    <Checkbox
+                        checked={selectedPatients.has(patient.id)}
+                        onCheckedChange={() => handleToggleSelect(patient.id)}
+                        aria-label={`Selecionar ${patient.name}`}
+                    />
+                </TableCell>
+                <TableCell>
+                    <Link
+                    href={`/patients/${patient.id}`}
+                    className="flex items-center gap-3 group"
+                    >
+                    <Avatar className="h-9 w-9">
+                        <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
+                        <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium group-hover:underline">{patient.name}</span>
+                    </Link>
+                </TableCell>
+                <TableCell>
+                    <Badge variant="outline" className={complexityVariant[patient.complexity]}>
+                        {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)}
                     </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">{calculateAge(patient.dateOfBirth)} anos</TableCell>
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm">{patient.familyContact.name}</span>
-                  <span className="text-xs text-muted-foreground">{patient.familyContact.phone}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-right space-x-2">
-                 <Button asChild variant="outline" size="sm">
-                  <Link href={`/patients/${patient.id}/profile`}>
-                    <UserSquare className="mr-2 h-4 w-4" />
-                    Ficha
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/patients/${patient.id}`}>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Prontuário
-                  </Link>
-                </Button>
-                 <Button asChild variant="outline" size="sm">
-                  <Link href={`/patients/${patient.id}/profile`}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                        <Badge variant="outline" className={planVariant[patient.financial.plan]}>
+                            {patient.financial.plan === 'plano_de_saude' 
+                            ? `Plano: ${patient.financial.healthPlan || 'Não especificado'}` 
+                            : 'Particular'}
+                        </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{supervisorName}</TableCell>
+                <TableCell className="text-muted-foreground">{schedulerName}</TableCell>
+                <TableCell className="text-right space-x-2">
+                    <Button asChild variant="outline" size="sm">
+                    <Link href={`/patients/${patient.id}/profile`}>
+                        <UserSquare className="mr-2 h-4 w-4" />
+                        Ficha
+                    </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                    <Link href={`/patients/${patient.id}`}>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Prontuário
+                    </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                    <Link href={`/patients/${patient.id}/profile`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
+                    </Link>
+                    </Button>
+                </TableCell>
+                </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>
