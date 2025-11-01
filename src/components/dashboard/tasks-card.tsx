@@ -24,10 +24,16 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
   const handleToggle = (task: Task, checked: boolean) => {
     const newStatus = checked ? 'done' : 'inprogress';
     onTaskUpdate({ ...task, status: newStatus });
+    
     if(newStatus === 'done') {
         toast({
             title: "Tarefa Concluída!",
             description: `"${task.title}" foi marcada como concluída.`,
+            action: (
+              <Button variant="secondary" size="sm" onClick={() => onTaskUpdate(task)}>
+                Desfazer
+              </Button>
+            ),
         });
     }
   }

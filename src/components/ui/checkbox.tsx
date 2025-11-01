@@ -16,11 +16,13 @@ const Checkbox = React.forwardRef<
 
   React.useEffect(() => {
     if (internalRef.current) {
-      if (checked === "indeterminate") {
-        internalRef.current.dataset.state = "indeterminate"
-      } else {
-        internalRef.current.dataset.state = checked ? "checked" : "unchecked"
-      }
+        if (checked === 'indeterminate') {
+            internalRef.current.dataset.state = "indeterminate"
+        } else if (checked) {
+            internalRef.current.dataset.state = "checked"
+        } else {
+            internalRef.current.dataset.state = "unchecked"
+        }
     }
   }, [checked])
 
