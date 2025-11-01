@@ -32,8 +32,6 @@
     --input: 220 13% 91%;
     --ring: 145 63% 34%;
 
-    --radius: 0.5rem;
-
     --chart-1: 145 63% 24%;
     --chart-2: 145 50% 40%;
     --chart-3: 145 40% 50%;
@@ -84,11 +82,11 @@
 /* --- Fichario Styles --- */
 @layer components {
     .fichario-container {
-        @apply flex w-full h-full filter drop-shadow-lg;
+        @apply flex flex-row-reverse w-full h-full filter drop-shadow-lg;
     }
 
     .fichario-pagina {
-        @apply flex-grow p-10 rounded-l-lg relative z-10 transition-colors duration-300 ease-in-out;
+        @apply flex-grow p-10 bg-card relative z-10 rounded-r-lg;
     }
 
     .conteudo-wrapper {
@@ -100,7 +98,7 @@
     }
 
     .fichario-nav {
-        @apply -ml-[25px] pt-10;
+        @apply -mr-[25px] pt-10;
     }
 
     .fichario-nav ul {
@@ -108,7 +106,7 @@
     }
 
     .fichario-nav .tab {
-        @apply relative cursor-pointer py-8 px-4 mb-2.5 rounded-r-lg font-semibold text-gray-800 transition-all duration-200 ease-in-out;
+        @apply relative cursor-pointer py-8 pl-4 pr-9 mb-2.5 bg-card rounded-l-lg font-semibold text-gray-800 transition-all duration-200 ease-in-out border-r-[5px];
         box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         writing-mode: vertical-rl;
         transform: rotate(180deg);
@@ -120,7 +118,7 @@
     }
     
     .fichario-nav .tab.active {
-        @apply z-20;
+        @apply z-20 font-bold;
         box-shadow: 4px 2px 8px rgba(0,0,0,0.15);
         transform: translateX(0) rotate(180deg);
     }
