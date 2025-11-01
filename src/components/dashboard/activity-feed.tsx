@@ -4,7 +4,6 @@ import * as React from 'react';
 import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Check, FileText, Bell, AlertTriangle, MessageSquareWarning } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -92,14 +91,14 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
     const IconComp = icon;
 
     return (
-      <li className="relative flex items-start gap-4 pl-8">
-        <div className="absolute left-3 top-0 flex h-full w-6 justify-center">
-             <div className="h-full w-px bg-border"></div>
+      <li className="flex gap-4">
+        <div className="relative flex flex-col items-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background ring-2 ring-primary z-10">
+                <IconComp className={cn("h-4 w-4", color)} />
+            </div>
+            <div className="h-full w-px bg-border -mt-1"></div>
         </div>
-        <div className="absolute left-0 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-background ring-2 ring-primary">
-            <IconComp className={cn("h-4 w-4", color)} />
-        </div>
-        <div className="flex-1 space-y-1 pt-1">
+        <div className="flex-1 space-y-1 pt-1.5 pb-6">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">{title}</p>
             <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
@@ -132,7 +131,7 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
       <CardContent className="flex-1 overflow-hidden">
         {events.length > 0 ? (
           <ScrollArea className="h-full pr-4">
-            <ul className="space-y-6">
+            <ul className="space-y-0">
               {events.map((event, index) => (
                 <EventItem key={index} event={event} />
               ))}
