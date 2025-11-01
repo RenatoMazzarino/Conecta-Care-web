@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -21,6 +20,7 @@ import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Mock candidates for pending shifts
 const mockCandidates: Professional[] = [
