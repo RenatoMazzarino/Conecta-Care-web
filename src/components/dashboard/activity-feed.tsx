@@ -5,18 +5,22 @@ import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Check, FileText, Bell, AlertTriangle, MessageSquareWarning } from 'lucide-react';
+import { Check, FileText, Bell, AlertTriangle, MessageSquareWarning, ListFilter, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu"
 
 
 type FeedEvent = ShiftReport | Notification | Task;
+type EventType = 'shiftReport' | 'supply' | 'alert' | 'info' | 'task';
 
 function isShiftReport(event: FeedEvent): event is ShiftReport {
   return 'observations' in event;
@@ -46,19 +50,57 @@ function formatRelativeDate(dateString: string | undefined) {
     return `${diffInDays}d atrás`;
 }
 
-const eventIcons: { [key: string]: { icon: React.ElementType, color: string } } = {
-    shiftReport: { icon: FileText, color: 'text-blue-500' },
-    supply: { icon: MessageSquareWarning, color: 'text-orange-500' },
-    alert: { icon: AlertTriangle, color: 'text-red-500' },
-    info: { icon: Bell, color: 'text-gray-500' },
-    task: { icon: Check, color: 'text-purple-500' },
+const eventIcons: { [key: string]: { icon: React.ElementType, color: string, label: string } } = {
+    shiftReport: { icon: FileText, color: 'text-blue-500', label: 'Relatórios' },
+    supply: { icon: MessageSquareWarning, color: 'text-orange-500', label: 'Notificações' },
+    alert: { icon: AlertTriangle, color: 'text-red-500', label: 'Notificações' },
+    info: { icon: Bell, color: 'text-gray-500', label: 'Notificações' },
+    task: { icon: Check, color: 'text-purple-500', label: 'Tarefas' },
 };
 
 
 export function ActivityFeed({ events }: { events: FeedEvent[] }) {
   
+  const [filters, setFilters] = React.useState<Record<EventType, boolean>>({
+    shiftReport: true,
+    supply: true,
+    alert: true,
+    info: true,
+    task: true,
+  });
+
+  const handleFilterChange = (type: EventType, checked: boolean) => {
+    setFilters(prev => ({ ...prev, [type]: checked }));
+  };
+  
+  const activeFilterCount = Object.values(filters).filter(v => !v).length;
+  
+  const clearFilters = () => {
+    setFilters({
+      shiftReport: true,
+      supply: true,
+      alert: true,
+      info: true,
+      task: true,
+    });
+  }
+
+  const getEventType = (event: FeedEvent): EventType => {
+      if (isShiftReport(event)) return 'shiftReport';
+      if (isTask(event)) return 'task';
+      if (isNotification(event)) return event.type;
+      return 'info';
+  }
+
+  const filteredEvents = events.filter(event => {
+      const type = getEventType(event);
+      return filters[type];
+  });
+
+
   const EventItem: React.FC<{ event: FeedEvent }> = ({ event }) => {
-    let icon, color, title, details, timestamp, author;
+    let icon, color, title, details, timestamp, author, href;
+    const eventType = getEventType(event);
     
     if (isShiftReport(event)) {
       const config = eventIcons.shiftReport;
@@ -68,6 +110,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
       details = event.observations;
       timestamp = event.reportDate;
       author = event.careTeamMemberName;
+      href = `/patients/${event.patientId}`;
     } else if (isNotification(event)) {
       const config = eventIcons[event.type];
       icon = config.icon;
@@ -76,6 +119,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
       details = event.message;
       timestamp = event.timestamp;
       author = 'Sistema';
+      href = `/communications`;
     } else if (isTask(event)) {
       const config = eventIcons.task;
       icon = config.icon;
@@ -84,6 +128,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
       details = event.title;
       timestamp = event.dueDate || new Date().toISOString();
       author = 'Sistema';
+      href = `/tasks`;
     } else {
         return null;
     }
@@ -91,22 +136,24 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     const IconComp = icon;
 
     return (
-        <li className="relative flex items-start gap-4 pb-8 last:pb-0">
-         <div className="absolute left-4 top-1 h-full w-px bg-border" />
-         <div className="relative flex-shrink-0">
-             <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-card z-10">
-                 <IconComp className={cn("h-5 w-5", color)} />
-             </div>
-         </div>
-         <div className="flex-1 space-y-1">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">{title}</p>
-            <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
-          </div>
-          <p className="text-sm text-muted-foreground">{details}</p>
-          <p className="text-xs text-muted-foreground">Por: {author}</p>
-        </div>
-      </li>
+        <li>
+            <Link href={href} className="relative flex items-start gap-4 pb-8 last:pb-0 group hover:bg-accent/50 p-2 -m-2 rounded-md transition-colors">
+              <div className="absolute left-[15px] top-9 h-full w-px bg-border group-last:h-0" />
+               <div className="relative flex-shrink-0">
+                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-card z-10">
+                      <IconComp className={cn("h-5 w-5", color)} />
+                  </div>
+              </div>
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">{title}</p>
+                  <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">{details}</p>
+                <p className="text-xs text-muted-foreground">Por: {author}</p>
+              </div>
+          </Link>
+        </li>
     );
   };
   
@@ -118,28 +165,64 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
                  <CardTitle>Feed de Atividades</CardTitle>
                 <CardDescription>Últimos acontecimentos dos seus pacientes.</CardDescription>
             </div>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                         <Button variant="outline" size="sm">Filtrar</Button>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Filtros em breve</p></TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <ListFilter className="mr-2 h-4 w-4" />
+                      Filtrar
+                      {activeFilterCount > 0 && <span className="ml-2 bg-primary text-primary-foreground h-5 w-5 text-xs rounded-full flex items-center justify-center">{activeFilterCount}</span>}
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Filtrar por tipo de evento</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem
+                        checked={filters.shiftReport}
+                        onCheckedChange={(checked) => handleFilterChange('shiftReport', checked)}
+                    >
+                       Relatórios
+                    </DropdownMenuCheckboxItem>
+                     <DropdownMenuCheckboxItem
+                        checked={filters.task}
+                        onCheckedChange={(checked) => handleFilterChange('task', checked)}
+                    >
+                        Tarefas
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                        checked={filters.alert || filters.supply || filters.info}
+                        onCheckedChange={(checked) => {
+                            handleFilterChange('alert', checked);
+                            handleFilterChange('supply', checked);
+                            handleFilterChange('info', checked);
+                        }}
+                    >
+                        Notificações
+                    </DropdownMenuCheckboxItem>
+                    {activeFilterCount > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={clearFilters} className="text-red-500">
+                          <X className="mr-2 h-4 w-4" />
+                          Limpar Filtros
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-6 pt-0">
-        {events.length > 0 ? (
-          <ScrollArea className="h-full pr-4 -mr-4">
-            <ul className="relative">
-            {events.map((event, index) => (
+        {filteredEvents.length > 0 ? (
+          <ScrollArea className="flex-1 pr-4 -mr-4">
+            <ul className="relative pt-2">
+            {filteredEvents.map((event, index) => (
                 <EventItem key={index} event={event} />
             ))}
             </ul>
           </ScrollArea>
         ) : (
-          <div className="flex h-full items-center justify-center text-center">
-            <p className="text-sm text-muted-foreground">Nenhuma atividade recente para este paciente.</p>
+          <div className="flex h-full flex-1 items-center justify-center text-center">
+            <p className="text-sm text-muted-foreground">Nenhuma atividade recente para os filtros selecionados.</p>
           </div>
         )}
       </CardContent>
