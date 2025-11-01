@@ -35,8 +35,28 @@ const prontuarioTabs = [
   { id: 'nutricao', label: 'Nutrição', icon: Apple, color: '#f59e0b' },
   { id: 'psicologia', label: 'Psicologia', icon: Brain, color: '#6366f1' },
   { id: 'fonoaudiologia', label: 'Fonoaudiologia', icon: Bone, color: '#6b7280' },
-  { id: 'documentos', label: 'Documentos', icon: FileText, color: '#10b981' },
+  { id: 'documentos', label: 'Documentos', icon: FileText, color: '#84cc16' },
 ];
+
+const ProntuarioContent: React.FC<{ tabId: string; isEditing: boolean; editedData: Patient | null; setEditedData: (data: Patient | null) => void; }> = ({ tabId, isEditing, editedData, setEditedData }) => {
+    switch (tabId) {
+      case 'dashboard': return <ProntuarioDashboard isEditing={isEditing} editedData={editedData} setEditedData={setEditedData} />;
+      case 'enfermagem': return <ProntuarioEnfermagem />;
+      case 'medico': return <ProntuarioMedico />;
+      case 'fisioterapia': return <ProntuarioFisioterapia />;
+      case 'nutricao': return <ProntuarioNutricao />;
+      case 'documentos': return <ProntuarioDocumentos />;
+      default: return (
+        <div className="flex items-center justify-center h-full text-muted-foreground p-8 text-center">
+          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 h-80">
+            <Brain className="w-12 h-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold">Módulo em Desenvolvimento</h3>
+            <p className="text-sm text-muted-foreground mt-2">Esta funcionalidade estará disponível em breve.</p>
+          </div>
+        </div>
+      );
+    }
+};
 
 export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatientUpdate }: PatientDetailsPanelProps) {
   const { toast } = useToast();
@@ -49,36 +69,32 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
   const [currentView, setCurrentView] = React.useState<'prontuario' | 'ficha'>('prontuario');
   const [activeProntuarioTab, setActiveProntuarioTab] = React.useState('dashboard');
-  const [isFadingOut, setIsFadingOut] = React.useState(false);
-
-  // keyboard navigation index for tabs
+  
   const tabIds = prontuarioTabs.map(t => t.id);
   const activeIndex = tabIds.indexOf(activeProntuarioTab);
 
   const handleTabClick = (tabId: string) => {
-    if (tabId === activeProntuarioTab) return;
-    setIsFadingOut(true);
-    setTimeout(() => {
-      setActiveProntuarioTab(tabId);
-      setIsFadingOut(false);
-    }, 150);
+    setActiveProntuarioTab(tabId);
   };
 
   const handleKeyDownOnTabs = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-      e.preventDefault();
-      const next = tabIds[(activeIndex + 1) % tabIds.length];
-      handleTabClick(next);
-    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-      e.preventDefault();
-      const prev = tabIds[(activeIndex - 1 + tabIds.length) % tabIds.length];
-      handleTabClick(prev);
+    let nextIndex = -1;
+    if (e.key === 'ArrowDown') {
+        nextIndex = (activeIndex + 1) % tabIds.length;
+    } else if (e.key === 'ArrowUp') {
+        nextIndex = (activeIndex - 1 + tabIds.length) % tabIds.length;
     } else if (e.key === 'Home') {
-      e.preventDefault();
-      handleTabClick(tabIds[0]);
+        nextIndex = 0;
     } else if (e.key === 'End') {
-      e.preventDefault();
-      handleTabClick(tabIds[tabIds.length - 1]);
+        nextIndex = tabIds.length - 1;
+    }
+
+    if (nextIndex !== -1) {
+        e.preventDefault();
+        const nextTabId = tabIds[nextIndex];
+        const nextTabElement = document.getElementById(`tab-${nextTabId}`);
+        nextTabElement?.focus();
+        handleTabClick(nextTabId);
     }
   };
 
@@ -122,33 +138,13 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
   const displayData = isEditing ? editedData : patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
 
-  const renderProntuarioContent = () => {
-    switch (activeProntuarioTab) {
-      case 'dashboard': return <ProntuarioDashboard isEditing={isEditing} editedData={editedData} setEditedData={setEditedData} />;
-      case 'enfermagem': return <ProntuarioEnfermagem />;
-      case 'medico': return <ProntuarioMedico />;
-      case 'fisioterapia': return <ProntuarioFisioterapia />;
-      case 'nutricao': return <ProntuarioNutricao />;
-      case 'documentos': return <ProntuarioDocumentos />;
-      default: return (
-        <div className="flex items-center justify-center h-full text-muted-foreground p-8 text-center">
-          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 h-80">
-            <Brain className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">Módulo de Psicologia</h3>
-            <p className="text-sm text-muted-foreground mt-2">Esta funcionalidade está em desenvolvimento e estará disponível em breve.</p>
-          </div>
-        </div>
-      );
-    }
-  };
-
   const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : null;
 
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-black/60 border-0 shadow-none">
-          <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg">
+        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-muted/40 border-0 shadow-none">
+          <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg z-20">
             <div className="flex items-center gap-4 flex-1">
               {(currentView === 'ficha') && (
                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
@@ -202,55 +198,72 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto bg-card rounded-b-lg">
             {isLoading && (
-              <div className="p-6 bg-card rounded-b-lg"><Skeleton className="h-[70vh] w-full" /></div>
+              <div className="p-6"><Skeleton className="h-[70vh] w-full" /></div>
             )}
 
             {!isLoading && !displayData && (
-              <div className="p-6 text-center text-muted-foreground bg-card rounded-b-lg">Paciente não encontrado.</div>
+              <div className="p-6 text-center text-muted-foreground">Paciente não encontrado.</div>
             )}
 
             {!isLoading && displayData && currentView === 'ficha' && (
-              <div className="p-6 bg-card rounded-b-lg"><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
+              <div className="p-6"><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
             )}
 
             {!isLoading && displayData && currentView === 'prontuario' && (
-              <div className="fichario-container">
-                <main id="pagina-ativa" className="fichario-pagina" aria-live="polite">
-                  <div id="conteudo-ativo" className={cn("conteudo-wrapper p-6", isFadingOut && "fade-out")}>
-                    {renderProntuarioContent()}
+               <div className="fichario-container">
+                  <nav className="fichario-nav" aria-label="Navegação do prontuário" onKeyDown={handleKeyDownOnTabs}>
+                      <ul role="tablist">
+                          {prontuarioTabs.map((tab, idx) => {
+                              const isActive = activeProntuarioTab === tab.id;
+                              return (
+                                  <li key={tab.id} role="presentation">
+                                      <button
+                                          role="tab"
+                                          aria-selected={isActive}
+                                          aria-controls={`panel-${tab.id}`}
+                                          id={`tab-${tab.id}`}
+                                          tabIndex={isActive ? 0 : -1}
+                                          onClick={() => handleTabClick(tab.id)}
+                                          className={cn("fichario-tab", isActive && "active")}
+                                          style={{ borderRightColor: isActive ? tab.color : 'transparent' }}
+                                      >
+                                          <tab.icon className="h-5 w-5" />
+                                          <span className="label-text">{tab.label}</span>
+                                      </button>
+                                  </li>
+                              );
+                          })}
+                      </ul>
+                  </nav>
+                  <div className="fichario-pages-stack">
+                      {prontuarioTabs.map((tab, index) => {
+                          const isActive = activeProntuarioTab === tab.id;
+                          const zIndex = tabIds.length - tabIds.indexOf(tab.id);
+                          return (
+                              <div
+                                  key={tab.id}
+                                  id={`panel-${tab.id}`}
+                                  role="tabpanel"
+                                  aria-labelledby={`tab-${tab.id}`}
+                                  data-active={isActive}
+                                  className="fichario-pagina"
+                                  style={{
+                                    zIndex: activeProntuarioTab === tab.id ? tabIds.length + 1 : zIndex,
+                                    '--tab-color': tab.color,
+                                    '--stack-index': index,
+                                  } as React.CSSProperties}
+                              >
+                                  <div className="p-6 h-full overflow-y-auto">
+                                      {activeProntuarioTab === tab.id && (
+                                        <ProntuarioContent tabId={tab.id} isEditing={isEditing} editedData={editedData} setEditedData={setEditedData}/>
+                                      )}
+                                  </div>
+                              </div>
+                          );
+                      })}
                   </div>
-                </main>
-                <nav className="fichario-nav" aria-label="Navegação do prontuário">
-                  <ul id="tabs-list" role="tablist" onKeyDown={handleKeyDownOnTabs}>
-                    {prontuarioTabs.map((tab, idx) => {
-                      const isActive = activeProntuarioTab === tab.id;
-                      return (
-                        <li key={tab.id} className="tab-wrapper">
-                          <button
-                            role="tab"
-                            aria-selected={isActive}
-                            aria-controls={`panel-${tab.id}`}
-                            id={`tab-${tab.id}`}
-                            tabIndex={isActive ? 0 : -1}
-                            onClick={() => handleTabClick(tab.id)}
-                            className={cn("tab", isActive && "active")}
-                            data-color={tab.color}
-                            style={isActive ? { borderLeftColor: tab.color } : undefined}
-                          >
-                            <div className="flex flex-col items-center justify-center h-full gap-2">
-                              <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-600")} />
-                              <span className={cn("text-xs font-semibold tracking-wider uppercase", isActive ? "text-primary" : "text-gray-600")}>
-                                {tab.label}
-                              </span>
-                            </div>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </nav>
               </div>
             )}
           </div>

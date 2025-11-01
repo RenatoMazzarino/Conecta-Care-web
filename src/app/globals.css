@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* -- Root colors e tema (mantive o seu original) -- */
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -61,145 +60,125 @@
   }
 }
 
-/* --- Fichario Styles aprimorados --- */
-@layer components {
-  .fichario-container {
-    @apply flex w-full h-full items-stretch flex-row-reverse;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
-  }
-
-  /* página principal (conteúdo) */
-  .fichario-pagina {
-    @apply flex-grow p-8 bg-card relative z-10 rounded-l-lg;
-    min-height: 420px;
-  }
-
-  .conteudo-wrapper {
-    @apply transition-opacity duration-200 ease-in-out;
-  }
-  .conteudo-wrapper.fade-out {
-    @apply opacity-0;
-  }
-
-  /* nav (abas) wrapper */
-  .fichario-nav {
-    @apply pr-6 py-6 bg-transparent flex flex-col;
-    margin-left: -25px; 
-  }
-
-  .fichario-nav ul {
-    @apply list-none p-0 m-0 flex flex-col gap-3;
-  }
-
-  .fichario-nav .tab-wrapper {
-    @apply relative;
-  }
-
-  /* botão / aba */
-  .fichario-nav .tab {
-    @apply relative cursor-pointer select-none w-14 h-20 flex items-center justify-center bg-card rounded-tr-lg rounded-br-lg transition-transform duration-200 ease-in-out border-l-[6px] border-transparent text-center overflow-visible;
-    box-shadow: 2px 4px 8px rgba(0,0,0,0.06);
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    padding: 0.5rem;
-    background-clip: padding-box;
-    outline: none;
-  }
-
-  .fichario-nav .tab:hover {
-    transform: translateX(6px) rotate(180deg);
-  }
-
-  .fichario-nav .tab:focus {
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
-  }
-
-  .fichario-nav .tab .h-5 { /* keep icon sizing consistent */
-    @apply block;
-  }
-
-  .fichario-nav .tab.active {
-    @apply z-30 font-bold;
-    transform: translateX(0) rotate(180deg);
-    box-shadow: 6px 6px 14px rgba(0,0,0,0.12);
-  }
-
-  /*
-    Pseudo-element superior (o "lombinho" arredondado colorido da aba)
-    - usamos :before para criar a aba superior arredondada
-    - a cor é definida inline via data-color (o componente define style/borderLeftColor)
-  */
-  .fichario-nav .tab::before {
-    content: '';
-    position: absolute;
-    right: 100%;
-    top: -6px;
-    transform: translateX(50%) rotate(180deg);
-    width: 56px;
-    height: 46px;
-    border-top-left-radius: 14px;
-    border-top-right-radius: 14px;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-    z-index: -1;
-    background: transparent;
-    box-shadow: 0 6px 10px rgba(0,0,0,0.06);
-    transition: background 180ms ease, transform 180ms ease, opacity 180ms ease;
-    opacity: 0;
-  }
-
-  /* when tab has .active, show the colored lombinho */
-  .fichario-nav .tab.active::before {
-    opacity: 1;
-    transform: translateX(50%) rotate(180deg) scale(1.03);
-  }
-
-  /* We use attribute selector to paint the pseudo via inline style color on the element:
-     The component sets `data-color` (hex). Add a small helper to map inline computed color
-     into the pseudo using box-shadow trick: we set a transparent background and a right border color,
-     but since we cannot read data-color in pure css to set background, we fallback to using the
-     element's border-left-color to tint the pseudo via box-shadow.
-  */
-  .fichario-nav .tab[data-color]::before {
-    /* use a subtle gradient derived from border-left-color via currentColor hack */
-    /* fallback */
-    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.86));
-  }
-
-  /* when tab has inline border-left-color (component sets style), reflect to pseudo via drop shadow */
-  .fichario-nav .tab.active[style]::before {
-    /* create a colored top by using a shadow with the same color as the border */
-    box-shadow: 0 8px 12px rgba(0,0,0,0.06), 0 -2px 0 4px currentColor inset;
-  }
-
-  /* set currentColor to the tab's border-left-color */
-  .fichario-nav .tab[style] {
-    color: inherit; /* keep text color */
-  }
-}
-
-/* responsiveness: compress tabs on small screens */
-@media (max-width: 768px) {
-  .fichario-container {
-    flex-direction: column;
-  }
-  .fichario-nav {
-    @apply flex-row gap-2 overflow-x-auto px-4 py-3;
-    margin-left: 0;
-  }
-  .fichario-nav ul {
-    @apply flex-row gap-2;
-  }
-  .fichario-nav .tab {
-    @apply w-auto rounded-md [writing-mode:horizontal-tb] rotate-0 h-12 px-4;
-  }
-  .fichario-pagina {
-    @apply rounded-b-lg rounded-tl-none;
-  }
-}
-
 @layer base {
   * {
     @apply border-border;
+  }
+}
+
+@layer components {
+  /* --- Novo Layout de Fichário Empilhado --- */
+  .fichario-container {
+      @apply flex flex-row-reverse h-full w-full relative;
+  }
+
+  .fichario-pages-stack {
+      @apply flex-1 relative;
+      perspective: 2000px;
+  }
+
+  .fichario-pagina {
+      @apply absolute inset-0 bg-card rounded-l-lg border transition-all duration-300 ease-in-out;
+      transform-origin: left center;
+  }
+
+  /* Estilo da página ativa */
+  .fichario-pagina[data-active="true"] {
+      @apply z-20 shadow-2xl;
+      transform: rotateY(0deg) translateX(0%) scale(1);
+  }
+
+  /* Estilo das páginas inativas (a pilha) */
+  .fichario-pagina[data-active="false"] {
+      @apply shadow-md;
+      transform:
+          translateX(calc(var(--stack-index) * -0.5%))
+          translateZ(calc(var(--stack-index) * -50px))
+          rotateY(5deg);
+      opacity: 0.9;
+  }
+  .fichario-pagina[data-active="false"]:before {
+    content: '';
+    @apply absolute inset-0 bg-background/30 z-10;
+  }
+  .fichario-pagina[data-active="false"]:hover {
+    transform:
+        translateX(calc(var(--stack-index) * -0.5% + 10px))
+        translateZ(calc(var(--stack-index) * -50px))
+        rotateY(5deg);
+  }
+
+
+  /* Wrapper da navegação das abas */
+  .fichario-nav {
+      @apply relative z-30 pt-16 pr-1;
+  }
+  .fichario-nav ul {
+      @apply list-none p-0 m-0 space-y-2;
+  }
+
+  /* Aba individual */
+  .fichario-tab {
+      @apply relative flex items-center gap-3 w-40 h-10 px-4 py-2 bg-card border border-r-0 rounded-l-lg text-sm font-semibold transition-all duration-200 ease-in-out cursor-pointer;
+      transform-origin: right center;
+      border-right-width: 5px;
+  }
+
+  .fichario-tab .label-text {
+      @apply transition-opacity duration-100;
+  }
+
+  /* Efeito de hover e foco na aba */
+  .fichario-tab:not(.active):hover {
+      @apply bg-muted/80 shadow-md;
+      transform: translateX(-5px);
+  }
+  .fichario-tab:focus-visible {
+      @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  /* Aba ativa */
+  .fichario-tab.active {
+      @apply bg-card font-bold shadow-lg;
+      transform: translateX(5px) scale(1.05);
+  }
+  .fichario-tab.active .label-text {
+      @apply text-primary;
+  }
+
+  /* Responsividade para telas menores */
+  @media (max-width: 1024px) {
+    .fichario-container {
+        @apply flex-col;
+    }
+    .fichario-nav {
+        @apply flex-shrink-0 order-first p-2 flex flex-row overflow-x-auto;
+        scrollbar-width: none; /* Firefox */
+    }
+    .fichario-nav::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+    .fichario-nav ul {
+        @apply flex-row space-y-0 space-x-2;
+    }
+    .fichario-tab {
+        @apply w-auto h-auto rounded-t-lg rounded-bl-none border-b-4 border-r-0;
+        writing-mode: horizontal-tb;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .fichario-tab.active {
+      @apply bg-muted;
+      border-color: var(--tab-color);
+    }
+     .fichario-pages-stack {
+        @apply h-full;
+    }
+    .fichario-pagina {
+      @apply rounded-b-lg rounded-t-none;
+    }
+    .fichario-pagina[data-active="false"] {
+      display: none;
+    }
   }
 }
