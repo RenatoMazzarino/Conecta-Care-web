@@ -416,11 +416,11 @@ export const mockNotifications: Notification[] = [
 ];
 
 export const mockTasks: Task[] = [
-    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', assignee: 'Admin', priority: 'Alta', status: 'todo', patientId: 'patient-789' },
-    { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', assignee: 'Admin', priority: 'Urgente', status: 'inprogress' },
-    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', assignee: 'Enf. Chefe', priority: 'Alta', status: 'todo', patientId: 'patient-456' },
-    { id: 'task-4', title: 'Organizar a escala da próxima semana', assignee: 'Admin', priority: 'Média', status: 'done', dueDate: new Date(new Date().setDate(new Date().getDate() - 3)).toISOString() },
-    { id: 'task-5', title: 'Verificar estoque de gaze para o Sr. João', assignee: 'Enf. Chefe', priority: 'Média', status: 'todo', patientId: 'patient-123', dueDate: new Date().toISOString() }
+    { id: 'task-1', title: 'Revisar prontuário do novo paciente Sr. Jorge', description: 'Verificar todo o histórico médico, alergias e medicamentos em uso do paciente Jorge Mendes para garantir que a transição para o home care seja segura.', assignee: 'Admin', priority: 'Alta', status: 'todo', patientId: 'patient-789' },
+    { id: 'task-2', title: 'Aprovar candidaturas para o plantão de sexta-feira', description: 'Analisar o perfil dos candidatos e selecionar o profissional mais adequado para o plantão do paciente João da Silva.', assignee: 'Admin', priority: 'Urgente', status: 'inprogress' },
+    { id: 'task-3', title: 'Ligar para a família da Sra. Maria Lopes sobre o novo medicamento', description: 'Entrar em contato com o Sr. Carlos Lopes para explicar a nova prescrição de Metotrexato e orientar sobre a administração semanal.', assignee: 'Enf. Chefe', priority: 'Alta', status: 'todo', patientId: 'patient-456' },
+    { id: 'task-4', title: 'Organizar a escala da próxima semana', description: 'Montar a grade de horários de todos os pacientes, garantindo a cobertura de todos os plantões, diurnos e noturnos.', assignee: 'Admin', priority: 'Média', status: 'done', dueDate: new Date(new Date().setDate(new Date().getDate() - 3)).toISOString() },
+    { id: 'task-5', title: 'Verificar estoque de gaze para o Sr. João', description: 'Contar a quantidade de pacotes de gaze estéril no inventário do paciente João da Silva e solicitar reposição se necessário.', assignee: 'Enf. Chefe', priority: 'Média', status: 'todo', patientId: 'patient-123', dueDate: new Date().toISOString() }
 ];
 
 const mockInvoices: Invoice[] = [

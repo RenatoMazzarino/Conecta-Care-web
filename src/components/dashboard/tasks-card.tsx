@@ -24,7 +24,8 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
     .filter((task) => (task.priority === 'Urgente' || task.priority === 'Alta') && task.status !== 'done')
     .slice(0, 4);
     
-  const handleToggle = (task: Task, checked: boolean) => {
+  const handleToggle = (e: React.MouseEvent, task: Task, checked: boolean) => {
+    e.stopPropagation(); // Impede que o clique no checkbox acione o CollapsibleTrigger
     const newStatus = checked ? 'done' : 'inprogress';
     onTaskUpdate({ ...task, status: newStatus });
     
@@ -65,11 +66,11 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
                 <li key={task.id} className="rounded-md hover:bg-muted/50 border">
                     <Collapsible>
                         <div className="flex items-center gap-3 p-2 w-full text-left group">
-                            <div onClick={e => e.stopPropagation()}>
+                            <div onClick={(e) => e.stopPropagation()}>
                                 <Checkbox 
                                     id={`task-check-${task.id}`}
                                     checked={task.status === 'done'}
-                                    onCheckedChange={(checked) => handleToggle(task, !!checked)}
+                                    onCheckedChange={(checked) => handleToggle(new MouseEvent('click') as unknown as React.MouseEvent, task, !!checked)}
                                     aria-label={`Marcar tarefa "${task.title}" como concluída`}
                                 />
                             </div>
@@ -88,7 +89,9 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
                         </div>
                         <CollapsibleContent>
                             <div className="px-4 pb-3 space-y-3 border-t pt-3">
-                                {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
+                                <p className="text-sm text-muted-foreground">
+                                    {task.description || "Nenhuma descrição fornecida."}
+                                </p>
                                 <Button variant="secondary" size="sm" asChild>
                                     <Link href="/tasks">Ver Detalhes</Link>
                                 </Button>
