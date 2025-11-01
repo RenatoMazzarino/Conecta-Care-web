@@ -7,11 +7,11 @@ import { StatsCard } from '@/components/dashboard/stats-card';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { CommunicationsCard } from '@/components/dashboard/communications-card';
 import { TasksCard } from '@/components/dashboard/tasks-card';
-import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
+import type { Patient, ShiftReport, Notification, Task, Shift } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockTasks, patients as mockPatients, mockShiftReports, mockNotifications } from '@/lib/data';
+import { mockTasks, patients as mockPatients, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -21,14 +21,19 @@ export default function DashboardPage() {
   const [reports, setReports] = React.useState<ShiftReport[]>([]);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [shifts, setShifts] = React.useState<Shift[]>([]);
 
   React.useEffect(() => {
     // Simulate fetching data
     const timer = setTimeout(() => {
-      setPatient(mockPatients[0] || null);
-      setReports(mockShiftReports.filter(r => r.patientId === mockPatients[0]?.id));
-      setNotifications(mockNotifications.filter(n => n.patientId === mockPatients[0]?.id));
+      const mainPatient = mockPatients[0] || null;
+      setPatient(mainPatient);
+      if (mainPatient) {
+        setReports(mockShiftReports.filter(r => r.patientId === mainPatient.id));
+        setNotifications(mockNotifications.filter(n => n.patientId === mainPatient.id));
+      }
       setTasks(mockTasks);
+      setShifts(initialShifts);
       setIsLoading(false);
     }, 500);
 
@@ -36,12 +41,19 @@ export default function DashboardPage() {
   }, []);
 
   const noData = !isLoading && !patient;
+
+  // Dynamic stats calculated from mock data
+  const openShiftsCount = shifts.filter(s => s.status === 'open').length;
+  const lateShiftsCount = shifts.filter(s => s.status === 'issue').length;
+  const urgentTasksCount = tasks.filter(t => t.priority === 'Urgente' && t.status !== 'done').length;
+  const pendingCommunicationsCount = mockNotifications.length;
+
   
   const stats = [
-    { title: "Vagas Abertas", value: 3, icon: FileWarning, color: "text-blue-600", link: "/shifts" },
-    { title: "Plantões Atrasados", value: 1, icon: Clock, color: "text-amber-600", link: "/shifts" },
-    { title: "Tarefas Urgentes", value: tasks.filter(t => t.priority === 'Urgente').length, icon: AlertTriangle, color: "text-red-600", link: "#" },
-    { title: "Comunicações Pendentes", value: 2, icon: MessageSquareWarning, color: "text-orange-600", link: "/communications" },
+    { title: "Vagas Abertas", value: openShiftsCount, icon: FileWarning, color: "text-blue-600", link: "/shifts" },
+    { title: "Plantões com Alerta", value: lateShiftsCount, icon: Clock, color: "text-amber-600", link: "/shifts" },
+    { title: "Tarefas Urgentes", value: urgentTasksCount, icon: AlertTriangle, color: "text-red-600", link: "/tasks" },
+    { title: "Comunicações Pendentes", value: pendingCommunicationsCount, icon: MessageSquareWarning, color: "text-orange-600", link: "/communications" },
   ]
 
   return (
@@ -60,14 +72,14 @@ export default function DashboardPage() {
           <Card>
               <CardHeader>
                   <CardTitle>Bem-vindo ao CareSync</CardTitle>
-                  <CardDescription>Nenhum dado de paciente encontrado.</CardDescription>
+                  <CardDescription>Parece que você ainda não tem pacientes cadastrados.</CardDescription>
               </CardHeader>
               <CardContent>
                   <p className="mb-4 text-sm text-muted-foreground">
-                      Para começar, por favor, popule o sistema com dados de simulação na página de Estoque.
+                      Para começar a gerenciar, adicione seu primeiro paciente.
                   </p>
                   <Button asChild>
-                      <Link href="/inventory">Ir para a página de Estoque</Link>
+                      <Link href="/patients">Adicionar Paciente</Link>
                   </Button>
               </CardContent>
           </Card>
@@ -77,11 +89,9 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           {isLoading ? (
             <Skeleton className="h-[400px] w-full" />
-          ) : (
-            <>
-              {reports && <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />}
-            </>
-          )}
+          ) : patient ? (
+            <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />
+          ) : null}
         </div>
         <div className="space-y-6">
             {isLoading ? (
@@ -89,12 +99,12 @@ export default function DashboardPage() {
                   <Skeleton className="h-[250px] w-full" />
                   <Skeleton className="h-[300px] w-full" />
               </>
-            ) : (
+            ) : patient ? (
               <>
-                  {tasks && <TasksCard tasks={tasks} />}
-                  {notifications && <CommunicationsCard notifications={notifications} />}
+                  <TasksCard tasks={tasks} />
+                  <CommunicationsCard notifications={notifications} />
               </>
-            )}
+            ) : null}
         </div>
       </div>
     </>
