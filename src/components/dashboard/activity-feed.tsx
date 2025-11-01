@@ -92,15 +92,13 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
 
     return (
       <li className="relative flex items-start gap-4 pb-8 last:pb-0">
-        {/* Timeline line and Icon */}
-        <div className="absolute left-0 top-1 flex flex-col items-center">
-          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-background z-10">
+        <div className="absolute left-4 top-1 h-full w-px bg-border" />
+        <div className="relative flex-shrink-0">
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-background ring-4 ring-card z-10">
             <IconComp className={cn("h-5 w-5", color)} />
           </div>
-          <div className="flex-grow w-px bg-border -mt-1"></div>
         </div>
-    
-        <div className="pl-12 flex-1 space-y-1">
+        <div className="flex-1 space-y-1">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">{title}</p>
             <time className="text-xs text-muted-foreground">{formatRelativeDate(timestamp)}</time>
@@ -132,7 +130,7 @@ export function ActivityFeed({ events, patient }: { events: FeedEvent[], patient
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-6 pt-0">
         {events.length > 0 ? (
-          <ScrollArea className="h-full -mr-4 pr-4">
+          <ScrollArea className="h-full">
             <ul className="relative">
             {events.map((event, index) => (
                 <EventItem key={index} event={event} />
