@@ -4,7 +4,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { StatsCard } from '@/components/dashboard/stats-card';
-import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { CommunicationsCard } from '@/components/dashboard/communications-card';
 import { TasksCard } from '@/components/dashboard/tasks-card';
 import type { Patient, ShiftReport, Notification, Task, Shift } from '@/lib/types';
@@ -13,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { mockTasks, patients as mockPatients, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning } from 'lucide-react';
+import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 
 export default function DashboardPage() {
   
@@ -90,7 +90,16 @@ export default function DashboardPage() {
           {isLoading ? (
             <Skeleton className="h-[400px] w-full" />
           ) : patient ? (
-            <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />
+            // This will be replaced by the activity feed card
+            <Card>
+              <CardHeader>
+                <CardTitle>Feed de Atividades</CardTitle>
+                <CardDescription>Últimos acontecimentos no sistema.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground text-center py-8">O feed de atividades estará disponível em breve.</p>
+              </CardContent>
+            </Card>
           ) : null}
         </div>
         <div className="space-y-6">
@@ -106,6 +115,14 @@ export default function DashboardPage() {
               </>
             ) : null}
         </div>
+      </div>
+      
+      <div className="mt-6">
+           {isLoading ? (
+            <Skeleton className="h-[200px] w-full" />
+          ) : patient ? (
+            <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />
+          ) : null}
       </div>
     </>
   );
