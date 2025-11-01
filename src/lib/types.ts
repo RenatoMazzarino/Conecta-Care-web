@@ -72,6 +72,7 @@ export type Professional = {
   bio: string;
   coren: string;
   corenStatus: 'active' | 'inactive';
+  role: 'Supervisor(a)' | 'Escalista' | 'Cuidador(a)' | 'Fisioterapeuta';
   reviews: { from: string; quote: string }[];
   specialties: string[];
 };
