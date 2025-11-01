@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart, Edit } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit, FileHeart } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -178,36 +178,40 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                         )}
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
-                            <div className="flex h-full">
-                               <nav className="flex flex-col items-start pt-8 bg-muted/70">
-                                {prontuarioTabs.map((tab, index) => {
-                                    const isActive = activeProntuarioTab === tab.id;
-                                    return (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveProntuarioTab(tab.id)}
-                                        className={cn(
-                                        "relative flex flex-col items-center justify-center h-24 w-20 transition-all duration-200 ease-in-out -mb-6",
-                                        isActive
-                                            ? 'bg-card text-primary z-10'
-                                            : 'bg-muted text-muted-foreground hover:bg-card/80 hover:z-20'
-                                        )}
-                                        style={{
-                                            borderTopLeftRadius: '0.5rem',
-                                            borderTopRightRadius: '0.5rem',
-                                        }}
-                                    >
-                                        <tab.icon className={cn("h-5 w-5 mb-1", isActive ? "text-primary" : "")} />
-                                        <span className="text-xs font-medium" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
-                                            {tab.label}
-                                        </span>
-                                    </button>
-                                    );
-                                })}
-                                </nav>
-                                <main className="flex-1 p-6 overflow-y-auto bg-card shadow-lg z-20">
+                           <div className="flex h-full filter drop-shadow-lg">
+                                <main className="flex-1 p-6 pr-0 bg-card rounded-l-lg z-10">
                                     {renderProntuarioContent()}
                                 </main>
+                                <nav className="-ml-5 pt-8">
+                                    {prontuarioTabs.map((tab) => {
+                                        const isActive = activeProntuarioTab === tab.id;
+                                        return (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveProntuarioTab(tab.id)}
+                                            className={cn(
+                                            "relative flex items-center justify-center h-28 w-11 transition-all duration-200 ease-in-out cursor-pointer",
+                                            "py-2 px-1 rounded-r-lg mb-2 shadow-md hover:shadow-lg",
+                                            isActive
+                                                ? 'bg-card text-primary z-20 shadow-lg'
+                                                : 'bg-muted/80 text-muted-foreground hover:bg-card/80 hover:z-20 -mr-1'
+                                            )}
+                                            style={{
+                                                writingMode: 'vertical-rl',
+                                                textOrientation: 'mixed',
+                                                transform: 'rotate(180deg)',
+                                            }}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "")} />
+                                                <span className="text-xs font-semibold tracking-wider uppercase">
+                                                    {tab.label}
+                                                </span>
+                                            </div>
+                                        </button>
+                                        );
+                                    })}
+                                </nav>
                             </div>
                         )}
                     </div>
