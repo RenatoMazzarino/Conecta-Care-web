@@ -163,7 +163,7 @@ export const professionals: Professional[] = [
     coren: 'SP-123456-ENF',
     corenStatus: 'active',
     role: 'Supervisor(a)',
-    employmentType: 'interno',
+    employmentType: 'externo',
     specialties: ['Home Care', 'Geriatria', 'Administração de Medicamentos IV', 'Curativos'],
     reviews: [
       { from: 'Família Silva', quote: 'Profissional exemplar, sempre pontual e muito carinhosa com nosso pai.' },
