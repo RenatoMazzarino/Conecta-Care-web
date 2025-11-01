@@ -8,6 +8,21 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Toaster } from '@/components/ui/toaster';
 
+// Componente para garantir renderização apenas no cliente
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [hasMounted, setHasMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return null; // Ou um componente de loading/skeleton
+  }
+
+  return <>{children}</>;
+}
+
 
 export default function AppLayout({
   children,
@@ -25,7 +40,7 @@ export default function AppLayout({
   }, [isMobile]);
 
   return (
-      <>
+      <ClientOnly>
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <AppSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
             <div className={cn(
@@ -39,6 +54,6 @@ export default function AppLayout({
             </div>
         </div>
         <Toaster />
-      </>
+      </ClientOnly>
   );
 }
