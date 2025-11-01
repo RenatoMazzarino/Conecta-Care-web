@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit, FileHeart } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -29,7 +29,7 @@ interface PatientDetailsPanelProps {
 
 const prontuarioTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Activity, color: 'bg-blue-100' },
-    { id: 'enfermagem', label: 'Enfermagem', icon: FileText, color: 'bg-rose-100' },
+    { id: 'enfermagem', label: 'Enfermagem', icon: FileHeart, color: 'bg-rose-100' },
     { id: 'medico', label: 'Médico', icon: Stethoscope, color: 'bg-lime-100' },
     { id: 'fisioterapia', label: 'Fisioterapia', icon: Dumbbell, color: 'bg-amber-100' },
     { id: 'nutricao', label: 'Nutrição', icon: Apple, color: 'bg-purple-100' },
@@ -129,7 +129,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                 {isLoading ? <Skeleton className="h-8 w-48" /> : displayData?.name}
                             </SheetTitle>
                             <SheetDescription>
-                                {isLoading ? (
+                                 {isLoading ? (
                                     <Skeleton className="h-4 w-32 mt-1" />
                                 ) : (
                                     <span>{age ? `${age} anos` : ''}{age && displayData?.cpf ? ' \u2022 ' : ''}{displayData?.cpf}</span>
@@ -181,17 +181,12 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
                             <div className="fichario-container">
-                                <main id="pagina-ativa" className="fichario-pagina">
-                                    <div id="conteudo-ativo" className="conteudo-wrapper">
-                                        {renderProntuarioContent()}
-                                    </div>
-                                </main>
                                 <nav className="fichario-nav">
                                     <ul id="tabs-list">
-                                        {prontuarioTabs.map((tab) => {
+                                        {prontuarioTabs.map((tab, index) => {
                                             const isActive = activeProntuarioTab === tab.id;
                                             return (
-                                                <li key={tab.id} >
+                                                <li key={tab.id} style={{ zIndex: isActive ? prontuarioTabs.length : prontuarioTabs.length - 1 - index }}>
                                                     <button
                                                         onClick={() => setActiveProntuarioTab(tab.id)}
                                                         className={cn(
@@ -200,7 +195,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                                         )}
                                                         style={{ backgroundColor: isActive ? tab.color : '#e2e8f0' }}
                                                         >
-                                                        <div className="flex flex-col items-center gap-2">
+                                                        <div className="flex flex-col items-center justify-center h-full gap-2">
                                                             <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
                                                             <span className={cn("text-xs font-semibold tracking-wider uppercase", isActive ? "text-primary" : "text-muted-foreground")}>
                                                                 {tab.label}
@@ -212,6 +207,11 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                         })}
                                     </ul>
                                 </nav>
+                                <main id="pagina-ativa" className="fichario-pagina" style={{ backgroundColor: prontuarioTabs.find(t => t.id === activeProntuarioTab)?.color || '#e2e8f0' }}>
+                                    <div id="conteudo-ativo" className="conteudo-wrapper p-6">
+                                        {renderProntuarioContent()}
+                                    </div>
+                                </main>
                            </div>
                         )}
                     </div>
