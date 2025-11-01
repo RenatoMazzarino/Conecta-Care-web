@@ -91,7 +91,7 @@
   .fichario-pagina[data-active="false"] {
       @apply shadow-md;
       transform:
-          translateX(calc(var(--stack-index, 0) * -0.5%))
+          translateX(calc(var(--stack-index, 0) * 0.5%))
           translateZ(calc(var(--stack-index, 0) * -50px))
           rotateY(5deg);
       opacity: 0.9;
@@ -102,7 +102,7 @@
   }
   .fichario-pagina[data-active="false"]:hover {
     transform:
-        translateX(calc(var(--stack-index, 0) * -0.5% + 10px))
+        translateX(calc(var(--stack-index, 0) * 0.5% - 10px))
         translateZ(calc(var(--stack-index, 0) * -50px))
         rotateY(5deg);
   }
@@ -110,7 +110,7 @@
 
   /* Wrapper da navegação das abas */
   .fichario-nav {
-      @apply relative z-30 pt-16 pr-2 order-first;
+      @apply relative z-30 pt-16 order-first;
   }
   .fichario-nav ul {
       @apply list-none p-0 m-0 space-y-2;
@@ -118,7 +118,7 @@
 
   /* Aba individual */
   .fichario-tab {
-      @apply relative flex items-center gap-3 w-40 h-10 px-4 py-2 bg-card border border-r-0 rounded-l-lg text-sm font-semibold transition-all duration-200 ease-in-out cursor-pointer;
+      @apply relative flex items-center justify-start gap-3 w-40 h-10 px-4 py-2 bg-card border border-r-0 rounded-l-lg text-sm font-semibold transition-all duration-200 ease-in-out cursor-pointer;
       transform-origin: right center;
       border-right-width: 5px;
   }
