@@ -13,11 +13,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { FileText, UserSquare, Edit } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 function calculateAge(dateOfBirth: string) {
   const birthDate = new Date(dateOfBirth);
@@ -40,12 +40,14 @@ export function PatientTable({
     patients,
     professionals,
     selectedPatients, 
-    onSelectionChange 
+    onSelectionChange,
+    onViewDetails
 }: { 
     patients: Patient[];
     professionals: Professional[];
     selectedPatients: Set<string>;
     onSelectionChange: (selection: Set<string>) => void;
+    onViewDetails: (patientId: string) => void;
 }) {
 
   const handleToggleSelect = (patientId: string) => {
@@ -90,7 +92,7 @@ export function PatientTable({
             <TableHead>Vínculo</TableHead>
             <TableHead>Supervisor</TableHead>
             <TableHead>Escalista</TableHead>
-            <TableHead className="text-right w-[240px]">Ações</TableHead>
+            <TableHead className="text-right w-[100px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -108,22 +110,22 @@ export function PatientTable({
                     />
                 </TableCell>
                 <TableCell>
-                    <Link
-                    href={`/patients/${patient.id}`}
-                    className="flex items-center gap-3 group"
+                    <div
+                        onClick={() => onViewDetails(patient.id)}
+                        className="flex items-center gap-3 group cursor-pointer"
                     >
-                    <div className="relative">
-                        <Avatar className="h-9 w-9">
-                            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
-                            <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <span className={cn(
-                            "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-card",
-                            patient.status === 'Ativo' ? 'bg-green-500' : 'bg-gray-400'
-                        )} />
+                        <div className="relative">
+                            <Avatar className="h-9 w-9">
+                                <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
+                                <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            </Avatar>
+                            <span className={cn(
+                                "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-card",
+                                patient.status === 'Ativo' ? 'bg-green-500' : 'bg-gray-400'
+                            )} />
+                        </div>
+                        <span className="font-medium group-hover:underline">{patient.name}</span>
                     </div>
-                    <span className="font-medium group-hover:underline">{patient.name}</span>
-                    </Link>
                 </TableCell>
                 <TableCell>
                     <Badge variant="outline" className={complexityVariant[patient.complexity]}>
@@ -144,7 +146,7 @@ export function PatientTable({
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {patient.supervisorId && supervisorName ? (
-                    <Link href={`/team/${patient.supervisorId}`} className="hover:underline hover:text-primary transition-colors">
+                    <Link href={`/team/${patient.supervisorId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
                       {supervisorName}
                     </Link>
                   ) : (
@@ -153,7 +155,7 @@ export function PatientTable({
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {patient.schedulerId && schedulerName ? (
-                    <Link href={`/team/${patient.schedulerId}`} className="hover:underline hover:text-primary transition-colors">
+                    <Link href={`/team/${patient.schedulerId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
                       {schedulerName}
                     </Link>
                   ) : (
@@ -161,23 +163,9 @@ export function PatientTable({
                   )}
                 </TableCell>
                 <TableCell className="text-right space-x-2">
-                    <Button asChild variant="outline" size="sm">
-                    <Link href={`/patients/${patient.id}/profile`}>
-                        <UserSquare className="mr-2 h-4 w-4" />
-                        Ficha
-                    </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                    <Link href={`/patients/${patient.id}`}>
+                    <Button variant="outline" size="sm" onClick={() => onViewDetails(patient.id)}>
                         <FileText className="mr-2 h-4 w-4" />
-                        Prontuário
-                    </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                    <Link href={`/patients/${patient.id}/profile`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                    </Link>
+                        Detalhes
                     </Button>
                 </TableCell>
                 </TableRow>
