@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -126,7 +126,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
-                <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-transparent border-0 shadow-none">
+                <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-black/60 border-0 shadow-none">
                      <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg">
                          <div className="flex items-center gap-4 flex-1">
                            {(currentView === 'ficha') && (
@@ -139,10 +139,14 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                     {isLoading ? <Skeleton className="h-8 w-48" /> : <span>{displayData?.name}</span>}
                                 </SheetTitle>
                                 <div className="text-sm text-muted-foreground">
-                                    {isLoading ? (
+                                   {isLoading ? (
                                         <Skeleton className="h-4 w-32 mt-1" />
                                     ) : (
-                                        <span>{age ? `${age} anos` : ''}{age && displayData?.cpf ? ' \u2022 ' : ''}{displayData?.cpf}</span>
+                                        <span>
+                                            {age ? `${age} anos` : ''}
+                                            {age && displayData?.cpf ? ' \u2022 ' : ''}
+                                            {displayData?.cpf}
+                                        </span>
                                     )}
                                 </div>
                            </div>
@@ -206,7 +210,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                                     onClick={() => handleTabClick(tab.id)}
                                                     className={cn("tab", isActive && "active")}
                                                     data-color={tab.color}
-                                                    style={{ borderRightColor: tab.color }}
+                                                    style={{ borderLeftColor: tab.color }}
                                                 >
                                                     <div className="flex flex-col items-center justify-center h-full gap-2">
                                                         <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-600")} />
