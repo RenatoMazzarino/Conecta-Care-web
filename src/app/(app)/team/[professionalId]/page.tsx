@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -10,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Star, Shield, MessageCircle, Edit } from 'lucide-react';
+import { ArrowLeft, Star, Shield, MessageCircle, Edit, ShieldAlert } from 'lucide-react';
 import { TeamProfileTab } from '@/components/team/team-profile-tab';
 import { TeamShiftsTab } from '@/components/team/team-shifts-tab';
 import { TeamPatientsTab } from '@/components/team/team-patients-tab';
@@ -73,6 +72,8 @@ export default function ProfessionalProfilePage() {
     );
   }
 
+  const isExternal = professional.employmentType === 'externo';
+
   return (
     <div className="space-y-6">
         <Button variant="outline" size="sm" onClick={() => router.push('/team')}>
@@ -94,8 +95,9 @@ export default function ProfessionalProfilePage() {
                             COREN {professional.corenStatus === 'active' ? 'Ativo' : 'Inativo'}
                         </Badge>
                     </div>
-                    <div className="flex items-center justify-center sm:justify-start">
+                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
                         <StarRating rating={professional.rating} reviewCount={professional.reviews.length} />
+                        <Badge variant="outline" className="capitalize">{professional.employmentType}</Badge>
                     </div>
                     <p className="mt-3 text-muted-foreground max-w-xl mx-auto sm:mx-0">{professional.bio}</p>
                 </div>
@@ -106,30 +108,51 @@ export default function ProfessionalProfilePage() {
            </CardContent>
        </Card>
 
-      <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="profile">Perfil</TabsTrigger>
-            <TabsTrigger value="shifts">Plantões</TabsTrigger>
-            <TabsTrigger value="patients">Pacientes</TabsTrigger>
-            <TabsTrigger value="financial">Financeiro</TabsTrigger>
-            <TabsTrigger value="documents">Documentos</TabsTrigger>
-        </TabsList>
-        <TabsContent value="profile" className="mt-6">
-            <TeamProfileTab professional={professional} />
-        </TabsContent>
-        <TabsContent value="shifts" className="mt-6">
-            <TeamShiftsTab />
-        </TabsContent>
-         <TabsContent value="patients" className="mt-6">
-            <TeamPatientsTab />
-        </TabsContent>
-         <TabsContent value="financial" className="mt-6">
-            <TeamFinancialTab />
-        </TabsContent>
-        <TabsContent value="documents" className="mt-6">
-            <TeamDocumentsTab />
-        </TabsContent>
-      </Tabs>
+      {isExternal ? (
+        <div className="space-y-6">
+          <TeamShiftsTab />
+          <TeamPatientsTab />
+           <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ShieldAlert className="w-5 h-5 text-amber-600" />
+                  Histórico de Disputas
+                </CardTitle>
+                <CardDescription>
+                  Problemas ou reclamações abertas relacionadas a plantões anteriores.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground text-center py-4">Funcionalidade de disputas em breve.</p>
+              </CardContent>
+            </Card>
+        </div>
+      ) : (
+        <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="profile">Perfil</TabsTrigger>
+                <TabsTrigger value="shifts">Plantões</TabsTrigger>
+                <TabsTrigger value="patients">Pacientes</TabsTrigger>
+                <TabsTrigger value="financial">Financeiro</TabsTrigger>
+                <TabsTrigger value="documents">Documentos</TabsTrigger>
+            </TabsList>
+            <TabsContent value="profile" className="mt-6">
+                <TeamProfileTab professional={professional} />
+            </TabsContent>
+            <TabsContent value="shifts" className="mt-6">
+                <TeamShiftsTab />
+            </TabsContent>
+            <TabsContent value="patients" className="mt-6">
+                <TeamPatientsTab />
+            </TabsContent>
+            <TabsContent value="financial" className="mt-6">
+                <TeamFinancialTab />
+            </TabsContent>
+            <TabsContent value="documents" className="mt-6">
+                <TeamDocumentsTab />
+            </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }
