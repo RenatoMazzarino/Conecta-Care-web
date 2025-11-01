@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText, Upload, CheckSquare, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, BookUser, FileHeart, Brain, Bone } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -19,6 +19,7 @@ import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-uploa
 import { patients as mockPatients } from '@/lib/data';
 import { FichaCadastral } from './ficha-cadastral';
 import { cn } from '@/lib/utils';
+import { Edit } from 'lucide-react';
 
 interface PatientDetailsPanelProps {
     patientId: string;
@@ -28,14 +29,14 @@ interface PatientDetailsPanelProps {
 }
 
 const prontuarioTabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: Activity },
-    { id: 'enfermagem', label: 'Enfermagem', icon: FileHeart },
-    { id: 'medico', label: 'Médico', icon: Stethoscope },
-    { id: 'fisioterapia', label: 'Fisioterapia', icon: Dumbbell },
-    { id: 'nutricao', label: 'Nutrição', icon: Apple },
-    { id: 'psicologia', label: 'Psicologia', icon: Brain },
-    { id: 'fonoaudiologia', label: 'Fonoaudiologia', icon: Bone },
-    { id: 'documentos', label: 'Documentos', icon: FileText },
+    { id: 'dashboard', label: 'Dashboard', icon: Activity, color: 'bg-blue-100' },
+    { id: 'enfermagem', label: 'Enfermagem', icon: FileHeart, color: 'bg-rose-100' },
+    { id: 'medico', label: 'Médico', icon: Stethoscope, color: 'bg-lime-100' },
+    { id: 'fisioterapia', label: 'Fisioterapia', icon: Dumbbell, color: 'bg-amber-100' },
+    { id: 'nutricao', label: 'Nutrição', icon: Apple, color: 'bg-purple-100' },
+    { id: 'psicologia', label: 'Psicologia', icon: Brain, color: 'bg-cyan-100' },
+    { id: 'fonoaudiologia', label: 'Fonoaudiologia', icon: Bone, color: 'bg-teal-100' },
+    { id: 'documentos', label: 'Documentos', icon: FileText, color: 'bg-slate-100' },
 ];
 
 export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatientUpdate }: PatientDetailsPanelProps) {
@@ -68,9 +69,12 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             }, 300);
             return () => clearTimeout(timer);
         } else if (!isOpen) {
-            setPatient(null);
-            setEditedData(null);
-            setIsLoading(true);
+            // Delay resetting state to allow for exit animation
+            setTimeout(() => {
+                setPatient(null);
+                setEditedData(null);
+                setIsLoading(true);
+            }, 300);
         }
     }, [patientId, isOpen]);
 
@@ -96,25 +100,33 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             case 'fisioterapia': return <ProntuarioFisioterapia />;
             case 'nutricao': return <ProntuarioNutricao />;
             case 'documentos': return <ProntuarioDocumentos />;
-            default: return <div className="flex items-center justify-center h-full text-muted-foreground">Selecione uma seção</div>;
+            default: return (
+                <div className="flex items-center justify-center h-full text-muted-foreground p-8 text-center">
+                    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 h-80">
+                        <Brain className="w-12 h-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold">Módulo de Psicologia</h3>
+                        <p className="text-sm text-muted-foreground mt-2">Esta funcionalidade está em desenvolvimento e estará disponível em breve.</p>
+                    </div>
+                </div>
+            );
         }
     }
-
+    
     const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : null;
 
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
-                <SheetContent className="w-full sm:max-w-[90vw] lg:max-w-[85vw] p-0 flex flex-col">
+                <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col">
                     <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0">
-                        <div className="flex items-center gap-4 flex-1">
-                           {currentView === 'ficha' && (
+                         <div className="flex items-center gap-4 flex-1">
+                           {(currentView === 'ficha') && (
                                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                            )}
                            <div>
-                                <SheetTitle className="text-2xl">
+                                <SheetTitle>
                                     {isLoading ? <Skeleton className="h-8 w-48" /> : displayData?.name}
                                 </SheetTitle>
                                 <SheetDescription>
@@ -168,22 +180,38 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
                             <div className="flex h-full">
-                                <aside className="w-64 border-r bg-card p-4">
-                                    <nav className="flex flex-col gap-1">
-                                        {prontuarioTabs.map(tab => (
-                                            <Button
-                                                key={tab.id}
-                                                variant={activeProntuarioTab === tab.id ? 'secondary' : 'ghost'}
-                                                className="w-full justify-start gap-3"
-                                                onClick={() => setActiveProntuarioTab(tab.id)}
-                                            >
-                                                <tab.icon className="h-5 w-5" />
-                                                {tab.label}
-                                            </Button>
-                                        ))}
-                                    </nav>
-                                </aside>
-                                <main className="flex-1 p-6 overflow-y-auto">
+                                <div className="relative pt-8">
+                                    <div className="flex flex-col items-start -mr-px">
+                                        {prontuarioTabs.map((tab, index) => {
+                                            const isActive = activeProntuarioTab === tab.id;
+                                            return (
+                                                <button
+                                                    key={tab.id}
+                                                    onClick={() => setActiveProntuarioTab(tab.id)}
+                                                    className={cn(
+                                                        "relative flex items-center h-12 pl-4 pr-6 w-[190px] text-sm font-medium transition-all duration-200 ease-in-out",
+                                                        isActive 
+                                                          ? 'bg-card text-primary z-10' 
+                                                          : `${tab.color} text-gray-600 hover:w-[200px] hover:z-20`
+                                                    )}
+                                                    style={{
+                                                        clipPath: 'polygon(0% 0%, 100% 0, calc(100% - 20px) 50%, 100% 100%, 0% 100%)'
+                                                    }}
+                                                >
+                                                     <div 
+                                                        className={cn(
+                                                            "absolute left-0 top-0 h-full w-1",
+                                                            isActive && "bg-primary"
+                                                        )}
+                                                     />
+                                                    <tab.icon className={cn("h-5 w-5 mr-3", isActive ? "text-primary" : "text-gray-500")} />
+                                                    <span>{tab.label}</span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                                <main className="flex-1 p-6 overflow-y-auto bg-card shadow-lg z-20">
                                     {renderProntuarioContent()}
                                 </main>
                             </div>
