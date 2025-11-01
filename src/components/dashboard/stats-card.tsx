@@ -26,7 +26,7 @@ export function StatsCard({ title, value, icon: Icon, trend, trendDirection, act
   const trendColor = trendConfig[trendDirection].color;
 
   return (
-      <Card className="flex flex-col">
+      <Card className="flex flex-col transition-all duration-200 hover:shadow-lg hover:scale-[1.02]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
             {actions && actions.length > 0 ? (
