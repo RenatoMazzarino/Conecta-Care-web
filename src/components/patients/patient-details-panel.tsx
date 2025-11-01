@@ -126,8 +126,8 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
-                <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col">
-                     <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0">
+                <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-transparent border-0 shadow-none">
+                     <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg">
                          <div className="flex items-center gap-4 flex-1">
                            {(currentView === 'ficha') && (
                                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
@@ -176,17 +176,17 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                             )}
                         </div>
                     </SheetHeader>
-                    <div className="flex-1 overflow-y-auto bg-muted/40">
+                    <div className="flex-1 overflow-y-auto">
                        {isLoading && (
-                             <div className="p-6"><Skeleton className="h-[70vh] w-full" /></div>
+                             <div className="p-6 bg-card rounded-b-lg"><Skeleton className="h-[70vh] w-full" /></div>
                         )}
 
                         {!isLoading && !displayData && (
-                            <div className="p-6 text-center text-muted-foreground">Paciente não encontrado.</div>
+                            <div className="p-6 text-center text-muted-foreground bg-card rounded-b-lg">Paciente não encontrado.</div>
                         )}
                         
                         {!isLoading && displayData && currentView === 'ficha' && (
-                             <div className="p-6"><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
+                             <div className="p-6 bg-card rounded-b-lg"><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
                         )}
 
                         {!isLoading && displayData && currentView === 'prontuario' && (
@@ -201,16 +201,17 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                                     onClick={() => handleTabClick(tab.id)}
                                                     className={cn("tab", isActive && "active")}
                                                     data-color={tab.color}
-                                                    style={{ backgroundColor: tab.color }}
+                                                    style={{ backgroundColor: isActive ? tab.color : '#d1d5db' }} // Use gray for inactive
                                                 >
                                                     <div className="flex flex-col items-center justify-center h-full gap-2">
-                                                        <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
-                                                        <span className={cn("text-xs font-semibold tracking-wider uppercase", isActive ? "text-primary" : "text-muted-foreground")}>
+                                                        <tab.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-gray-600")} />
+                                                        <span className={cn("text-xs font-semibold tracking-wider uppercase", isActive ? "text-primary" : "text-gray-600")}>
                                                             {tab.label}
                                                         </span>
                                                     </div>
                                                 </li>
                                             );
+js
                                         })}
                                     </ul>
                                 </nav>
