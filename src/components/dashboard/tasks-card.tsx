@@ -11,6 +11,7 @@ import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import * as React from 'react';
+import { ScrollArea } from '../ui/scroll-area';
 
 const priorityVariantMap = {
     'Urgente': 'destructive',
@@ -41,7 +42,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
   }
 
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
@@ -57,45 +58,47 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
            <CheckCircle2 className="h-6 w-6 text-primary" />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col">
         {tasks.length > 0 ? (
-          <ul className="space-y-2">
-            {tasks.slice(0, 5).map((task) => (
-                <li key={task.id}>
-                  <TooltipProvider delayDuration={300}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                         <div
-                            onClick={() => onTaskClick(task)}
-                            className="flex items-center gap-3 p-2 w-full text-left group rounded-md hover:bg-muted/50 border cursor-pointer"
-                          >
-                            <div onClick={(e) => e.stopPropagation()}>
-                                <Checkbox 
-                                    id={`task-check-${task.id}`}
-                                    checked={task.status === 'done'}
-                                    onCheckedChange={(checked) => handleToggle(new MouseEvent('click') as unknown as React.MouseEvent, task, !!checked)}
-                                    aria-label={`Marcar tarefa "${task.title}" como concluída`}
-                                />
+          <ScrollArea className="flex-1">
+            <ul className="space-y-2 pr-2">
+              {tasks.slice(0, 5).map((task) => (
+                  <li key={task.id}>
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <div
+                              onClick={() => onTaskClick(task)}
+                              className="flex items-center gap-3 p-2 w-full text-left group rounded-md hover:bg-muted/50 border cursor-pointer"
+                            >
+                              <div onClick={(e) => e.stopPropagation()}>
+                                  <Checkbox 
+                                      id={`task-check-${task.id}`}
+                                      checked={task.status === 'done'}
+                                      onCheckedChange={(checked) => handleToggle(new MouseEvent('click') as unknown as React.MouseEvent, task, !!checked)}
+                                      aria-label={`Marcar tarefa "${task.title}" como concluída`}
+                                  />
+                              </div>
+                              <div className="flex-1">
+                                  <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                      Para: {task.assignee}
+                                  </p>
+                              </div>
+                              <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
                             </div>
-                            <div className="flex-1">
-                                <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    Para: {task.assignee}
-                                </p>
-                            </div>
-                            <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
-                          </div>
-                      </TooltipTrigger>
-                      {task.description && (
-                        <TooltipContent>
-                           <p className="max-w-xs">{task.description}</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-              </li>
-            ))}
-          </ul>
+                        </TooltipTrigger>
+                        {task.description && (
+                          <TooltipContent>
+                             <p className="max-w-xs">{task.description}</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                </li>
+              ))}
+            </ul>
+          </ScrollArea>
         ) : (
           <p className="text-sm text-muted-foreground">Nenhuma tarefa no momento.</p>
         )}

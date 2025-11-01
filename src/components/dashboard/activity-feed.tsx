@@ -52,7 +52,7 @@ function formatRelativeDate(dateString: string | undefined) {
 }
 
 const eventIcons: { [key: string]: { icon: React.ElementType, color: string, label: string } } = {
-    shiftReport: { icon: FileText, color: 'text-blue-500', label: 'Relatórios' },
+    shiftReport: { icon: FileText, color: 'text-blue-500', label: 'Evoluções' },
     supply: { icon: MessageSquareWarning, color: 'text-orange-500', label: 'Notificações' },
     alert: { icon: AlertTriangle, color: 'text-red-500', label: 'Notificações' },
     info: { icon: Bell, color: 'text-gray-500', label: 'Notificações' },
@@ -107,7 +107,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
       const config = eventIcons.shiftReport;
       icon = config.icon;
       color = config.color;
-      title = `Relatório de Plantão (${event.shift})`;
+      title = `Evolução de Plantão (${event.shift})`;
       details = event.observations;
       timestamp = event.reportDate;
       author = event.careTeamMemberName;
@@ -162,7 +162,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
   };
   
   return (
-    <Card className="flex flex-col flex-1">
+    <Card className="flex flex-col flex-1 max-h-[600px]">
       <CardHeader>
         <div className="flex items-center justify-between">
             <div>
@@ -184,7 +184,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
                         checked={filters.shiftReport}
                         onCheckedChange={(checked) => handleFilterChange('shiftReport', !!checked)}
                     >
-                       Relatórios
+                       Evoluções
                     </DropdownMenuCheckboxItem>
                      <DropdownMenuCheckboxItem
                         checked={filters.task}

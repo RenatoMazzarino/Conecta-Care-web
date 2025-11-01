@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { mockTasks, patients as mockPatients, professionals, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning, RefreshCw } from 'lucide-react';
-import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
+import { RecentEvolutionsCard } from '@/components/dashboard/recent-evolutions-card';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -147,7 +147,7 @@ export default function DashboardPage() {
       )}
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex">
+        <div className="lg:col-span-2">
           {isLoading ? (
             <Skeleton className="h-full w-full min-h-[500px]" />
           ) : !noData ? (
@@ -173,7 +173,7 @@ export default function DashboardPage() {
            {isLoading ? (
             <Skeleton className="h-[200px] w-full" />
           ) : !noData ? (
-            <RecentReportsCard reports={mockShiftReports} patients={mockPatients} />
+            <RecentEvolutionsCard reports={mockShiftReports} patients={mockPatients} />
           ) : null}
       </div>
 

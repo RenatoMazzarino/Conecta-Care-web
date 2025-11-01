@@ -14,7 +14,7 @@ const categories = [
     'Exame de Imagem',
     'Receita',
     'Laudo Médico',
-    'Relatório de Enfermagem',
+    'Evolução de Enfermagem',
     'Evolução Fisioterapia',
     'Plano Alimentar Nutrição',
     'Outros'
