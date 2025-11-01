@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -154,7 +155,7 @@ export default function DashboardPage() {
             <ActivityFeed events={activityEvents} />
           ) : null}
         </div>
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             {isLoading ? (
               <>
                   <Skeleton className="h-[250px] w-full" />
