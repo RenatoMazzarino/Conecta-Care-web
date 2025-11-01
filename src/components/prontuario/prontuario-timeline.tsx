@@ -24,14 +24,14 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                     style={{ height: `${currentProgress}%`}} 
                 />
                 
-                <div className="space-y-8">
+                <div className="space-y-4">
                     {mockShiftHistory.map((event, index) => (
-                        <div key={index} className="relative flex items-start gap-4">
+                        <div key={index} className="relative flex items-start gap-4 group cursor-pointer p-2 -m-2 rounded-lg transition-colors hover:bg-accent">
                             <div className={cn(
-                                "absolute left-6 -translate-x-1/2 mt-1 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-card",
+                                "absolute left-6 -translate-x-1/2 mt-1 flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-card transition-colors",
                                 index * (100 / (mockShiftHistory.length -1)) <= currentProgress ? 'bg-primary' : 'bg-muted'
                             )}>
-                                <event.icon className={cn("h-4 w-4", index * (100 / (mockShiftHistory.length -1)) <= currentProgress ? 'text-primary-foreground' : 'text-muted-foreground')} />
+                                <event.icon className={cn("h-4 w-4 transition-colors", index * (100 / (mockShiftHistory.length -1)) <= currentProgress ? 'text-primary-foreground' : 'text-muted-foreground')} />
                             </div>
                             <div className={cn("ml-12 w-full transition-opacity", index * (100 / (mockShiftHistory.length -1)) > currentProgress && "opacity-40")}>
                                 <div className="flex justify-between items-center">
