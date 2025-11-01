@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, FileHeart, Edit } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
@@ -124,7 +124,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                            )}
-                           <div>
+                           <div className="flex text-center sm:text-left flex-col space-y-1.5">
                             <SheetTitle>
                                 {isLoading ? <Skeleton className="h-8 w-48" /> : displayData?.name}
                             </SheetTitle>
