@@ -68,7 +68,7 @@
 
 @layer components {
   .fichario-container {
-      @apply flex flex-row-reverse h-full w-full relative;
+      @apply flex w-full h-full;
   }
 
   .fichario-pages-stack {
@@ -77,7 +77,7 @@
   }
 
   .fichario-pagina {
-      @apply absolute inset-0 bg-card rounded-l-lg border transition-all duration-300 ease-in-out;
+      @apply absolute inset-0 bg-card rounded-r-lg border transition-all duration-300 ease-in-out;
       transform-origin: left center;
   }
 
@@ -110,7 +110,7 @@
 
   /* Wrapper da navegação das abas */
   .fichario-nav {
-      @apply relative z-30 pt-16 pr-1 order-first;
+      @apply relative z-30 pt-16 pr-2 order-first;
   }
   .fichario-nav ul {
       @apply list-none p-0 m-0 space-y-2;
@@ -148,7 +148,7 @@
   /* Responsividade para telas menores */
   @media (max-width: 1024px) {
     .fichario-container {
-        @apply flex-col-reverse;
+        @apply flex-col;
     }
     .fichario-nav {
         @apply flex-shrink-0 order-first p-2 flex flex-row overflow-x-auto;
