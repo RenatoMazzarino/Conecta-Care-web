@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import type { Patient } from '@/lib/types';
+import type { Patient, Professional } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Edit, Save, X, Phone, Home, DollarSign, Badge, FileText, CalendarDays } from 'lucide-react';
+import { User, Edit, Save, X, Phone, Home, DollarSign, FileText, Briefcase, UserCheck, HeartPulse } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
-import { patients as mockPatients } from '@/lib/data';
+import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 export default function PatientProfilePage() {
   const params = useParams();
@@ -24,20 +26,17 @@ export default function PatientProfilePage() {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
   const [patient, setPatient] = React.useState<Patient | null>(null);
+  const [professionals, setProfessionals] = React.useState<Professional[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
         const foundPatient = mockPatients.find(p => p.id === patientId);
         if (foundPatient) {
-            const patientWithCounts = {
-                ...foundPatient,
-                lowStockCount: 0,
-                criticalStockCount: 0,
-            };
-            setPatient(patientWithCounts);
-            setEditedData(JSON.parse(JSON.stringify(patientWithCounts))); // Deep copy
+            setPatient(foundPatient);
+            setEditedData(JSON.parse(JSON.stringify(foundPatient))); // Deep copy
         }
+        setProfessionals(mockProfessionals);
         setIsLoading(false);
     }, 500);
      return () => clearTimeout(timer);
@@ -83,14 +82,25 @@ export default function PatientProfilePage() {
   
   const displayData = isEditing ? editedData : patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
+  
+  const supervisors = React.useMemo(() => 
+    professionals.filter(p => p.role === 'Supervisor(a)'), 
+    [professionals]
+  );
+  
+  const schedulers = React.useMemo(() => 
+    professionals.filter(p => p.role === 'Escalista'),
+    [professionals]
+  );
 
   if (isLoading) {
     return (
         <div className="space-y-6">
             <Skeleton className="h-10 w-1/3" />
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-3 gap-6">
                 <Skeleton className="h-64 w-full" />
                 <Skeleton className="h-48 w-full" />
+                 <Skeleton className="h-48 w-full" />
             </div>
             <Skeleton className="h-48 w-full" />
             <Skeleton className="h-72 w-full" />
@@ -110,13 +120,16 @@ export default function PatientProfilePage() {
     );
   }
   
-  const ValueDisplay = ({ children }: { children: React.ReactNode }) => <p className="font-medium mt-1">{children || '-'}</p>;
+  const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => <p className={cn("font-medium mt-1", className)}>{children || '-'}</p>;
 
   return (
     <div className="space-y-6">
        <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Ficha Cadastral do Paciente</h1>
+           <div className="flex items-center gap-3">
+             <h1 className="text-3xl font-bold text-foreground">{displayData.name}</h1>
+             <Badge variant={displayData.status === 'Ativo' ? 'secondary' : 'destructive'}>{displayData.status}</Badge>
+           </div>
           <p className="text-muted-foreground mt-1">Informações administrativas, financeiras e de contato.</p>
         </div>
         <div className="flex gap-2">
@@ -132,8 +145,8 @@ export default function PatientProfilePage() {
         </div>
       </div>
       
-       <div className="grid lg:grid-cols-2 gap-6">
-            <Card>
+       <div className="grid lg:grid-cols-3 gap-6 items-start">
+            <Card className="lg:col-span-1">
             <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><User className="w-5 h-5 text-primary" />Dados Pessoais</CardTitle></CardHeader>
             <CardContent className="space-y-4">
                 <div>
@@ -163,7 +176,7 @@ export default function PatientProfilePage() {
             </CardContent>
             </Card>
 
-            <Card>
+             <Card className="lg:col-span-1">
             <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Phone className="w-5 h-5 text-primary" />Contato de Emergência</CardTitle></CardHeader>
             <CardContent className="space-y-4">
                 <div>
@@ -176,7 +189,93 @@ export default function PatientProfilePage() {
                 </div>
             </CardContent>
             </Card>
+
+             <Card className="lg:col-span-1">
+            <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><HeartPulse className="w-5 h-5 text-primary" />Gestão Interna</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+               <div>
+                  <Label>Status</Label>
+                  {isEditing ? (
+                    <Select value={editedData?.status || ''} onValueChange={v => handleChange('status', v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ativo">Ativo</SelectItem>
+                        <SelectItem value="Inativo">Inativo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <ValueDisplay><Badge variant={displayData.status === 'Ativo' ? 'secondary' : 'destructive'}>{displayData.status}</Badge></ValueDisplay>
+                  )}
+                </div>
+                 <div>
+                  <Label>Complexidade</Label>
+                  {isEditing ? (
+                    <Select value={editedData?.complexity || ''} onValueChange={v => handleChange('complexity', v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="baixa">Baixa</SelectItem>
+                        <SelectItem value="media">Média</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <ValueDisplay>{displayData.complexity.charAt(0).toUpperCase() + displayData.complexity.slice(1)}</ValueDisplay>
+                  )}
+                </div>
+                 <div>
+                  <Label>Pacote de Serviço</Label>
+                   {isEditing ? (
+                    <Select value={editedData?.servicePackage || ''} onValueChange={v => handleChange('servicePackage', v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Básico">Básico</SelectItem>
+                        <SelectItem value="Intermediário">Intermediário</SelectItem>
+                        <SelectItem value="Completo">Completo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <ValueDisplay>{displayData.servicePackage}</ValueDisplay>
+                  )}
+                </div>
+            </CardContent>
+            </Card>
       </div>
+       
+        <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg"><UserCheck className="w-5 h-5 text-primary" />Responsáveis</CardTitle>
+            <CardDescription>Profissionais responsáveis pelo gerenciamento e escala do paciente.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label>Supervisor(a)</Label>
+              {isEditing ? (
+                <Select value={editedData?.supervisorId || ''} onValueChange={v => handleChange('supervisorId', v)}>
+                  <SelectTrigger><SelectValue placeholder="Selecione um supervisor..." /></SelectTrigger>
+                  <SelectContent>
+                    {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <ValueDisplay>{supervisors.find(s => s.id === displayData.supervisorId)?.name || 'Não atribuído'}</ValueDisplay>
+              )}
+            </div>
+             <div>
+              <Label>Escalista</Label>
+               {isEditing ? (
+                <Select value={editedData?.schedulerId || ''} onValueChange={v => handleChange('schedulerId', v)}>
+                  <SelectTrigger><SelectValue placeholder="Selecione um escalista..." /></SelectTrigger>
+                  <SelectContent>
+                    {schedulers.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <ValueDisplay>{schedulers.find(s => s.id === displayData.schedulerId)?.name || 'Não atribuído'}</ValueDisplay>
+              )}
+            </div>
+        </CardContent>
+      </Card>
+
 
        <Card>
         <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Home className="w-5 h-5 text-primary" />Endereço</CardTitle></CardHeader>
@@ -222,7 +321,7 @@ export default function PatientProfilePage() {
         <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><DollarSign className="w-5 h-5 text-primary" />Informações Financeiras</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <Label>Tipo de Pagamento</Label>
+              <Label>Tipo de Vínculo</Label>
               {isEditing ? (
                 <Select value={editedData?.financial.plan || ''} onValueChange={v => handleChange('financial.plan', v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -247,7 +346,7 @@ export default function PatientProfilePage() {
                     </div>
                 </>
             )}
-             <div className={displayData.financial.plan === 'plano_de_saude' ? '' : 'col-span-3'}>
+             <div className={displayData.financial.plan === 'plano_de_saude' ? '' : 'col-span-2'}>
                 <Label>Mensalidade (R$)</Label>
                 {isEditing ? <Input type="number" value={editedData?.financial.monthlyFee || 0} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{displayData.financial.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
             </div>
@@ -260,3 +359,4 @@ export default function PatientProfilePage() {
     </div>
   );
 }
+
