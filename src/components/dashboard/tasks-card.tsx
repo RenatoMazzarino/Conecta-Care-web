@@ -1,3 +1,5 @@
+'use client';
+
 import { CheckCircle2, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,9 +69,10 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
                                 id={`task-check-${task.id}`}
                                 checked={task.status === 'done'}
                                 onCheckedChange={(checked) => handleToggle(task, !!checked)}
+                                onClick={(e) => e.stopPropagation()}
                                 aria-label={`Marcar tarefa "${task.title}" como concluída`}
                             />
-                            <CollapsibleTrigger className="flex-1 flex items-center justify-between text-left">
+                            <CollapsibleTrigger className="flex-1 flex items-center justify-between text-left cursor-pointer">
                                 <div className="flex-1">
                                     <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
                                     <p className="text-xs text-muted-foreground">
@@ -83,7 +86,7 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
                             </CollapsibleTrigger>
                         </div>
                         <CollapsibleContent>
-                            <div className="px-4 pb-3 space-y-3">
+                            <div className="px-4 pb-3 space-y-3 border-t pt-3">
                                 {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
                                 <Button variant="secondary" size="sm" asChild>
                                     <Link href="/tasks">Ver Detalhes</Link>
