@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
+import { FileText, BookUser } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { ShiftReport, Patient } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '../ui/button';
 
 function formatRelativeDate(dateString: string) {
     const date = new Date(dateString);
@@ -32,7 +33,7 @@ export function RecentReportsCard({ reports, patients }: { reports: ShiftReport[
             {reports.map((report) => {
               const patient = patients.find(p => p.id === report.patientId);
               return (
-                <div key={report.id} className="p-4 bg-muted/50 rounded-lg">
+                <div key={report.id} className="relative group p-4 bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
@@ -49,6 +50,16 @@ export function RecentReportsCard({ reports, patients }: { reports: ShiftReport[
                         </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{report.observations}</p>
+                     <div className="absolute inset-0 bg-gradient-to-t from-accent/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                     <div className="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Button variant="outline" size="sm" asChild>
+                             <Link href={`/patients/${patient?.id}`}>
+                                <BookUser className="mr-2 h-4 w-4" />
+                                Ver Prontuário
+                            </Link>
+                        </Button>
+                        <Button size="sm">Ver Relatório</Button>
+                    </div>
                 </div>
               )
             })}
