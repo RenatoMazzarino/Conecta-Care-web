@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import * as React from 'react';
 
 const priorityVariantMap = {
     'Urgente': 'destructive',
