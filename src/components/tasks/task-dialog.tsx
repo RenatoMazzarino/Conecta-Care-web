@@ -42,20 +42,23 @@ export function TaskDialog({
 }: TaskDialogProps) {
   const { toast } = useToast();
   const [formData, setFormData] = React.useState<Partial<Task>>({});
+  const titleInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    if (task) {
-      setFormData(task);
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        status: 'todo',
-        priority: 'Média',
-        assignee: undefined,
-        dueDate: undefined,
-        patientId: undefined,
-      });
+    if (isOpen) {
+        if (task) {
+            setFormData(task);
+        } else {
+            setFormData({
+                title: '',
+                description: '',
+                status: 'todo',
+                priority: 'Média',
+                assignee: undefined,
+                dueDate: undefined,
+                patientId: undefined,
+            });
+        }
     }
   }, [task, isOpen]);
   
@@ -73,9 +76,15 @@ export function TaskDialog({
     onOpenChange(false);
   };
   
+  // Efeito para desfocar o input e remover a seleção de texto
+  const handleOpenAutoFocus = (e: Event) => {
+    e.preventDefault();
+    titleInputRef.current?.blur();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" onOpenAutoFocus={handleOpenAutoFocus}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{task ? 'Editar Tarefa' : 'Nova Tarefa'}</DialogTitle>
@@ -86,7 +95,13 @@ export function TaskDialog({
           <div className="grid gap-4 py-6">
             <div className="grid gap-2">
               <Label htmlFor="title">Título</Label>
-              <Input id="title" value={formData.title || ''} onChange={e => handleChange('title', e.target.value)} placeholder="Ex: Comprar novos suprimentos para o paciente X" autoFocus={false} />
+              <Input
+                id="title"
+                ref={titleInputRef}
+                value={formData.title || ''}
+                onChange={e => handleChange('title', e.target.value)}
+                placeholder="Ex: Comprar novos suprimentos para o paciente X"
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Descrição (Opcional)</Label>
