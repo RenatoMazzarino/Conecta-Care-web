@@ -65,13 +65,14 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
                 <li key={task.id} className="rounded-md hover:bg-muted/50 border">
                     <Collapsible>
                         <div className="flex items-center gap-3 p-2 w-full text-left group">
-                            <Checkbox 
-                                id={`task-check-${task.id}`}
-                                checked={task.status === 'done'}
-                                onCheckedChange={(checked) => handleToggle(task, !!checked)}
-                                onClick={(e) => e.stopPropagation()}
-                                aria-label={`Marcar tarefa "${task.title}" como concluída`}
-                            />
+                            <div onClick={e => e.stopPropagation()}>
+                                <Checkbox 
+                                    id={`task-check-${task.id}`}
+                                    checked={task.status === 'done'}
+                                    onCheckedChange={(checked) => handleToggle(task, !!checked)}
+                                    aria-label={`Marcar tarefa "${task.title}" como concluída`}
+                                />
+                            </div>
                             <CollapsibleTrigger className="flex-1 flex items-center justify-between text-left cursor-pointer">
                                 <div className="flex-1">
                                     <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
