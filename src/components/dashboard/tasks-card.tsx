@@ -1,4 +1,4 @@
-import { Check, CheckCircle2, ChevronRight, X } from 'lucide-react';
+import { CheckCircle2, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -62,23 +62,26 @@ export function TasksCard({ tasks, onTaskUpdate }: { tasks: Task[], onTaskUpdate
             {tasks.slice(0, 5).map((task) => (
                 <li key={task.id} className="rounded-md hover:bg-muted/50 border">
                     <Collapsible>
-                         <CollapsibleTrigger className="flex items-center gap-3 p-2 w-full text-left group">
+                        <div className="flex items-center gap-3 p-2 w-full text-left group">
                             <Checkbox 
                                 id={`task-check-${task.id}`}
                                 checked={task.status === 'done'}
                                 onCheckedChange={(checked) => handleToggle(task, !!checked)}
-                                onClick={(e) => e.stopPropagation()}
                                 aria-label={`Marcar tarefa "${task.title}" como concluída`}
                             />
-                            <label htmlFor={`task-check-${task.id}`} className="flex-1 cursor-pointer" onClick={(e) => e.stopPropagation()}>
-                                <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    Para: {task.assignee}
-                                </p>
-                            </label>
-                            <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
-                            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-90" />
-                        </CollapsibleTrigger>
+                            <CollapsibleTrigger className="flex-1 flex items-center justify-between text-left">
+                                <div className="flex-1">
+                                    <p className={cn("font-medium text-sm", task.status === 'done' && 'line-through text-muted-foreground')}>{task.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Para: {task.assignee}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant={priorityVariantMap[task.priority]}>{task.priority}</Badge>
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-90" />
+                                </div>
+                            </CollapsibleTrigger>
+                        </div>
                         <CollapsibleContent>
                             <div className="px-4 pb-3 space-y-3">
                                 {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
