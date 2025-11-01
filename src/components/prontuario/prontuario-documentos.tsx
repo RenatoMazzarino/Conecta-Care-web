@@ -41,10 +41,6 @@ export function ProntuarioDocumentos() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Central de Documentos</CardTitle>
-                <CardDescription>Visualize e gerencie todos os documentos e exames do paciente.</CardDescription>
-            </CardHeader>
-            <CardContent>
                 <div className="flex items-center justify-between mb-4 gap-4">
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -68,6 +64,8 @@ export function ProntuarioDocumentos() {
                         </SelectContent>
                     </Select>
                 </div>
+            </CardHeader>
+            <CardContent>
                 <div className="rounded-md border">
                     <Table>
                         <TableHeader>

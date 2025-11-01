@@ -1,28 +1,24 @@
-
 'use client';
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, Edit, Save, X, FileText, AlertCircle, Upload, CheckSquare, ArrowLeft } from 'lucide-react';
+import { User, Phone, Edit, Save, X, FileText, Upload, CheckSquare, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, BookUser, FileHeart, Brain, Bone } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Link from 'next/link';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
 import { ProntuarioEnfermagem } from '@/components/prontuario/prontuario-enfermagem';
 import { ProntuarioMedico } from '@/components/prontuario/prontuario-medico';
 import { ProntuarioFisioterapia } from '@/components/prontuario/prontuario-fisioterapia';
 import { ProntuarioNutricao } from '@/components/prontuario/prontuario-nutricao';
-import { Badge } from '@/components/ui/badge';
 import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documentos';
 import { ProntuarioUploadDialog } from '@/components/prontuario/prontuario-upload-dialog';
 import { patients as mockPatients } from '@/lib/data';
 import { FichaCadastral } from './ficha-cadastral';
+import { cn } from '@/lib/utils';
 
 interface PatientDetailsPanelProps {
     patientId: string;
@@ -30,6 +26,17 @@ interface PatientDetailsPanelProps {
     onOpenChange: (isOpen: boolean) => void;
     onPatientUpdate: (patient: Patient) => void;
 }
+
+const prontuarioTabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: Activity },
+    { id: 'enfermagem', label: 'Enfermagem', icon: FileHeart },
+    { id: 'medico', label: 'Médico', icon: Stethoscope },
+    { id: 'fisioterapia', label: 'Fisioterapia', icon: Dumbbell },
+    { id: 'nutricao', label: 'Nutrição', icon: Apple },
+    { id: 'psicologia', label: 'Psicologia', icon: Brain },
+    { id: 'fonoaudiologia', label: 'Fonoaudiologia', icon: Bone },
+    { id: 'documentos', label: 'Documentos', icon: FileText },
+];
 
 export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatientUpdate }: PatientDetailsPanelProps) {
     const { toast } = useToast();
@@ -40,15 +47,15 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     const [isEditing, setIsEditing] = React.useState(false);
     const [editedData, setEditedData] = React.useState<Patient | null>(null);
     
-    // View can be 'prontuario' or 'ficha'
     const [currentView, setCurrentView] = React.useState<'prontuario' | 'ficha'>('prontuario');
+    const [activeProntuarioTab, setActiveProntuarioTab] = React.useState('dashboard');
 
     React.useEffect(() => {
         if (isOpen && patientId) {
             setIsLoading(true);
-            setCurrentView('prontuario'); // Reset to default view when patient changes
-            setIsEditing(false); // Reset editing mode
-            // Simulate fetching data
+            setCurrentView('prontuario'); 
+            setActiveProntuarioTab('dashboard');
+            setIsEditing(false); 
             const timer = setTimeout(() => {
                 const foundPatient = mockPatients.find(p => p.id === patientId);
                 setPatient(foundPatient || null);
@@ -61,7 +68,6 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             }, 300);
             return () => clearTimeout(timer);
         } else if (!isOpen) {
-             // Clear data when panel closes to ensure fresh load next time
             setPatient(null);
             setEditedData(null);
             setIsLoading(true);
@@ -82,148 +88,49 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     const displayData = isEditing ? editedData : patient;
     const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
     
-    const renderContent = () => {
-        if (isLoading) {
-             return (
-                <div className="space-y-6 p-6">
-                    <div className="grid lg:grid-cols-3 gap-6">
-                        <Skeleton className="h-48 w-full" />
-                        <Skeleton className="h-48 w-full" />
-                        <Skeleton className="h-48 w-full" />
-                    </div>
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-72 w-full" />
-                </div>
-            );
+    const renderProntuarioContent = () => {
+        switch(activeProntuarioTab) {
+            case 'dashboard': return <ProntuarioDashboard isEditing={isEditing} editedData={editedData} setEditedData={setEditedData} />;
+            case 'enfermagem': return <ProntuarioEnfermagem />;
+            case 'medico': return <ProntuarioMedico />;
+            case 'fisioterapia': return <ProntuarioFisioterapia />;
+            case 'nutricao': return <ProntuarioNutricao />;
+            case 'documentos': return <ProntuarioDocumentos />;
+            default: return <div className="flex items-center justify-center h-full text-muted-foreground">Selecione uma seção</div>;
         }
-        
-        if (!displayData) {
-            return (
-                <Card>
-                    <CardContent className="p-12 text-center">
-                        <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                        <h2 className="text-xl font-semibold mb-2">Paciente não encontrado</h2>
-                        <p className="text-muted-foreground">O prontuário para este ID de paciente não foi encontrado.</p>
-                    </CardContent>
-                </Card>
-            )
-        }
-        
-        if (currentView === 'ficha') {
-            return <FichaCadastral 
-                        isEditing={isEditing}
-                        displayData={displayData}
-                        editedData={editedData}
-                        setEditedData={setEditedData}
-                    />
-        }
-
-        // Default to 'prontuario' view
-        return (
-             <div className="space-y-6">
-                <Card>
-                    <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-primary/10">
-                                <User className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">Paciente</p>
-                                <p className="font-semibold">{displayData.name}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-primary/10">
-                                <Phone className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">Contato de Emergência</p>
-                                <p className="font-semibold">{displayData.familyContact.name}</p>
-                                <p className="text-xs text-muted-foreground">{displayData.familyContact.phone}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-full bg-destructive/10 mt-1">
-                                <AlertCircle className="w-5 h-5 text-destructive" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">Condições e Alergias</p>
-                                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                    {displayData.chronicConditions?.length > 0 && displayData.chronicConditions.map((condition, i) => (
-                                        <Badge key={`cond-${i}`} variant="secondary">{condition}</Badge>
-                                    ))}
-                                    {displayData.allergies?.length > 0 && displayData.allergies.map((allergy, i) => (
-                                        <Badge key={`allergy-${i}`} variant="destructive">{allergy}</Badge>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Tabs defaultValue="dashboard" className="w-full">
-                    <TabsList className="grid w-full grid-cols-6">
-                        <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                        <TabsTrigger value="enfermagem">Enfermagem</TabsTrigger>
-                        <TabsTrigger value="medico">Médico</TabsTrigger>
-                        <TabsTrigger value="fisioterapia">Fisioterapia</TabsTrigger>
-                        <TabsTrigger value="nutricao">Nutrição</TabsTrigger>
-                        <TabsTrigger value="documentos">Documentos</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="dashboard" className="mt-6">
-                        <ProntuarioDashboard 
-                            isEditing={isEditing}
-                            editedData={editedData}
-                            setEditedData={setEditedData}
-                        />
-                    </TabsContent>
-                    <TabsContent value="enfermagem" className="mt-6"><ProntuarioEnfermagem /></TabsContent>
-                    <TabsContent value="medico" className="mt-6"><ProntuarioMedico /></TabsContent>
-                    <TabsContent value="fisioterapia" className="mt-6"><ProntuarioFisioterapia /></TabsContent>
-                    <TabsContent value="nutricao" className="mt-6"><ProntuarioNutricao /></TabsContent>
-                    <TabsContent value="documentos" className="mt-6"><ProntuarioDocumentos /></TabsContent>
-                </Tabs>
-             </div>
-        );
     }
-    
+
     const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : null;
 
     return (
         <>
             <Sheet open={isOpen} onOpenChange={onOpenChange}>
-                <SheetContent className="w-full sm:max-w-[90vw] lg:max-w-[80vw] p-0 flex flex-col">
+                <SheetContent className="w-full sm:max-w-[90vw] lg:max-w-[85vw] p-0 flex flex-col">
                     <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0">
-                         <div className="flex items-center gap-4 flex-1">
+                        <div className="flex items-center gap-4 flex-1">
                            {currentView === 'ficha' && (
                                 <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                            )}
                            <div>
-                                {isLoading || !displayData ? (
-                                    <>
-                                        <SheetTitle><Skeleton className="h-8 w-48" /></SheetTitle>
-                                        <SheetDescription><Skeleton className="h-4 w-32 mt-1" /></SheetDescription>
-                                    </>
-                                ) : (
-                                    <>
-                                        <SheetTitle className="text-2xl">{displayData.name}</SheetTitle>
-                                        <SheetDescription>
-                                            {age ? `${age} anos` : ''}{age && displayData.cpf ? ' \u2022 ' : ''}{displayData.cpf}
-                                        </SheetDescription>
-                                    </>
-                                )}
+                                <SheetTitle className="text-2xl">
+                                    {isLoading ? <Skeleton className="h-8 w-48" /> : displayData?.name}
+                                </SheetTitle>
+                                <SheetDescription>
+                                     {isLoading ? <Skeleton className="h-4 w-32 mt-1" /> : (
+                                        <>{age ? `${age} anos` : ''}{age && displayData?.cpf ? ' \u2022 ' : ''}{displayData?.cpf}</>
+                                     )}
+                                </SheetDescription>
                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                              {currentView === 'prontuario' ? (
-                               <Button variant="outline" onClick={() => setCurrentView('ficha')} disabled={isLoading}><UserSquare className="mr-2 h-4 w-4"/>Ficha Cadastral</Button>
+                               <Button variant="outline" onClick={() => setCurrentView('ficha')} disabled={isLoading}><BookUser className="mr-2 h-4 w-4"/>Ficha Cadastral</Button>
                             ) : (
                                 <Button variant="outline" onClick={() => setCurrentView('prontuario')} disabled={isLoading}><FileText className="mr-2 h-4 w-4" />Ver Prontuário</Button>
                             )}
                             <Button onClick={() => setIsUploadOpen(true)} variant="outline" disabled={isLoading}><Upload className="mr-2 h-4 w-4"/>Anexar</Button>
-                            <Button variant="outline" disabled><CheckSquare className="mr-2 h-4 w-4"/>Criar Tarefa</Button>
                             {!isEditing ? (
                                 <Button onClick={() => setIsEditing(true)} disabled={isLoading}>
                                     <Edit className="w-4 h-4 mr-2" />
@@ -233,7 +140,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                                 <div className="flex gap-2">
                                     <Button onClick={() => {
                                         setIsEditing(false);
-                                        setEditedData(JSON.parse(JSON.stringify(patient))); // Reset changes
+                                        setEditedData(JSON.parse(JSON.stringify(patient)));
                                     }} variant="outline">
                                         <X className="w-4 h-4 mr-2" />
                                         Cancelar
@@ -246,8 +153,41 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                             )}
                         </div>
                     </SheetHeader>
-                    <div className="flex-1 overflow-y-auto bg-muted/40 p-6">
-                        {renderContent()}
+                    <div className="flex-1 overflow-y-auto bg-muted/40">
+                       {isLoading && (
+                             <div className="p-6"><Skeleton className="h-[70vh] w-full" /></div>
+                        )}
+
+                        {!isLoading && !displayData && (
+                            <div className="p-6 text-center text-muted-foreground">Paciente não encontrado.</div>
+                        )}
+                        
+                        {!isLoading && displayData && currentView === 'ficha' && (
+                             <div className="p-6"><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
+                        )}
+
+                        {!isLoading && displayData && currentView === 'prontuario' && (
+                            <div className="flex h-full">
+                                <aside className="w-64 border-r bg-card p-4">
+                                    <nav className="flex flex-col gap-1">
+                                        {prontuarioTabs.map(tab => (
+                                            <Button
+                                                key={tab.id}
+                                                variant={activeProntuarioTab === tab.id ? 'secondary' : 'ghost'}
+                                                className="w-full justify-start gap-3"
+                                                onClick={() => setActiveProntuarioTab(tab.id)}
+                                            >
+                                                <tab.icon className="h-5 w-5" />
+                                                {tab.label}
+                                            </Button>
+                                        ))}
+                                    </nav>
+                                </aside>
+                                <main className="flex-1 p-6 overflow-y-auto">
+                                    {renderProntuarioContent()}
+                                </main>
+                            </div>
+                        )}
                     </div>
                 </SheetContent>
             </Sheet>
@@ -257,11 +197,3 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
         </>
     );
 }
-
-const UserSquare = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2"/>
-    </svg>
-)
-
-    

@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -13,22 +12,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { FileText, UserSquare, Edit } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-
-function calculateAge(dateOfBirth: string) {
-  const birthDate = new Date(dateOfBirth);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return age;
-}
 
 const complexityVariant: { [key in Patient['complexity']]: string } = {
     baixa: 'bg-green-100 text-green-800 border-green-200',
@@ -86,7 +74,7 @@ export function PatientTable({
                 }
                 onCheckedChange={handleToggleSelectAll}
                 aria-label="Selecionar todos"
-                ref={(el) =>
+                 ref={(el) =>
                   el &&
                   (el.indeterminate =
                     selectedPatients.size > 0 &&
