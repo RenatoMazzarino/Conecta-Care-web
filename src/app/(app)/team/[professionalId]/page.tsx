@@ -4,7 +4,6 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { Professional } from '@/lib/types';
-import { AppHeader } from '@/components/app-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -56,34 +55,26 @@ export default function ProfessionalProfilePage() {
 
   if (isLoading) {
     return (
-        <>
-            <AppHeader title="Carregando Perfil..." />
-            <main className="p-6 space-y-6 max-w-7xl mx-auto w-full">
-                <Skeleton className="h-12 w-1/4" />
-                <Skeleton className="h-32 w-full" />
-                 <Skeleton className="h-12 w-full" />
-                 <Skeleton className="h-96 w-full" />
-            </main>
-        </>
+        <div className="space-y-6">
+            <Skeleton className="h-12 w-1/4" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-96 w-full" />
+        </div>
     );
   }
 
   if (!professional) {
     return (
-        <>
-            <AppHeader title="Profissional não encontrado" />
-            <main className="p-6 max-w-7xl mx-auto text-center">
-                <h2 className="text-xl font-semibold">Profissional não encontrado</h2>
-                <Button onClick={() => router.push('/team')} className="mt-4">Voltar para Equipe</Button>
-            </main>
-      </>
+        <div className="text-center">
+            <h2 className="text-xl font-semibold">Profissional não encontrado</h2>
+            <Button onClick={() => router.push('/team')} className="mt-4">Voltar para Equipe</Button>
+        </div>
     );
   }
 
   return (
-    <>
-    <AppHeader title={`Perfil de ${professional.name}`} />
-    <main className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full">
+    <div className="space-y-6">
         <Button variant="outline" size="sm" onClick={() => router.push('/team')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para a lista
@@ -139,7 +130,6 @@ export default function ProfessionalProfilePage() {
             <TeamDocumentsTab />
         </TabsContent>
       </Tabs>
-    </main>
-    </>
+    </div>
   );
 }

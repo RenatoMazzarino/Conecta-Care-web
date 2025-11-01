@@ -2,7 +2,6 @@
 'use client';
 
 import * as React from 'react';
-import { AppHeader } from '@/components/app-header';
 import { InventoryTable } from '@/components/inventory/inventory-table';
 import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
 import type { InventoryItem } from '@/lib/types';
@@ -68,10 +67,6 @@ export default function InventoryPage() {
 
   return (
     <>
-      <div className="sticky top-0 z-30">
-        <AppHeader title="Estoque" />
-      </div>
-      <main className="flex-1 p-4 sm:p-6 bg-background">
         <Card className="mb-6">
             <CardHeader>
                 <div className="flex items-center justify-between">
@@ -79,7 +74,7 @@ export default function InventoryPage() {
                         <CardTitle>Ferramentas de Desenvolvimento</CardTitle>
                         <CardDescription>Use este botão para popular o sistema com dados de simulação.</CardDescription>
                     </div>
-                     <Button onClick={handleSeedData}>
+                      <Button onClick={handleSeedData}>
                         Popular Dados de Simulação
                     </Button>
                 </div>
@@ -87,7 +82,7 @@ export default function InventoryPage() {
         </Card>
 
         {noData && (
-             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
+              <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center">
                 <div className="text-lg font-semibold mb-2">Inventário do paciente está vazio.</div>
                 <p className="mb-4 text-sm text-muted-foreground">
                     Clique no botão acima para popular o banco de dados com dados de simulação.
@@ -104,7 +99,6 @@ export default function InventoryPage() {
         {!isLoading && inventory && inventory.length > 0 && (
             <InventoryTable initialItems={inventory} onOpenRequisition={handleOpenRequisition}/>
         )}
-      </main>
       <RequisitionDialog 
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}

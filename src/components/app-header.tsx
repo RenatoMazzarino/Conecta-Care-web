@@ -1,20 +1,25 @@
+
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
-  Home,
-  ClipboardList,
+  Bell,
   BotMessageSquare,
-  PanelLeft,
-  HeartPulse,
-  LogOut,
-  Settings,
-  Users,
-  LineChart,
-  DollarSign,
   CalendarCheck,
+  ChevronDown,
+  ClipboardList,
+  DollarSign,
+  HeartPulse,
+  Home,
+  LineChart,
+  LogOut,
   MessageSquareWarning,
+  PanelLeft,
+  Search,
+  Settings,
   User,
+  Users,
 } from 'lucide-react';
 import {
   Sheet,
@@ -31,11 +36,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
 import { logoutAction } from '@/app/logout/actions';
+import { Input } from './ui/input';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/dashboard', label: 'Dashboard', icon: Home },
   { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
   { 
     id: 'pessoas',
@@ -56,8 +62,31 @@ const secondaryNavItems = [
   { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
 ];
 
+// Helper to find the current page title
+const getPageTitle = (pathname: string): string => {
+  for (const item of [...navItems, ...secondaryNavItems]) {
+    if (item.href === pathname) {
+      return item.label;
+    }
+    if (item.subItems) {
+      for (const subItem of item.subItems) {
+        if (pathname.startsWith(subItem.href)) {
+          // More specific patient/professional pages
+          if (pathname.includes('/patients/')) return 'Prontuário do Paciente';
+          if (pathname.includes('/team/')) return 'Perfil do Profissional';
+          return subItem.label;
+        }
+      }
+    }
+  }
+  return 'Dashboard'; // Default title
+};
 
-export function AppHeader({ title }: { title: string }) {
+
+export function AppHeader() {
+  const pathname = usePathname();
+  const title = getPageTitle(pathname);
+
   const renderNavItem = (item: any) => {
     if (item.subItems) {
       return (
@@ -65,6 +94,7 @@ export function AppHeader({ title }: { title: string }) {
             <CollapsibleTrigger className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground w-full">
               <item.icon className="h-5 w-5" />
               {item.label}
+              <ChevronDown className="ml-auto h-4 w-4 transition-transform [&[data-state=open]]:rotate-180" />
             </CollapsibleTrigger>
             <CollapsibleContent className="pl-10 mt-2 space-y-4">
               {item.subItems.map((sub: any) => (
@@ -96,7 +126,7 @@ export function AppHeader({ title }: { title: string }) {
 
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
         <SheetTrigger asChild>
           <Button size="icon" variant="outline" className="sm:hidden">
@@ -120,9 +150,19 @@ export function AppHeader({ title }: { title: string }) {
         </SheetContent>
       </Sheet>
 
-      <div className="flex-1">
-        <h1 className="font-semibold text-xl font-headline">{title}</h1>
+      <div className="relative ml-auto flex-1 md:grow-0">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Pesquisar..."
+          className="w-full rounded-lg bg-muted pl-8 md:w-[200px] lg:w-[336px]"
+        />
       </div>
+
+      <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
+         <Bell className="h-5 w-5" />
+         <span className="sr-only">Notificações</span>
+      </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

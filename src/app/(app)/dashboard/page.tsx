@@ -1,8 +1,8 @@
+
 'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AppHeader } from '@/components/app-header';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { RecentReportsCard } from '@/components/dashboard/recent-reports-card';
 import { CommunicationsCard } from '@/components/dashboard/communications-card';
@@ -46,62 +46,57 @@ export default function DashboardPage() {
 
   return (
     <>
-      <AppHeader title="Dashboard" />
-      <main className="flex-1 p-4 sm:p-6 bg-background">
-        
-         {isLoading ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {[...Array(4)].map((_,i) => <Skeleton key={i} className="h-28 w-full" />)}
-            </div>
-         ) : noData ? (
-             <Card>
-                <CardHeader>
-                    <CardTitle>Bem-vindo ao CareSync</CardTitle>
-                    <CardDescription>Nenhum dado de paciente encontrado.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="mb-4 text-sm text-muted-foreground">
-                        Para começar, por favor, popule o sistema com dados de simulação na página de Estoque.
-                    </p>
-                    <Button asChild>
-                        <Link href="/inventory">Ir para a página de Estoque</Link>
-                    </Button>
-                </CardContent>
-               </Card>
-         ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {stats.map(stat => (
-                    <StatsCard key={stat.title} {...stat} />
-                ))}
-            </div>
-         )}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {isLoading ? (
+              [...Array(4)].map((_,i) => <Skeleton key={i} className="h-28 w-full" />)
+          ) : noData ? null : (
+              stats.map(stat => (
+                  <StatsCard key={stat.title} {...stat} />
+              ))
+          )}
+      </div>
 
+      {noData && (
+          <Card>
+              <CardHeader>
+                  <CardTitle>Bem-vindo ao CareSync</CardTitle>
+                  <CardDescription>Nenhum dado de paciente encontrado.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                      Para começar, por favor, popule o sistema com dados de simulação na página de Estoque.
+                  </p>
+                  <Button asChild>
+                      <Link href="/inventory">Ir para a página de Estoque</Link>
+                  </Button>
+              </CardContent>
+          </Card>
+      )}
 
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
+      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          {isLoading ? (
+            <Skeleton className="h-[400px] w-full" />
+          ) : (
+            <>
+              {reports && <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />}
+            </>
+          )}
+        </div>
+        <div className="space-y-6">
             {isLoading ? (
-              <Skeleton className="h-[400px] w-full" />
+              <>
+                  <Skeleton className="h-[250px] w-full" />
+                  <Skeleton className="h-[300px] w-full" />
+              </>
             ) : (
               <>
-                {reports && <RecentReportsCard reports={reports} patients={patient ? [patient] : []} />}
+                  {tasks && <TasksCard tasks={tasks} />}
+                  {notifications && <CommunicationsCard notifications={notifications} />}
               </>
             )}
-          </div>
-          <div className="space-y-6">
-             {isLoading ? (
-                <>
-                    <Skeleton className="h-[250px] w-full" />
-                    <Skeleton className="h-[300px] w-full" />
-                </>
-             ) : (
-                <>
-                    {tasks && <TasksCard tasks={tasks} />}
-                    {notifications && <CommunicationsCard notifications={notifications} />}
-                </>
-             )}
-          </div>
         </div>
-      </main>
+      </div>
     </>
   );
 }

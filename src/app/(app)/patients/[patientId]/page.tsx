@@ -1,9 +1,9 @@
+
 'use client';
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 import type { Patient } from '@/lib/types';
-import { AppHeader } from '@/components/app-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -80,45 +80,35 @@ export default function PatientDetailPage() {
 
   if (isLoading) {
     return (
-        <>
-            <AppHeader title="Carregando Prontuário..." />
-            <main className="p-6 space-y-6 max-w-7xl mx-auto">
-                <Skeleton className="h-10 w-1/3" />
-                <div className="grid lg:grid-cols-3 gap-6">
-                    <Skeleton className="h-48 w-full" />
-                    <Skeleton className="h-48 w-full" />
-                    <Skeleton className="h-48 w-full" />
-                </div>
-                 <Skeleton className="h-12 w-full" />
-                 <Skeleton className="h-72 w-full" />
-            </main>
-        </>
+        <div className="space-y-6">
+            <Skeleton className="h-10 w-1/3" />
+            <div className="grid lg:grid-cols-3 gap-6">
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-48 w-full" />
+            </div>
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-72 w-full" />
+        </div>
     );
   }
 
   if (!displayData) {
     return (
-        <>
-            <AppHeader title="Paciente não encontrado" />
-            <main className="p-6 max-w-7xl mx-auto">
-                <Card>
-                <CardContent className="p-12 text-center">
-                    <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold mb-2">Paciente não encontrado</h2>
-                    <p className="text-muted-foreground">O prontuário para este ID de paciente não foi encontrado.</p>
-                </CardContent>
-                </Card>
-            </main>
-      </>
+        <Card>
+          <CardContent className="p-12 text-center">
+              <User className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Paciente não encontrado</h2>
+              <p className="text-muted-foreground">O prontuário para este ID de paciente não foi encontrado.</p>
+          </CardContent>
+        </Card>
     );
   }
   
   const age = patient ? new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear() : 0;
 
   return (
-    <>
-    <AppHeader title={`Prontuário de ${patient?.name || ''}`} />
-    <main className="p-6 space-y-6 max-w-7xl mx-auto w-full">
+    <div className="space-y-6">
        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Prontuário do Paciente</h1>
@@ -229,7 +219,6 @@ export default function PatientDetailPage() {
         </TabsContent>
       </Tabs>
       <ProntuarioUploadDialog isOpen={isUploadOpen} onOpenChange={setIsUploadOpen} />
-    </main>
-    </>
+    </div>
   );
 }

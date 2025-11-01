@@ -1,7 +1,7 @@
+
 'use client';
 
 import * as React from 'react';
-import { AppHeader } from '@/components/app-header';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -84,9 +84,7 @@ export default function CommunicationsPage() {
     const patient = patients.find(p => p.id === selectedConversation.patientId);
 
     return (
-    <>
-      <AppHeader title="Central de Comunicações" />
-      <div className="flex h-[calc(100vh-4rem)] bg-background">
+      <div className="flex h-[calc(100vh-6.5rem)] bg-background border rounded-lg">
         
         {/* Coluna 1: Canais e Filtros */}
         <aside className="w-72 border-r flex flex-col">
@@ -235,6 +233,5 @@ export default function CommunicationsPage() {
             </div>
         </main>
       </div>
-    </>
   );
 }

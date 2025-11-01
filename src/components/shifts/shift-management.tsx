@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -317,7 +318,7 @@ export function ShiftManagement() {
   
   if (isLoading) {
     return (
-        <div className="p-4 sm:p-6 space-y-6">
+        <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">
                 {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
             </div>
@@ -327,8 +328,8 @@ export function ShiftManagement() {
   }
 
   return (
-    <div className="p-4 sm:p-6">
-       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+    <div className="h-full flex flex-col gap-6">
+       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
          <div className="flex items-center gap-2">
            {!isMobile && (
               <>
@@ -359,7 +360,7 @@ export function ShiftManagement() {
         </div>
        </div>
 
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-6">
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
             <StatCard 
                 title="Todos os Plantões"
                 value={totalShifts}
