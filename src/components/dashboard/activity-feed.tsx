@@ -137,18 +137,16 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     const IconComp = icon;
 
     return (
-      <li className="relative flex gap-4 pb-8 group">
+      <li className="relative flex items-start gap-4 pb-8 group">
           {/* Timeline line */}
-          <div className="absolute left-[15px] top-5 h-full w-px bg-border group-last:hidden" />
+          <div className="absolute left-4 top-5 h-full w-px bg-border group-last:hidden" />
 
-          {/* Icon container */}
-          <div className="flex-shrink-0 z-10">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background ring-4 ring-card">
-                  <IconComp className={cn("h-5 w-5", color)} />
-              </div>
-          </div>
+          <Link href={href} className="flex-shrink-0 z-10 -m-2 p-2 rounded-full">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-card ring-4 ring-card">
+              <IconComp className={cn("h-5 w-5", color)} />
+            </div>
+          </Link>
           
-          {/* Content container */}
           <div className="flex-1 min-w-0">
               <Link href={href} className="block hover:bg-accent/50 p-2 -m-2 rounded-md transition-colors">
                   <div className="flex items-center justify-between">
@@ -179,27 +177,27 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
                       {activeFilterCount > 0 && <span className="ml-2 bg-primary text-primary-foreground h-5 w-5 text-xs rounded-full flex items-center justify-center">{activeFilterCount}</span>}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-card">
                     <DropdownMenuLabel>Filtrar por tipo de evento</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuCheckboxItem
                         checked={filters.shiftReport}
-                        onCheckedChange={(checked) => handleFilterChange('shiftReport', checked)}
+                        onCheckedChange={(checked) => handleFilterChange('shiftReport', !!checked)}
                     >
                        Relatórios
                     </DropdownMenuCheckboxItem>
                      <DropdownMenuCheckboxItem
                         checked={filters.task}
-                        onCheckedChange={(checked) => handleFilterChange('task', checked)}
+                        onCheckedChange={(checked) => handleFilterChange('task', !!checked)}
                     >
                         Tarefas
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                         checked={filters.alert || filters.supply || filters.info}
                         onCheckedChange={(checked) => {
-                            handleFilterChange('alert', checked);
-                            handleFilterChange('supply', checked);
-                            handleFilterChange('info', checked);
+                            handleFilterChange('alert', !!checked);
+                            handleFilterChange('supply', !!checked);
+                            handleFilterChange('info', !!checked);
                         }}
                     >
                         Notificações
@@ -207,7 +205,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
                     {activeFilterCount > 0 && (
                       <>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={clearFilters} className="text-red-500">
+                        <DropdownMenuItem onClick={clearFilters} className="text-destructive">
                           <X className="mr-2 h-4 w-4" />
                           Limpar Filtros
                         </DropdownMenuItem>
