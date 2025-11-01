@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { User, Edit, Save, X, Phone, Home, DollarSign, FileText, Briefcase, UserCheck, HeartPulse } from 'lucide-react';
+import { User, Edit, Save, X, Phone, Home, DollarSign, FileText, Briefcase, UserCheck, HeartPulse, Fingerprint } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import Link from 'next/link';
@@ -120,7 +120,7 @@ export default function PatientProfilePage() {
     );
   }
   
-  const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => <p className={cn("font-medium mt-1", className)}>{children || '-'}</p>;
+  const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => <p className={cn("font-medium mt-1 text-sm text-foreground", className)}>{children || '-'}</p>;
 
   return (
     <div className="space-y-6">
@@ -149,6 +149,10 @@ export default function PatientProfilePage() {
             <Card className="lg:col-span-1">
             <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><User className="w-5 h-5 text-primary" />Dados Pessoais</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+                <div>
+                    <Label>ID do Paciente</Label>
+                    <ValueDisplay className="font-mono text-xs">{displayData.id}</ValueDisplay>
+                </div>
                 <div>
                     <Label>Nome Completo</Label>
                     {isEditing ? <Input value={editedData?.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{displayData.name}</ValueDisplay>}
@@ -359,4 +363,3 @@ export default function PatientProfilePage() {
     </div>
   );
 }
-
