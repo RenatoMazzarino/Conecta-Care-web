@@ -14,7 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Label } from '@/components/ui/label';
 
 export default function PatientsPage() {
   const { toast } = useToast();
@@ -31,7 +32,8 @@ export default function PatientsPage() {
   const [packageFilter, setPackageFilter] = React.useState('all');
   const [planFilter, setPlanFilter] = React.useState('all');
   const [supervisorFilter, setSupervisorFilter] = React.useState('all');
-
+  const [cityFilter, setCityFilter] = React.useState('');
+  const [stateFilter, setStateFilter] = React.useState('');
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -55,9 +57,19 @@ export default function PatientsPage() {
     setPackageFilter('all');
     setPlanFilter('all');
     setSupervisorFilter('all');
+    setCityFilter('');
+    setStateFilter('');
   }
 
-  const activeFilterCount = [searchTerm, complexityFilter, packageFilter, planFilter, supervisorFilter].filter(f => f && f !== 'all').length;
+  const activeFilterCount = [
+    searchTerm, 
+    complexityFilter, 
+    packageFilter, 
+    planFilter, 
+    supervisorFilter,
+    cityFilter,
+    stateFilter
+  ].filter(f => f && f !== 'all').length;
 
 
   React.useEffect(() => {
@@ -78,9 +90,15 @@ export default function PatientsPage() {
     if (supervisorFilter !== 'all') {
         results = results.filter(p => p.supervisorId === supervisorFilter);
     }
+    if (cityFilter) {
+      results = results.filter(p => p.address.city.toLowerCase().includes(cityFilter.toLowerCase()));
+    }
+    if (stateFilter) {
+      results = results.filter(p => p.address.state.toLowerCase().includes(stateFilter.toLowerCase()));
+    }
 
     setFilteredPatients(results);
-  }, [searchTerm, complexityFilter, packageFilter, planFilter, supervisorFilter, allPatients]);
+  }, [searchTerm, complexityFilter, packageFilter, planFilter, supervisorFilter, cityFilter, stateFilter, allPatients]);
 
   const handleSelectionChange = (newSelection: Set<string>) => {
     setSelectedPatients(newSelection);
@@ -140,60 +158,93 @@ export default function PatientsPage() {
             )}
         </div>
       </div>
-       <Card className="mb-6">
-        <CardContent className="p-4 flex flex-col md:flex-row items-center gap-4">
-            <div className="relative w-full md:flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar paciente por nome..." 
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-                 <ListFilter className="h-4 w-4 text-muted-foreground" />
-                 <Select value={complexityFilter} onValueChange={setComplexityFilter}>
-                    <SelectTrigger className="w-full md:w-auto"><SelectValue placeholder="Complexidade" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Toda Complexidade</SelectItem>
-                        <SelectItem value="baixa">Baixa</SelectItem>
-                        <SelectItem value="media">Média</SelectItem>
-                        <SelectItem value="alta">Alta</SelectItem>
-                    </SelectContent>
-                 </Select>
-                 <Select value={packageFilter} onValueChange={setPackageFilter}>
-                    <SelectTrigger className="w-full md:w-auto"><SelectValue placeholder="Pacote" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todos os Pacotes</SelectItem>
-                        <SelectItem value="Básico">Básico</SelectItem>
-                        <SelectItem value="Intermediário">Intermediário</SelectItem>
-                        <SelectItem value="Completo">Completo</SelectItem>
-                    </SelectContent>
-                 </Select>
-                 <Select value={planFilter} onValueChange={setPlanFilter}>
-                    <SelectTrigger className="w-full md:w-auto"><SelectValue placeholder="Vínculo" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todos Vínculos</SelectItem>
-                        <SelectItem value="particular">Particular</SelectItem>
-                        <SelectItem value="plano_de_saude">Plano de Saúde</SelectItem>
-                    </SelectContent>
-                 </Select>
-                 <Select value={supervisorFilter} onValueChange={setSupervisorFilter}>
-                    <SelectTrigger className="w-full md:w-[200px]"><SelectValue placeholder="Supervisor" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Todos Supervisores</SelectItem>
-                        {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                 </Select>
-                 {activeFilterCount > 0 && (
-                    <Button variant="ghost" size="icon" onClick={resetFilters}>
-                        <X className="h-4 w-4"/>
+       
+       <Collapsible className="mb-6">
+        <div className="flex items-center justify-between p-4 border rounded-t-lg bg-card">
+          <div className="relative w-full md:flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar paciente por nome..." 
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <CollapsibleTrigger asChild>
+             <Button variant="outline">
+              <ListFilter className="mr-2 h-4 w-4" />
+              Filtros Avançados
+              {activeFilterCount > 0 && <span className="ml-2 bg-primary text-primary-foreground h-5 w-5 text-xs rounded-full flex items-center justify-center">{activeFilterCount}</span>}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+
+        <CollapsibleContent>
+            <div className="p-6 bg-card border border-t-0 rounded-b-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>Complexidade</Label>
+                    <Select value={complexityFilter} onValueChange={setComplexityFilter}>
+                        <SelectTrigger><SelectValue placeholder="Complexidade" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Toda Complexidade</SelectItem>
+                            <SelectItem value="baixa">Baixa</SelectItem>
+                            <SelectItem value="media">Média</SelectItem>
+                            <SelectItem value="alta">Alta</SelectItem>
+                        </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Pacote de Serviço</Label>
+                    <Select value={packageFilter} onValueChange={setPackageFilter}>
+                        <SelectTrigger><SelectValue placeholder="Pacote" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos os Pacotes</SelectItem>
+                            <SelectItem value="Básico">Básico</SelectItem>
+                            <SelectItem value="Intermediário">Intermediário</SelectItem>
+                            <SelectItem value="Completo">Completo</SelectItem>
+                        </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
+                    <Label>Vínculo</Label>
+                    <Select value={planFilter} onValueChange={setPlanFilter}>
+                        <SelectTrigger><SelectValue placeholder="Vínculo" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos Vínculos</SelectItem>
+                            <SelectItem value="particular">Particular</SelectItem>
+                            <SelectItem value="plano_de_saude">Plano de Saúde</SelectItem>
+                        </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
+                    <Label>Supervisor</Label>
+                    <Select value={supervisorFilter} onValueChange={setSupervisorFilter}>
+                        <SelectTrigger><SelectValue placeholder="Supervisor" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos Supervisores</SelectItem>
+                            {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                      <Label>Cidade</Label>
+                      <Input placeholder="Filtrar por cidade..." value={cityFilter} onChange={e => setCityFilter(e.target.value)} />
+                  </div>
+                   <div className="space-y-2">
+                      <Label>Estado (UF)</Label>
+                      <Input placeholder="Filtrar por UF..." value={stateFilter} onChange={e => setStateFilter(e.target.value)} />
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end">
+                    <Button variant="ghost" onClick={resetFilters} disabled={activeFilterCount === 0}>
+                        <X className="mr-2 h-4 w-4"/>
+                        Limpar Filtros
                     </Button>
-                 )}
+                </div>
             </div>
-        </CardContent>
-       </Card>
+        </CollapsibleContent>
+       </Collapsible>
 
       {isLoading ? (
         <div className="rounded-lg border shadow-sm">
