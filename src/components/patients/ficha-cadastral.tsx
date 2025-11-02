@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -573,6 +573,65 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         <div>
                             <Label>Cuidador(es) IDs</Label>
                             {isEditing ? <Input value={data.adminData?.cuidadoresIds?.join(', ') || ''} onChange={e => handleArrayChange('adminData.cuidadoresIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.adminData?.cuidadoresIds} />}
+                        </div>
+                    </AccordionContent>
+                 </Card>
+             </AccordionItem>
+
+            {/* 5. DADOS FINANCEIROS */}
+             <AccordionItem value="item-5" className="border-none">
+                 <Card>
+                     <AccordionTrigger className="p-6 hover:no-underline">
+                        <CardTitle className="flex items-center gap-3 text-lg"><Wallet className="w-5 h-5 text-primary" />Informações Financeiras</CardTitle>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <Label>Tipo de Vínculo</Label>
+                                {isEditing ? (
+                                    <Select value={data.financial?.vinculo || ''} onValueChange={v => handleChange('financial.vinculo', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Plano de Saúde">Plano de Saúde</SelectItem>
+                                            <SelectItem value="Particular">Particular</SelectItem>
+                                            <SelectItem value="Convênio">Convênio</SelectItem>
+                                            <SelectItem value="Público">Público</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : <ValueDisplay>{data.financial?.vinculo}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label>Operadora / Convênio</Label>
+                                {isEditing ? <Input value={data.financial?.operadora || ''} onChange={e => handleChange('financial.operadora', e.target.value)} /> : <ValueDisplay>{data.financial?.operadora}</ValueDisplay>}
+                            </div>
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <Label>Nº da Carteirinha</Label>
+                                {isEditing ? <Input value={data.financial?.carteirinha || ''} onChange={e => handleChange('financial.carteirinha', e.target.value)} /> : <ValueDisplay>{data.financial?.carteirinha}</ValueDisplay>}
+                            </div>
+                             <div>
+                                <Label>Validade da Carteirinha</Label>
+                                {isEditing ? <Input type="date" value={data.financial?.validadeCarteirinha || ''} onChange={e => handleChange('financial.validadeCarteirinha', e.target.value)} /> : <ValueDisplay>{data.financial?.validadeCarteirinha ? new Date(data.financial.validadeCarteirinha).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                            </div>
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <Label>Valor Mensal (R$)</Label>
+                                {isEditing ? <Input type="number" value={data.financial?.monthlyFee || ''} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{data.financial?.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label>Dia do Vencimento</Label>
+                                {isEditing ? <Input type="number" value={data.financial?.billingDay || ''} onChange={e => handleChange('financial.billingDay', parseInt(e.target.value))} /> : <ValueDisplay>{data.financial?.billingDay}</ValueDisplay>}
+                            </div>
+                             <div>
+                                <Label>Forma de Pagamento</Label>
+                                {isEditing ? <Input value={data.financial?.formaPagamento || ''} onChange={e => handleChange('financial.formaPagamento', e.target.value)} /> : <ValueDisplay>{data.financial?.formaPagamento}</ValueDisplay>}
+                            </div>
+                        </div>
+                         <div>
+                            <Label>Observações Financeiras</Label>
+                            {isEditing ? <Textarea value={data.financial?.observacoesFinanceiras || ''} onChange={e => handleChange('financial.observacoesFinanceiras', e.target.value)} placeholder="Anotações sobre faturamento, pagamentos, etc..." /> : <ValueDisplay className="min-h-[80px] h-auto">{data.financial?.observacoesFinanceiras}</ValueDisplay>}
                         </div>
                     </AccordionContent>
                  </Card>
