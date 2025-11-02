@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -390,6 +390,70 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                         )}
                     </div>
+                </CardContent>
+            </Card>
+
+             {/* 4. DADOS ADMINISTRATIVOS */}
+            <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Briefcase className="w-5 h-5 text-primary" />Informações Administrativas e Internas</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <Label>Status do Paciente</Label>
+                             {isEditing ? (
+                                <Select value={data.adminData?.status || ''} onValueChange={v => handleChange('adminData.status', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Ativo">Ativo</SelectItem>
+                                        <SelectItem value="Inativo">Inativo</SelectItem>
+                                        <SelectItem value="Suspenso">Suspenso</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : <ValueDisplay>{data.adminData?.status}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Complexidade</Label>
+                             {isEditing ? (
+                                <Select value={data.adminData?.complexity || ''} onValueChange={v => handleChange('adminData.complexity', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Baixa">Baixa</SelectItem>
+                                        <SelectItem value="Média">Média</SelectItem>
+                                        <SelectItem value="Alta">Alta</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : <ValueDisplay>{data.adminData?.complexity}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Pacote de Serviço</Label>
+                             {isEditing ? (
+                                <Select value={data.adminData?.servicePackage || ''} onValueChange={v => handleChange('adminData.servicePackage', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Básico">Básico</SelectItem>
+                                        <SelectItem value="Intermediário">Intermediário</SelectItem>
+                                        <SelectItem value="Completo">Completo</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : <ValueDisplay>{data.adminData?.servicePackage}</ValueDisplay>}
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <Label>Data de Início do Atendimento</Label>
+                            {isEditing ? <Input type="date" value={data.adminData?.dataInicioAtendimento || ''} onChange={e => handleChange('adminData.dataInicioAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataInicioAtendimento ? new Date(data.adminData.dataInicioAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Data de Término do Atendimento</Label>
+                            {isEditing ? <Input type="date" value={data.adminData?.dataTerminoAtendimento || ''} onChange={e => handleChange('adminData.dataTerminoAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataTerminoAtendimento ? new Date(data.adminData.dataTerminoAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                        </div>
+                    </div>
+                     {/* TODO: Add professional selectors */}
+                     <div>
+                        <Label>Observações Internas</Label>
+                        {isEditing ? <Textarea value={data.adminData?.observacoesInternas || ''} onChange={e => handleChange('adminData.observacoesInternas', e.target.value)} placeholder="Anotações visíveis apenas para a equipe..." /> : <ValueDisplay>{data.adminData?.observacoesInternas}</ValueDisplay>}
+                    </div>
+
                 </CardContent>
             </Card>
 
