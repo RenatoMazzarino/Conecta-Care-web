@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle, Edit, Save, BadgeCheck, BadgeAlert } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle, Edit, Save, BadgeCheck, BadgeAlert, Gavel } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -355,6 +355,31 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                     </ValueDisplay>}
                             </div>
                         </div>
+
+                         <div className="p-4 bg-muted/50 rounded-lg mb-6">
+                            <h4 className="font-semibold flex items-center gap-2 mb-4"><Gavel className="w-4 h-4"/>Representante Legal</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <Label>Nome do Representante</Label>
+                                    {isCardEditing('dadosPessoais') ? (
+                                        <Input value={data.legalGuardian?.name || ''} onChange={e => handleChange('legalGuardian.name', e.target.value)} />
+                                    ) : <ValueDisplay>{data.legalGuardian?.name}</ValueDisplay>}
+                                </div>
+                                <div>
+                                    <Label>Documento</Label>
+                                    {isCardEditing('dadosPessoais') ? (
+                                        <Input value={data.legalGuardian?.document || ''} onChange={e => handleChange('legalGuardian.document', e.target.value)} placeholder="CPF ou RG" />
+                                    ) : <ValueDisplay>{data.legalGuardian?.document}</ValueDisplay>}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <Label>Procuração / Documento Comprobatório</Label>
+                                    {isCardEditing('dadosPessoais') ? (
+                                        <Input value={data.legalGuardian?.powerOfAttorneyUrl || ''} onChange={e => handleChange('legalGuardian.powerOfAttorneyUrl', e.target.value)} placeholder="https://..." />
+                                    ) : <LinkValueDisplay url={data.legalGuardian?.powerOfAttorneyUrl} label="Visualizar Documento" />}
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div className="p-4 bg-muted/50 rounded-lg mb-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold">Contatos de Emergência</h4>

@@ -82,8 +82,8 @@ export type Patient = {
   legalGuardian?: {
     name: string;
     document: string;
-    validityDate: string;
-    powerOfAttorneyUrl: string;
+    validityDate?: string;
+    powerOfAttorneyUrl?: string;
   };
 
 

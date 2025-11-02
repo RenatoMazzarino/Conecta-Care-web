@@ -57,7 +57,11 @@ export const patients: Patient[] = [
       isLegalRepresentative: true,
       permissions: { view: true, authorize: true },
     }],
-    legalGuardian: undefined,
+    legalGuardian: {
+      name: 'Maria da Silva',
+      document: 'CPF: 111.222.333-44',
+      powerOfAttorneyUrl: '#',
+    },
 
     address: {
       street: 'Rua das Flores',
@@ -119,6 +123,8 @@ export const patients: Patient[] = [
     nacionalidade: 'Brasileira',
     naturalidade: 'Rio de Janeiro/RJ',
     photoConsent: undefined,
+    genderIdentity: 'Feminino',
+    preferredLanguage: 'Português',
 
     cpf: '987.654.321-00',
     cns: '700 5081 1234 5678',
@@ -127,7 +133,6 @@ export const patients: Patient[] = [
 
     dateOfBirth: '1942-11-15',
     sexo: 'Feminino',
-    genderIdentity: 'Feminino',
     
     phones: [
         { type: 'home', number: '+55 (21) 2222-7777', verified: true, preferred: true },
@@ -144,6 +149,7 @@ export const patients: Patient[] = [
         isLegalRepresentative: true,
         permissions: { view: true, authorize: true }
     }],
+    legalGuardian: undefined,
     
      address: {
       street: 'Avenida Copacabana',
@@ -207,6 +213,7 @@ export const patients: Patient[] = [
         isLegalRepresentative: true,
         permissions: { view: true, authorize: true }
     }],
+    legalGuardian: undefined,
     
      address: {
       street: 'Rua da Bahia',
