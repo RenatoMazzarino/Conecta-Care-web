@@ -1,3 +1,4 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -10,7 +11,7 @@ interface TimelineEventItemProps {
 
 export function TimelineEventItem({ icon: Icon, isComplete }: TimelineEventItemProps) {
   return (
-    <div className="flex flex-col items-center h-full">
+    <div className="flex h-full items-center justify-center relative w-8">
       {/* Círculo e Ícone */}
       <div
         className={cn(

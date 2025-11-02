@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
@@ -16,8 +17,8 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                 </CardTitle>
             </CardHeader>
             <CardContent className="py-6">
-                <div className="relative flex flex-col gap-8">
-                     {/* A barra de progresso animada, posicionada por trás de tudo */}
+                <div className="relative">
+                    {/* A barra de progresso animada, posicionada por trás de tudo */}
                     <div className="absolute left-4 top-0 bottom-0 w-2 bg-muted rounded-full">
                          <div
                             className="w-full bg-primary rounded-full"
@@ -36,7 +37,7 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                         const isComplete = eventProgress <= currentProgress;
 
                         return (
-                            <div key={index} className="grid grid-cols-[auto_1fr] items-start gap-4">
+                            <div key={index} className="grid grid-cols-[auto_1fr] items-start gap-4 mb-8 last:mb-0">
                                 {/* O novo componente de evento da timeline */}
                                 <TimelineEventItem
                                     icon={event.icon}
