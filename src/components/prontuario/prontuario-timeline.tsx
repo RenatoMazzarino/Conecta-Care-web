@@ -4,29 +4,24 @@ import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockShiftHistory } from "@/lib/data";
-import Link from "next/link";
-import type { ShiftHistoryEvent } from "@/lib/types";
 
 const statusConfig = {
     ok: {
-        base: 'bg-primary',
-        text: 'text-primary-foreground',
+        icon: 'bg-primary text-primary-foreground',
     },
     pending: {
-        base: 'bg-amber-500',
-        text: 'text-white',
+        icon: 'bg-amber-500 text-white',
     },
     late: {
-        base: 'bg-destructive',
-        text: 'text-destructive-foreground',
+        icon: 'bg-destructive text-white',
     },
      default: {
-        base: 'bg-muted',
-        text: 'text-muted-foreground',
+        icon: 'bg-muted-foreground text-muted',
     }
 }
 
 export function ProntuarioTimeline({ currentProgress }: { currentProgress: number }) {
+    const totalEvents = mockShiftHistory.length;
 
     return (
         <Card>
@@ -36,39 +31,62 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                     Linha do Tempo do Plantão
                 </CardTitle>
             </CardHeader>
-            <CardContent className="relative pl-2">
-                <div className="space-y-2">
-                    {mockShiftHistory.map((event, index) => {
-                         const isEventActive = index * (100 / (mockShiftHistory.length - 1)) <= currentProgress;
-                         const config = statusConfig[event.status || 'default'];
+            <CardContent className="relative pt-6">
+                <div className="flex gap-4">
+                    {/* Vertical Progress Bar */}
+                    <div className="relative w-10 flex-shrink-0 flex justify-center">
+                        <div className="w-2 h-full bg-muted rounded-full">
+                            <div 
+                                className="w-full bg-primary rounded-full animate-pulse"
+                                style={{ height: `${currentProgress}%` }}
+                            />
+                        </div>
+                         {/* Event Icons inside the bar */}
+                        {mockShiftHistory.map((event, index) => {
+                            const eventProgress = (index / (totalEvents -1)) * 100;
+                            const isEventActive = eventProgress <= currentProgress;
+                            const config = statusConfig[event.status || 'default'];
 
-                        return (
-                             <Link href="#" key={index} className={cn("relative flex items-start gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
-                                {/* Timeline line connecting dots */}
-                                 <div className="absolute left-4 top-5 h-full w-px bg-border group-last:hidden" />
-                                
-                                {/* Icon */}
-                                <div className="flex-shrink-0 z-10 mt-1">
-                                     <div className={cn(
-                                        "flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-colors z-10",
-                                        isEventActive ? config.base : 'bg-muted'
-                                    )}>
-                                        <event.icon className={cn("h-4 w-4 transition-colors", isEventActive ? config.text : 'text-muted-foreground')} />
-                                    </div>
+                            return (
+                                <div
+                                    key={index}
+                                    className={cn(
+                                        "absolute left-1/2 -translate-x-1/2 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-all",
+                                        isEventActive ? config.icon : 'bg-muted border'
+                                    )}
+                                    style={{ top: `calc(${eventProgress}% - 16px)` }}
+                                >
+                                    <event.icon className="h-4 w-4" />
                                 </div>
-                                
-                                {/* Content */}
-                                <div className="min-w-0 pt-1">
+                            )
+                        })}
+                    </div>
+                    {/* Event Details */}
+                    <div className="flex-1 relative">
+                         {mockShiftHistory.map((event, index) => {
+                            const eventProgress = (index / (totalEvents - 1)) * 100;
+                            const isEventActive = eventProgress <= currentProgress;
+                            return (
+                                <div 
+                                    key={index} 
+                                    className={cn(
+                                        "absolute w-full -translate-y-1/2 pl-4 transition-opacity",
+                                        !isEventActive && "opacity-40"
+                                    )}
+                                    style={{ top: `${eventProgress}%` }}
+                                >
                                     <div className="flex justify-between items-center">
                                         <p className="font-semibold text-sm text-foreground">{event.event}</p>
                                         <p className="text-xs text-muted-foreground">{event.time}</p>
                                     </div>
                                     <p className="text-sm text-muted-foreground mt-1">{event.details}</p>
                                 </div>
-                            </Link>
-                        )
-                    })}
+                            )
+                        })}
+                    </div>
                 </div>
+                {/* Empty div to create space for the timeline content */}
+                <div style={{ height: `${(totalEvents - 1) * 80}px` }}></div>
             </CardContent>
         </Card>
     )
