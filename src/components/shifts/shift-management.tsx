@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, Megaphone } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient } from '@/lib/types';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -430,16 +430,11 @@ export type GridShiftState = {
 };
 
 export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  // Verde para em andamento/concluído
   active: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
   completed: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  // Laranja para pendente/com candidatos
   pending: { base: 'bg-orange-50 dark:bg-orange-950 hover:bg-orange-100 dark:hover:bg-orange-900', border: 'border-l-orange-500', text: 'text-orange-800 dark:text-orange-200' },
-  // Amarelo para com alerta/problema
-  issue: { base: 'bg-amber-50 dark:bg-amber-950 hover:bg-amber-100 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
-  // Azul para atribuído/preenchido
+  issue: { base: 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900', border: 'border-l-red-500', text: 'text-red-800 dark:text-red-200' },
   filled: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  // Cinza para vago
   open: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
 };
 
@@ -450,7 +445,7 @@ export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift
   return (
     <div onClick={onClick} className={cn("relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
        {shift.hasNotification && (
-        <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-amber-500 fill-amber-500/20" />
+        <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-destructive fill-destructive/20" />
       )}
       <div className="flex items-center gap-2">
         <Avatar className="h-8 w-8">
@@ -485,11 +480,11 @@ export const FilledShiftCard = ({ professional, onClick }: { professional: Profe
 export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: string, urgent?: boolean, onClick: () => void }) => (
   <div onClick={onClick} className={cn("flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
     urgent 
-        ? 'border-destructive/50 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:border-destructive' 
+        ? 'border-amber-500/50 bg-amber-500/5 text-amber-600 hover:bg-amber-500/10 hover:border-amber-500' 
         : 'border-muted-foreground/30 bg-card text-muted-foreground hover:bg-accent hover:border-muted-foreground'
   )}>
     {urgent ? (
-       <AlertTriangle className="h-4 w-4" />
+       <Megaphone className="h-4 w-4" />
     ) : (
       <Plus className="h-4 w-4" />
     )}
@@ -512,4 +507,5 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 

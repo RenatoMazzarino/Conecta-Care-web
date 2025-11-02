@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -10,7 +11,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -198,7 +199,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
             
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-center gap-3">
-                  <AlertTriangle className="h-6 w-6 text-destructive"/>
+                  <Megaphone className="h-6 w-6 text-amber-600"/>
                   <div>
                       <Label htmlFor="urgent-switch" className="font-semibold">Publicação Urgente</Label>
                       <p className="text-xs text-muted-foreground">Vagas urgentes são destacadas e notificam mais profissionais.</p>
