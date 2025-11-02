@@ -9,8 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { User, Phone, Home, DollarSign, UserCheck, HeartPulse } from 'lucide-react';
+import { User, Phone, Home, DollarSign, UserCheck, HeartPulse, FileText, Briefcase, Building, Shield, Activity, Users, FileHeart } from 'lucide-react';
 import { professionals as mockProfessionals } from '@/lib/data';
+import { Textarea } from '../ui/textarea';
+import { Switch } from '../ui/switch';
 
 interface FichaCadastralProps {
     isEditing: boolean;
@@ -24,9 +26,12 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
     const handleChange = (path: string, value: any) => {
         if (!editedData) return;
         const keys = path.split('.');
-        const newEditedData = JSON.parse(JSON.stringify(editedData));
+        const newEditedData = JSON.parse(JSON.stringify(editedData)); // Deep copy
         let current = newEditedData;
         for (let i = 0; i < keys.length - 1; i++) {
+            if (current[keys[i]] === undefined) {
+              current[keys[i]] = {}; // Create nested object if it doesn't exist
+            }
             current = current[keys[i]];
         }
         current[keys[keys.length - 1]] = value;
@@ -43,223 +48,305 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         []
     );
     
-    const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => <p className={cn("font-medium mt-1 text-sm text-foreground", className)}>{children || '-'}</p>;
+    const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+        <div className={cn("font-medium mt-1 text-sm text-foreground break-words", className)}>
+            {children || '-'}
+        </div>
+    );
 
-    if (!displayData) return null;
+    const data = editedData || displayData;
+
+    if (!data) return null;
 
     return (
          <div className="space-y-6">
-            <div className="grid lg:grid-cols-3 gap-6 items-start">
-                <Card className="lg:col-span-1">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><User className="w-5 h-5 text-primary" />Dados Pessoais</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>ID do Paciente</Label>
-                            <ValueDisplay className="font-mono text-xs">{displayData.id}</ValueDisplay>
-                        </div>
-                        <div>
-                            <Label>Nome Completo</Label>
-                            {isEditing ? <Input value={editedData?.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{displayData.name}</ValueDisplay>}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label>CPF</Label>
-                                {isEditing ? <Input value={editedData?.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{displayData.cpf}</ValueDisplay>}
-                            </div>
-                            <div>
-                                <Label>Data de Nascimento</Label>
-                                {isEditing ? <Input type="date" value={editedData?.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{displayData.dateOfBirth ? new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label>Email</Label>
-                                {isEditing ? <Input type="email" value={editedData?.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{displayData.email}</ValueDisplay>}
-                            </div>
-                            <div>
-                                <Label>Telefone</Label>
-                                {isEditing ? <Input value={editedData?.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{displayData.phone}</ValueDisplay>}
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="lg:col-span-1">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Phone className="w-5 h-5 text-primary" />Contato de Emergência</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>Nome do Contato</Label>
-                            {isEditing ? <Input value={editedData?.familyContact.name || ''} onChange={e => handleChange('familyContact.name', e.target.value)} /> : <ValueDisplay>{displayData.familyContact.name}</ValueDisplay>}
-                        </div>
-                        <div>
-                            <Label>Telefone</Label>
-                            {isEditing ? <Input value={editedData?.familyContact.phone || ''} onChange={e => handleChange('familyContact.phone', e.target.value)} placeholder="+55 11 99999-9999" /> : <ValueDisplay>{displayData.familyContact.phone}</ValueDisplay>}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="lg:col-span-1">
-                    <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><HeartPulse className="w-5 h-5 text-primary" />Gestão Interna</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>Status</Label>
-                            {isEditing ? (
-                                <Select value={editedData?.status || ''} onValueChange={v => handleChange('status', v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Ativo">Ativo</SelectItem>
-                                        <SelectItem value="Inativo">Inativo</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <ValueDisplay><Badge variant={displayData.status === 'Ativo' ? 'secondary' : 'destructive'}>{displayData.status}</Badge></ValueDisplay>
-                            )}
-                        </div>
-                        <div>
-                            <Label>Complexidade</Label>
-                            {isEditing ? (
-                                <Select value={editedData?.complexity || ''} onValueChange={v => handleChange('complexity', v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="baixa">Baixa</SelectItem>
-                                        <SelectItem value="media">Média</SelectItem>
-                                        <SelectItem value="alta">Alta</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <ValueDisplay>{displayData.complexity.charAt(0).toUpperCase() + displayData.complexity.slice(1)}</ValueDisplay>
-                            )}
-                        </div>
-                        <div>
-                            <Label>Pacote de Serviço</Label>
-                            {isEditing ? (
-                                <Select value={editedData?.servicePackage || ''} onValueChange={v => handleChange('servicePackage', v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Básico">Básico</SelectItem>
-                                        <SelectItem value="Intermediário">Intermediário</SelectItem>
-                                        <SelectItem value="Completo">Completo</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <ValueDisplay>{displayData.servicePackage}</ValueDisplay>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
+            
+            {/* 1. DADOS PESSOAIS */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg"><UserCheck className="w-5 h-5 text-primary" />Responsáveis</CardTitle>
-                    <CardDescription>Profissionais responsáveis pelo gerenciamento e escala do paciente.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <Label>Supervisor(a)</Label>
-                        {isEditing ? (
-                            <Select value={editedData?.supervisorId || ''} onValueChange={v => handleChange('supervisorId', v)}>
-                                <SelectTrigger><SelectValue placeholder="Selecione um supervisor..." /></SelectTrigger>
-                                <SelectContent>
-                                    {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <ValueDisplay>{supervisors.find(s => s.id === displayData.supervisorId)?.name || 'Não atribuído'}</ValueDisplay>
-                        )}
+                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><User className="w-5 h-5 text-primary" />Dados Pessoais</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                         <div>
+                            <Label>ID do Paciente</Label>
+                            <ValueDisplay className="font-mono text-xs">{data.id}</ValueDisplay>
+                        </div>
+                        <div className="col-span-2">
+                            <Label>Nome Completo</Label>
+                            {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Nome Social</Label>
+                            {isEditing ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>CPF</Label>
+                            {isEditing ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>RG</Label>
+                            {isEditing ? <Input value={data.rg || ''} onChange={e => handleChange('rg', e.target.value)} /> : <ValueDisplay>{data.rg}</ValueDisplay>}
+                        </div>
                     </div>
-                    <div>
-                        <Label>Escalista</Label>
-                        {isEditing ? (
-                            <Select value={editedData?.schedulerId || ''} onValueChange={v => handleChange('schedulerId', v)}>
-                                <SelectTrigger><SelectValue placeholder="Selecione um escalista..." /></SelectTrigger>
-                                <SelectContent>
-                                    {schedulers.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <ValueDisplay>{schedulers.find(s => s.id === displayData.schedulerId)?.name || 'Não atribuído'}</ValueDisplay>
-                        )}
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <Label>Data de Nascimento</Label>
+                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Sexo</Label>
+                            {isEditing ? (
+                                <Select value={data.sexo || ''} onValueChange={v => handleChange('sexo', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Masculino">Masculino</SelectItem>
+                                        <SelectItem value="Feminino">Feminino</SelectItem>
+                                        <SelectItem value="Outro">Outro</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : <ValueDisplay>{data.sexo}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Estado Civil</Label>
+                            {isEditing ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
+                        </div>
                     </div>
                 </CardContent>
             </Card>
 
+            {/* 6. REDE DE APOIO E RESPONSÁVEIS */}
             <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Home className="w-5 h-5 text-primary" />Endereço</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Users className="w-5 h-5 text-primary" />Rede de Apoio e Contato</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <Label>Responsável Legal</Label>
+                            {isEditing ? <Input value={data.supportNetwork?.responsavelLegal || ''} onChange={e => handleChange('supportNetwork.responsavelLegal', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.responsavelLegal}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Parentesco</Label>
+                            {isEditing ? <Input value={data.supportNetwork?.parentescoResponsavel || ''} onChange={e => handleChange('supportNetwork.parentescoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.parentescoResponsavel}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Telefone do Responsável</Label>
+                            {isEditing ? <Input value={data.supportNetwork?.contatoResponsavel || ''} onChange={e => handleChange('supportNetwork.contatoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.contatoResponsavel}</ValueDisplay>}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* 2. ENDEREÇO E AMBIENTE */}
+             <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Home className="w-5 h-5 text-primary" />Endereço e Ambiente Domiciliar</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                         <div className="col-span-4">
                             <Label>Logradouro</Label>
-                            {isEditing ? <Input value={editedData?.address.street || ''} onChange={e => handleChange('address.street', e.target.value)} /> : <ValueDisplay>{displayData.address.street}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.street || ''} onChange={e => handleChange('address.street', e.target.value)} /> : <ValueDisplay>{data.address.street}</ValueDisplay>}
                         </div>
                         <div className="col-span-2">
                             <Label>Número</Label>
-                            {isEditing ? <Input value={editedData?.address.number || ''} onChange={e => handleChange('address.number', e.target.value)} /> : <ValueDisplay>{displayData.address.number}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.number || ''} onChange={e => handleChange('address.number', e.target.value)} /> : <ValueDisplay>{data.address.number}</ValueDisplay>}
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <Label>Complemento</Label>
-                            {isEditing ? <Input value={editedData?.address.complement || ''} onChange={e => handleChange('address.complement', e.target.value)} /> : <ValueDisplay>{displayData.address.complement}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.complement || ''} onChange={e => handleChange('address.complement', e.target.value)} /> : <ValueDisplay>{data.address.complement}</ValueDisplay>}
                         </div>
                         <div>
                             <Label>Bairro</Label>
-                            {isEditing ? <Input value={editedData?.address.neighborhood || ''} onChange={e => handleChange('address.neighborhood', e.target.value)} /> : <ValueDisplay>{displayData.address.neighborhood}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.neighborhood || ''} onChange={e => handleChange('address.neighborhood', e.target.value)} /> : <ValueDisplay>{data.address.neighborhood}</ValueDisplay>}
                         </div>
                         <div>
                             <Label>CEP</Label>
-                            {isEditing ? <Input value={editedData?.address.zipCode || ''} onChange={e => handleChange('address.zipCode', e.target.value)} /> : <ValueDisplay>{displayData.address.zipCode}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.zipCode || ''} onChange={e => handleChange('address.zipCode', e.target.value)} /> : <ValueDisplay>{data.address.zipCode}</ValueDisplay>}
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <Label>Cidade</Label>
-                            {isEditing ? <Input value={editedData?.address.city || ''} onChange={e => handleChange('address.city', e.target.value)} /> : <ValueDisplay>{displayData.address.city}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.city || ''} onChange={e => handleChange('address.city', e.target.value)} /> : <ValueDisplay>{data.address.city}</ValueDisplay>}
                         </div>
                         <div>
                             <Label>Estado</Label>
-                            {isEditing ? <Input value={editedData?.address.state || ''} onChange={e => handleChange('address.state', e.target.value)} /> : <ValueDisplay>{displayData.address.state}</ValueDisplay>}
+                            {isEditing ? <Input value={data.address.state || ''} onChange={e => handleChange('address.state', e.target.value)} /> : <ValueDisplay>{data.address.state}</ValueDisplay>}
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                        <div>
+                            <Label>Condições do Domicílio</Label>
+                            {isEditing ? <Textarea value={data.address.condicoesDomicilio || ''} onChange={e => handleChange('address.condicoesDomicilio', e.target.value)} placeholder="Ex: Acesso por escadas, boa iluminação..." /> : <ValueDisplay>{data.address.condicoesDomicilio}</ValueDisplay>}
+                        </div>
+                        <div className="flex flex-col gap-4 pt-2">
+                           <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <Label htmlFor="acesso-ambulancia" className="flex flex-col gap-1">
+                                    <span>Acesso para Ambulância</span>
+                                    <span className="font-normal text-xs text-muted-foreground">Acesso fácil para veículos de emergência.</span>
+                                </Label>
+                                {isEditing ? <Switch id="acesso-ambulancia" checked={data.address.acessoAmbulancia} onCheckedChange={c => handleChange('address.acessoAmbulancia', c)} /> : <Badge variant={data.address.acessoAmbulancia ? 'secondary' : 'outline'}>{data.address.acessoAmbulancia ? 'Sim' : 'Não'}</Badge>}
+                           </div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
+            {/* 3. DADOS CLÍNICOS */}
+            <Card>
+                 <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><FileHeart className="w-5 h-5 text-primary" />Dados Clínicos e Assistenciais</CardTitle></CardHeader>
+                 <CardContent className="space-y-4">
+                    <div>
+                        <Label>Diagnóstico Principal</Label>
+                         {isEditing ? <Textarea value={data.clinicalData?.diagnosticoPrincipal || ''} onChange={e => handleChange('clinicalData.diagnosticoPrincipal', e.target.value)} /> : <ValueDisplay>{data.clinicalData?.diagnosticoPrincipal}</ValueDisplay>}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label>Diagnósticos Secundários (separados por vírgula)</Label>
+                            {isEditing ? <Input value={data.clinicalData?.diagnosticosSecundarios?.join(', ') || ''} onChange={e => handleChange('clinicalData.diagnosticosSecundarios', e.target.value.split(',').map(s => s.trim()))} /> : <ValueDisplay>{data.clinicalData?.diagnosticosSecundarios?.join(', ')}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Alergias (separadas por vírgula)</Label>
+                            {isEditing ? <Input value={data.clinicalData?.allergies?.join(', ') || ''} onChange={e => handleChange('clinicalData.allergies', e.target.value.split(',').map(s => s.trim()))} /> : <ValueDisplay>{data.clinicalData?.allergies?.join(', ')}</ValueDisplay>}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label>Mobilidade</Label>
+                            {isEditing ? (
+                                 <Select value={data.clinicalData?.mobilidade || ''} onValueChange={v => handleChange('clinicalData.mobilidade', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Autônomo">Autônomo</SelectItem>
+                                        <SelectItem value="Parcialmente Dependente">Parcialmente Dependente</SelectItem>
+                                        <SelectItem value="Acamado">Acamado</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : <ValueDisplay>{data.clinicalData?.mobilidade}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Dispositivos (GTT, SNE, etc)</Label>
+                            {isEditing ? <Input value={data.clinicalData?.dispositivos?.join(', ') || ''} onChange={e => handleChange('clinicalData.dispositivos', e.target.value.split(',').map(s => s.trim()))} /> : <ValueDisplay>{data.clinicalData?.dispositivos?.join(', ')}</ValueDisplay>}
+                        </div>
+                    </div>
+                 </CardContent>
+            </Card>
+
+            {/* 4. INFORMAÇÕES ADMINISTRATIVAS */}
+            <Card>
+                 <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Activity className="w-5 h-5 text-primary" />Informações Administrativas</CardTitle></CardHeader>
+                 <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <Label>Status</Label>
+                        {isEditing ? (
+                            <Select value={data.adminData?.status || ''} onValueChange={v => handleChange('adminData.status', v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Ativo">Ativo</SelectItem>
+                                    <SelectItem value="Inativo">Inativo</SelectItem>
+                                    <SelectItem value="Suspenso">Suspenso</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <ValueDisplay><Badge variant={data.adminData?.status === 'Ativo' ? 'secondary' : 'destructive'}>{data.adminData?.status}</Badge></ValueDisplay>
+                        )}
+                    </div>
+                    <div>
+                        <Label>Complexidade</Label>
+                        {isEditing ? (
+                            <Select value={data.adminData?.complexity || ''} onValueChange={v => handleChange('adminData.complexity', v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Baixa">Baixa</SelectItem>
+                                    <SelectItem value="Média">Média</SelectItem>
+                                    <SelectItem value="Alta">Alta</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <ValueDisplay>{data.adminData?.complexity}</ValueDisplay>
+                        )}
+                    </div>
+                    <div>
+                        <Label>Pacote de Serviço</Label>
+                        {isEditing ? (
+                            <Select value={data.adminData?.servicePackage || ''} onValueChange={v => handleChange('adminData.servicePackage', v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Básico">Básico</SelectItem>
+                                    <SelectItem value="Intermediário">Intermediário</SelectItem>
+                                    <SelectItem value="Completo">Completo</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <ValueDisplay>{data.adminData?.servicePackage}</ValueDisplay>
+                        )}
+                    </div>
+                    <div>
+                        <Label>Supervisor(a)</Label>
+                        {isEditing ? (
+                            <Select value={data.adminData?.supervisorId || ''} onValueChange={v => handleChange('adminData.supervisorId', v)}>
+                                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                <SelectContent>
+                                    {supervisors.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <ValueDisplay>{supervisors.find(s => s.id === data.adminData?.supervisorId)?.name || 'Não atribuído'}</ValueDisplay>
+                        )}
+                    </div>
+                    <div>
+                        <Label>Escalista</Label>
+                        {isEditing ? (
+                            <Select value={data.adminData?.schedulerId || ''} onValueChange={v => handleChange('adminData.schedulerId', v)}>
+                                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                <SelectContent>
+                                    {schedulers.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <ValueDisplay>{schedulers.find(s => s.id === data.adminData?.schedulerId)?.name || 'Não atribuído'}</ValueDisplay>
+                        )}
+                    </div>
+                 </CardContent>
+            </Card>
+
+            {/* 5. INFORMAÇÕES FINANCEIRAS */}
             <Card>
                 <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><DollarSign className="w-5 h-5 text-primary" />Informações Financeiras</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <Label>Tipo de Vínculo</Label>
                         {isEditing ? (
-                            <Select value={editedData?.financial.plan || ''} onValueChange={v => handleChange('financial.plan', v)}>
+                            <Select value={data.financial.vinculo || ''} onValueChange={v => handleChange('financial.vinculo', v)}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="particular">Particular</SelectItem>
-                                    <SelectItem value="plano_de_saude">Plano de Saúde</SelectItem>
+                                    <SelectItem value="Particular">Particular</SelectItem>
+                                    <SelectItem value="Plano de Saúde">Plano de Saúde</SelectItem>
+                                    <SelectItem value="Convênio">Convênio</SelectItem>
+                                    <SelectItem value="Público">Público</SelectItem>
                                 </SelectContent>
                             </Select>
                         ) : (
-                            <ValueDisplay>{displayData.financial.plan === 'particular' ? 'Particular' : 'Plano de Saúde'}</ValueDisplay>
+                            <ValueDisplay>{data.financial.vinculo}</ValueDisplay>
                         )}
                     </div>
-                    {displayData.financial.plan === 'plano_de_saude' && (
+                    {data.financial.vinculo === 'Plano de Saúde' && (
                         <>
                             <div>
                                 <Label>Plano de Saúde</Label>
-                                {isEditing ? <Input value={editedData?.financial.healthPlan || ''} onChange={e => handleChange('financial.healthPlan', e.target.value)} /> : <ValueDisplay>{displayData.financial.healthPlan}</ValueDisplay>}
+                                {isEditing ? <Input value={data.financial.operadora || ''} onChange={e => handleChange('financial.operadora', e.target.value)} /> : <ValueDisplay>{data.financial.operadora}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Nº da Carteirinha</Label>
-                                {isEditing ? <Input value={editedData?.financial.healthPlanId || ''} onChange={e => handleChange('financial.healthPlanId', e.target.value)} /> : <ValueDisplay>{displayData.financial.healthPlanId}</ValueDisplay>}
+                                {isEditing ? <Input value={data.financial.carteirinha || ''} onChange={e => handleChange('financial.carteirinha', e.target.value)} /> : <ValueDisplay>{data.financial.carteirinha}</ValueDisplay>}
                             </div>
                         </>
                     )}
-                    <div className={displayData.financial.plan === 'plano_de_saude' ? '' : 'col-span-2'}>
+                    <div className={data.financial.vinculo === 'Plano de Saúde' ? '' : 'col-span-2'}>
                         <Label>Mensalidade (R$)</Label>
-                        {isEditing ? <Input type="number" value={editedData?.financial.monthlyFee || 0} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{displayData.financial.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
+                        {isEditing ? <Input type="number" value={data.financial.monthlyFee || 0} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{data.financial.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
                     </div>
                     <div>
                         <Label>Dia do Vencimento</Label>
-                        {isEditing ? <Input type="number" min="1" max="31" value={editedData?.financial.billingDay || 1} onChange={e => handleChange('financial.billingDay', parseInt(e.target.value))} /> : <ValueDisplay>Todo dia {displayData.financial.billingDay}</ValueDisplay>}
+                        {isEditing ? <Input type="number" min="1" max="31" value={data.financial.billingDay || 1} onChange={e => handleChange('financial.billingDay', parseInt(e.target.value))} /> : <ValueDisplay>Todo dia {data.financial.billingDay}</ValueDisplay>}
                     </div>
                 </CardContent>
             </Card>

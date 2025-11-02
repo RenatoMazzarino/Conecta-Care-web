@@ -1,0 +1,290 @@
+
+{
+  "entities": {
+    "Patient": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Patient",
+      "type": "object",
+      "description": "Representa um paciente recebendo serviços de homecare, com estrutura de dados ampliada.",
+      "properties": {
+        "id": { "type": "string", "description": "1. Identificador único para o paciente (Auto)." },
+        "name": { "type": "string", "description": "1. Nome completo para identificação civil." },
+        "socialName": { "type": "string", "description": "1. Nome social para inclusão e respeito à identidade." },
+        "cpf": { "type": "string", "description": "1. CPF para documentação." },
+        "rg": { "type": "string", "description": "1. RG para documentação complementar." },
+        "rgEmissor": { "type": "string", "description": "1. Órgão emissor do RG." },
+        "dateOfBirth": { "type": "string", "format": "date", "description": "1. Data de Nascimento para cálculo de idade e protocolos." },
+        "sexo": { "type": "string", "enum": ["Masculino", "Feminino", "Outro"], "description": "1. Sexo para estatísticas e protocolos." },
+        "estadoCivil": { "type": "string", "description": "1. Estado civil para registro social." },
+        "nacionalidade": { "type": "string", "description": "1. Nacionalidade para documentação." },
+        "naturalidade": { "type": "string", "description": "1. Cidade/UF de nascimento para histórico civil." },
+        "email": { "type": "string", "format": "email", "description": "1. Email para comunicação digital." },
+        "phone": { "type": "string", "description": "1. Telefone(s) para contato direto." },
+        "emergencyContact": {
+          "type": "object",
+          "description": "1. Contato para comunicação rápida em emergências.",
+          "properties": {
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "phone": { "type": "string" }
+          },
+          "required": ["name", "phone"]
+        },
+        "avatarUrl": { "type": "string", "format": "uri", "description": "1. Foto do Paciente para identificação visual." },
+        "rgDigitalUrl": { "type": "string", "format": "uri", "description": "1. Upload do RG Digital para validação documental." },
+        
+        "address": {
+          "type": "object",
+          "description": "2. Endereço e detalhes do ambiente domiciliar.",
+          "properties": {
+            "street": {"type": "string"},
+            "number": {"type": "string"},
+            "complement": {"type": "string"},
+            "neighborhood": {"type": "string"},
+            "city": {"type": "string"},
+            "state": {"type": "string"},
+            "zipCode": {"type": "string"},
+            "pontoReferencia": { "type": "string", "description": "Ponto de referência para logística de atendimento." },
+            "tipoResidencia": { "type": "string", "enum": ["Casa", "Apartamento", "Chácara", "Condomínio"], "description": "Tipo de residência para planejamento de visita." },
+            "condicoesDomicilio": { "type": "string", "description": "Condições do domicílio para avaliação de risco." },
+            "acessoAmbulancia": { "type": "boolean", "description": "Se há acesso fácil para ambulância." },
+            "possuiAnimal": { "type": "boolean", "description": "Se há animais domésticos na residência." },
+            "animalDescricao": { "type": "string", "description": "Descrição dos animais, se houver." }
+          }
+        },
+
+        "clinicalData": {
+          "type": "object",
+          "description": "3. Dados clínicos e assistenciais detalhados.",
+          "properties": {
+            "diagnosticoPrincipal": { "type": "string", "description": "Diagnóstico principal que baseia o plano de cuidado." },
+            "diagnosticosSecundarios": { "type": "array", "items": { "type": "string" }, "description": "Diagnósticos secundários para contexto clínico." },
+            "cid": { "type": "array", "items": { "type": "string" }, "description": "Códigos CID para indexação médica." },
+            "allergies": { "type": "array", "items": { "type": "string" }, "description": "Lista de alergias conhecidas." },
+            "restricoes": { "type": "array", "items": { "type": "string" }, "description": "Restrições alimentares, físicas, etc." },
+            "mobilidade": { "type": "string", "enum": ["Autônomo", "Parcialmente Dependente", "Acamado"], "description": "Escala de dependência de mobilidade." },
+            "estadoConsciencia": { "type": "string", "description": "Avaliação neurológica básica do paciente." },
+            "dispositivos": { "type": "array", "items": { "type": "string", "enum": ["GTT", "SNE", "CVD", "Traqueostomia"] }, "description": "Uso de dispositivos como GTT, SNE, etc." },
+            "acessorios": { "type": "string", "description": "Dispositivos e acessórios como cadeira de rodas, andador." },
+            "ultimaAvaliacaoMedica": { "type": "string", "format": "date", "description": "Data da última avaliação médica." },
+            "ultimoExameLaboratorial": { "type": "string", "format": "date", "description": "Data do último exame laboratorial." },
+            "observacoesGerais": { "type": "string", "description": "Campo livre para observações clínicas gerais." }
+          }
+        },
+
+        "adminData": {
+          "type": "object",
+          "description": "4. Informações administrativas e internas.",
+          "properties": {
+            "status": { "type": "string", "enum": ["Ativo", "Inativo", "Suspenso"], "description": "Status do paciente para controle de escala." },
+            "complexity": { "type": "string", "enum": ["Baixa", "Média", "Alta"], "description": "Nível de complexidade para dimensionamento da equipe." },
+            "servicePackage": { "type": "string", "enum": ["Básico", "Intermediário", "Completo"], "description": "Plano comercial contratado." },
+            "dataInicioAtendimento": { "type": "string", "format": "date", "description": "Data de início do atendimento." },
+            "dataTerminoAtendimento": { "type": "string", "format": "date", "description": "Data de término, se aplicável." },
+            "supervisorId": { "type": "string", "description": "ID do profissional supervisor." },
+            "schedulerId": { "type": "string", "description": "ID do profissional escalista." },
+            "enfermeiroResponsavelId": { "type": "string", "description": "ID do enfermeiro responsável para registro no COREN." },
+            "cuidadoresIds": { "type": "array", "items": { "type": "string" }, "description": "IDs dos cuidadores principais." },
+            "frequenciaAtendimento": { "type": "string", "description": "Frequência planejada de atendimento (ex: 24h, 12h, 3x/semana)." },
+            "observacoesInternas": { "type": "string", "description": "Observações restritas à equipe interna." }
+          }
+        },
+
+        "financial": {
+          "type": "object",
+          "description": "5. Informações financeiras para faturamento.",
+          "properties": {
+            "vinculo": { "type": "string", "enum": ["Plano de Saúde", "Particular", "Convênio", "Público"], "description": "Tipo de vínculo para faturamento." },
+            "operadora": { "type": "string", "description": "Nome da operadora do plano de saúde." },
+            "carteirinha": { "type": "string", "description": "Número da carteirinha do plano." },
+            "validadeCarteirinha": { "type": "string", "format": "date", "description": "Data de validade da carteirinha." },
+            "monthlyFee": { "type": "number", "description": "Valor da mensalidade ou do pacote." },
+            "billingDay": { "type": "number", "description": "Dia do vencimento para faturamento." },
+            "formaPagamento": { "type": "string", "description": "Forma de pagamento acordada." },
+            "observacoesFinanceiras": { "type": "string", "description": "Observações sobre o faturamento." }
+          }
+        },
+
+        "supportNetwork": {
+          "type": "object",
+          "description": "6. Rede de apoio e responsáveis familiares.",
+          "properties": {
+            "responsavelLegal": { "type": "string" },
+            "parentescoResponsavel": { "type": "string" },
+            "contatoResponsavel": { "type": "string" },
+            "emailResponsavel": { "type": "string", "format": "email" },
+            "enderecoResponsavel": { "type": "string" },
+            "autorizacaoAcessoDados": { "type": "boolean" },
+            "familiaresAppIds": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "documents": {
+          "type": "object",
+          "description": "7. URLs para documentos e consentimentos.",
+          "properties": {
+            "termoConsentimentoUrl": { "type": "string", "format": "uri" },
+            "termoLgpdUrl": { "type": "string", "format": "uri" },
+            "documentoComFotoUrl": { "type": "string", "format": "uri" },
+            "comprovanteEnderecoUrl": { "type": "string", "format": "uri" },
+            "fichaAvaliacaoEnfermagemUrl": { "type": "string", "format": "uri" },
+            "planoCuidadoUrl": { "type": "string", "format": "uri" },
+            "protocoloAuditoriaUrl": { "type": "string", "format": "uri" }
+          }
+        },
+
+        "audit": {
+          "type": "object",
+          "description": "8. Histórico e auditoria do registro.",
+          "properties": {
+            "createdAt": { "type": "string", "format": "date-time" },
+            "createdBy": { "type": "string" },
+            "updatedAt": { "type": "string", "format": "date-time" },
+            "updatedBy": { "type": "string" }
+          }
+        }
+      },
+      "required": [ "id", "name", "cpf", "dateOfBirth", "address", "clinicalData", "adminData", "financial" ]
+    },
+    "Professional": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Professional",
+      "type": "object",
+      "description": "Represents a healthcare professional in the system.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "initials": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "cpf": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "address": { "$ref": "#/entities/Patient/properties/address" },
+        "avatarUrl": { "type": "string" },
+        "avatarHint": { "type": "string" },
+        "rating": { "type": "number" },
+        "bio": { "type": "string" },
+        "coren": { "type": "string" },
+        "corenStatus": { "type": "string", "enum": ["active", "inactive"] },
+        "reviews": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "from": {"type": "string"},
+                    "quote": {"type": "string"}
+                }
+            }
+        },
+        "specialties": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "email", "coren"]
+    },
+    "Shift": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Shift",
+        "type": "object",
+        "description": "Represents a work shift for a professional with a patient.",
+        "properties": {
+            "id": { "type": "string" },
+            "patientId": { "type": "string" },
+            "professionalId": { "type": "string" },
+            "dayKey": { "type": "string", "description": "YYYY-MM-DD format" },
+            "shiftType": { "type": "string", "enum": ["diurno", "noturno"] },
+            "status": { "type": "string", "enum": ["open", "pending", "filled", "active", "completed", "issue"] },
+            "isUrgent": { "type": "boolean" },
+            "progress": { "type": "number" },
+            "checkIn": { "type": "string", "format": "time" },
+            "checkOut": { "type": "string", "format": "time" },
+            "checkInStatus": { "type": "string", "enum": ["OK", "Pendente", "Falha"] },
+            "checkOutStatus": { "type": "string", "enum": ["OK", "Pendente", "Falha"] },
+            "hasNotification": { "type": "boolean" }
+        },
+        "required": ["id", "patientId", "dayKey", "shiftType", "status"]
+    },
+    "Supply": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Supply",
+      "type": "object",
+      "description": "Represents a supply item used in patient care.",
+      "properties": {
+        "id": { "type": "string" }, "name": { "type": "string" }, "description": { "type": "string" }, "unit": { "type": "string" }
+      },
+      "required": [ "id", "name", "description", "unit" ]
+    },
+    "Inventory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Inventory",
+      "type": "object",
+      "description": "Represents the inventory level of a specific supply item for a patient.",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "supplyId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": [ "id", "patientId", "supplyId", "quantity", "lastUpdated" ]
+    },
+    "SupplyRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SupplyRequest",
+      "type": "object",
+      "description": "Represents a request for supplies made by the care team to the family.",
+      "properties": {
+        "id": { "type": "string" }, "patientId": { "type": "string" }, "supplyId": { "type": "string" },
+        "quantityRequested": { "type": "number" }, "requestDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Denied"] }, "notes": { "type": "string" }
+      },
+      "required": [ "id", "patientId", "supplyId", "quantityRequested", "requestDate", "status" ]
+    },
+    "ShiftReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShiftReport",
+      "type": "object",
+      "description": "Represents a shift report submitted by a care team member.",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "careTeamMemberName": { "type": "string" },
+        "shift": { "type": "string", "enum": ["Diurno", "Noturno"] },
+        "reportDate": { "type": "string", "format": "date-time" },
+        "observations": { "type": "string" },
+        "vitalSigns": {
+            "type": "object",
+            "properties": {
+                "bloodPressure": {"type": "string"},
+                "heartRate": {"type": "number"},
+                "oxygenSaturation": {"type": "number"}
+            }
+        }
+      },
+      "required": [ "id", "patientId", "careTeamMemberName", "shift", "reportDate", "observations" ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification for the dashboard.",
+      "properties": {
+        "id": { "type": "string" }, "patientId": { "type": "string" },
+        "type": { "type": "string", "enum": ["supply", "info", "alert"] },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "patientId", "type", "message", "timestamp"]
+    }
+  },
+  "auth": {
+    "providers": [ "password", "google.com" ]
+  },
+  "firestore": {
+    "/patients/{patientId}": { "schema": { "$ref": "#/entities/Patient" }, "description": "Stores individual patient records." },
+    "/professionals/{professionalId}": { "schema": { "$ref": "#/entities/Professional" }, "description": "Stores individual professional records." },
+    "/shifts/{shiftId}": { "schema": { "$ref": "#/entities/Shift" }, "description": "Stores all shifts for all patients. The shiftId is a composite key for easy lookup: {patientId}-{dayKey}-{shiftType}." },
+    "/patients/{patientId}/inventories/{inventoryId}": { "schema": { "$ref": "#/entities/Inventory" }, "description": "Inventory for a specific patient." },
+    "/patients/{patientId}/supplyRequests/{supplyRequestId}": { "schema": { "$ref": "#/entities/SupplyRequest" }, "description": "Supply requests for a patient." },
+    "/patients/{patientId}/shiftReports/{shiftReportId}": { "schema": { "$ref": "#/entities/ShiftReport" }, "description": "Shift reports for a patient." },
+    "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/entities/Notification" }, "description": "Notifications for a patient." }
+  }
+}
