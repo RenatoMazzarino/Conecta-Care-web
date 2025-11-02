@@ -13,7 +13,6 @@ import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscop
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Link from 'next/link';
 
 interface FichaCadastralProps {
@@ -101,17 +100,17 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                     <CardTitle className="flex items-center gap-2 text-xl mb-2"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2">
+                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="md:col-span-3">
                             <Label>Nome Completo</Label>
                             {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
                         </div>
-                         <div>
+                         <div className="md:col-span-1">
                             <Label>Nome Social</Label>
                             {isEditing ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
                         </div>
                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <Label>CPF</Label>
                             {isEditing ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
@@ -124,13 +123,13 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             <Label>Órgão Emissor</Label>
                             {isEditing ? <Input value={data.rgEmissor || ''} onChange={e => handleChange('rgEmissor', e.target.value)} /> : <ValueDisplay>{data.rgEmissor}</ValueDisplay>}
                         </div>
-                    </div>
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <Label>Data de Nascimento</Label>
                             {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
                         </div>
-                         <div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
                             <Label>Sexo</Label>
                             {isEditing ? (
                                 <Select value={data.sexo || ''} onValueChange={v => handleChange('sexo', v)}>
@@ -147,8 +146,6 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             <Label>Estado Civil</Label>
                             {isEditing ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
                         </div>
-                    </div>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
                             <Label>Nacionalidade</Label>
                             {isEditing ? <Input value={data.nacionalidade || ''} onChange={e => handleChange('nacionalidade', e.target.value)} /> : <ValueDisplay>{data.nacionalidade}</ValueDisplay>}
