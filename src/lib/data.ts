@@ -48,6 +48,23 @@ export const patients: Patient[] = [
       acessoAmbulancia: true,
       possuiAnimal: false,
     },
+    clinicalData: {
+        diagnosticoPrincipal: 'Doença Pulmonar Obstrutiva Crônica (DPOC)',
+        diagnosticosSecundarios: ['Hipertensão Arterial Sistêmica', 'Diabetes Mellitus Tipo 2'],
+        cid: ['J44.9', 'I10', 'E11'],
+        allergies: ['Penicilina'],
+        restricoes: ['Dieta hipossódica'],
+        mobilidade: 'Parcialmente Dependente',
+        estadoConsciencia: 'Lúcido e Orientado no Tempo e Espaço (LOTE)',
+        dispositivos: [],
+        acessorios: 'Andador',
+        medications: [
+            { name: 'Losartana', dosage: '50mg', frequency: '1x ao dia' },
+            { name: 'Metformina', dosage: '850mg', frequency: '2x ao dia', notes: 'Administrar junto com as refeições' },
+            { name: 'Salbutamol', dosage: '100mcg', frequency: 'A cada 4 horas, se necessário' }
+        ],
+        ultimaAvaliacaoMedica: '2024-07-10',
+    },
     financial: {
         vinculo: 'Plano de Saúde',
         operadora: 'Amil 700',
@@ -57,7 +74,6 @@ export const patients: Patient[] = [
     },
     // Mock data for other sections to avoid breaking the app
     adminData: { status: 'Ativo', complexity: 'Alta', servicePackage: 'Completo', dataInicioAtendimento: '2023-01-10' },
-    clinicalData: { diagnosticoPrincipal: 'DPOC', allergies: ['Penicilina'], medications: [] },
     supportNetwork: { responsavelLegal: 'Maria da Silva', parentescoResponsavel: 'Filha', contatoResponsavel: '+55 (11) 98765-4321', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-01-10T10:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-20T15:00:00Z', updatedBy: 'Carla Nogueira' },
@@ -99,13 +115,21 @@ export const patients: Patient[] = [
       possuiAnimal: true,
       animalDescricao: '1 gato persa, tranquilo.',
     },
+     clinicalData: {
+        diagnosticoPrincipal: 'Artrite Reumatoide',
+        allergies: [],
+        mobilidade: 'Autônomo',
+        medications: [
+            { name: 'Metotrexato', dosage: '15mg', frequency: '1x por semana' },
+            { name: 'Ácido Fólico', dosage: '5mg', frequency: '1x por semana (dia seguinte ao Metotrexato)' }
+        ],
+    },
     financial: {
         vinculo: 'Particular',
         monthlyFee: 8500,
         billingDay: 5,
     },
     adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', dataInicioAtendimento: '2023-05-20' },
-    clinicalData: { diagnosticoPrincipal: 'Artrite Reumatoide', allergies: [], medications: [] },
     supportNetwork: { responsavelLegal: 'Carlos Lopes', parentescoResponsavel: 'Filho', contatoResponsavel: '+55 (21) 91234-5678', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-05-20T11:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-19T10:00:00Z', updatedBy: 'Admin' },
@@ -137,6 +161,12 @@ export const patients: Patient[] = [
       zipCode: '30130-001',
       acessoAmbulancia: false,
     },
+    clinicalData: {
+        diagnosticoPrincipal: 'Asma Crônica',
+        allergies: ['Iodo', 'Poeira'],
+        mobilidade: 'Autônomo',
+        medications: [],
+    },
     financial: {
         vinculo: 'Plano de Saúde',
         operadora: 'Unimed Flex',
@@ -145,7 +175,6 @@ export const patients: Patient[] = [
         billingDay: 15,
     },
      adminData: { status: 'Inativo', complexity: 'Baixa', servicePackage: 'Básico', dataInicioAtendimento: '2024-01-15', dataTerminoAtendimento: '2024-06-30' },
-    clinicalData: { diagnosticoPrincipal: 'Asma', allergies: ['Iodo'], medications: [] },
     supportNetwork: { responsavelLegal: 'Ana Mendes', parentescoResponsavel: 'Esposa', contatoResponsavel: '+55 (31) 95555-8888', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2024-01-15T09:00:00Z', createdBy: 'Admin', updatedAt: '2024-06-30T18:00:00Z', updatedBy: 'Admin' },

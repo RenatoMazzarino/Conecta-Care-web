@@ -160,7 +160,7 @@
           }
         }
       },
-      "required": [ "id", "name", "cpf", "dateOfBirth", "address", "clinicalData", "adminData", "financial" ]
+      "required": [ "id", "name", "cpf", "dateOfBirth", "address" ]
     },
     "Professional": {
       "$schema": "http://json-schema.org/draft-07/schema#",
