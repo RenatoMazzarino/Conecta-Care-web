@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -632,6 +632,65 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                          <div>
                             <Label>Observações Financeiras</Label>
                             {isEditing ? <Textarea value={data.financial?.observacoesFinanceiras || ''} onChange={e => handleChange('financial.observacoesFinanceiras', e.target.value)} placeholder="Anotações sobre faturamento, pagamentos, etc..." /> : <ValueDisplay className="min-h-[80px] h-auto">{data.financial?.observacoesFinanceiras}</ValueDisplay>}
+                        </div>
+                    </AccordionContent>
+                 </Card>
+             </AccordionItem>
+            
+            {/* 6. REDE DE APOIO */}
+            <AccordionItem value="item-6" className="border-none">
+                 <Card>
+                     <AccordionTrigger className="p-6 hover:no-underline">
+                        <CardTitle className="flex items-center gap-3 text-lg"><Users className="w-5 h-5 text-primary" />Rede de Apoio e Responsáveis</CardTitle>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <Label>Nome do Responsável Legal</Label>
+                                {isEditing ? <Input value={data.supportNetwork?.responsavelLegal || ''} onChange={e => handleChange('supportNetwork.responsavelLegal', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.responsavelLegal}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label>Parentesco</Label>
+                                {isEditing ? <Input value={data.supportNetwork?.parentescoResponsavel || ''} onChange={e => handleChange('supportNetwork.parentescoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.parentescoResponsavel}</ValueDisplay>}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <Label>Telefone do Responsável</Label>
+                                {isEditing ? <Input value={data.supportNetwork?.contatoResponsavel || ''} onChange={e => handleChange('supportNetwork.contatoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.contatoResponsavel}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label>Email do Responsável</Label>
+                                {isEditing ? <Input type="email" value={data.supportNetwork?.emailResponsavel || ''} onChange={e => handleChange('supportNetwork.emailResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.emailResponsavel}</ValueDisplay>}
+                            </div>
+                        </div>
+                         <div>
+                            <Label>Endereço do Responsável (se diferente)</Label>
+                            {isEditing ? <Input value={data.supportNetwork?.enderecoResponsavel || ''} onChange={e => handleChange('supportNetwork.enderecoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.enderecoResponsavel}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Familiares Cadastrados no App (IDs)</Label>
+                            {isEditing ? <Input value={data.supportNetwork?.familiaresAppIds?.join(', ') || ''} onChange={e => handleArrayChange('supportNetwork.familiaresAppIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.supportNetwork?.familiaresAppIds} />}
+                        </div>
+                         <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
+                            <div className="flex items-center space-x-3">
+                                <ShieldCheck className="h-6 w-6 text-primary"/>
+                                <div>
+                                    <Label htmlFor="lgpd-auth" className="font-semibold cursor-pointer">
+                                        Autorização para Acesso aos Dados
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground">O responsável autoriza o compartilhamento de dados do paciente com a equipe de cuidado, conforme LGPD.</p>
+                                </div>
+                            </div>
+                            {isEditing ? (
+                                <Switch 
+                                    id="lgpd-auth"
+                                    checked={data.supportNetwork?.autorizacaoAcessoDados || false} 
+                                    onCheckedChange={c => handleChange('supportNetwork.autorizacaoAcessoDados', c)}
+                                />
+                            ) : (
+                                <ValueDisplay className="w-20 justify-center">{data.supportNetwork?.autorizacaoAcessoDados ? 'Sim' : 'Não'}</ValueDisplay>
+                            )}
                         </div>
                     </AccordionContent>
                  </Card>
