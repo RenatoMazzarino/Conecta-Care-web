@@ -298,36 +298,35 @@ export function ShiftManagement() {
 
   return (
     <div className="h-full flex flex-col gap-6">
-       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-           {!isMobile && (
-              <>
-                <Button variant={viewPeriod === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('weekly')}>Semanal</Button>
-                <Button variant={viewPeriod === 'biweekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('biweekly')}>Quinzenal</Button>
-                <Button variant={viewPeriod === 'monthly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('monthly')}>Mensal</Button>
-              </>
-           )}
-         </div>
-          <div className="flex items-center justify-center gap-1 text-sm font-semibold">
-              <Button variant="ghost" size="icon" onClick={() => handleDateChange(isMobile ? -1 : -numDays)}><ChevronsLeft className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
-              <div className="text-foreground text-center w-40 sm:w-48">
-                  {isMobile ? format(currentDate, "eeee, dd/MM", { locale: ptBR }) : getPeriodLabel()}
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDateChange(isMobile ? 1 : numDays)}><ChevronsRight className="h-5 w-5" /></Button>
-          </div>
+      <div className="flex w-full items-center justify-between gap-4">
+        {!isMobile && (
           <div className="flex items-center gap-2">
-             <Button variant="outline" onClick={() => setIsBulkPublishing(true)}>
-                <FileUp className="mr-2 h-4 w-4" />
-                Publicar em Massa
-            </Button>
-            <Button onClick={handlePublishFromScratch}>
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Vaga
-            </Button>
+            <Button variant={viewPeriod === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('weekly')}>Semanal</Button>
+            <Button variant={viewPeriod === 'biweekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('biweekly')}>Quinzenal</Button>
+            <Button variant={viewPeriod === 'monthly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('monthly')}>Mensal</Button>
+          </div>
+        )}
+        <div className="flex-1 flex items-center justify-center gap-1 text-sm font-semibold">
+            <Button variant="ghost" size="icon" onClick={() => handleDateChange(isMobile ? -1 : -numDays)}><ChevronsLeft className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => handleDateChange(-1)}><ChevronLeft className="h-5 w-5" /></Button>
+            <div className="text-foreground text-center w-40 sm:w-auto">
+                {isMobile ? format(currentDate, "eeee, dd/MM", { locale: ptBR }) : getPeriodLabel()}
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => handleDateChange(1)}><ChevronRight className="h-5 w-5" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => handleDateChange(isMobile ? 1 : numDays)}><ChevronsRight className="h-5 w-5" /></Button>
         </div>
-       </div>
+        <div className="flex items-center gap-2">
+           <Button variant="outline" onClick={() => setIsBulkPublishing(true)}>
+              <FileUp className="mr-2 h-4 w-4" />
+              Publicar em Massa
+          </Button>
+          <Button onClick={handlePublishFromScratch}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Vaga
+          </Button>
+      </div>
+     </div>
+
 
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
             <StatCard 
@@ -533,18 +532,6 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
         </div>
     );
 }
-
     
 
     
-
-
-
-
-
-
-
-
-
-
-
