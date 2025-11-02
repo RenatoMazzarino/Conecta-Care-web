@@ -227,22 +227,32 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     }
 
     return (
-        <div className="h-96 text-center grid grid-cols-2 gap-6 items-center justify-center p-6">
-            <div 
-              className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
-              onClick={() => setView('assign')}
-            >
-              <UserCheck className="h-16 w-16 text-primary" />
-              <h3 className="text-xl font-semibold">Atribuir Diretamente</h3>
-              <p className="text-muted-foreground">Escolha um profissional específico da sua equipe para este plantão.</p>
+        <div className="space-y-6 p-6">
+            <div className="flex items-center space-x-2 p-4 rounded-lg bg-amber-50 border border-amber-200">
+                <Megaphone className="h-5 w-5 text-amber-700"/>
+                <Label htmlFor="urgent-switch" className="text-sm font-medium text-amber-800">
+                    Marcar esta vaga como publicação urgente
+                </Label>
+                <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
             </div>
-             <div 
-              className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
-              onClick={() => setView('publish')}
-            >
-              <FileUp className="h-16 w-16 text-primary" />
-              <h3 className="text-xl font-semibold">Publicar Vaga</h3>
-              <p className="text-muted-foreground">Torne a vaga visível para que profissionais qualificados possam se candidatar.</p>
+
+            <div className="h-80 text-center grid grid-cols-2 gap-6 items-center justify-center">
+                <div 
+                  className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
+                  onClick={() => setView('assign')}
+                >
+                  <UserCheck className="h-16 w-16 text-primary" />
+                  <h3 className="text-xl font-semibold">Atribuir Diretamente</h3>
+                  <p className="text-muted-foreground">Escolha um profissional específico da sua equipe para este plantão.</p>
+                </div>
+                 <div 
+                  className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
+                  onClick={() => setView('publish')}
+                >
+                  <FileUp className="h-16 w-16 text-primary" />
+                  <h3 className="text-xl font-semibold">Publicar Vaga</h3>
+                  <p className="text-muted-foreground">Torne a vaga visível para que profissionais qualificados possam se candidatar.</p>
+                </div>
             </div>
         </div>
     );
@@ -368,13 +378,6 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                 </div>
               </div>
                <div className="flex items-center gap-4">
-                   {shift.status === 'open' && (
-                     <div className="flex items-center gap-2">
-                        <Megaphone className="h-5 w-5 text-amber-600"/>
-                        <Label htmlFor="urgent-switch" className="text-sm font-medium text-amber-700">Marcação Urgente</Label>
-                        <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
-                    </div>
-                   )}
                    {patient.id && (
                      <>
                         <Button variant="outline" onClick={() => professional && setIsChatOpen(true)} disabled={!professional}><MessageCircle /> Chat</Button>
