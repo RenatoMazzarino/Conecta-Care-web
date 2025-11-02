@@ -6,7 +6,7 @@ import type { Patient } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck, Gavel } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { trackEvent } from '@/lib/analytics';
 import { FichaCadastral } from '@/components/patients/ficha-cadastral';
@@ -103,6 +103,8 @@ export default function PatientProfilePage() {
   const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
   const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
   const mainAllergy = displayData.clinicalData?.allergies?.[0];
+  const legalRep = displayData.emergencyContacts?.find(c => c.isLegalRepresentative);
+
 
   return (
     <div className="space-y-6">
@@ -133,11 +135,17 @@ export default function PatientProfilePage() {
                             <span className="mx-2">•</span>
                             <span className="text-sm text-slate-500">CPF: <strong>{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
                         </div>
-                        <div className="mt-3 flex items-center gap-2">
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
                             <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100">
                                 <Shield className="w-4 h-4 mr-2" />
                                 Consentimento: Assinado
                             </Badge>
+                             {legalRep && (
+                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100">
+                                    <Gavel className="w-4 h-4 mr-2" />
+                                    Rep. Legal: {legalRep.name}
+                                </Badge>
+                            )}
                             {mainAllergy && (
                                 <Badge variant="outline" className="bg-red-50 text-red-700 border-red-100">
                                     <AlertTriangle className="w-4 h-4 mr-2" />
