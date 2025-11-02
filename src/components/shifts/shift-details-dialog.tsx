@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -11,7 +10,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -220,17 +219,6 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
               <Label htmlFor="notes">Observações para os Profissionais</Label>
               <Textarea id="notes" placeholder="Ex: Paciente necessita de atenção especial para mobilidade." value={publishData.notes} onChange={e => setPublishData({...publishData, notes: e.target.value})} />
             </div>
-            
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                  <Megaphone className="h-6 w-6 text-amber-600"/>
-                  <div>
-                      <Label htmlFor="urgent-switch" className="font-semibold">Publicação Urgente</Label>
-                      <p className="text-xs text-muted-foreground">Vagas urgentes são destacadas e notificam mais profissionais.</p>
-                  </div>
-              </div>
-              <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
-            </div>
 
             </div>
           </ScrollArea>
@@ -380,6 +368,13 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                 </div>
               </div>
                <div className="flex items-center gap-2">
+                   {shift.status === 'open' && (
+                     <div className="flex items-center space-x-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
+                        <Megaphone className="h-5 w-5 text-amber-700"/>
+                        <Label htmlFor="urgent-switch" className="text-amber-800 font-medium">Marcação Urgente</Label>
+                        <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
+                    </div>
+                   )}
                    {patient.id && (
                      <>
                         <Button variant="outline" onClick={() => professional && setIsChatOpen(true)} disabled={!professional}><MessageCircle /> Chat</Button>
