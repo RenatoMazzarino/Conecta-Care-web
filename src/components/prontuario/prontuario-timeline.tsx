@@ -31,9 +31,9 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                     Linha do Tempo do Plantão
                 </CardTitle>
             </CardHeader>
-            <CardContent className="relative pt-6">
+            <CardContent className="relative py-6">
                 {/* Vertical track bar */}
-                <div className="absolute left-4 top-6 bottom-6 w-2 bg-muted rounded-full" style={{ transform: 'translateX(-50%)' }}>
+                <div className="absolute left-4 top-6 bottom-6 w-2 bg-muted rounded-full">
                      {/* Progress bar with shimmer */}
                      <div 
                         className="absolute top-0 left-0 w-full bg-primary rounded-full"
@@ -48,7 +48,7 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
 
                 <div className="relative space-y-8">
                      {mockShiftHistory.map((event, index) => {
-                        const eventProgress = (index / (totalEvents -1)) * 100;
+                        const eventProgress = (index / (totalEvents - 1)) * 100;
                         const isEventActive = eventProgress <= currentProgress;
                         const config = statusConfig[event.status || 'default'];
 
