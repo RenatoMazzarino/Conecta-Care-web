@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -9,8 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Link as LinkIcon, Gavel, BadgeCheck, Edit,
-    Shield, AlertTriangle, Star, Eye, Copy, Download, FileText, Upload, Plus, X, BookUser
+    User, Phone, Mail, Calendar, Home, Users, Copy, Download, FileText, Upload, Plus, X, BookUser, Edit, BadgeCheck, Gavel, Eye
 } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
@@ -18,7 +16,8 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 import { Badge } from '@/components/ui/badge';
-import { Users } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 32 32" fill="currentColor" {...props}>
@@ -26,74 +25,42 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-
-type FormSectionProps = {
-    icon: React.ElementType;
-    title: string;
-    action?: React.ReactNode;
-    children: React.ReactNode;
-    className?: string;
-};
-
-const FormSection: React.FC<FormSectionProps> = ({ icon: Icon, title, action, children, className }) => {
-    return (
-        <Card className={cn(className)}>
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                        <Icon className="w-5 h-5 text-slate-700" />
-                        {title}
-                    </CardTitle>
-                    {action}
-                </div>
-            </CardHeader>
-            <CardContent>
-                {children}
-            </CardContent>
-        </Card>
-    );
-};
-
-const FormRow = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4", className)}>{children}</div>
-);
-
-const FormField = ({ label, value, action, isEditing, editComponent, className }: { 
+const FormField = ({ label, children, className }: { 
     label: string, 
-    value: React.ReactNode, 
-    action?: React.ReactNode,
-    isEditing?: boolean,
-    editComponent?: React.ReactNode,
+    children: React.ReactNode,
     className?: string
 }) => (
     <div className={cn(className)}>
-        <div className="text-xs text-gray-600 flex items-center gap-2 mb-1">
-          <Label>{label}</Label>
-          {action}
+        <Label className="text-xs text-slate-600">{label}</Label>
+        <div className="mt-1 text-sm text-slate-900 flex items-center gap-2">
+            {children}
         </div>
-        {isEditing ? (
-             <div>{editComponent}</div>
-        ) : (
-            <div className="w-full rounded-md border bg-muted/50 p-2 text-sm text-foreground min-h-[36px] flex items-center justify-between">
-                <div>{value || <span className="text-muted-foreground italic">Não informado</span>}</div>
-            </div>
-        )}
     </div>
 );
 
+
+const FieldSet = ({ legend, children, className }: { legend: string, children: React.ReactNode, className?: string }) => (
+    <fieldset className={cn("bg-white rounded-md p-4", className)}>
+        <legend className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3">
+            {legend}
+        </legend>
+        {children}
+    </fieldset>
+)
+
+
 type FichaCadastralProps = {
-  editMode: EditMode;
-  setEditMode: (mode: EditMode) => void;
   displayData: Patient | null;
   editedData: Patient | null;
   setEditedData: (data: Patient | null) => void;
+  isEditing: boolean;
 };
 
-export function FichaCadastral({ editMode, setEditMode, displayData, editedData, setEditedData }: FichaCadastralProps) {
+export function FichaCadastral({ displayData, editedData, setEditedData, isEditing }: FichaCadastralProps) {
+    const { toast } = useToast();
+
     if (!displayData || !editedData) return null;
 
-    const isEditing = editMode !== 'none';
-    
     const handleFieldChange = (path: string, value: any) => {
         setEditedData(prevData => {
             if (!prevData) return null;
@@ -108,142 +75,124 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             return newEditedData;
         });
     };
-    
+
+    const handleCopy = (text: string, fieldName: string) => {
+        navigator.clipboard.writeText(text);
+        toast({ title: `${fieldName} copiado!`, description: text });
+    };
+
+    const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
+
     return (
-        <div className="space-y-6">
-            <FormSection icon={User} title="Identificação Básica">
-                <FormRow>
-                    <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
-                        editComponent={
-                            <Select value={editedData.pronouns || 'none'} onValueChange={(v) => handleFieldChange('pronouns', v)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Nenhum</SelectItem>
-                                    <SelectItem value="Sr.">Sr.</SelectItem>
-                                    <SelectItem value="Sra.">Sra.</SelectItem>
-                                    <SelectItem value="Sre.">Sre.</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        }
-                    />
-                    <FormField label="Nome Social" value={displayData.displayName} isEditing={isEditing}
-                        editComponent={<Input value={editedData.displayName} onChange={(e) => handleFieldChange('displayName', e.target.value)} />}
-                    />
-                </FormRow>
-                <hr className="my-4"/>
-                <FormRow>
-                    <FormField label="Nome" value={displayData.firstName} isEditing={isEditing}
-                        editComponent={<Input value={editedData.firstName} onChange={(e) => handleFieldChange('firstName', e.target.value)} />}
-                    />
-                    <FormField label="Sobrenome" value={displayData.lastName} isEditing={isEditing}
-                        editComponent={<Input value={editedData.lastName} onChange={(e) => handleFieldChange('lastName', e.target.value)} />}
-                    />
-                </FormRow>
-                 <hr className="my-4"/>
-                <FormRow>
-                    <FormField label="Data de Nascimento" value={displayData.dateOfBirth ? new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : ''} isEditing={isEditing}
-                        editComponent={<Input type="date" value={editedData.dateOfBirth} onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)} />} />
-                    <FormField label="Sexo de Nascimento" value={displayData.sexo} isEditing={isEditing}
-                        editComponent={
-                            <Select value={editedData.sexo || ''} onValueChange={(v) => handleFieldChange('sexo', v)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Masculino">Masculino</SelectItem>
-                                    <SelectItem value="Feminino">Feminino</SelectItem>
-                                    <SelectItem value="Outro">Outro</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        }
-                    />
-                </FormRow>
-                <FormRow>
-                    <FormField label="Identidade de Gênero" value={displayData.genderIdentity} isEditing={isEditing}
-                        editComponent={<Input value={editedData.genderIdentity || ''} onChange={(e) => handleFieldChange('genderIdentity', e.target.value)} />} />
-                    <FormField label="Estado Civil" value={displayData.estadoCivil} isEditing={isEditing}
-                        editComponent={<Input value={editedData.estadoCivil || ''} onChange={(e) => handleFieldChange('estadoCivil', e.target.value)} />} />
-                </FormRow>
-                <FormRow>
-                    <FormField label="Nacionalidade" value={displayData.nacionalidade} isEditing={isEditing}
-                        editComponent={<Input value={editedData.nacionalidade || ''} onChange={(e) => handleFieldChange('nacionalidade', e.target.value)} />} />
-                    <FormField label="Local de Nascimento" value={displayData.naturalidade} isEditing={isEditing}
-                        editComponent={<Input value={editedData.naturalidade || ''} onChange={(e) => handleFieldChange('naturalidade', e.target.value)} />} />
-                </FormRow>
-            </FormSection>
-
-            <FormSection icon={FileText} title="Documentos e Identificação Civil">
-                <FormRow>
-                     <FormField label="CPF" value={displayData.cpf} 
-                        action={<Badge variant={editedData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(editedData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} 
-                        isEditing={isEditing}
-                        editComponent={<Input value={editedData.cpf} onChange={(e) => handleFieldChange('cpf', e.target.value)} />}
-                     />
-                     <FormField label="RG" value={displayData.rg} 
-                        action={<Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>}
-                        isEditing={isEditing}
-                        editComponent={<Input value={editedData.rg || ''} onChange={(e) => handleFieldChange('rg', e.target.value)} />}
-                     />
-                 </FormRow>
-                 <FormRow>
-                      <FormField label="Órgão Emissor do RG" value={displayData.rgIssuer} isEditing={isEditing}
-                        editComponent={<Input value={editedData.rgIssuer || ''} onChange={(e) => handleFieldChange('rgIssuer', e.target.value)} />}
-                      />
-                     <FormField label="CNS" value={displayData.cns} 
-                        action={<Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} 
-                        isEditing={isEditing}
-                        editComponent={<Input value={editedData.cns || ''} onChange={(e) => handleFieldChange('cns', e.target.value)} />}
-                     />
-                 </FormRow>
-            </FormSection>
-            
-             <FormSection icon={Phone} title="Informações de Contato" action={<Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>}>
-                <FormRow>
-                    <FormField label="Telefone" value={displayData.phones[0]?.number} 
-                        action={<a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700 ml-2"><WhatsAppIcon className="h-5 w-5"/></a>}
-                        isEditing={isEditing}
-                        editComponent={<Input value={editedData.phones[0]?.number} onChange={(e) => handleFieldChange('phones.0.number', e.target.value)} />}
-                    />
-                    <FormField label="Email" value={displayData.emails?.[0]?.email}
-                        action={<a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary ml-2"><Mail className="h-4 w-4"/></a>}
-                        isEditing={isEditing}
-                        editComponent={<Input value={editedData.emails?.[0]?.email} onChange={(e) => handleFieldChange('emails.0.email', e.target.value)} />}
-                    />
-                </FormRow>
-            </FormSection>
-
-            <FormSection icon={Users} title="Contatos de Emergência">
-              <div className="space-y-3">
-                {displayData.emergencyContacts.map((contact, index) => (
-                  <div key={index} className="p-3 border rounded-lg bg-background">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium text-slate-900">
-                            {contact.name}
-                            {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
+        <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 lg:col-span-8 space-y-6">
+                
+                <FieldSet legend="Identificação">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField label="Nome Completo">
+                            {isEditing ? <Input value={editedData.firstName + ' ' + editedData.lastName} disabled /> : <span>{displayData.firstName} {displayData.lastName}</span>}
+                        </FormField>
+                        <FormField label="Nome Social / Apelido">
+                            {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
+                        </FormField>
+                        <FormField label="Data de Nascimento">
+                            {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} {age && `(${age})`}</span>}
+                        </FormField>
+                         <FormField label="Gênero / Pronomes">
+                            {isEditing ? (
+                                <div className="flex gap-2 w-full">
+                                <Input value={editedData.genderIdentity || ''} placeholder="Gênero" onChange={e => handleFieldChange('genderIdentity', e.target.value)} />
+                                <Input value={editedData.pronouns || ''} placeholder="Pronomes" onChange={e => handleFieldChange('pronouns', e.target.value)} />
+                                </div>
+                            ) : (
+                                <span>{displayData.genderIdentity || '-'} / {displayData.pronouns || '-'}</span>
+                            )}
+                        </FormField>
+                         <FormField label="CPF">
+                            <span className="font-mono">{displayData.cpf}</span>
+                            <Button size="sm" variant="outline" className="ml-auto h-7 text-xs" onClick={() => handleCopy(displayData.cpf, 'CPF')}><Copy className="w-3 h-3 mr-1"/>Copiar</Button>
+                        </FormField>
+                        <FormField label="RG / Órgão Emissor">
+                            {isEditing ? (
+                                <div className="flex gap-2 w-full">
+                                    <Input value={editedData.rg || ''} placeholder="RG" onChange={e => handleFieldChange('rg', e.target.value)} />
+                                    <Input value={editedData.rgIssuer || ''} placeholder="Órgão Emissor" onChange={e => handleFieldChange('rgIssuer', e.target.value)} />
+                                </div>
+                            ) : (
+                                <span>{displayData.rg || '-'} / {displayData.rgIssuer || '-'}</span>
+                            )}
+                        </FormField>
+                        <FormField label="CNS (Cartão SUS)">
+                            {isEditing ? <Input value={editedData.cns || ''} onChange={e => handleFieldChange('cns', e.target.value)} /> : <span>{displayData.cns || '-'}</span>}
+                        </FormField>
+                        <FormField label="Estado Civil">
+                            {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
+                        </FormField>
+                    </div>
+                </FieldSet>
+                
+                 <FieldSet legend="Contatos">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <FormField label="Telefone Principal">
+                            <span>{displayData.phones?.[0]?.number}</span>
+                             <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
+                        </FormField>
+                        <FormField label="E-mail">
+                            <span>{displayData.emails?.[0]?.email}</span>
+                             <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
+                        </FormField>
+                        <FormField label="Contato Preferencial">
+                            <span>{displayData.preferredContactMethod}</span>
+                        </FormField>
+                     </div>
+                </FieldSet>
+                
+                 <FieldSet legend="Contatos de Emergência">
+                     <div className="space-y-3">
+                        {displayData.emergencyContacts?.map((contact, index) => (
+                        <div key={index} className="flex items-center justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                            <div className="flex items-center gap-3">
+                                <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                <div>
+                                    <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                    <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
-                  </div>
-                ))}
-              </div>
-              {isEditing && (
-                <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
-                    <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
-                </Button>
-              )}
-            </FormSection>
-            
-            <FormSection icon={Gavel} title="Representante Legal">
-                 <FormField label="Nome" value={displayData.legalGuardian?.name} />
-                 <div className="mt-4">
-                   <FormField label="Documento" value={displayData.legalGuardian?.document} />
-                 </div>
-                 <div className="mt-4">
-                   <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
-                 </div>
-             </FormSection>
+                        ))}
+                    </div>
+                 </FieldSet>
+
+            </div>
+
+             <aside className="col-span-12 lg:col-span-4 space-y-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Resumo Rápido</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm space-y-2">
+                         <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd className="font-medium">{displayData.adminData.status}</dd></div>
+                        <div className="flex justify-between"><dt className="text-muted-foreground">Complexidade</dt><dd className="font-medium text-red-600">{displayData.adminData.complexity}</dd></div>
+                        <div className="flex justify-between"><dt className="text-muted-foreground">Pacote</dt><dd className="font-medium">{displayData.adminData.servicePackage}</dd></div>
+                        <div className="flex justify-between"><dt className="text-muted-foreground">Última atualização</dt><dd className="text-xs text-muted-foreground">{new Date(displayData.audit.updatedAt).toLocaleDateString('pt-BR')}</dd></div>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Verificação de Identidade</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm space-y-2">
+                         <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd className="font-medium flex items-center gap-1 text-green-600"><BadgeCheck className="w-4 h-4"/> Verificado</dd></div>
+                        <div className="flex justify-between"><dt className="text-muted-foreground">Método</dt><dd className="font-medium">{displayData.documentValidation?.method}</dd></div>
+                        <div className="flex justify-between"><dt className="text-muted-foreground">Data</dt><dd className="text-xs">{displayData.documentValidation?.validatedAt ? new Date(displayData.documentValidation.validatedAt).toLocaleDateString('pt-BR') : '-'}</dd></div>
+                         <div className="flex justify-between"><dt className="text-muted-foreground">Responsável</dt><dd className="text-xs">{displayData.documentValidation?.validatedBy}</dd></div>
+                    </CardContent>
+                </Card>
+             </aside>
 
         </div>
     );
