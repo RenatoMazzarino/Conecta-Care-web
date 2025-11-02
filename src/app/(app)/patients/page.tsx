@@ -116,7 +116,7 @@ export default function PatientsPage() {
 
     // Search and advanced filters
     if (searchTerm) {
-      results = results.filter(p => p.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+      results = results.filter(p => `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()));
     }
     if (complexityFilter !== 'all') {
       results = results.filter(p => p.adminData.complexity === complexityFilter);

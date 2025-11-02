@@ -15,7 +15,8 @@ const patientAvatars = {
 export const patients: Patient[] = [
   {
     id: 'patient-123',
-    fullName: 'João da Silva',
+    firstName: 'João',
+    lastName: 'da Silva',
     displayName: 'João',
     pronouns: 'Sr.',
     avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
@@ -54,6 +55,7 @@ export const patients: Patient[] = [
       name: 'Maria da Silva',
       relationship: 'Filha',
       phone: '+55 (11) 98765-4321',
+      email: 'maria.filha@example.com',
       isLegalRepresentative: true,
       permissions: { view: true, authorize: true },
     }],
@@ -115,7 +117,8 @@ export const patients: Patient[] = [
   },
   {
     id: 'patient-456',
-    fullName: 'Maria Lopes',
+    firstName: 'Maria',
+    lastName: 'Lopes',
     displayName: 'Maria',
     pronouns: 'Sra.',
     avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
@@ -193,7 +196,8 @@ export const patients: Patient[] = [
   },
   {
     id: 'patient-789',
-    fullName: 'Jorge Mendes',
+    firstName: 'Jorge',
+    lastName: 'Mendes',
     displayName: 'Jorge',
     cpf: '111.222.333-44',
     cpfStatus: 'unknown',

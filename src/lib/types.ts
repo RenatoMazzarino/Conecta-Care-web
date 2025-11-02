@@ -10,9 +10,10 @@ export type Diagnosis = {
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   displayName: string;
-  pronouns?: string;
+  pronouns?: 'Sr.' | 'Sra.' | 'Sre.' | 'none';
   avatarUrl: string;
   avatarHint: string;
   photoConsent?: {
@@ -44,7 +45,7 @@ export type Patient = {
   estadoCivil?: string; // representa civilStatus
   nacionalidade?: string;
   naturalidade?: string; // representa placeOfBirth
-  preferredLanguage?: 'pt' | 'en' | 'es' | string;
+  preferredLanguage?: 'Português' | 'Inglês' | 'Espanhol';
   
   // Contato
   phones: {

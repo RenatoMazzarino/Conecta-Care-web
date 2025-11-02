@@ -1,4 +1,5 @@
 
+
 {
   "entities": {
     "Patient": {
@@ -8,7 +9,8 @@
       "description": "Representa um paciente recebendo serviços de homecare, com estrutura de dados ampliada.",
       "properties": {
         "id": { "type": "string", "description": "Identificador único para o paciente (Auto)." },
-        "fullName": { "type": "string", "description": "Nome completo legal." },
+        "firstName": { "type": "string", "description": "Nome do paciente." },
+        "lastName": { "type": "string", "description": "Sobrenome do paciente." },
         "displayName": { "type": "string", "description": "Nome preferido / nome social." },
         "pronouns": { "type": "string", "description": "Pronomes de preferência (ex: ele/dele, ela/dela)." },
         "avatarUrl": { "type": "string", "format": "uri", "description": "Foto do Paciente para identificação visual." },
@@ -257,7 +259,7 @@
         "consent_status": { "type": "string", "enum": ["ok", "pending"], "description": "Status do termo de consentimento (LGPD)." },
         "pending_documents": { "type": "number", "description": "Contagem de documentos importantes faltando." }
       },
-      "required": [ "id", "fullName", "cpf", "dateOfBirth", "address" ]
+      "required": [ "id", "firstName", "lastName", "cpf", "dateOfBirth", "address" ]
     },
     "Professional": {
       "$schema": "http://json-schema.org/draft-07/schema#",

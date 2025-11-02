@@ -159,14 +159,14 @@ export function PatientTable({
             const vinculoDisplay = patient.financial.vinculo === 'Plano de Saúde' && patient.financial.operadora 
                 ? `${patient.financial.vinculo} - ${patient.financial.operadora}` 
                 : patient.financial.vinculo;
-
+            const fullName = `${patient.firstName} ${patient.lastName}`;
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
                 <TableCell>
                     <Checkbox
                         checked={selectedPatients.has(patient.id)}
                         onCheckedChange={() => handleToggleSelect(patient.id)}
-                        aria-label={`Selecionar ${patient.fullName}`}
+                        aria-label={`Selecionar ${fullName}`}
                     />
                 </TableCell>
                 <TableCell>
@@ -187,8 +187,8 @@ export function PatientTable({
                         className="flex items-center gap-3 group cursor-pointer"
                     >
                         <Avatar className="h-9 w-9">
-                            <AvatarImage src={patient.avatarUrl} alt={patient.fullName} data-ai-hint={patient.avatarHint} />
-                            <AvatarFallback>{patient.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            <AvatarImage src={patient.avatarUrl} alt={fullName} data-ai-hint={patient.avatarHint} />
+                            <AvatarFallback>{patient.firstName.charAt(0)}{patient.lastName.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <span className="font-medium group-hover:underline">{patient.displayName}</span>
                     </div>
