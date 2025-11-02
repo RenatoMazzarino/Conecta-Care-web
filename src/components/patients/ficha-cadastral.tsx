@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -695,6 +695,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                     </AccordionContent>
                  </Card>
              </AccordionItem>
+
              {/* 7. DOCUMENTOS E CONSENTIMENTOS */}
              <AccordionItem value="item-7" className="border-none">
                  <Card>
@@ -742,6 +743,44 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                     </AccordionContent>
                  </Card>
              </AccordionItem>
+
+            {/* 8. HISTÓRICO E AUDITORIA */}
+            <AccordionItem value="item-8" className="border-none">
+                <Card>
+                    <AccordionTrigger className="p-6 hover:no-underline">
+                        <CardTitle className="flex items-center gap-3 text-lg">
+                            <History className="w-5 h-5 text-primary" />
+                            Histórico e Auditoria
+                        </CardTitle>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                            <div>
+                                <Label>Data de Criação</Label>
+                                <ValueDisplay>
+                                    {data.audit?.createdAt ? new Date(data.audit.createdAt).toLocaleString('pt-BR') : '-'}
+                                </ValueDisplay>
+                            </div>
+                            <div>
+                                <Label>Criado por</Label>
+                                <ValueDisplay>{data.audit?.createdBy || '-'}</ValueDisplay>
+                            </div>
+                            <div>
+                                <Label>Última Atualização</Label>
+                                <ValueDisplay>
+                                    {data.audit?.updatedAt ? new Date(data.audit.updatedAt).toLocaleString('pt-BR') : '-'}
+                                </ValueDisplay>
+                            </div>
+                            <div>
+                                <Label>Alterado por</Label>
+                                <ValueDisplay>{data.audit?.updatedBy || '-'}</ValueDisplay>
+                            </div>
+                        </div>
+                        <Button variant="outline" className="w-full" disabled>Ver Histórico Completo de Alterações</Button>
+                    </AccordionContent>
+                </Card>
+            </AccordionItem>
+
         </Accordion>
     )
 }
