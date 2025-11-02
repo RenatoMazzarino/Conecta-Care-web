@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 
 interface PatientDetailsPanelProps {
@@ -220,14 +221,17 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
             {!isLoading && displayData && currentView === 'prontuario' && (
                <Tabs defaultValue="dashboard" value={activeProntuarioTab} onValueChange={setActiveProntuarioTab} className="w-full">
-                  <TabsList className={cn("grid w-full", `grid-cols-${prontuarioTabs.length}`)}>
-                    {prontuarioTabs.map(tab => (
-                      <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
-                        <tab.icon className="h-4 w-4" />
-                        {tab.label}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+                  <ScrollArea className="w-full whitespace-nowrap rounded-md">
+                    <TabsList className="inline-flex">
+                      {prontuarioTabs.map(tab => (
+                        <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
+                          <tab.icon className="h-4 w-4" />
+                          {tab.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    <ScrollBar orientation="horizontal" />
+                  </ScrollArea>
                   {prontuarioTabs.map(tab => (
                     <TabsContent key={tab.id} value={tab.id} className="mt-6">
                       <ProntuarioContent tabId={tab.id} isEditing={isEditing} editedData={editedData} setEditedData={setEditedData}/>
