@@ -29,10 +29,10 @@ const complexityVariant: { [key in Patient['adminData']['complexity']]: string }
     Alta: 'bg-red-100 text-red-800 border-red-200',
 }
 
-const patientStatusConfig: { [key: string]: { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline', className: string } } = {
-  active: { text: 'Ativo', variant: 'secondary', className: 'bg-green-100 text-green-800 border-green-200' },
-  pending: { text: 'Com Pendência', variant: 'default', className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  inactive: { text: 'Inativo', variant: 'outline', className: 'bg-gray-100 text-gray-500 border-gray-200' },
+const patientStatusConfig: { [key: string]: { text: string; className: string; dotClassName: string; } } = {
+  active: { text: 'Ativo', className: 'text-green-800', dotClassName: 'bg-green-500' },
+  pending: { text: 'Com Pendência', className: 'text-amber-800', dotClassName: 'bg-amber-500' },
+  inactive: { text: 'Inativo', className: 'text-gray-500', dotClassName: 'bg-gray-400' },
 };
 
 const docStatusConfig: { [key: string]: { text: string; variant: 'secondary' | 'destructive', className: string } } = {
@@ -113,6 +113,7 @@ export function PatientTable({
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Documentação</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Vínculo</TableHead>
             <TableHead>Pacote</TableHead>
@@ -137,6 +138,9 @@ export function PatientTable({
             }
             const patientStatus = patientStatusConfig[patientStatusKey];
             
+            const docStatusKey = patient.pending_documents > 0 ? 'pending' : 'ok';
+            const docStatus = docStatusConfig[docStatusKey];
+
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
                 <TableCell>
@@ -156,13 +160,17 @@ export function PatientTable({
                             <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div className="flex items-center gap-2">
+                             <div className={cn("h-2 w-2 rounded-full", patientStatus.dotClassName)}></div>
                              <span className="font-medium group-hover:underline">{patient.name}</span>
                         </div>
                     </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={patientStatus.variant} className={patientStatus.className}>
-                    {patientStatus.text}
+                  <span className={cn("text-sm", patientStatus.className)}>{patientStatus.text}</span>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={docStatus.variant} className={docStatus.className}>
+                    {docStatus.text}
                   </Badge>
                 </TableCell>
                 <TableCell>
