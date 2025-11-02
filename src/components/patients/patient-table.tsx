@@ -13,7 +13,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp, CheckCircle, XCircle } from 'lucide-react';
+import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp, CheckCircle, XCircle, CircleOff } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
@@ -32,7 +32,7 @@ const complexityVariant: { [key in Patient['adminData']['complexity']]: string }
 const patientStatusConfig: { [key: string]: { text: string; icon: React.ElementType; className: string; } } = {
   active: { text: 'Ativo', icon: CheckCircle, className: 'text-green-500' },
   pending: { text: 'Com Pendência', icon: AlertTriangle, className: 'text-amber-500' },
-  inactive: { text: 'Inativo', icon: XCircle, className: 'text-gray-400' },
+  inactive: { text: 'Inativo', icon: CircleOff, className: 'text-gray-400' },
 };
 
 
@@ -106,7 +106,7 @@ export function PatientTable({
                 }
               />
             </TableHead>
-            <TableHead className="w-[40px] text-center">Status</TableHead>
+            <TableHead className="w-[40px]">Status</TableHead>
             <TableHead className="w-[250px]">Nome</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Vínculo</TableHead>
@@ -145,6 +145,10 @@ export function PatientTable({
               if (hasPendingDocuments) reasons.push(`${patient.pending_documents} documento(s)`);
               return `${patientStatus.text} - ${reasons.join(' e ')} pendente(s).`;
             };
+
+            const vinculoDisplay = patient.financial.vinculo === 'Plano de Saúde' && patient.financial.operadora 
+                ? `${patient.financial.vinculo} - ${patient.financial.operadora}` 
+                : patient.financial.vinculo;
 
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
@@ -185,7 +189,7 @@ export function PatientTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                    <div className="text-sm text-muted-foreground">{patient.financial.vinculo}</div>
+                    <div className="text-sm text-muted-foreground">{vinculoDisplay}</div>
                 </TableCell>
                  <TableCell>
                     <Badge variant="outline">{patient.adminData.servicePackage}</Badge>
