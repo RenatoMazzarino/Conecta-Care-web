@@ -13,7 +13,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp } from 'lucide-react';
+import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp, CheckCircle, XCircle } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
@@ -29,10 +29,10 @@ const complexityVariant: { [key in Patient['adminData']['complexity']]: string }
     Alta: 'bg-red-100 text-red-800 border-red-200',
 }
 
-const patientStatusConfig: { [key: string]: { text: string; className: string; dotClassName: string; } } = {
-  active: { text: 'Ativo', className: 'text-green-800', dotClassName: 'bg-green-500' },
-  pending: { text: 'Com Pendência', className: 'text-amber-800', dotClassName: 'bg-amber-500' },
-  inactive: { text: 'Inativo', className: 'text-gray-500', dotClassName: 'bg-gray-400' },
+const patientStatusConfig: { [key: string]: { text: string; icon: React.ElementType; className: string; } } = {
+  active: { text: 'Ativo', icon: CheckCircle, className: 'text-green-500' },
+  pending: { text: 'Com Pendência', icon: AlertTriangle, className: 'text-amber-500' },
+  inactive: { text: 'Inativo', icon: XCircle, className: 'text-gray-400' },
 };
 
 const docStatusConfig: { [key: string]: { text: string; variant: 'secondary' | 'destructive', className: string } } = {
@@ -111,8 +111,8 @@ export function PatientTable({
                 }
               />
             </TableHead>
-            <TableHead className="w-[250px]">Paciente</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className="w-[40px] text-center">Status</TableHead>
+            <TableHead className="w-[250px]">Nome</TableHead>
             <TableHead>Documentação</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Vínculo</TableHead>
@@ -137,6 +137,7 @@ export function PatientTable({
                 patientStatusKey = 'active';
             }
             const patientStatus = patientStatusConfig[patientStatusKey];
+            const StatusIcon = patientStatus.icon;
             
             const docStatusKey = patient.pending_documents > 0 ? 'pending' : 'ok';
             const docStatus = docStatusConfig[docStatusKey];
@@ -151,6 +152,18 @@ export function PatientTable({
                     />
                 </TableCell>
                 <TableCell>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <StatusIcon className={cn("h-5 w-5", patientStatus.className)} />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{patientStatus.text}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </TableCell>
+                <TableCell>
                     <div
                         onClick={() => onViewDetails(patient.id)}
                         className="flex items-center gap-3 group cursor-pointer"
@@ -159,14 +172,8 @@ export function PatientTable({
                             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
                             <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
-                        <div className="flex items-center gap-2">
-                             <div className={cn("h-2 w-2 rounded-full", patientStatus.dotClassName)}></div>
-                             <span className="font-medium group-hover:underline">{patient.name}</span>
-                        </div>
+                        <span className="font-medium group-hover:underline">{patient.name}</span>
                     </div>
-                </TableCell>
-                <TableCell>
-                  <span className={cn("text-sm", patientStatus.className)}>{patientStatus.text}</span>
                 </TableCell>
                 <TableCell>
                   <Badge variant={docStatus.variant} className={docStatus.className}>
