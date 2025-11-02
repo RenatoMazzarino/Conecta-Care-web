@@ -156,14 +156,9 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col shadow-lg">
-          <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg z-20">
+        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col shadow-lg bg-background">
+          <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 z-20">
             <div className="flex items-center gap-4 flex-1">
-              {(currentView === 'ficha') && (
-                <Button variant="outline" size="icon" onClick={() => setCurrentView('prontuario')}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              )}
                {isLoading ? (
                   <Skeleton className="h-16 w-16 rounded-full" />
                 ) : (
