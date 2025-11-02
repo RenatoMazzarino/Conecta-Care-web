@@ -5,7 +5,7 @@ import * as React from 'react';
 import { InventoryTable } from '@/components/inventory/inventory-table';
 import { RequisitionDialog } from '@/components/inventory/requisition-dialog';
 import type { InventoryItem } from '@/lib/types';
-import { patients as mockPatients, inventory as mockInventory, mockShiftReports, mockNotifications, professionals as mockProfessionals, initialShifts } from '@/lib/data';
+import { patients as mockPatients, mockInventory, mockShiftReports, mockNotifications, professionals as mockProfessionals, initialShifts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
