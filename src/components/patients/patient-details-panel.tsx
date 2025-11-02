@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit, FileHeart, Gavel } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, Edit, FileHeart, Gavel, AlertTriangle, Stethoscope } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { trackEvent } from '@/lib/analytics';
 
@@ -27,6 +27,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import Link from 'next/link';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { prontuarioTabs, ProntuarioContent } from '@/components/prontuario/prontuario-tabs';
+import { Badge } from '../ui/badge';
 
 
 interface PatientDetailsPanelProps {
@@ -35,18 +37,6 @@ interface PatientDetailsPanelProps {
   onOpenChange: (isOpen: boolean) => void;
   onPatientUpdate: (patient: Patient) => void;
 }
-
-const prontuarioTabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: Activity },
-  { id: 'enfermagem', label: 'Enfermagem', icon: FileHeart },
-  { id: 'medico', label: 'Médico', icon: Stethoscope },
-  { id: 'fisioterapia', label: 'Fisioterapia', icon: Dumbbell },
-  { id: 'nutricao', label: 'Nutrição', icon: Apple },
-  { id: 'psicologia', label: 'Psicologia', icon: Brain },
-  { id: 'fonoaudiologia', label: 'Fonoaudiologia', icon: Bone },
-  { id: 'documentos', label: 'Documentos', icon: FileText },
-  { id: 'juridico', label: 'Jurídico', icon: Gavel },
-];
 
 const ProntuarioJuridico: React.FC = () => (
     <Card>
@@ -67,28 +57,6 @@ const ProntuarioJuridico: React.FC = () => (
       </CardContent>
     </Card>
 );
-
-
-const ProntuarioContent: React.FC<{ tabId: string; isEditing: boolean; editedData: Patient | null; setEditedData: (data: Patient | null) => void; }> = ({ tabId, isEditing, editedData, setEditedData }) => {
-    switch (tabId) {
-      case 'dashboard': return <ProntuarioDashboard isEditing={isEditing} editedData={editedData} setEditedData={setEditedData} />;
-      case 'enfermagem': return <ProntuarioEnfermagem />;
-      case 'medico': return <ProntuarioMedico />;
-      case 'fisioterapia': return <ProntuarioFisioterapia />;
-      case 'nutricao': return <ProntuarioNutricao />;
-      case 'documentos': return <ProntuarioDocumentos />;
-      case 'juridico': return <ProntuarioJuridico />;
-      default: return (
-        <div className="flex items-center justify-center h-full text-muted-foreground p-8 text-center">
-          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 h-80">
-            <Brain className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">Módulo em Desenvolvimento</h3>
-            <p className="text-sm text-muted-foreground mt-2">Esta funcionalidade estará disponível em breve.</p>
-          </div>
-        </div>
-      );
-    }
-};
 
 export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatientUpdate }: PatientDetailsPanelProps) {
   const { toast } = useToast();
@@ -150,14 +118,17 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
   const displayData = editedData || patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
-
+  
   const age = displayData?.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
+  const primaryDiagnosis = displayData?.clinicalData?.diagnoses?.[0]?.name;
+  const allergies = displayData?.clinicalData?.allergies;
+
 
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col shadow-lg bg-background">
-          <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 z-20">
+        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-background shadow-lg">
+           <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 z-20">
             <div className="flex items-center gap-4 flex-1">
                {isLoading ? (
                   <Skeleton className="h-16 w-16 rounded-full" />
@@ -169,19 +140,33 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                     </Avatar>
                   )
                )}
-               <div>
+               <div className="flex flex-col gap-2">
                 <SheetTitle className="text-xl">
                   {isLoading ? <Skeleton className="h-7 w-48" /> : <span>{displayData?.name}</span>}
                 </SheetTitle>
-                <SheetDescription className="text-sm text-muted-foreground">
-                    {isLoading ? (
-                      <Skeleton className="h-4 w-32 mt-1" />
-                    ) : (
-                      <span>
-                        {age ? `Paciente, ${age}` : `ID: ${displayData?.id}`}
-                      </span>
-                    )}
-                </SheetDescription>
+                <div className="flex items-center gap-2 flex-wrap">
+                    <SheetDescription className="text-sm text-muted-foreground">
+                        {isLoading ? (
+                        <Skeleton className="h-4 w-32 mt-1" />
+                        ) : (
+                        <span>
+                            {age ? `Paciente, ${age}` : `ID: ${displayData?.id}`}
+                        </span>
+                        )}
+                    </SheetDescription>
+                     {primaryDiagnosis && (
+                        <Badge variant="outline" className="text-xs">
+                             <Stethoscope className="w-3 h-3 mr-1.5"/>
+                             {primaryDiagnosis}
+                        </Badge>
+                     )}
+                     {allergies && allergies.length > 0 && (
+                        <Badge variant="destructive" className="text-xs">
+                             <AlertTriangle className="w-3 h-3 mr-1.5"/>
+                             Alergia: {allergies.join(', ')}
+                        </Badge>
+                     )}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -257,3 +242,4 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     </>
   );
 }
+
