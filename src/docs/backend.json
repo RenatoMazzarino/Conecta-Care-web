@@ -21,7 +21,8 @@
         "nacionalidade": { "type": "string", "description": "1. Nacionalidade para documentação." },
         "naturalidade": { "type": "string", "description": "1. Cidade/UF de nascimento para histórico civil." },
         "email": { "type": "string", "format": "email", "description": "1. Email para comunicação digital." },
-        "phone": { "type": "string", "description": "1. Telefone(s) para contato direto." },
+        "phone": { "type": "string", "description": "1. Telefone fixo para contato." },
+        "mobile": { "type": "string", "description": "1. Telefone celular para contato, geralmente usado para WhatsApp." },
         "preferredContactMethod": { "type": "string", "enum": ["Telefone", "WhatsApp", "Email"], "description": "1. Método de contato preferencial." },
         "preferredLanguage": { "type": "string", "description": "1. Idioma de preferência para comunicação." },
         "emergencyContacts": {

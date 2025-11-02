@@ -16,6 +16,14 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
+// Define a simple SVG icon for WhatsApp
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 32 32" {...props}>
+        <path d="M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39z" fill="currentColor"></path>
+    </svg>
+);
+
+
 interface FichaCadastralProps {
     isEditing: boolean;
     displayData: Patient;
@@ -77,6 +85,30 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
             {children || '-'}
         </div>
     );
+    
+    const PhoneValueDisplay = ({ value, className }: { value?: string, className?: string }) => {
+        const handleWhatsAppClick = () => {
+            if (!value) return;
+            const phoneNumber = value.replace(/\D/g, '');
+            window.open(`https://wa.me/${phoneNumber}`, '_blank');
+        };
+
+        return (
+            <div className={cn("flex items-center h-10 w-full rounded-md border border-input bg-muted/50 text-sm", className)}>
+                 <span className="flex-1 px-3 py-2">{value || '-'}</span>
+                {value && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 mr-1 text-green-600 hover:bg-green-100"
+                        onClick={handleWhatsAppClick}
+                    >
+                        <WhatsAppIcon className="w-5 h-5" />
+                    </Button>
+                )}
+            </div>
+        );
+    };
 
     const ArrayValueDisplay = ({ value }: { value?: string[] }) => (
         <ValueDisplay>{value && value.length > 0 ? value.join(', ') : '-'}</ValueDisplay>
@@ -209,9 +241,15 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 {isEditing ? <Input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{data.email}</ValueDisplay>}
                             </div>
                              <div>
-                                <Label>Telefone</Label>
+                                <Label>Telefone Celular (WhatsApp)</Label>
+                                {isEditing ? <Input value={data.mobile || ''} onChange={e => handleChange('mobile', e.target.value)} /> : <PhoneValueDisplay value={data.mobile} />}
+                            </div>
+                            <div>
+                                <Label>Telefone Fixo</Label>
                                 {isEditing ? <Input value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phone}</ValueDisplay>}
                             </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                              <div>
                                 <Label>Método de Contato Preferencial</Label>
                                 {isEditing ? (
@@ -234,7 +272,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         <div className="p-4 bg-muted/50 rounded-lg mb-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold">Contatos de Emergência</h4>
-                                <Button onClick={addEmergencyContact} size="sm" variant="outline">
+                                <Button onClick={addEmergencyContact} size="sm" variant="outline" disabled={!isEditing && !editedData}>
                                     <Plus className="w-4 h-4 mr-1" />
                                     Adicionar Contato
                                 </Button>

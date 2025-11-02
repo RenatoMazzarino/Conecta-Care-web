@@ -28,7 +28,7 @@ export const patients: Patient[] = [
     nacionalidade: 'Brasileiro',
     naturalidade: 'São Paulo/SP',
     email: 'joao.silva@example.com',
-    phone: '+55 (11) 98888-1111',
+    mobile: '+55 (11) 98888-1111',
     preferredContactMethod: 'WhatsApp',
     preferredLanguage: 'Português',
     emergencyContacts: [{
@@ -97,7 +97,8 @@ export const patients: Patient[] = [
     cns: '700 5081 1234 5678',
     dateOfBirth: '1942-11-15',
     email: 'maria.lopes@example.com',
-    phone: '+55 (21) 97777-2222',
+    mobile: '+55 (21) 97777-2222',
+    phone: '+55 (21) 2222-7777',
     preferredContactMethod: 'Telefone',
     emergencyContacts: [{
         name: 'Carlos Lopes',
@@ -153,7 +154,7 @@ export const patients: Patient[] = [
     cpf: '111.222.333-44',
     dateOfBirth: '1959-03-01',
     email: 'jorge.mendes@example.com',
-    phone: '+55 (31) 96666-3333',
+    mobile: '+55 (31) 96666-3333',
     emergencyContacts: [{
         name: 'Ana Mendes',
         relationship: 'Esposa',

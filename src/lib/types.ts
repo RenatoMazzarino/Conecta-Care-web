@@ -23,7 +23,8 @@ export type Patient = {
   nacionalidade?: string;
   naturalidade?: string;
   email: string;
-  phone: string;
+  phone?: string; // Telefone Fixo
+  mobile?: string; // Celular
   preferredContactMethod?: 'Telefone' | 'WhatsApp' | 'Email';
   preferredLanguage?: string;
   emergencyContacts: {
