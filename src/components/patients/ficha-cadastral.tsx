@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { 
     User, Phone, Mail, Calendar, Home, Link as LinkIcon, Gavel, BadgeCheck, Users, Edit,
-    Shield, AlertTriangle, Star, Eye, Copy, Download, FileText, Upload
+    Shield, AlertTriangle, Star, Eye, Copy, Download, FileText, Upload, Plus, X
 } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
@@ -18,28 +18,32 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { EditMode } from './patient-details-panel';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
-
+// Define a simple SVG icon for WhatsApp
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 32 32" {...props}><path d="M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39z M16.749 21.13c-1.389 0-2.5-1.11-2.5-2.5 0-1.389 1.111-2.5 2.5-2.5 1.389 0 2.5 1.111 2.5 2.5 0 1.39-1.111 2.5-2.5 2.5z M22.311 19.74c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-2.08 0-3.72-1.72-3.72-3.72s1.72-3.72 3.72-3.72c.258 0 .81-.272 1.39-.272s1.132.272 1.39.272c.258 0 .81-.272 1.39-.272s1.132.272 1.39.272c.258 0 .81-.272 1.39-.272s1.132.272 1.39-.272c2.08 0 3.72 1.72 3.72 3.72s-1.72 3.72-3.72-3.72z"/></svg>
+    <svg viewBox="0 0 32 32" fill="currentColor" {...props}><path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39z M16.749 21.13c-1.389 0-2.5-1.11-2.5-2.5 0-1.389 1.111-2.5 2.5-2.5 1.389 0 2.5 1.111 2.5 2.5 0 1.39-1.111 2.5-2.5 2.5z M22.311 19.74c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-2.08 0-3.72-1.72-3.72-3.72s1.72-3.72 3.72-3.72c.258 0 .81-.272 1.39-.272s1.132.272 1.39.272c.258 0 .81-.272 1.39.272s1.132.272 1.39.272c.258 0 .81-.272 1.39.272s1.132.272 1.39-.272c2.08 0 3.72 1.72 3.72 3.72s-1.72 3.72-3.72-3.72z" /></svg>
 );
 
 
 type FormSectionProps = {
     icon: React.ElementType;
     title: string;
+    action?: React.ReactNode;
     children: React.ReactNode;
 };
 
-const FormSection: React.FC<FormSectionProps> = ({ icon: Icon, title, children }) => {
+const FormSection: React.FC<FormSectionProps> = ({ icon: Icon, title, action, children }) => {
     return (
-        <fieldset className="bg-card border rounded-md p-4">
-            <legend className="text-sm font-semibold text-slate-900 flex items-center gap-2 px-2">
-                <Icon className="w-5 h-5 text-slate-700" />
-                {title}
-            </legend>
+        <fieldset>
+            <div className="flex items-center justify-between">
+                <legend className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                    <Icon className="w-5 h-5 text-slate-700" />
+                    {title}
+                </legend>
+                {action}
+            </div>
             <div className="mt-4">{children}</div>
         </fieldset>
     );
@@ -49,20 +53,31 @@ const FormRow = ({ children, className }: { children: React.ReactNode, className
     <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", className)}>{children}</div>
 );
 
-const FormField = ({ label, value, action }: { label: string, value: React.ReactNode, action?: React.ReactNode }) => (
+const FormField = ({ label, value, action, isEditing, editComponent }: { 
+    label: string, 
+    value: React.ReactNode, 
+    action?: React.ReactNode,
+    isEditing?: boolean,
+    editComponent?: React.ReactNode
+}) => (
     <div>
         <Label className="text-xs text-gray-600 flex items-center gap-2">{label} {action}</Label>
-        <div className="mt-1 w-full rounded-md border bg-muted/50 p-2 text-sm text-foreground min-h-[36px] flex items-center">
-            {value || <span className="text-muted-foreground italic">Não informado</span>}
-        </div>
+        {isEditing ? (
+             <div className="mt-1">{editComponent}</div>
+        ) : (
+            <div className="mt-1 w-full rounded-md border bg-muted/50 p-2 text-sm text-foreground min-h-[36px] flex items-center justify-between">
+                <div>{value || <span className="text-muted-foreground italic">Não informado</span>}</div>
+                {action && <div className="ml-2">{action}</div>}
+            </div>
+        )}
     </div>
 );
 
 
-const FormInput = ({ label, value, onChange, placeholder, isFullWidth }: { label: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string, isFullWidth?: boolean }) => (
+const FormInput = ({ label, value, onChange, placeholder, isFullWidth, required=false }: { label: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string, isFullWidth?: boolean, required?: boolean }) => (
     <div className={cn(isFullWidth && "md:col-span-2")}>
         <Label className="text-xs text-gray-600">{label}</Label>
-        <Input value={value} onChange={onChange} placeholder={placeholder} className="mt-1 text-sm" />
+        <Input value={value || ''} onChange={onChange} placeholder={placeholder} className="mt-1 text-sm" required={required}/>
     </div>
 );
 
@@ -82,28 +97,25 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     const isEditing = editMode !== 'none';
     const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
     const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
-
     const mainAllergy = displayData.clinicalData?.allergies?.[0];
 
-    const handleFieldChange = (card: keyof Patient, field: string, value: any) => {
-        setEditedData({
-            ...editedData,
-            [card]: {
-                ...(editedData[card] as any),
-                [field]: value
+    const handleFieldChange = (path: string, value: any) => {
+        setEditedData(prevData => {
+            if (!prevData) return null;
+            const newEditedData = JSON.parse(JSON.stringify(prevData));
+            let current = newEditedData;
+            const keys = path.split('.');
+            for (let i = 0; i < keys.length - 1; i++) {
+                current = current[keys[i]];
             }
+            current[keys[keys.length - 1]] = value;
+            return newEditedData;
         });
     };
-
-    const handleRootFieldChange = (field: keyof Patient, value: any) => {
-        setEditedData({
-            ...editedData,
-            [field]: value
-        });
-    };
-
+    
     return (
         <section aria-labelledby="patient-personal-title" className="bg-card shadow rounded-lg border overflow-hidden">
+            {/* HEADER */}
             <header className="flex items-center justify-between gap-4 p-5 bg-muted/30">
                 <div className="flex items-center gap-4">
                     <div className="relative">
@@ -112,7 +124,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                             <AvatarFallback>{displayData.initials}</AvatarFallback>
                         </Avatar>
                         {displayData.photoConsent?.granted && (
-                            <Badge className="absolute -bottom-2 -right-2 bg-green-600 text-white shadow" title="Consentimento para uso de foto: Sim">Foto: OK</Badge>
+                             <Badge className="absolute -bottom-2 -right-2 bg-green-600 text-white shadow" title="Consentimento para uso de foto: Sim">Foto: OK</Badge>
                         )}
                     </div>
                     <div className="min-w-0">
@@ -122,9 +134,9 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         <p className="mt-1 text-sm text-slate-600 flex items-center">
                             {age && <span id="patient-age">{age}</span>}
                             <span className="mx-2">•</span>
-                            <span id="patient-cpf" className="text-sm text-slate-500">CPF: <strong className="ml-1">***.***.***-00</strong></span>
-                            <Button type="button" title="Mostrar CPF" variant="ghost" size="icon" className="ml-2 h-7 w-7 text-gray-500 hover:bg-gray-50">
-                                <Eye className="w-4 h-4" />
+                            <span id="patient-cpf" className="text-sm text-slate-500">CPF: <strong className="ml-1">{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
+                             <Button type="button" title="Copiar CPF" variant="ghost" size="icon" className="ml-2 h-7 w-7 text-gray-500 hover:bg-gray-50">
+                                <Copy className="w-4 h-4" />
                             </Button>
                         </p>
                         <div className="mt-3 flex items-center gap-2">
@@ -147,8 +159,6 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" title="Anexar documento"><Upload className="w-4 h-4 mr-2" /> Anexar</Button>
-                    <Button variant="outline" title="Exportar ficha"><Download className="w-4 h-4 mr-2" /> Exportar</Button>
                      {isEditing ? (
                         <>
                          <Button variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2"/> Cancelar</Button>
@@ -160,123 +170,108 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                 </div>
             </header>
             
-            <div className="p-6 space-y-6">
-                 <div className="grid grid-cols-12 gap-6">
-                     <div className="col-span-12 lg:col-span-8 space-y-6">
-                        <FormSection icon={User} title="Identificação">
-                            <FormRow>
-                                <FormField label="Nome" value={displayData.firstName} />
-                                <FormField label="Sobrenome" value={displayData.lastName} />
-                            </FormRow>
-                             <FormRow className="mt-4">
-                                <FormField label="Nome Social" value={displayData.displayName} />
-                                <FormField label="Data de Nascimento" value={`${new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} (${age})`} />
-                            </FormRow>
-                            <FormRow className="mt-4">
-                                <FormField label="CPF" value={displayData.cpf} action={
-                                    <BadgeCheck className="w-4 h-4 text-green-600" />
-                                }/>
-                                <FormField label="RG / Órgão Emissor" value={`${displayData.rg || ''} - ${displayData.rgIssuer || ''}`} action={
-                                    <BadgeCheck className="w-4 h-4 text-green-600" />
-                                } />
-                            </FormRow>
-                        </FormSection>
-
-                        <FormSection icon={Phone} title="Contatos">
-                             <FormRow>
-                                <FormField label="Telefone principal" value={
-                                     <div className="flex items-center gap-2">
-                                        <span>{displayData.phones[0]?.number}</span>
-                                        <a href="#" className="text-green-500 hover:text-green-600"><WhatsAppIcon className="h-5 w-5"/></a>
-                                    </div>
-                                } />
-                                <FormField label="E-mail" value={
-                                    <div className="flex items-center gap-2">
-                                        <span>{displayData.emails?.[0]?.email}</span>
-                                        <a href="#" className="text-muted-foreground hover:text-primary"><Mail className="h-4 w-4"/></a>
-                                    </div>
-                                } />
-                            </FormRow>
-                        </FormSection>
-
-                         <FormSection icon={Users} title="Contato(s) de Emergência">
-                            <div className="grid grid-cols-1 gap-3">
-                                {displayData.emergencyContacts.map((contact, index) => (
-                                     <div key={index} className="flex items-center justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <div className="font-medium text-slate-900">{contact.name}</div>
-                                                <div className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</div>
-                                            </div>
-                                        </div>
-                                         <div className="flex items-center gap-2">
-                                            <Button type="button" size="icon" variant="outline" title="Ligar" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                                            <Button type="button" size="icon" variant="outline" title="Enviar WhatsApp" className="h-8 w-8"><WhatsAppIcon className="h-4 w-4 text-green-600"/></Button>
-                                         </div>
+            {/* BODY */}
+            <div className="p-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Dados Pessoais</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid grid-cols-12 gap-x-8">
+                             <div className="col-span-12 lg:col-span-7 space-y-6">
+                                <FormSection icon={User} title="Identificação Básica">
+                                    <FormRow>
+                                         <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
+                                            editComponent={
+                                                <Select value={editedData.pronouns} onValueChange={(v) => handleFieldChange('pronouns', v)}>
+                                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="none">Nenhum</SelectItem>
+                                                        <SelectItem value="Sr.">Sr.</SelectItem>
+                                                        <SelectItem value="Sra.">Sra.</SelectItem>
+                                                        <SelectItem value="Sre.">Sre.</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            }
+                                        />
+                                        <FormField label="Nome Social" value={displayData.displayName} isEditing={isEditing}
+                                            editComponent={<Input value={editedData.displayName} onChange={(e) => handleFieldChange('displayName', e.target.value)} />}
+                                        />
+                                    </FormRow>
+                                    <hr className="my-4" />
+                                     <FormRow>
+                                        <FormField label="Nome" value={displayData.firstName} isEditing={isEditing}
+                                            editComponent={<Input value={editedData.firstName} onChange={(e) => handleFieldChange('firstName', e.target.value)} />}
+                                        />
+                                        <FormField label="Sobrenome" value={displayData.lastName} isEditing={isEditing}
+                                            editComponent={<Input value={editedData.lastName} onChange={(e) => handleFieldChange('lastName', e.target.value)} />}
+                                        />
+                                    </FormRow>
+                                    <hr className="my-4"/>
+                                    <FormRow>
+                                        <FormField label="CPF" value={displayData.cpf} action={ <Badge variant="secondary" className="bg-green-100 text-green-800"><BadgeCheck className="w-3 h-3 mr-1"/> Verificado</Badge>} />
+                                        <FormField label="RG" value={displayData.rg} action={ <Badge variant="secondary" className="bg-green-100 text-green-800"><BadgeCheck className="w-3 h-3 mr-1"/> Verificado</Badge>} />
+                                    </FormRow>
+                                     <FormRow className="mt-4">
+                                        <FormField label="CNS" value={displayData.cns} action={ <Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} />
+                                    </FormRow>
+                                </FormSection>
+                             </div>
+                             <aside className="col-span-12 lg:col-span-5">
+                                 <FormSection icon={Gavel} title="Representante Legal">
+                                     <FormField label="Nome" value={displayData.legalGuardian?.name} />
+                                     <div className="mt-4">
+                                        <FormField label="Documento" value={displayData.legalGuardian?.document} />
                                      </div>
-                                ))}
-                            </div>
-                        </FormSection>
-                     </div>
-                     <aside className="col-span-12 lg:col-span-4 space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-sm font-semibold">Documentos</CardTitle>
-                                <CardDescription className="text-xs">Última validação: 20/07/2024</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                 <ul className="space-y-3">
-                                    <li className="flex items-center justify-between gap-3">
-                                        <div className="flex items-center gap-3">
-                                            <FileText className="w-5 h-5 text-slate-500" />
-                                            <div>
-                                                <div className="text-sm font-medium text-slate-900">RG Digital</div>
-                                                <div className="text-xs text-slate-600">Não enviado</div>
-                                            </div>
-                                        </div>
-                                        <Button size="sm" variant="outline">Enviar</Button>
-                                    </li>
-                                     <li className="flex items-center justify-between gap-3">
-                                        <div className="flex items-center gap-3">
-                                            <FileText className="w-5 h-5 text-slate-500" />
-                                            <div>
-                                                <div className="text-sm font-medium text-slate-900">Carteirinha do Plano</div>
-                                                <div className="text-xs text-slate-600">{displayData.financial.carteirinha}</div>
-                                            </div>
-                                        </div>
-                                        <Button size="sm" variant="outline">Validar</Button>
-                                    </li>
-                                </ul>
-                            </CardContent>
-                        </Card>
+                                      <div className="mt-4">
+                                        <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
+                                      </div>
+                                 </FormSection>
+                             </aside>
+                        </div>
                         
-                         <Card>
-                            <CardHeader>
-                                <CardTitle className="text-sm font-semibold text-slate-900">Indicadores rápidos</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                 <dl className="grid grid-cols-1 gap-3 text-sm text-slate-700">
-                                    <div className="flex items-center justify-between">
-                                      <dt className="text-slate-600">Status do paciente</dt>
-                                      <dd className="font-medium">{displayData.adminData.status}</dd>
+                        <hr/>
+                         <FormSection icon={Phone} title="Informações de Contato" action={
+                            <Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>
+                         }>
+                           <FormRow>
+                                <FormField label="Telefone" value={displayData.phones[0]?.number} action={
+                                    <a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700"><WhatsAppIcon className="h-5 w-5"/></a>
+                                }/>
+                                 <FormField label="Email" value={displayData.emails?.[0]?.email} action={
+                                    <a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary"><Mail className="h-4 w-4"/></a>
+                                }/>
+                           </FormRow>
+                        </FormSection>
+                        
+                        <hr/>
+                        <FormSection icon={Users} title="Contatos de Emergência">
+                          <div className="space-y-3">
+                            {displayData.emergencyContacts.map((contact, index) => (
+                              <div key={index} className="p-3 border rounded-lg bg-background">
+                                  <div className="flex items-center justify-between">
+                                    <div className="font-medium text-slate-900">
+                                        {contact.name}
+                                        {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                      <dt className="text-slate-600">Complexidade</dt>
-                                      <dd className="font-medium text-red-600">{displayData.adminData.complexity}</dd>
+                                     <div className="flex items-center gap-1">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                      <dt className="text-slate-600">Pacote</dt>
-                                      <dd className="font-medium">{displayData.adminData.servicePackage}</dd>
-                                    </div>
-                                </dl>
-                            </CardContent>
-                         </Card>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
+                              </div>
+                            ))}
+                          </div>
+                           {isEditing && (
+                            <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
+                                <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
+                            </Button>
+                           )}
+                        </FormSection>
 
-                     </aside>
-                 </div>
+                    </CardContent>
+                </Card>
             </div>
         </section>
     );
