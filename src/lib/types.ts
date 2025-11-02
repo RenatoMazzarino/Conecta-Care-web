@@ -1,4 +1,5 @@
 
+
 import { LucideIcon } from 'lucide-react';
 
 export type Diagnosis = {
@@ -11,7 +12,9 @@ export type Patient = {
   id: string;
   name: string;
   socialName?: string;
+  pronouns?: string;
   cpf: string;
+  cns?: string;
   rg?: string;
   rgEmissor?: string;
   dateOfBirth: string;
@@ -21,11 +24,13 @@ export type Patient = {
   naturalidade?: string;
   email: string;
   phone: string;
-  emergencyContact: {
+  preferredContactMethod?: 'Telefone' | 'WhatsApp' | 'Email';
+  preferredLanguage?: string;
+  emergencyContacts: {
     name: string;
     relationship: string;
     phone: string;
-  };
+  }[];
   avatarUrl: string;
   avatarHint: string;
   rgDigitalUrl?: string;

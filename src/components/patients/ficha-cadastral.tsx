@@ -45,6 +45,25 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         handleChange(path, newArray);
     }
     
+    const handleEmergencyContactChange = (index: number, field: string, value: string) => {
+        if (!editedData || !editedData.emergencyContacts) return;
+        const newContacts = [...editedData.emergencyContacts];
+        newContacts[index] = { ...newContacts[index], [field]: value };
+        handleChange('emergencyContacts', newContacts);
+    };
+
+    const addEmergencyContact = () => {
+        if (!editedData) return;
+        const newContacts = [...(editedData.emergencyContacts || []), { name: '', relationship: '', phone: '' }];
+        handleChange('emergencyContacts', newContacts);
+    };
+
+    const removeEmergencyContact = (index: number) => {
+        if (!editedData || !editedData.emergencyContacts) return;
+        const newContacts = editedData.emergencyContacts.filter((_, i) => i !== index);
+        handleChange('emergencyContacts', newContacts);
+    };
+
     const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
         <div className={cn("flex items-center h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm", className)}>
             {children || '-'}
@@ -122,7 +141,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6">
                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                            <div className="md:col-span-3">
+                            <div className="md:col-span-2">
                                 <Label>Nome Completo</Label>
                                 {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
                             </div>
@@ -130,26 +149,30 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 <Label>Nome Social</Label>
                                 {isEditing ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
                             </div>
+                             <div className="md:col-span-1">
+                                <Label>Pronomes</Label>
+                                {isEditing ? <Input value={data.pronouns || ''} onChange={e => handleChange('pronouns', e.target.value)} placeholder="Ex: ela/dela"/> : <ValueDisplay>{data.pronouns}</ValueDisplay>}
+                            </div>
                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
                                 <Label>CPF</Label>
                                 {isEditing ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label>CNS (Cartão SUS)</Label>
+                                {isEditing ? <Input value={data.cns || ''} onChange={e => handleChange('cns', e.target.value)} /> : <ValueDisplay>{data.cns}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>RG</Label>
                                 {isEditing ? <Input value={data.rg || ''} onChange={e => handleChange('rg', e.target.value)} /> : <ValueDisplay>{data.rg}</ValueDisplay>}
                             </div>
-                            <div>
-                                <Label>Órgão Emissor</Label>
-                                {isEditing ? <Input value={data.rgEmissor || ''} onChange={e => handleChange('rgEmissor', e.target.value)} /> : <ValueDisplay>{data.rgEmissor}</ValueDisplay>}
-                            </div>
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                             <div>
                                 <Label>Data de Nascimento</Label>
                                 {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
                             </div>
-                        </div>
-                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                             <div>
                                 <Label>Sexo</Label>
                                 {isEditing ? (
@@ -168,16 +191,12 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 {isEditing ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
                             </div>
                              <div>
-                                <Label>Nacionalidade</Label>
-                                {isEditing ? <Input value={data.nacionalidade || ''} onChange={e => handleChange('nacionalidade', e.target.value)} /> : <ValueDisplay>{data.nacionalidade}</ValueDisplay>}
-                            </div>
-                             <div>
-                                <Label>Naturalidade (Cidade/UF)</Label>
-                                {isEditing ? <Input value={data.naturalidade || ''} onChange={e => handleChange('naturalidade', e.target.value)} /> : <ValueDisplay>{data.naturalidade}</ValueDisplay>}
+                                <Label>Idioma</Label>
+                                {isEditing ? <Input value={data.preferredLanguage || ''} onChange={e => handleChange('preferredLanguage', e.target.value)} placeholder="Ex: Português" /> : <ValueDisplay>{data.preferredLanguage}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                             <div >
+                             <div>
                                 <Label>Email</Label>
                                 {isEditing ? <Input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{data.email}</ValueDisplay>}
                             </div>
@@ -186,21 +205,48 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 {isEditing ? <Input value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phone}</ValueDisplay>}
                             </div>
                         </div>
-                         <div className="p-4 bg-muted/50 rounded-lg mb-6">
-                            <h4 className="font-semibold mb-2">Contato de Emergência</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                 <div>
-                                    <Label>Nome</Label>
-                                    {isEditing ? <Input value={data.emergencyContact?.name || ''} onChange={e => handleChange('emergencyContact.name', e.target.value)} /> : <ValueDisplay>{data.emergencyContact?.name}</ValueDisplay>}
-                                </div>
-                                 <div>
-                                    <Label>Parentesco</Label>
-                                    {isEditing ? <Input value={data.emergencyContact?.relationship || ''} onChange={e => handleChange('emergencyContact.relationship', e.target.value)} /> : <ValueDisplay>{data.emergencyContact?.relationship}</ValueDisplay>}
-                                </div>
-                                 <div>
-                                    <Label>Telefone</Label>
-                                    {isEditing ? <Input value={data.emergencyContact?.phone || ''} onChange={e => handleChange('emergencyContact.phone', e.target.value)} /> : <ValueDisplay>{data.emergencyContact?.phone}</ValueDisplay>}
-                                </div>
+                        <div className="p-4 bg-muted/50 rounded-lg mb-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="font-semibold">Contatos de Emergência</h4>
+                                {isEditing && (
+                                    <Button onClick={addEmergencyContact} size="sm" variant="outline">
+                                        <Plus className="w-4 h-4 mr-1" />
+                                        Adicionar Contato
+                                    </Button>
+                                )}
+                            </div>
+                            <div className="space-y-4">
+                                {data.emergencyContacts?.map((contact, index) => (
+                                    <Card key={index} className="p-4 bg-background">
+                                        {isEditing && (
+                                            <div className="flex justify-between items-start mb-3">
+                                                <h5 className="font-medium">Contato {index + 1}</h5>
+                                                <Button onClick={() => removeEmergencyContact(index)} size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10 h-7 w-7">
+                                                    <X className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        )}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <Label>Nome</Label>
+                                                {isEditing ? <Input value={contact.name} onChange={e => handleEmergencyContactChange(index, 'name', e.target.value)} /> : <ValueDisplay>{contact.name}</ValueDisplay>}
+                                            </div>
+                                            <div>
+                                                <Label>Parentesco</Label>
+                                                {isEditing ? <Input value={contact.relationship} onChange={e => handleEmergencyContactChange(index, 'relationship', e.target.value)} /> : <ValueDisplay>{contact.relationship}</ValueDisplay>}
+                                            </div>
+                                            <div>
+                                                <Label>Telefone</Label>
+                                                {isEditing ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <ValueDisplay>{contact.phone}</ValueDisplay>}
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                                {(!data.emergencyContacts || data.emergencyContacts.length === 0) && (
+                                    <p className="text-muted-foreground text-center py-4">
+                                        {isEditing ? 'Clique em "Adicionar Contato" para começar.' : 'Nenhum contato de emergência cadastrado.'}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <div className="p-4 bg-muted/50 rounded-lg">

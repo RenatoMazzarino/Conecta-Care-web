@@ -17,7 +17,9 @@ export const patients: Patient[] = [
     id: 'patient-123',
     name: 'João da Silva',
     socialName: 'João',
+    pronouns: 'Ele/Dele',
     cpf: '123.456.789-00',
+    cns: '898 0010 8888 1234',
     rg: '12.345.678-9',
     rgEmissor: 'SSP/SP',
     dateOfBirth: '1945-05-20',
@@ -27,11 +29,13 @@ export const patients: Patient[] = [
     naturalidade: 'São Paulo/SP',
     email: 'joao.silva@example.com',
     phone: '+55 (11) 98888-1111',
-    emergencyContact: {
+    preferredContactMethod: 'WhatsApp',
+    preferredLanguage: 'Português',
+    emergencyContacts: [{
       name: 'Maria da Silva',
       relationship: 'Filha',
       phone: '+55 (11) 98765-4321',
-    },
+    }],
     avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
     avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
     address: {
@@ -88,15 +92,18 @@ export const patients: Patient[] = [
   {
     id: 'patient-456',
     name: 'Maria Lopes',
+    pronouns: 'Ela/Dela',
     cpf: '987.654.321-00',
+    cns: '700 5081 1234 5678',
     dateOfBirth: '1942-11-15',
     email: 'maria.lopes@example.com',
     phone: '+55 (21) 97777-2222',
-    emergencyContact: {
+    preferredContactMethod: 'Telefone',
+    emergencyContacts: [{
         name: 'Carlos Lopes',
         relationship: 'Filho',
         phone: '+55 (21) 91234-5678',
-    },
+    }],
     avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
     avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
      address: {
@@ -147,11 +154,11 @@ export const patients: Patient[] = [
     dateOfBirth: '1959-03-01',
     email: 'jorge.mendes@example.com',
     phone: '+55 (31) 96666-3333',
-    emergencyContact: {
+    emergencyContacts: [{
         name: 'Ana Mendes',
         relationship: 'Esposa',
         phone: '+55 (31) 95555-8888',
-    },
+    }],
     avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
     avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
      address: {

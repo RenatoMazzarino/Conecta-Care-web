@@ -10,7 +10,9 @@
         "id": { "type": "string", "description": "1. Identificador único para o paciente (Auto)." },
         "name": { "type": "string", "description": "1. Nome completo para identificação civil." },
         "socialName": { "type": "string", "description": "1. Nome social para inclusão e respeito à identidade." },
+        "pronouns": { "type": "string", "description": "1. Pronomes de preferência (ex: ele/dele, ela/dela)." },
         "cpf": { "type": "string", "description": "1. CPF para documentação." },
+        "cns": { "type": "string", "description": "1. Cartão Nacional de Saúde (CNS)." },
         "rg": { "type": "string", "description": "1. RG para documentação complementar." },
         "rgEmissor": { "type": "string", "description": "1. Órgão emissor do RG." },
         "dateOfBirth": { "type": "string", "format": "date", "description": "1. Data de Nascimento para cálculo de idade e protocolos." },
@@ -20,15 +22,20 @@
         "naturalidade": { "type": "string", "description": "1. Cidade/UF de nascimento para histórico civil." },
         "email": { "type": "string", "format": "email", "description": "1. Email para comunicação digital." },
         "phone": { "type": "string", "description": "1. Telefone(s) para contato direto." },
-        "emergencyContact": {
-          "type": "object",
-          "description": "1. Contato para comunicação rápida em emergências.",
-          "properties": {
-            "name": { "type": "string" },
-            "relationship": { "type": "string" },
-            "phone": { "type": "string" }
-          },
-          "required": ["name", "phone"]
+        "preferredContactMethod": { "type": "string", "enum": ["Telefone", "WhatsApp", "Email"], "description": "1. Método de contato preferencial." },
+        "preferredLanguage": { "type": "string", "description": "1. Idioma de preferência para comunicação." },
+        "emergencyContacts": {
+          "type": "array",
+          "description": "1. Lista de contatos para comunicação rápida em emergências.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "relationship": { "type": "string" },
+              "phone": { "type": "string" }
+            },
+            "required": ["name", "phone"]
+          }
         },
         "avatarUrl": { "type": "string", "format": "uri", "description": "1. Foto do Paciente para identificação visual." },
         "avatarHint": { "type": "string" },
@@ -70,6 +77,9 @@
               }
             },
             "equipamentosDomiciliares": { "type": "array", "items": { "type": "string" }, "description": "Equipamentos como oxigênio, cama hospitalar, etc." },
+            "diagnosticoPrincipal": { "type": "string", "description": "Diagnóstico principal que baseia o plano de cuidado." },
+            "diagnosticosSecundarios": { "type": "array", "items": { "type": "string" }, "description": "Diagnósticos secundários para contexto clínico." },
+            "cid": { "type": "array", "items": { "type": "string" }, "description": "Códigos CID para indexação médica." },
             "allergies": { "type": "array", "items": { "type": "string" }, "description": "Lista de alergias conhecidas." },
             "restricoes": { "type": "array", "items": { "type": "string" }, "description": "Restrições alimentares, físicas, etc." },
             "mobilidade": { "type": "string", "enum": ["Autônomo", "Parcialmente Dependente", "Acamado"], "description": "Escala de dependência de mobilidade." },
@@ -317,5 +327,3 @@
     "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/entities/Notification" }, "description": "Notifications for a patient." }
   }
 }
-
-    
