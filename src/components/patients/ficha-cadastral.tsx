@@ -143,7 +143,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
       <AccordionItem value="dadosPessoais" className="border-b-0">
         <Card>
           <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
-            <div className="flex justify-between items-center w-full">
+             <div className="flex justify-between items-center w-full">
               <AccordionTrigger className="flex-1 p-0">
                   <CardTitle className="text-xl">1. Dados Pessoais e Contato</CardTitle>
               </AccordionTrigger>
@@ -165,7 +165,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                               <SelectItem value="Srta.">Srta.</SelectItem>
                               <SelectItem value="Dr.">Dr.</SelectItem>
                               <SelectItem value="Dra.">Dra.</SelectItem>
-                              <SelectItem value="">Nenhum</SelectItem>
+                              <SelectItem value="none">Nenhum</SelectItem>
                           </SelectContent>
                         </Select>
                     </FormField>
