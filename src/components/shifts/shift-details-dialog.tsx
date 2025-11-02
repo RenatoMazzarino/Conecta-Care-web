@@ -32,9 +32,9 @@ const mockCandidates: Professional[] = [
 ].filter(Boolean);
 
 const complexityVariant: { [key in Patient['complexity']]: string } = {
-    baixa: 'bg-green-100 text-green-800',
-    media: 'bg-yellow-100 text-yellow-800',
-    alta: 'bg-red-100 text-red-800',
+    baixa: 'bg-green-100 text-green-800 border-green-200',
+    media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    alta: 'bg-red-100 text-red-800 border-red-200',
 }
 
 export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, patient, onOpenProfile, onApprove, onVacancyPublished }: { 
@@ -439,7 +439,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                         <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                  }
-                <div>
+                <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-3">
                          <DialogTitle className="text-2xl">
                             <Link href={`/patients/${patient.id}`} className="hover:underline">{patient.name || 'Nova Vaga'}</Link>
@@ -450,14 +450,16 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                             </Badge>
                          )}
                     </div>
-                    <DialogDescription className="flex items-center gap-2">
+                    <DialogDescription className="flex items-center flex-wrap gap-x-2">
                         {professional ? (
                            <>
                                 {isActive && <span className="relative flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span> }
-                                Plantão {shift.shiftType} - 
-                                {isActive ? ` Em atendimento com ` : ' com '}
-                                <Button variant="link" className="p-0 h-auto text-base" onClick={() => onOpenProfile(professional)}>{professional.name}</Button>
-                                {isActive && shift.checkIn && ` desde ${shift.checkIn}`}
+                                <span>Plantão {shift.shiftType} - </span>
+                                <span className="flex items-center gap-1">
+                                    {isActive ? `Em atendimento com ` : ' com '}
+                                    <Button variant="link" className="p-0 h-auto text-base" onClick={() => onOpenProfile(professional)}>{professional.name}</Button>
+                                </span>
+                                {isActive && shift.checkIn && <span>desde {shift.checkIn}</span>}
                            </>
                         ) : (
                             <>Plantão {shift.shiftType} - {new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long' })}</>
