@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Link as LinkIcon, Gavel, BadgeCheck, Users, Edit,
+    User, Phone, Mail, Calendar, Home, Link as LinkIcon, Gavel, BadgeCheck, Edit,
     Shield, AlertTriangle, Star, Eye, Copy, Download, FileText, Upload, Plus, X, BookUser
 } from 'lucide-react';
 import { Switch } from '../ui/switch';
@@ -19,6 +19,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Users } from 'lucide-react';
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 32 32" fill="currentColor" {...props}>
@@ -87,19 +88,13 @@ type FichaCadastralProps = {
   displayData: Patient | null;
   editedData: Patient | null;
   setEditedData: (data: Patient | null) => void;
-  onSave: () => void;
-  onCancel: () => void;
-  onSwitchView: (view: 'prontuario' | 'ficha') => void;
 };
 
-export function FichaCadastral({ editMode, setEditMode, displayData, editedData, setEditedData, onSave, onCancel, onSwitchView }: FichaCadastralProps) {
+export function FichaCadastral({ editMode, setEditMode, displayData, editedData, setEditedData }: FichaCadastralProps) {
     if (!displayData || !editedData) return null;
 
     const isEditing = editMode !== 'none';
-    const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
-    const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
-    const mainAllergy = displayData.clinicalData?.allergies?.[0];
-
+    
     const handleFieldChange = (path: string, value: any) => {
         setEditedData(prevData => {
             if (!prevData) return null;
@@ -117,72 +112,13 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     
     return (
         <div className="space-y-6">
-            {/* HEADER */}
-            <Card className="overflow-hidden">
-                <div className="flex items-center justify-between gap-4 p-5 bg-muted/30">
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <Avatar className="w-24 h-24 rounded-md text-3xl">
-                                <AvatarImage src={displayData.avatarUrl} alt={fullName} className="object-cover border" />
-                                <AvatarFallback>{displayData.initials}</AvatarFallback>
-                            </Avatar>
-                            {displayData.photoConsent?.granted && (
-                                <Badge className="absolute -bottom-2 -right-2 bg-green-600 text-white shadow" title="Consentimento para uso de foto: Sim">Foto: OK</Badge>
-                            )}
-                        </div>
-                        <div className="min-w-0">
-                            <h2 id="patient-personal-title" className="text-xl font-semibold text-slate-900 truncate">
-                                {fullName} <span className="text-sm text-muted-foreground">— {displayData.displayName}</span>
-                            </h2>
-                            <div className="mt-1 text-sm text-slate-600 flex items-center">
-                                {age && <span id="patient-age">{age}</span>}
-                                <span className="mx-2">•</span>
-                                <span id="patient-cpf" className="text-sm text-slate-500">CPF: <strong className="ml-1">{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
-                                <Button type="button" title="Copiar CPF" variant="ghost" size="icon" className="ml-2 h-7 w-7 text-gray-500 hover:bg-gray-50">
-                                    <Copy className="w-4 h-4" />
-                                </Button>
-                            </div>
-                            <div className="mt-3 flex items-center gap-2">
-                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100">
-                                    <Shield className="w-4 h-4 mr-2" />
-                                    Consentimento: Assinado
-                                </Badge>
-                                {mainAllergy && (
-                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-100">
-                                        <AlertTriangle className="w-4 h-4 mr-2" />
-                                        Alergia: {mainAllergy}
-                                    </Badge>
-                                )}
-                                <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-100">
-                                    <Star className="w-4 h-4 mr-2" />
-                                    Complexidade: {displayData.adminData.complexity}
-                                </Badge>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Button variant="outline" onClick={() => onSwitchView('prontuario')}><BookUser className="w-4 h-4 mr-2"/> Ver Prontuário</Button>
-                        {isEditing ? (
-                            <>
-                            <Button variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2"/> Cancelar</Button>
-                            <Button onClick={onSave}><BadgeCheck className="w-4 h-4 mr-2"/> Salvar Alterações</Button>
-                            </>
-                        ) : (
-                            <Button onClick={() => setEditMode('full')}><Edit className="w-4 h-4 mr-2"/> Editar Ficha</Button>
-                        )}
-                    </div>
-                </div>
-            </Card>
-
-            {/* BODY */}
             <div className="grid grid-cols-12 gap-8">
                 <div className="col-span-12 lg:col-span-8 space-y-6">
-                    <FormSection icon={User} title="Identificação Básica">
+                    <FormSection icon={User} title="Dados Pessoais">
                          <FormRow>
                             <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
                                 editComponent={
-                                    <Select value={editedData.pronouns} onValueChange={(v) => handleFieldChange('pronouns', v)}>
+                                    <Select value={editedData.pronouns || 'none'} onValueChange={(v) => handleFieldChange('pronouns', v)}>
                                         <SelectTrigger><SelectValue/></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">Nenhum</SelectItem>
@@ -216,64 +152,60 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                              <FormField label="RG" value={displayData.rg} 
                                 action={<Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>}
                                 isEditing={isEditing}
-                                editComponent={<Input value={editedData.rg} onChange={(e) => handleFieldChange('rg', e.target.value)} />}
+                                editComponent={<Input value={editedData.rg || ''} onChange={(e) => handleFieldChange('rg', e.target.value)} />}
                              />
                          </FormRow>
                          <FormRow>
                               <FormField label="Órgão Emissor do RG" value={displayData.rgIssuer} isEditing={isEditing}
-                                editComponent={<Input value={editedData.rgIssuer} onChange={(e) => handleFieldChange('rgIssuer', e.target.value)} />}
+                                editComponent={<Input value={editedData.rgIssuer || ''} onChange={(e) => handleFieldChange('rgIssuer', e.target.value)} />}
                               />
                              <FormField label="CNS" value={displayData.cns} 
                                 action={<Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} 
                                 isEditing={isEditing}
-                                editComponent={<Input value={editedData.cns} onChange={(e) => handleFieldChange('cns', e.target.value)} />}
+                                editComponent={<Input value={editedData.cns || ''} onChange={(e) => handleFieldChange('cns', e.target.value)} />}
                              />
                          </FormRow>
+                          <hr className="my-4"/>
+                         <FormSection icon={Phone} title="Informações de Contato" action={<Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>}>
+                            <FormRow>
+                                <FormField label="Telefone" value={displayData.phones[0]?.number} 
+                                    action={<a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700 ml-2"><WhatsAppIcon className="h-5 w-5"/></a>}
+                                    isEditing={isEditing}
+                                    editComponent={<Input value={editedData.phones[0]?.number} onChange={(e) => handleFieldChange('phones.0.number', e.target.value)} />}
+                                />
+                                <FormField label="Email" value={displayData.emails?.[0]?.email}
+                                    action={<a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary ml-2"><Mail className="h-4 w-4"/></a>}
+                                    isEditing={isEditing}
+                                    editComponent={<Input value={editedData.emails?.[0]?.email} onChange={(e) => handleFieldChange('emails.0.email', e.target.value)} />}
+                                />
+                            </FormRow>
+                        </FormSection>
+                         <hr className="my-4"/>
+                        <FormSection icon={Users} title="Contatos de Emergência">
+                          <div className="space-y-3">
+                            {displayData.emergencyContacts.map((contact, index) => (
+                              <div key={index} className="p-3 border rounded-lg bg-background">
+                                  <div className="flex items-center justify-between">
+                                    <div className="font-medium text-slate-900">
+                                        {contact.name}
+                                        {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
+                              </div>
+                            ))}
+                          </div>
+                          {isEditing && (
+                            <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
+                                <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
+                            </Button>
+                          )}
+                      </FormSection>
                     </FormSection>
-
-                     <FormSection 
-                        icon={Phone} 
-                        title="Informações de Contato"
-                        action={<Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>}
-                      >
-                         <FormRow>
-                             <FormField label="Telefone" value={displayData.phones[0]?.number} 
-                                action={<a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700 ml-2"><WhatsAppIcon className="h-5 w-5"/></a>}
-                                isEditing={isEditing}
-                                editComponent={<Input value={editedData.phones[0]?.number} onChange={(e) => handleFieldChange('phones.0.number', e.target.value)} />}
-                             />
-                             <FormField label="Email" value={displayData.emails?.[0]?.email}
-                                action={<a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary ml-2"><Mail className="h-4 w-4"/></a>}
-                                isEditing={isEditing}
-                                editComponent={<Input value={editedData.emails[0]?.email} onChange={(e) => handleFieldChange('emails.0.email', e.target.value)} />}
-                              />
-                         </FormRow>
-                     </FormSection>
-
-                    <FormSection icon={Users} title="Contatos de Emergência">
-                         <div className="space-y-3">
-                           {displayData.emergencyContacts.map((contact, index) => (
-                             <div key={index} className="p-3 border rounded-lg bg-background">
-                                 <div className="flex items-center justify-between">
-                                   <div className="font-medium text-slate-900">
-                                       {contact.name}
-                                       {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
-                                   </div>
-                                   <div className="flex items-center gap-1">
-                                       <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                                       <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
-                                   </div>
-                                 </div>
-                                 <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
-                             </div>
-                           ))}
-                         </div>
-                         {isEditing && (
-                           <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
-                               <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
-                           </Button>
-                         )}
-                     </FormSection>
 
                 </div>
 
