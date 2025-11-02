@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -298,7 +299,7 @@ export function ShiftManagement() {
   return (
     <div className="h-full flex flex-col gap-6">
        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-         <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
            {!isMobile && (
               <>
                 <Button variant={viewPeriod === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => setViewPeriod('weekly')}>Semanal</Button>
@@ -536,6 +537,7 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
 
