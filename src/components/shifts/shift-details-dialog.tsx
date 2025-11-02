@@ -227,15 +227,25 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     }
 
     return (
-        <div className="space-y-6 p-6">
-            <div className="flex items-center space-x-2 p-4 rounded-lg bg-amber-50 border border-amber-200">
-                <Megaphone className="h-5 w-5 text-amber-700"/>
-                <Label htmlFor="urgent-switch" className="text-sm font-medium text-amber-800">
-                    Marcar esta vaga como publicação urgente
-                </Label>
-                <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
+        <div className="p-6 space-y-6">
+             <div className="flex items-center justify-between p-4 rounded-lg border">
+                <div className="flex items-center space-x-3">
+                    <Megaphone className="h-6 w-6 text-amber-600"/>
+                    <div>
+                        <Label htmlFor="urgent-switch" className="font-semibold">
+                            Marcação Urgente
+                        </Label>
+                        <p className="text-xs text-muted-foreground">A vaga será destacada para atrair mais profissionais.</p>
+                    </div>
+                </div>
+                <Switch 
+                    id="urgent-switch"
+                    checked={publishData.isUrgent} 
+                    onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} 
+                    className="data-[state=checked]:bg-amber-500"
+                />
             </div>
-
+            
             <div className="h-80 text-center grid grid-cols-2 gap-6 items-center justify-center">
                 <div 
                   className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
