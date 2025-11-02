@@ -10,13 +10,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Star, Shield, MessageCircle, Edit, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Star, Shield, MessageCircle, Edit, ShieldAlert, Clock } from 'lucide-react';
 import { TeamProfileTab } from '@/components/team/team-profile-tab';
 import { TeamShiftsTab } from '@/components/team/team-shifts-tab';
 import { TeamPatientsTab } from '@/components/team/team-patients-tab';
 import { TeamFinancialTab } from '@/components/team/team-financial-tab';
 import { TeamDocumentsTab } from '@/components/team/team-documents-tab';
 import { professionals as mockProfessionals } from '@/lib/data';
+import { ShiftChatDialog } from '@/components/shifts/shift-chat-dialog';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
   return (
@@ -40,6 +43,7 @@ export default function ProfessionalProfilePage() {
 
   const [professional, setProfessional] = React.useState<Professional | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -74,88 +78,108 @@ export default function ProfessionalProfilePage() {
   }
 
   const isExternal = professional.employmentType === 'externo';
+  const chatInitialMessage = `Olá, ${professional.name.split(' ')[0]}. `;
 
   return (
-    <div className="space-y-6">
-        <Button variant="outline" size="sm" onClick={() => router.push('/team')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar para a lista
-        </Button>
-       
-       <Card>
-           <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6">
-                <Avatar className="h-32 w-32 text-4xl border-4 border-background shadow-md">
-                    <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint}/>
-                    <AvatarFallback>{professional.initials}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-center sm:text-left">
-                    <div className="flex items-center justify-center sm:justify-start gap-4 mb-2">
-                        <h1 className="text-3xl font-bold">{professional.name}</h1>
-                         <Badge variant={professional.corenStatus === 'active' ? 'secondary' : 'destructive'} className="py-1 px-2">
-                            <Shield className="mr-1 h-3 w-3" />
-                            COREN {professional.corenStatus === 'active' ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                    </div>
-                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
-                        <StarRating rating={professional.rating} reviewCount={professional.reviews.length} />
-                        <Badge variant="outline" className="capitalize">{professional.employmentType}</Badge>
-                    </div>
-                    <p className="mt-3 text-muted-foreground max-w-xl mx-auto sm:mx-0">{professional.bio}</p>
-                </div>
-                <div className="flex gap-2">
-                    <Button><MessageCircle className="mr-2 h-4 w-4" />Enviar Mensagem</Button>
-                    {!isExternal && (
-                      <Button variant="outline"><Edit className="mr-2 h-4 w-4" />Editar Perfil</Button>
-                    )}
-                </div>
-           </CardContent>
-       </Card>
-
-      {isExternal ? (
+    <>
         <div className="space-y-6">
-          <TeamShiftsTab />
-          <TeamPatientsTab />
-           <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <ShieldAlert className="w-5 h-5 text-amber-600" />
-                  Histórico de Disputas
-                </CardTitle>
-                <CardDescription>
-                  Problemas ou reclamações abertas relacionadas a plantões anteriores.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground text-center py-4">Funcionalidade de disputas em breve.</p>
-              </CardContent>
-            </Card>
+            <Button variant="outline" size="sm" onClick={() => router.push('/team')}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar para a lista
+            </Button>
+        
+        <Card>
+            <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6">
+                    <Avatar className="h-32 w-32 text-4xl border-4 border-background shadow-md">
+                        <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint}/>
+                        <AvatarFallback>{professional.initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 text-center sm:text-left">
+                        <div className="flex items-center justify-center sm:justify-start gap-4 mb-2">
+                            <h1 className="text-3xl font-bold">{professional.name}</h1>
+                            <Badge variant={professional.corenStatus === 'active' ? 'secondary' : 'destructive'} className="py-1 px-2">
+                                <Shield className="mr-1 h-3 w-3" />
+                                COREN {professional.corenStatus === 'active' ? 'Ativo' : 'Inativo'}
+                            </Badge>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
+                            <StarRating rating={professional.rating} reviewCount={professional.reviews.length} />
+                            <Badge variant="outline" className="capitalize">{professional.employmentType}</Badge>
+                            {professional.lastActivity && (
+                                <div className="flex items-center text-sm text-muted-foreground gap-1">
+                                    <Clock className="h-4 w-4"/>
+                                    {professional.lastActivity}
+                                </div>
+                            )}
+                        </div>
+                        <p className="mt-3 text-muted-foreground max-w-xl mx-auto sm:mx-0">{professional.bio}</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button onClick={() => setIsChatOpen(true)}><MessageCircle className="mr-2 h-4 w-4" />Enviar Mensagem</Button>
+                        {!isExternal && (
+                        <Button variant="outline"><Edit className="mr-2 h-4 w-4" />Editar Perfil</Button>
+                        )}
+                    </div>
+            </CardContent>
+        </Card>
+
+        {isExternal ? (
+            <div className="space-y-6">
+            <TeamShiftsTab professional={professional} />
+            <TeamPatientsTab />
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                    <ShieldAlert className="w-5 h-5 text-amber-600" />
+                    Histórico de Disputas
+                    </CardTitle>
+                    <CardDescription>
+                    Problemas ou reclamações abertas relacionadas a plantões anteriores.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground text-center py-4">Funcionalidade de disputas em breve.</p>
+                </CardContent>
+                </Card>
+            </div>
+        ) : (
+            <Tabs defaultValue="profile" className="w-full">
+                <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="profile">Perfil</TabsTrigger>
+                    <TabsTrigger value="shifts">Plantões</TabsTrigger>
+                    <TabsTrigger value="patients">Pacientes</TabsTrigger>
+                    <TabsTrigger value="financial">Financeiro</TabsTrigger>
+                    <TabsTrigger value="documents">Documentos</TabsTrigger>
+                </TabsList>
+                <TabsContent value="profile" className="mt-6">
+                    <TeamProfileTab professional={professional} />
+                </TabsContent>
+                <TabsContent value="shifts" className="mt-6">
+                    <TeamShiftsTab professional={professional} />
+                </TabsContent>
+                <TabsContent value="patients" className="mt-6">
+                    <TeamPatientsTab />
+                </TabsContent>
+                <TabsContent value="financial" className="mt-6">
+                    <TeamFinancialTab />
+                </TabsContent>
+                <TabsContent value="documents" className="mt-6">
+                    <TeamDocumentsTab />
+                </TabsContent>
+            </Tabs>
+        )}
         </div>
-      ) : (
-        <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="profile">Perfil</TabsTrigger>
-                <TabsTrigger value="shifts">Plantões</TabsTrigger>
-                <TabsTrigger value="patients">Pacientes</TabsTrigger>
-                <TabsTrigger value="financial">Financeiro</TabsTrigger>
-                <TabsTrigger value="documents">Documentos</TabsTrigger>
-            </TabsList>
-            <TabsContent value="profile" className="mt-6">
-                <TeamProfileTab professional={professional} />
-            </TabsContent>
-            <TabsContent value="shifts" className="mt-6">
-                <TeamShiftsTab />
-            </TabsContent>
-            <TabsContent value="patients" className="mt-6">
-                <TeamPatientsTab />
-            </TabsContent>
-            <TabsContent value="financial" className="mt-6">
-                <TeamFinancialTab />
-            </TabsContent>
-            <TabsContent value="documents" className="mt-6">
-                <TeamDocumentsTab />
-            </TabsContent>
-        </Tabs>
-      )}
-    </div>
+        
+        {isChatOpen && (
+            <ShiftChatDialog
+            isOpen={isChatOpen}
+            onOpenChange={setIsChatOpen}
+            shift={{ dayKey: 'Geral' } as any}
+            professional={professional}
+            patient={{ name: 'Geral' } as any}
+            initialMessage={chatInitialMessage}
+            />
+        )}
+    </>
   );
 }

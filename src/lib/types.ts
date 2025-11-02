@@ -83,7 +83,9 @@ export type Professional = {
   employmentType: 'interno' | 'fixo' | 'externo';
   reviews: { from: string; quote: string }[];
   specialties: string[];
-  compatibilityTags?: { text: string; icon: LucideIcon }[];
+  compatibilityTags?: { text: string; icon: LucideIcon; variant?: 'default' | 'positive' | 'warning' }[];
+  lastActivity?: string;
+  recentAttendances?: { patientName: string; date: string; note: string }[];
 };
 
 export type Shift = {

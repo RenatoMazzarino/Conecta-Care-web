@@ -66,7 +66,6 @@ const secondaryNavItems = [
   { href: '/inventory', label: 'Estoque', icon: ClipboardList },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
-  { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
 ];
 
 const iconMap: { [key in Notification['type']]: { icon: React.ElementType, color: string } } = {

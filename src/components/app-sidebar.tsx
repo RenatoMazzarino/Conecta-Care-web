@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import {
   Home,
   ClipboardList,
-  BotMessageSquare,
   Users,
   LineChart,
   DollarSign,
@@ -50,7 +49,6 @@ const secondaryNavItems = [
   { href: '/inventory', label: 'Estoque', icon: ClipboardList },
   { href: '/financial', label: 'Financeiro', icon: DollarSign },
   { href: '/reports', 'label': 'Relatórios', icon: LineChart },
-  { href: '/assistant', label: 'AI Assistant', icon: BotMessageSquare },
 ];
 
 export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean, setIsCollapsed: (isCollapsed: boolean) => void }) {

@@ -4,7 +4,7 @@ import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invo
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck } from 'lucide-react';
+import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck, MapPin, AlertTriangle } from 'lucide-react';
 
 const patientAvatars = {
   'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
@@ -156,7 +156,7 @@ export const professionals: Professional[] = [
     phone: '+55 11 91234-5678',
     cpf: '222.333.444-55',
     dateOfBirth: '1985-10-25',
-    address: { street: 'Rua das Enfermeiras', number: '10', neighborhood: 'Saúde', city: 'São Paulo', state: 'SP', zipCode: '04300-000' },
+    address: { street: 'Rua das Enfermeiras', number: '10', neighborhood: 'Centro', city: 'São Paulo', state: 'SP', zipCode: '04300-000' },
     avatarUrl: 'https://picsum.photos/seed/prof1/100/100',
     avatarHint: 'woman nurse smiling',
     rating: 4.8,
@@ -170,7 +170,15 @@ export const professionals: Professional[] = [
       { from: 'Família Silva', quote: 'Profissional exemplar, sempre pontual e muito carinhosa com nosso pai.' },
       { from: 'Home Care ABC', quote: 'Uma das melhores enfermeiras da nossa equipe. Proativa e muito competente.' }
     ],
-    compatibilityTags: [{ text: 'Já atendeu este paciente', icon: UserCheck }],
+    compatibilityTags: [
+        { text: 'Já atendeu este paciente', icon: UserCheck, variant: 'positive' },
+        { text: 'Atende no mesmo bairro', icon: MapPin, variant: 'positive' }
+    ],
+    lastActivity: 'Ativo(a) há 15 minutos',
+    recentAttendances: [
+        { patientName: 'João da Silva', date: '2d atrás', note: '⭐️ 5.0 | Plantão tranquilo.' },
+        { patientName: 'Sônia Braga', date: '5d atrás', note: '⭐️ 4.8 | Sem intercorrências.' },
+    ]
   },
   {
     id: 'prof-2',
@@ -237,7 +245,10 @@ export const professionals: Professional[] = [
     reviews: [
          { from: 'Hospital Infantil', quote: 'Atrasou em 2 dos 3 plantões alocados.' },
     ],
-    compatibilityTags: [],
+    compatibilityTags: [
+        { text: 'Disponível apenas noturno', icon: AlertTriangle, variant: 'warning' },
+    ],
+    lastActivity: 'Offline',
   },
   {
     id: 'prof-5',
@@ -260,7 +271,8 @@ export const professionals: Professional[] = [
     reviews: [
       { from: 'Clínica do Coração', quote: 'Excelente profissional, muito conhecimento técnico e ótimo com os pacientes.' },
     ],
-    compatibilityTags: [{ text: 'Disponível no período', icon: CalendarCheck }],
+    compatibilityTags: [{ text: 'Disponível no período', icon: CalendarCheck, variant: 'positive' }],
+    lastActivity: 'Ativo(a) há 2 horas',
   },
   {
     id: 'prof-6',
@@ -284,7 +296,10 @@ export const professionals: Professional[] = [
       { from: 'DermaClin', quote: 'Extremamente cuidadosa e atenta aos detalhes.' },
       { from: 'Home Care Senior', quote: 'Paciente adorou a atenção e o cuidado.' }
     ],
-    compatibilityTags: [{ text: 'Especialista em Curativos', icon: Heart }],
+    compatibilityTags: [
+        { text: 'Especialista em Curativos', icon: Heart, variant: 'positive' }
+    ],
+    lastActivity: 'Online',
   },
   {
     id: 'prof-7',

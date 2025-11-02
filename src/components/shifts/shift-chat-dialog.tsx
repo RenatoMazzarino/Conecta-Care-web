@@ -31,17 +31,25 @@ export function ShiftChatDialog({
   shift,
   professional,
   patient,
+  initialMessage,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   shift: Shift;
   professional?: Professional;
   patient?: Patient;
+  initialMessage?: string;
 }) {
   const { toast } = useToast();
   const [messages, setMessages] = React.useState(mockMessages);
   const [newMessage, setNewMessage] = React.useState('');
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (initialMessage) {
+        setNewMessage(initialMessage);
+    }
+  }, [initialMessage]);
 
 
   const handleSendMessage = (e: React.FormEvent) => {
