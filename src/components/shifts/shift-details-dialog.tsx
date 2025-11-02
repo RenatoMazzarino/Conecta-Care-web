@@ -272,8 +272,8 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     }
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between p-4 rounded-lg border">
+        <div className="space-y-6 p-6">
+             <div className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center space-x-3">
                     <Megaphone className="h-6 w-6 text-amber-600"/>
                     <div>
