@@ -92,7 +92,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             e.stopPropagation();
             if (!value) return;
             const phoneNumber = value.replace(/\D/g, '');
-            window.open(`https://wa.me/${phoneNumber}`, '_blank');
+            window.open(`https://wa.me/55${phoneNumber}`, '_blank');
         };
         
         const handleEmailClick = (e: React.MouseEvent) => {
@@ -186,12 +186,18 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         )
     };
     
-    const DocumentStatusBadge = ({ status }: { status: 'none' | 'pending' | 'validated' | undefined }) => {
-        const config = {
+    const DocumentStatusBadge = ({ status }: { status: 'none' | 'pending' | 'validated' | 'valid' | 'invalid' | 'unknown' | undefined }) => {
+        const configMap = {
             validated: { icon: BadgeCheck, color: 'text-green-600', text: 'Validado' },
+            valid: { icon: BadgeCheck, color: 'text-green-600', text: 'Válido' },
             pending: { icon: BadgeAlert, color: 'text-amber-600', text: 'Pendente' },
             none: { icon: BadgeAlert, color: 'text-muted-foreground', text: 'Não Verificado' },
-        }[status || 'none'];
+            invalid: { icon: BadgeAlert, color: 'text-red-600', text: 'Inválido' },
+            unknown: { icon: BadgeAlert, color: 'text-muted-foreground', text: 'Não Verificado' },
+        };
+        const config = configMap[status || 'none'];
+
+        if (!status) return null;
 
         const Icon = config.icon;
         return (
@@ -216,12 +222,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             {/* 1. DADOS PESSOAIS */}
              <AccordionItem value="item-1" className="border-none">
                  <Card>
-                    <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
-                           <CardTitle className="flex items-center gap-3 text-xl"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
-                           <CardEditButton card="dadosPessoais" />
-                        </div>
-                    </AccordionTrigger>
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
+                            <CardTitle className="flex items-center gap-3 text-xl"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
+                        </AccordionTrigger>
+                        <CardEditButton card="dadosPessoais" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                            <div>
@@ -318,7 +324,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                     }} /> : <ContactValueDisplay value={phone.number} type={phone.type === 'mobile' ? 'whatsapp' : 'phone'} />}
                                 </div>
                             ))}
-                             {data.emails?.map((email, index) => (
+                            {data.emails?.map((email, index) => (
                                 <div key={`email-${index}`}>
                                     <Label>Email</Label>
                                     {isCardEditing('dadosPessoais') ? <Input type="email" value={email.email || ''} onChange={e => {
@@ -415,12 +421,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
              {/* 2. ENDEREÇO E AMBIENTE */}
              <AccordionItem value="item-2" className="border-none">
                  <Card>
-                    <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
-                           <CardTitle className="flex items-center gap-3 text-lg"><Home className="w-5 h-5 text-primary" />Endereço e Ambiente Domiciliar</CardTitle>
-                            <CardEditButton card="endereco" />
-                        </div>
-                    </AccordionTrigger>
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
+                            <CardTitle className="flex items-center gap-3 text-lg"><Home className="w-5 h-5 text-primary" />Endereço e Ambiente Domiciliar</CardTitle>
+                        </AccordionTrigger>
+                        <CardEditButton card="endereco" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -508,12 +514,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             {/* 3. DADOS CLÍNICOS E ASSISTENCIAIS */}
              <AccordionItem value="item-3" className="border-none">
                  <Card>
-                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
                            <CardTitle className="flex items-center gap-3 text-lg"><Stethoscope className="w-5 h-5 text-primary" />Dados Clínicos e Assistenciais</CardTitle>
-                           <CardEditButton card="clinico" />
-                        </div>
-                    </AccordionTrigger>
+                        </AccordionTrigger>
+                        <CardEditButton card="clinico" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="space-y-6">
                             <div>
@@ -643,12 +649,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
              {/* 4. DADOS ADMINISTRATIVOS */}
              <AccordionItem value="item-4" className="border-none">
                  <Card>
-                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
                            <CardTitle className="flex items-center gap-3 text-lg"><Briefcase className="w-5 h-5 text-primary" />Informações Administrativas e Internas</CardTitle>
-                           <CardEditButton card="administrativo" />
-                        </div>
-                    </AccordionTrigger>
+                        </AccordionTrigger>
+                        <CardEditButton card="administrativo" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -738,12 +744,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             {/* 5. DADOS FINANCEIROS */}
              <AccordionItem value="item-5" className="border-none">
                  <Card>
-                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
                             <CardTitle className="flex items-center gap-3 text-lg"><Wallet className="w-5 h-5 text-primary" />Informações Financeiras</CardTitle>
-                            <CardEditButton card="financeiro" />
-                        </div>
-                    </AccordionTrigger>
+                        </AccordionTrigger>
+                        <CardEditButton card="financeiro" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -803,12 +809,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             {/* 6. REDE DE APOIO */}
             <AccordionItem value="item-6" className="border-none">
                  <Card>
-                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
                            <CardTitle className="flex items-center gap-3 text-lg"><Users className="w-5 h-5 text-primary" />Rede de Apoio e Responsáveis</CardTitle>
-                           <CardEditButton card="redeDeApoio" />
-                        </div>
-                    </AccordionTrigger>
+                        </AccordionTrigger>
+                        <CardEditButton card="redeDeApoio" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -868,12 +874,12 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
              {/* 7. DOCUMENTOS E CONSENTIMENTOS */}
              <AccordionItem value="item-7" className="border-none">
                  <Card>
-                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <div className="flex justify-between w-full">
+                    <div className="flex items-center pr-4">
+                        <AccordionTrigger className="p-6 hover:no-underline flex-1">
                            <CardTitle className="flex items-center gap-3 text-lg"><FolderOpen className="w-5 h-5 text-primary" />Documentos e Consentimentos</CardTitle>
-                           <CardEditButton card="documentos" />
-                        </div>
-                    </AccordionTrigger>
+                        </AccordionTrigger>
+                        <CardEditButton card="documentos" />
+                    </div>
                     <AccordionContent className="px-6 pb-6">
                         <div className="space-y-4">
                             <div className="p-4 bg-muted/50 rounded-lg">
@@ -959,4 +965,3 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         </Accordion>
     )
 }
-
