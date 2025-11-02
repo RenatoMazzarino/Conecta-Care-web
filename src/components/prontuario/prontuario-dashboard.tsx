@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -183,5 +184,7 @@ export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEdit
     </div>
   )
 }
+
+    
 
     

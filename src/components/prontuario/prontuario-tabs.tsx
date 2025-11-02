@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -76,3 +77,5 @@ export function ProntuarioContent({ tabId, editMode, setEditMode, editedData, se
       return <div>Conteúdo não encontrado.</div>;
   }
 }
+
+    

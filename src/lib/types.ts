@@ -57,6 +57,7 @@ export type Patient = {
   clinicalData: {
     diagnoses: Diagnosis[];
     equipamentosDomiciliares?: string[];
+    diagnosticoPrincipal?: string; // Campo a ser removido/refatorado
     allergies: string[];
     restricoes?: string[];
     mobilidade?: 'Autônomo' | 'Parcialmente Dependente' | 'Acamado';
@@ -294,3 +295,5 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
+
+    

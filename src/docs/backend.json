@@ -328,3 +328,5 @@
     "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/entities/Notification" }, "description": "Notifications for a patient." }
   }
 }
+
+    
