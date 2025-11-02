@@ -341,7 +341,7 @@ export function ShiftManagement() {
                 title="Vagas em Aberto"
                 value={stats.open}
                 icon={CircleHelp}
-                className="text-amber-600"
+                className="text-gray-600"
                 onClick={() => setStatusFilter('open')}
                 isActive={statusFilter === 'open'}
             />
@@ -349,7 +349,7 @@ export function ShiftManagement() {
                 title="Vagas com Candidatos"
                 value={stats.pending}
                 icon={UserPlus}
-                className="text-blue-600"
+                className="text-orange-600"
                 onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
                 isActive={statusFilter === 'pending'}
             />
@@ -357,7 +357,7 @@ export function ShiftManagement() {
                 title="Plantões Ocupados"
                 value={stats.filled}
                 icon={CheckCircle}
-                className="text-green-600"
+                className="text-blue-600"
                 onClick={() => setStatusFilter('filled')}
                 isActive={statusFilter === 'filled'}
             />
@@ -430,11 +430,16 @@ export type GridShiftState = {
 };
 
 export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  active: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  issue: { base: 'bg-amber-50 dark:bg-amber-950 hover:bg-amber-100 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
+  // Verde para em andamento/concluído
+  active: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
   completed: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  filled: { base: 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700', border: 'border-l-slate-400', text: 'text-slate-600 dark:text-slate-300' },
+  // Laranja para pendente/com candidatos
   pending: { base: 'bg-orange-50 dark:bg-orange-950 hover:bg-orange-100 dark:hover:bg-orange-900', border: 'border-l-orange-500', text: 'text-orange-800 dark:text-orange-200' },
+  // Amarelo para com alerta/problema
+  issue: { base: 'bg-amber-50 dark:bg-amber-950 hover:bg-amber-100 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
+  // Azul para atribuído/preenchido
+  filled: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  // Cinza para vago
   open: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
 };
 
@@ -507,3 +512,4 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
