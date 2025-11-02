@@ -6,10 +6,9 @@ import type { LucideIcon } from "lucide-react";
 interface TimelineEventItemProps {
   icon: LucideIcon;
   isComplete: boolean;
-  isLast: boolean;
 }
 
-export function TimelineEventItem({ icon: Icon, isComplete, isLast }: TimelineEventItemProps) {
+export function TimelineEventItem({ icon: Icon, isComplete }: TimelineEventItemProps) {
   return (
     <div className="flex flex-col items-center h-full">
       {/* Círculo e Ícone */}
@@ -21,11 +20,6 @@ export function TimelineEventItem({ icon: Icon, isComplete, isLast }: TimelineEv
       >
         <Icon className="h-4 w-4" />
       </div>
-
-      {/* Linha de Conexão Vertical */}
-      {!isLast && (
-        <div className="flex-1 w-0.5 bg-border mt-1" />
-      )}
     </div>
   );
 }
