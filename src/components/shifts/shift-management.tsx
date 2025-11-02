@@ -9,7 +9,6 @@ import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { BulkPublishDialog } from './bulk-publish-dialog';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -20,6 +19,7 @@ import { ShiftGridView } from './shift-grid-view';
 import { patients as mockPatients, professionals as mockProfessionals, initialShifts } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { BulkPublishDialog } from './bulk-publish-dialog';
 
 
 type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
@@ -210,7 +210,7 @@ export function ShiftManagement() {
     }
   };
 
-  const StatCard = ({ title, value, icon: Icon, className, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, className?: string, isActive?: boolean, onClick?: () => void }) => (
+  const StatCard = ({ title, value, icon: Icon, comparison, className, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, comparison?: string, className?: string, isActive?: boolean, onClick?: () => void }) => (
     <Card onClick={onClick} className={cn("hover:shadow-md transition-shadow", onClick && "cursor-pointer", isActive && "ring-2 ring-primary")}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -218,6 +218,7 @@ export function ShiftManagement() {
         </CardHeader>
         <CardContent>
             <div className={cn("text-2xl font-bold", className)}>{value}</div>
+            {comparison && <p className="text-xs text-muted-foreground">{comparison}</p>}
         </CardContent>
     </Card>
   );
@@ -335,6 +336,7 @@ export function ShiftManagement() {
                 className="text-primary"
                 onClick={() => setStatusFilter('all')}
                 isActive={statusFilter === 'all'}
+                comparison="+2% em relação à semana passada"
             />
              <StatCard 
                 title="Vagas em Aberto"
@@ -343,6 +345,7 @@ export function ShiftManagement() {
                 className="text-gray-600"
                 onClick={() => setStatusFilter('open')}
                 isActive={statusFilter === 'open'}
+                comparison="-10% em relação à semana passada"
             />
             <StatCard 
                 title="Vagas com Candidatos"
@@ -351,6 +354,7 @@ export function ShiftManagement() {
                 className="text-amber-600"
                 onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
                 isActive={statusFilter === 'pending'}
+                comparison="+3 novas candidaturas hoje"
             />
             <StatCard 
                 title="Plantões Ocupados"
@@ -359,6 +363,7 @@ export function ShiftManagement() {
                 className="text-blue-600"
                 onClick={() => setStatusFilter('filled')}
                 isActive={statusFilter === 'filled'}
+                comparison="+5% em relação à semana passada"
             />
              <StatProgressCard 
                 title="Taxa de Ocupação"
@@ -531,6 +536,7 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
 
