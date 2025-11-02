@@ -4,7 +4,7 @@ import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invo
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck, MapPin, AlertTriangle } from 'lucide-react';
+import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck, MapPin, AlertTriangle, Clock } from 'lucide-react';
 
 const patientAvatars = {
   'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
@@ -346,13 +346,13 @@ export const initialShifts: Shift[] = [
 ];
 
 export const mockShiftHistory: ShiftHistoryEvent[] = [
-    { time: '08:02', event: 'Início do Plantão', details: 'Profissional iniciou o plantão via app.', icon: Footprints },
-    { time: '08:15', event: 'Check-in Realizado', details: 'Presença confirmada na residência.', icon: CircleCheck },
-    { time: '09:00', event: 'Medicação Administrada', details: 'Administrado Losartana 50mg e Metformina 850mg.', icon: Pill },
-    { time: '11:30', event: 'Consulta Médica', details: 'Reavaliação de rotina. PA estável. Solicitado novo exame de sangue.', icon: Stethoscope },
-    { time: '14:00', event: 'Coleta para Exame', details: 'Coleta de sangue para hemograma completo e glicemia.', icon: TestTube },
-    { time: '20:05', event: 'Check-out Realizado', details: 'Saída da residência confirmada.', icon: CircleX },
-    { time: '20:10', event: 'Fim do Plantão', details: 'Profissional finalizou o plantão via app.', icon: Footprints },
+    { time: '08:02', event: 'Início do Plantão', details: 'Profissional iniciou o plantão via app.', icon: Clock, status: 'ok' },
+    { time: '08:15', event: 'Check-in Realizado', details: 'Presença confirmada na residência.', icon: CircleCheck, status: 'ok' },
+    { time: '09:00', event: 'Medicação Administrada', details: 'Administrado Losartana 50mg e Metformina 850mg.', icon: Pill, status: 'ok' },
+    { time: '11:30', event: 'Consulta Médica', details: 'Reavaliação de rotina. PA estável. Solicitado novo exame de sangue.', icon: Stethoscope, status: 'pending' },
+    { time: '14:00', event: 'Coleta para Exame', details: 'Coleta de sangue para hemograma completo e glicemia.', icon: TestTube, status: 'pending' },
+    { time: '20:05', event: 'Check-out', details: 'Aguardando confirmação de saída.', icon: CircleX, status: 'late' },
+    { time: '20:10', event: 'Fim do Plantão', details: 'Aguardando finalização do plantão.', icon: Clock, status: 'late' },
 ];
 
 export const mockPatients = patients.map(p => ({

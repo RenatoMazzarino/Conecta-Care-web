@@ -10,7 +10,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X, CalendarClock, Info } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X, CalendarClock, Info, FileDown } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -205,7 +205,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                                     </AlertDescription>
                                 </Alert>
                             )}
-                             <div className="flex items-center justify-between p-4 rounded-lg border bg-background">
+                            <div className="flex items-center justify-between p-4 rounded-lg border bg-background">
                                 <div className="flex items-center space-x-3">
                                     <Megaphone className="h-6 w-6 text-amber-600"/>
                                     <div>
@@ -290,7 +290,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
 
     return (
         <div className="space-y-6 p-6">
-             <div className="flex items-center justify-between p-4 rounded-lg border">
+            <div className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center space-x-3">
                     <Megaphone className="h-6 w-6 text-amber-600"/>
                     <div>
@@ -369,9 +369,10 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
       const currentProgress = shift.progress ?? 0;
       return (
          <Tabs defaultValue="timeline" className="w-full mt-4">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
                   <TabsTrigger value="notes">Anotações Internas</TabsTrigger>
+                  <TabsTrigger value="export">Exportar</TabsTrigger>
               </TabsList>
               <TabsContent value="timeline" className="mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6">
@@ -390,6 +391,14 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                       <div className="flex justify-end">
                           <Button>Salvar Anotação</Button>
                       </div>
+                  </div>
+              </TabsContent>
+               <TabsContent value="export" className="mt-4">
+                  <div className="h-96 flex flex-col items-center justify-center gap-4 text-center border-2 border-dashed rounded-lg">
+                      <FileDown className="w-12 h-12 text-muted-foreground" />
+                      <h3 className="font-semibold text-lg">Gerar Relatório do Plantão</h3>
+                      <p className="text-sm text-muted-foreground max-w-sm">Exporte um arquivo PDF consolidado com todas as informações, linha do tempo e anotações deste plantão para seus registros.</p>
+                      <Button>Gerar PDF do Plantão</Button>
                   </div>
               </TabsContent>
           </Tabs>
@@ -415,6 +424,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   if (!shift || !patient) return null;
 
   const isCreatingNew = !patient.id;
+  const isActive = shift.status === 'active';
 
   return (
     <>
@@ -440,9 +450,15 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                             </Badge>
                          )}
                     </div>
-                    <DialogDescription>
+                    <DialogDescription className="flex items-center gap-2">
                         {professional ? (
-                            <>Plantão {shift.shiftType} - Em andamento com <Button variant="link" className="p-0 h-auto text-base" onClick={() => onOpenProfile(professional)}>{professional.name}</Button></>
+                           <>
+                                {isActive && <span className="relative flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span> }
+                                Plantão {shift.shiftType} - 
+                                {isActive ? ` Em atendimento com ` : ' com '}
+                                <Button variant="link" className="p-0 h-auto text-base" onClick={() => onOpenProfile(professional)}>{professional.name}</Button>
+                                {isActive && shift.checkIn && ` desde ${shift.checkIn}`}
+                           </>
                         ) : (
                             <>Plantão {shift.shiftType} - {new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long' })}</>
                         )}

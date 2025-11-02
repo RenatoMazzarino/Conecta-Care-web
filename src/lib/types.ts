@@ -146,6 +146,7 @@ export type ShiftHistoryEvent = {
     event: string;
     details?: string;
     icon: React.ElementType;
+    status: 'ok' | 'pending' | 'late' | 'default';
 }
 
 export type ShiftReport = {
