@@ -367,11 +367,11 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                     </DialogDescription>
                 </div>
               </div>
-               <div className="flex items-center gap-2">
+               <div className="flex items-center gap-4">
                    {shift.status === 'open' && (
-                     <div className="flex items-center space-x-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
-                        <Megaphone className="h-5 w-5 text-amber-700"/>
-                        <Label htmlFor="urgent-switch" className="text-amber-800 font-medium">Marcação Urgente</Label>
+                     <div className="flex items-center gap-2">
+                        <Megaphone className="h-5 w-5 text-amber-600"/>
+                        <Label htmlFor="urgent-switch" className="text-sm font-medium text-amber-700">Marcação Urgente</Label>
                         <Switch id="urgent-switch" checked={publishData.isUrgent} onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} />
                     </div>
                    )}
