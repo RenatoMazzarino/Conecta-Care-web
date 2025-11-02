@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { 
     User, Phone, Mail, Calendar, Home, Link as LinkIcon, Gavel, BadgeCheck, Users, Edit,
-    Shield, AlertTriangle, Star, Eye, Copy, Download, FileText, Upload, Plus, X
+    Shield, AlertTriangle, Star, Eye, Copy, Download, FileText, Upload, Plus, X, BookUser
 } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
@@ -118,9 +118,9 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     };
     
     return (
-        <section aria-labelledby="patient-personal-title" className="bg-card shadow rounded-lg border overflow-hidden">
+        <section aria-labelledby="patient-personal-title">
             {/* HEADER */}
-            <header className="flex items-center justify-between gap-4 p-5 bg-muted/30">
+            <header className="flex items-center justify-between gap-4 p-5 bg-card rounded-t-lg border">
                 <div className="flex items-center gap-4">
                     <div className="relative">
                         <Avatar className="w-24 h-24 rounded-md text-3xl">
@@ -135,14 +135,14 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         <h2 id="patient-personal-title" className="text-xl font-semibold text-slate-900 truncate">
                             {fullName} <span className="text-sm text-muted-foreground">— {displayData.displayName}</span>
                         </h2>
-                        <p className="mt-1 text-sm text-slate-600 flex items-center">
+                        <div className="mt-1 text-sm text-slate-600 flex items-center">
                             {age && <span id="patient-age">{age}</span>}
                             <span className="mx-2">•</span>
                             <span id="patient-cpf" className="text-sm text-slate-500">CPF: <strong className="ml-1">{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
                              <Button type="button" title="Copiar CPF" variant="ghost" size="icon" className="ml-2 h-7 w-7 text-gray-500 hover:bg-gray-50">
                                 <Copy className="w-4 h-4" />
                             </Button>
-                        </p>
+                        </div>
                         <div className="mt-3 flex items-center gap-2">
                              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100">
                                 <Shield className="w-4 h-4 mr-2" />
@@ -176,7 +176,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             </header>
             
             {/* BODY */}
-            <div className="p-6">
+            <div className="p-6 bg-card rounded-b-lg border border-t-0">
                 <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
                     <AccordionItem value="item-1">
                         <AccordionTrigger>
@@ -217,8 +217,8 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                     </FormRow>
                                     <hr className="my-4"/>
                                     <FormRow>
-                                        <FormField label="CPF" value={displayData.cpf} action={ <Badge variant="secondary" className="bg-green-100 text-green-800"><BadgeCheck className="w-3 h-3 mr-1"/> Verificado</Badge>} />
-                                        <FormField label="RG" value={displayData.rg} action={ <Badge variant="secondary" className="bg-green-100 text-green-800"><BadgeCheck className="w-3 h-3 mr-1"/> Verificado</Badge>} />
+                                        <FormField label="CPF" value={displayData.cpf} action={ <Badge variant={editedData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(editedData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} />
+                                        <FormField label="RG" value={displayData.rg} action={ <Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} />
                                     </FormRow>
                                      <FormRow className="mt-4">
                                         <FormField label="CNS" value={displayData.cns} action={ <Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} />
