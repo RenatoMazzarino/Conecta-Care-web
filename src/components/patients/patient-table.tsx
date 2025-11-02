@@ -113,17 +113,17 @@ export function PatientTable({
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Documentação</TableHead>
+            <TableHead>Complexidade</TableHead>
+            <TableHead>Vínculo</TableHead>
+            <TableHead>Pacote</TableHead>
             <TableHead>Próximo/Último Plantão</TableHead>
             <TableHead>Supervisor</TableHead>
-            <TableHead>Escalista</TableHead>
             <TableHead className="text-right w-[100px]">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {patients.map((patient) => {
             const supervisorName = patient.adminData.supervisorId ? professionalMap.get(patient.adminData.supervisorId) : '-';
-            const schedulerName = patient.adminData.schedulerId ? professionalMap.get(patient.adminData.schedulerId) : '-';
             const visitDate = patient.next_visit_date ? formatVisitDate(patient.next_visit_date) : formatVisitDate(patient.last_visit_date);
             const hasPendingItems = patient.consent_status === 'pending' || patient.pending_documents > 0;
             
@@ -137,9 +137,6 @@ export function PatientTable({
             }
             const patientStatus = patientStatusConfig[patientStatusKey];
             
-            const docStatusKey = hasPendingItems ? 'pending' : 'ok';
-            const docStatus = docStatusConfig[docStatusKey];
-
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
                 <TableCell>
@@ -169,9 +166,15 @@ export function PatientTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                   <Badge variant={docStatus.variant} className={docStatus.className}>
-                    {docStatus.text}
+                  <Badge variant="outline" className={cn(complexityVariant[patient.adminData.complexity])}>
+                    {patient.adminData.complexity}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                    <div className="text-sm text-muted-foreground">{patient.financial.vinculo}</div>
+                </TableCell>
+                 <TableCell>
+                    <Badge variant="outline">{patient.adminData.servicePackage}</Badge>
                 </TableCell>
                 <TableCell>
                      <div className={cn("text-sm", visitDate.inPast ? "text-muted-foreground" : "text-foreground")}>
@@ -182,15 +185,6 @@ export function PatientTable({
                   {patient.adminData.supervisorId && supervisorName ? (
                     <Link href={`/team/${patient.adminData.supervisorId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
                       {supervisorName}
-                    </Link>
-                  ) : (
-                    '-'
-                  )}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {patient.adminData.schedulerId && schedulerName ? (
-                    <Link href={`/team/${patient.adminData.schedulerId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
-                      {schedulerName}
                     </Link>
                   ) : (
                     '-'
