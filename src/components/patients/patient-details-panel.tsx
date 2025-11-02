@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -40,27 +39,6 @@ interface PatientDetailsPanelProps {
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
-
-const ProntuarioJuridico: React.FC = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Termos e Consentimentos</CardTitle>
-        <CardDescription>
-          Gerenciamento de consentimentos e documentos legais do paciente.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="p-4 border rounded-md bg-muted/50">
-            <h4 className="font-semibold">Termo de Consentimento para Tratamento de Dados (LGPD)</h4>
-            <p className="text-sm text-muted-foreground mt-1">Assinado em 20 de Janeiro de 2023</p>
-            <Button variant="link" asChild className="px-0 h-auto mt-2">
-                <Link href="#" target="_blank">Visualizar Documento</Link>
-            </Button>
-        </div>
-      </CardContent>
-    </Card>
-);
-
 export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatientUpdate }: PatientDetailsPanelProps) {
   const { toast } = useToast();
   const [patient, setPatient] = React.useState<Patient | null>(null);
@@ -70,7 +48,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
   const [editMode, setEditMode] = React.useState<EditMode>('none');
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
 
-  const [currentView, setCurrentView] = React.useState<'prontuario' | 'ficha'>('prontuario');
+  const [currentView, setCurrentView] = React.useState<'prontuario' | 'ficha'>('ficha');
   const [activeProntuarioTab, setActiveProntuarioTab] = React.useState('dashboard');
   
   const isEditing = editMode !== 'none';
@@ -126,16 +104,54 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     setEditedData(JSON.parse(JSON.stringify(patient))); // Reset changes
   }
   
-  const handleFeaturePlaceholder = (featureName: string) => {
-    toast({
-        title: "Funcionalidade em Breve",
-        description: `A funcionalidade de "${featureName}" será implementada em breve.`,
-    })
-  }
-
   const displayData = editedData || patient;
-  const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
   
+  const ProntuarioView = () => (
+      <div className="space-y-6">
+        <header className="flex items-center justify-between gap-4 p-5 rounded-lg bg-card border">
+                <div className="flex items-center gap-4">
+                    <Avatar className="w-16 h-16 rounded-md text-2xl">
+                        <AvatarImage src={displayData?.avatarUrl} alt={displayData?.displayName} className="object-cover border" />
+                        <AvatarFallback>{displayData?.initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                        <h2 className="text-xl font-semibold text-slate-900 truncate">
+                            Prontuário de {displayData?.displayName}
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-600">
+                           Acesso rápido a todas as informações clínicas e administrativas.
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                     <Button variant="outline" onClick={() => setCurrentView('ficha')}><FileText className="w-4 h-4 mr-2"/> Ver Ficha Cadastral</Button>
+                     <Button onClick={() => setIsUploadOpen(true)}><Upload className="w-4 h-4 mr-2"/> Anexar Documento</Button>
+                </div>
+        </header>
+
+        <Tabs defaultValue={activeProntuarioTab} onValueChange={setActiveProntuarioTab} className="w-full">
+            <ScrollArea>
+                <TabsList>
+                {prontuarioTabs.map(tab => (
+                    <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
+                        <tab.icon className="h-4 w-4" /> {tab.label}
+                    </TabsTrigger>
+                ))}
+                </TabsList>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+            <div className="mt-4">
+                 <ProntuarioContent 
+                    tabId={activeProntuarioTab}
+                    editMode={editMode}
+                    setEditMode={setEditMode}
+                    editedData={editedData}
+                    setEditedData={setEditedData}
+                 />
+            </div>
+        </Tabs>
+      </div>
+  );
 
   return (
     <>
@@ -151,15 +167,20 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             )}
 
             {!isLoading && displayData && (
-              <FichaCadastral 
-                  editMode={editMode} 
-                  setEditMode={setEditMode} 
-                  displayData={displayData} 
-                  editedData={editedData} 
-                  setEditedData={setEditedData} 
-                  onSave={handleSave}
-                  onCancel={handleCancelEdit}
-              />
+              currentView === 'ficha' ? (
+                  <FichaCadastral 
+                      editMode={editMode} 
+                      setEditMode={setEditMode} 
+                      displayData={displayData} 
+                      editedData={editedData} 
+                      setEditedData={setEditedData} 
+                      onSave={handleSave}
+                      onCancel={handleCancelEdit}
+                      onSwitchView={setCurrentView}
+                  />
+              ) : (
+                  <ProntuarioView />
+              )
             )}
           </div>
         </SheetContent>

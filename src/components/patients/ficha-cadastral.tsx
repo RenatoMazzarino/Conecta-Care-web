@@ -61,13 +61,16 @@ const FormField = ({ label, value, action, isEditing, editComponent }: {
     editComponent?: React.ReactNode
 }) => (
     <div>
-        <Label className="text-xs text-gray-600 flex items-center gap-2">{label} {action}</Label>
+        <div className="text-xs text-gray-600 flex items-center gap-2 mb-1">
+          <Label>{label}</Label>
+          {action}
+        </div>
         {isEditing ? (
-             <div className="mt-1">{editComponent}</div>
+             <div className="">{editComponent}</div>
         ) : (
-            <div className="mt-1 w-full rounded-md border bg-muted/50 p-2 text-sm text-foreground min-h-[36px] flex items-center justify-between">
+            <div className="w-full rounded-md border bg-muted/50 p-2 text-sm text-foreground min-h-[36px] flex items-center justify-between">
                 <div>{value || <span className="text-muted-foreground italic">Não informado</span>}</div>
-                {action && <div className="ml-2">{action}</div>}
+                {action && isEditing && <div className="ml-2">{action}</div>}
             </div>
         )}
     </div>
@@ -89,9 +92,10 @@ type FichaCadastralProps = {
   setEditedData: (data: Patient | null) => void;
   onSave: () => void;
   onCancel: () => void;
+  onSwitchView: (view: 'prontuario' | 'ficha') => void;
 };
 
-export function FichaCadastral({ editMode, setEditMode, displayData, editedData, setEditedData, onSave, onCancel }: FichaCadastralProps) {
+export function FichaCadastral({ editMode, setEditMode, displayData, editedData, setEditedData, onSave, onCancel, onSwitchView }: FichaCadastralProps) {
     if (!displayData || !editedData) return null;
 
     const isEditing = editMode !== 'none';
@@ -159,26 +163,30 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                 </div>
 
                 <div className="flex items-center gap-3">
+                     <Button variant="outline" onClick={() => onSwitchView('prontuario')}><BookUser className="w-4 h-4 mr-2"/> Ver Prontuário</Button>
                      {isEditing ? (
                         <>
                          <Button variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2"/> Cancelar</Button>
                          <Button onClick={onSave}><BadgeCheck className="w-4 h-4 mr-2"/> Salvar Alterações</Button>
                         </>
                     ) : (
-                         <Button onClick={() => setEditMode('full')}><Edit className="w-4 h-4 mr-2"/> Editar</Button>
+                         <Button onClick={() => setEditMode('full')}><Edit className="w-4 h-4 mr-2"/> Editar Ficha</Button>
                     )}
                 </div>
             </header>
             
             {/* BODY */}
             <div className="p-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Dados Pessoais</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="grid grid-cols-12 gap-x-8">
-                             <div className="col-span-12 lg:col-span-7 space-y-6">
+                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger>
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <User className="w-5 h-5 text-primary" /> Dados Pessoais
+                          </h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="p-4 pt-2">
+                          <div className="grid grid-cols-12 gap-x-8">
+                              <div className="col-span-12 lg:col-span-7 space-y-6">
                                 <FormSection icon={User} title="Identificação Básica">
                                     <FormRow>
                                          <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
@@ -216,62 +224,69 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                         <FormField label="CNS" value={displayData.cns} action={ <Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} />
                                     </FormRow>
                                 </FormSection>
-                             </div>
-                             <aside className="col-span-12 lg:col-span-5">
-                                 <FormSection icon={Gavel} title="Representante Legal">
-                                     <FormField label="Nome" value={displayData.legalGuardian?.name} />
-                                     <div className="mt-4">
+                              </div>
+                              <aside className="col-span-12 lg:col-span-5">
+                                  <FormSection icon={Gavel} title="Representante Legal">
+                                      <FormField label="Nome" value={displayData.legalGuardian?.name} />
+                                      <div className="mt-4">
                                         <FormField label="Documento" value={displayData.legalGuardian?.document} />
-                                     </div>
+                                      </div>
                                       <div className="mt-4">
                                         <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
                                       </div>
-                                 </FormSection>
-                             </aside>
-                        </div>
-                        
-                        <hr/>
-                         <FormSection icon={Phone} title="Informações de Contato" action={
-                            <Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>
-                         }>
-                           <FormRow>
-                                <FormField label="Telefone" value={displayData.phones[0]?.number} action={
-                                    <a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700"><WhatsAppIcon className="h-5 w-5"/></a>
-                                }/>
-                                 <FormField label="Email" value={displayData.emails?.[0]?.email} action={
-                                    <a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary"><Mail className="h-4 w-4"/></a>
-                                }/>
-                           </FormRow>
-                        </FormSection>
-                        
-                        <hr/>
-                        <FormSection icon={Users} title="Contatos de Emergência">
-                          <div className="space-y-3">
-                            {displayData.emergencyContacts.map((contact, index) => (
-                              <div key={index} className="p-3 border rounded-lg bg-background">
-                                  <div className="flex items-center justify-between">
-                                    <div className="font-medium text-slate-900">
-                                        {contact.name}
-                                        {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
-                                    </div>
-                                     <div className="flex items-center gap-1">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
-                                    </div>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
-                              </div>
-                            ))}
+                                  </FormSection>
+                              </aside>
                           </div>
-                           {isEditing && (
-                            <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
-                                <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
-                            </Button>
-                           )}
-                        </FormSection>
-
-                    </CardContent>
-                </Card>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-2">
+                        <AccordionTrigger>
+                           <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <Phone className="w-5 h-5 text-primary" /> Contato e Responsáveis
+                          </h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="p-4 pt-2">
+                            <FormSection icon={Phone} title="Informações de Contato" action={
+                              <Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>
+                            }>
+                              <FormRow>
+                                  <FormField label="Telefone" value={displayData.phones[0]?.number} action={
+                                      <a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700"><WhatsAppIcon className="h-5 w-5"/></a>
+                                  }/>
+                                  <FormField label="Email" value={displayData.emails?.[0]?.email} action={
+                                      <a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary"><Mail className="h-4 w-4"/></a>
+                                  }/>
+                              </FormRow>
+                            </FormSection>
+                            
+                            <hr className="my-6"/>
+                            <FormSection icon={Users} title="Contatos de Emergência">
+                              <div className="space-y-3">
+                                {displayData.emergencyContacts.map((contact, index) => (
+                                  <div key={index} className="p-3 border rounded-lg bg-background">
+                                      <div className="flex items-center justify-between">
+                                        <div className="font-medium text-slate-900">
+                                            {contact.name}
+                                            {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
+                                        </div>
+                                      </div>
+                                      <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
+                                  </div>
+                                ))}
+                              </div>
+                              {isEditing && (
+                                <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
+                                    <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
+                                </Button>
+                              )}
+                            </FormSection>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
             </div>
         </section>
     );
