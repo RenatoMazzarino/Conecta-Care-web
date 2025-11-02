@@ -10,7 +10,6 @@ import type { Patient, ShiftReport, Notification, Task, Shift } from '@/lib/type
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { mockTasks, patients as mockPatients, professionals, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
 import { AlertTriangle, Clock, FileWarning, MessageSquareWarning, RefreshCw, Loader2 } from 'lucide-react';
 import { RecentEvolutionsCard } from '@/components/dashboard/recent-evolutions-card';
 import { ActivityFeed } from '@/components/dashboard/activity-feed';
@@ -18,70 +17,71 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { TaskDialog } from '@/components/tasks/task-dialog';
 import { cn } from '@/lib/utils';
+import { useDashboardData } from '@/hooks/use-dashboard-data';
+import { trackEvent } from '@/lib/analytics';
+import { useToast } from '@/hooks/use-toast';
 
 const LoadingOverlay = () => (
-  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/50 backdrop-blur-sm">
+  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
     <Loader2 className="h-8 w-8 animate-spin text-primary" />
   </div>
 );
 
 export default function DashboardPage() {
-  
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const [notifications, setNotifications] = React.useState<Notification[]>([]);
-  const [tasks, setTasks] = React.useState<Task[]>([]);
-  const [shifts, setShifts] = React.useState<Shift[]>([]);
-  const [activityEvents, setActivityEvents] = React.useState<(ShiftReport | Notification | Task)[]>([]);
-  const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null);
+  const { data, isLoading, isRefreshing, refetch } = useDashboardData();
+  const { toast } = useToast();
 
-  // State for Task Dialog
+  const [tasks, setTasks] = React.useState<Task[]>([]);
   const [isTaskDialogOpen, setIsTaskDialogOpen] = React.useState(false);
   const [editingTask, setEditingTask] = React.useState<Task | null>(null);
-
-  const fetchData = React.useCallback(() => {
-    setIsRefreshing(true);
-    // Simulate fetching data
-    const timer = setTimeout(() => {
-      const patientReports = mockShiftReports;
-      const allNotifications = mockNotifications;
-      const allTasks = mockTasks;
-      
-      setNotifications(allNotifications);
-
-      // Combine and sort events for the activity feed
-      const allEvents = [...patientReports, ...allNotifications, ...allTasks]
-          .sort((a, b) => new Date('reportDate' in a ? a.reportDate : 'timestamp' in a ? a.timestamp : a.dueDate || 0).getTime() - new Date('reportDate' in b ? b.reportDate : 'timestamp' in b ? b.timestamp : b.dueDate || 0).getTime());
-      setActivityEvents(allEvents.reverse());
-
-      setTasks(allTasks); // Keep all tasks for the tasks card
-      setShifts(initialShifts);
-      setLastUpdated(new Date());
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }, 1500); // Increased delay to make spinner visible
-
-    return () => clearTimeout(timer);
-  }, []);
-
+  
   React.useEffect(() => {
-    setIsLoading(true);
-    fetchData();
-  }, [fetchData]);
+    if (data?.tasks) {
+      setTasks(data.tasks);
+    }
+  }, [data?.tasks]);
 
 
   const handleTaskUpdate = (updatedTask: Task) => {
+    const oldTask = tasks.find(t => t.id === updatedTask.id);
+    if(oldTask?.status !== 'done' && updatedTask.status === 'done') {
+        trackEvent({
+            eventName: 'task_marked_done',
+            properties: {
+                task_id: updatedTask.id,
+                userId: 'user-123', // Placeholder
+                old_status: oldTask?.status || 'unknown',
+                new_status: updatedTask.status
+            }
+        });
+        toast({
+            title: "Tarefa Concluída!",
+            description: `"${updatedTask.title}" foi marcada como concluída.`,
+            action: (
+              <Button variant="secondary" size="sm" onClick={() => handleTaskUpdate(oldTask!)}>
+                Desfazer
+              </Button>
+            ),
+        });
+    }
     setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
   };
   
   const handleCreateOrUpdateTask = (taskData: Task) => {
     if (editingTask) {
-        // Update existing task
         setTasks(prev => prev.map(t => t.id === taskData.id ? taskData : t));
     } else {
-        // Create new task
-        setTasks(prev => [...prev, { ...taskData, id: `task-${Date.now()}` }]);
+        const newTask = { ...taskData, id: `task-${Date.now()}` };
+        setTasks(prev => [...prev, newTask]);
     }
+    trackEvent({
+        eventName: 'quick_action',
+        properties: {
+            action: editingTask ? 'update_task' : 'create_task',
+            target_type: 'task',
+            target_id: taskData.id
+        }
+    })
   };
 
   const handleTaskClick = (task: Task) => {
@@ -93,46 +93,82 @@ export default function DashboardPage() {
     setIsTaskDialogOpen(false);
     setEditingTask(null);
   }
-
-  const noData = !isLoading && mockPatients.length === 0;
-
-  const openShiftsCount = shifts.filter(s => s.status === 'open').length;
-  const lateShiftsCount = shifts.filter(s => s.status === 'issue').length;
-  const urgentTasksCount = tasks.filter(t => t.priority === 'Urgente' && t.status !== 'done').length;
-  const pendingCommunicationsCount = mockNotifications.filter(n => !n.read).length;
   
+  const handleKpiClick = (kpiName: string) => {
+    trackEvent({
+        eventName: 'kpi_card_clicked',
+        properties: {
+            kpi_name: kpiName,
+            userId: 'user-123', // placeholder
+            timestamp: new Date().toISOString()
+        }
+    });
+  }
+
+  if (isLoading) {
+    return (
+      <>
+         <div className="flex justify-end items-center gap-4 mb-6 text-sm text-muted-foreground">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-9 w-28" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
+        </div>
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+             <div className="lg:col-span-1 space-y-6 flex flex-col">
+                <Skeleton className="h-[250px] w-full" />
+                <Skeleton className="h-[300px] w-full" />
+                <Skeleton className="h-[200px] w-full" />
+             </div>
+             <div className="lg:col-span-1 h-full">
+                <Skeleton className="h-full w-full min-h-[500px]" />
+             </div>
+        </div>
+      </>
+    );
+  }
+  
+  const noData = !data || !data.patients || data.patients.length === 0;
+
   const stats = [
-    { title: "Vagas Abertas", value: openShiftsCount, icon: FileWarning, trend: "+2", trendDirection: "up" as const, actions: [{label: "Criar Vaga", href: "/shifts"}, {label: "Publicar em Massa", action: () => {}}] },
-    { title: "Plantões com Alerta", value: lateShiftsCount, icon: Clock, trend: "0", trendDirection: "none" as const, actions: [{label: "Ver Plantões", href: "/shifts"}, {label: "Resolver Alertas", action: () => {}}] },
-    { title: "Tarefas Urgentes", value: urgentTasksCount, icon: AlertTriangle, trend: "-1", trendDirection: "down" as const, actions: [{label: "Ver Tarefas", href: "/tasks"}, {label: "Criar Tarefa", action: () => {}}]},
-    { title: "Comunicações Pendentes", value: pendingCommunicationsCount, icon: MessageSquareWarning, trend: "+3", trendDirection: "up" as const, actions: [{label: "Ver Comunicações", href: "/communications"}] },
+    { title: "Vagas Abertas", value: data?.summary.kpis.vagasAbertas, icon: FileWarning, href: "/shifts", onClick: () => handleKpiClick("Vagas Abertas")},
+    { title: "Plantões com Alerta", value: data?.summary.kpis.plantoesComAlerta, icon: Clock, href: "/shifts", onClick: () => handleKpiClick("Plantões com Alerta") },
+    { title: "Tarefas Urgentes", value: data?.summary.kpis.tarefasUrgentes, icon: AlertTriangle, href: "/tasks", onClick: () => handleKpiClick("Tarefas Urgentes")},
+    { title: "Comunicações Pendentes", value: data?.summary.kpis.comunicacoesPendentes, icon: MessageSquareWarning, href: "/communications", onClick: () => handleKpiClick("Comunicações Pendentes") },
   ]
 
   return (
     <>
        <div className="flex justify-end items-center gap-4 mb-6 text-sm text-muted-foreground">
-        {lastUpdated && !isRefreshing && (
+        {data?.summary.lastUpdated && !isRefreshing && (
             <span>
-              Atualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: ptBR })}
+              Atualizado {formatDistanceToNow(new Date(data.summary.lastUpdated), { addSuffix: true, locale: ptBR })}
             </span>
         )}
         <Button
             variant="outline"
             size="sm"
-            onClick={fetchData}
-            disabled={isRefreshing || isLoading}
+            onClick={refetch}
+            disabled={isRefreshing}
         >
-            <RefreshCw className={cn("mr-2 h-4 w-4", (isRefreshing || isLoading) && 'animate-spin')} />
+            <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && 'animate-spin')} />
             {isRefreshing ? 'Atualizando...' : 'Atualizar'}
         </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {isLoading ? (
-              [...Array(4)].map((_,i) => <Skeleton key={i} className="h-32 w-full" />)
-          ) : noData ? null : (
+          {noData ? null : (
               stats.map(stat => (
-                  <StatsCard key={stat.title} {...stat} />
+                  <Link href={stat.href} key={stat.title} onClick={stat.onClick}>
+                      <StatsCard 
+                          title={stat.title} 
+                          value={stat.value ?? 0}
+                          icon={stat.icon} 
+                          trend="+2" /* Mock data */
+                          trendDirection="up" /* Mock data */
+                      />
+                  </Link>
               ))
           )}
       </div>
@@ -156,38 +192,30 @@ export default function DashboardPage() {
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div className="lg:col-span-1 space-y-6 flex flex-col">
-           {isLoading ? (
+           {!noData && (
               <>
-                  <Skeleton className="h-[250px] w-full" />
-                  <Skeleton className="h-[300px] w-full" />
-                  <Skeleton className="h-[200px] w-full" />
-              </>
-            ) : !noData ? (
-              <>
-                  <div className="relative">
+                  <div className="relative flex-1">
                     {isRefreshing && <LoadingOverlay />}
                     <TasksCard tasks={tasks} onTaskUpdate={handleTaskUpdate} onTaskClick={handleTaskClick} />
                   </div>
-                  <div className="relative">
+                  <div className="relative flex-1">
                      {isRefreshing && <LoadingOverlay />}
-                    <CommunicationsCard notifications={notifications} />
+                    <CommunicationsCard notifications={data.notifications} />
                   </div>
-                  <div className="relative">
+                  <div className="relative flex-1">
                      {isRefreshing && <LoadingOverlay />}
-                    <RecentEvolutionsCard reports={mockShiftReports} patients={mockPatients} />
+                    <RecentEvolutionsCard reports={data.evolutions} patients={data.patients} />
                   </div>
               </>
-            ) : null}
+            )}
         </div>
         <div className="lg:col-span-1 relative h-full">
-          {isLoading ? (
-            <Skeleton className="h-full w-full min-h-[500px]" />
-          ) : !noData ? (
+          {!noData && (
             <>
               {isRefreshing && <LoadingOverlay />}
-              <ActivityFeed events={activityEvents} />
+              <ActivityFeed events={data.activityEvents} />
             </>
-          ) : null}
+          )}
         </div>
       </div>
       
@@ -196,8 +224,8 @@ export default function DashboardPage() {
         onOpenChange={handleCloseTaskDialog}
         task={editingTask}
         onSave={handleCreateOrUpdateTask}
-        professionals={professionals}
-        patients={mockPatients}
+        professionals={data?.professionals || []}
+        patients={data?.patients || []}
       />
     </>
   );

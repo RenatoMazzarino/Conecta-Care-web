@@ -18,6 +18,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
+import { trackEvent } from '@/lib/analytics';
 
 
 type FeedEvent = ShiftReport | Notification | Task;
@@ -71,19 +72,35 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
   });
 
   const handleFilterChange = (type: EventType, checked: boolean) => {
-    setFilters(prev => ({ ...prev, [type]: checked }));
+    const newFilters = { ...filters, [type]: checked };
+    setFilters(newFilters);
+    trackEvent({
+        eventName: 'filter_changed',
+        properties: {
+            page: 'dashboard_activity_feed',
+            new_filters: newFilters,
+        }
+    })
   };
   
   const activeFilterCount = Object.values(filters).filter(v => !v).length;
   
   const clearFilters = () => {
-    setFilters({
+    const clearedFilters = {
       shiftReport: true,
       supply: true,
       alert: true,
       info: true,
       task: true,
-    });
+    };
+    setFilters(clearedFilters);
+    trackEvent({
+        eventName: 'filter_changed',
+        properties: {
+            page: 'dashboard_activity_feed',
+            new_filters: clearedFilters,
+        }
+    })
   }
 
   const getEventType = (event: FeedEvent): EventType => {
@@ -103,6 +120,14 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     let icon, color, title, details, timestamp, author, href;
     const eventType = getEventType(event);
     
+    const handleEventClick = () => {
+        if (isShiftReport(event)) {
+             trackEvent({ eventName: 'report_opened', properties: { report_id: event.id, patient_id: event.patientId, opened_from: 'dashboard_activity_feed' } });
+        } else if (isNotification(event)) {
+             trackEvent({ eventName: 'notification_clicked', properties: { notification_id: event.id, type: event.type, target_url: '/communications' } });
+        }
+    };
+
     if (isShiftReport(event)) {
       const config = eventIcons.shiftReport;
       icon = config.icon;
@@ -137,7 +162,7 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     const IconComp = icon;
 
     return (
-      <li className="relative group">
+      <li className="relative group" onClick={handleEventClick}>
           {/* Timeline line */}
           <div className="absolute left-4 top-5 h-full w-px bg-border group-last:h-0" />
           

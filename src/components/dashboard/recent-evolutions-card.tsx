@@ -6,6 +6,7 @@ import type { ShiftReport, Patient } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
+import { trackEvent } from '@/lib/analytics';
 
 function formatRelativeDate(dateString: string) {
     const date = new Date(dateString);
@@ -16,6 +17,17 @@ function formatRelativeDate(dateString: string) {
     if (diffInDays === 0) return 'Hoje';
     if (diffInDays === 1) return 'Ontem';
     return `${diffInDays} dias atrás`;
+}
+
+function handleReportOpened(report: ShiftReport) {
+  trackEvent({
+    eventName: 'report_opened',
+    properties: {
+      report_id: report.id,
+      patient_id: report.patientId,
+      opened_from: 'dashboard_evolutions_card',
+    }
+  })
 }
 
 
@@ -35,7 +47,7 @@ export function RecentEvolutionsCard({ reports, patients }: { reports: ShiftRepo
               {reports.map((report) => {
                 const patient = patients.find(p => p.id === report.patientId);
                 return (
-                  <div key={report.id} className="relative group p-4 bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors">
+                  <div key={report.id} className="relative group p-4 bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors" onClick={() => handleReportOpened(report)}>
                       <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">

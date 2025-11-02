@@ -8,7 +8,6 @@ import type { Task } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '../ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import * as React from 'react';
 import { ScrollArea } from '../ui/scroll-area';
@@ -21,24 +20,11 @@ const priorityVariantMap = {
 } as const;
 
 export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[], onTaskUpdate: (task: Task) => void; onTaskClick: (task: Task) => void; }) {
-  const { toast } = useToast();
   
   const handleToggle = (e: React.MouseEvent, task: Task, checked: boolean) => {
     e.stopPropagation(); // Impede que o clique no checkbox acione o clique no card principal
     const newStatus = checked ? 'done' : 'inprogress';
     onTaskUpdate({ ...task, status: newStatus });
-    
-    if(newStatus === 'done') {
-        toast({
-            title: "Tarefa Concluída!",
-            description: `"${task.title}" foi marcada como concluída.`,
-            action: (
-              <Button variant="secondary" size="sm" onClick={() => onTaskUpdate(task)}>
-                Desfazer
-              </Button>
-            ),
-        });
-    }
   }
 
   return (
@@ -60,7 +46,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">
         {tasks.length > 0 ? (
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 -mx-6 px-6">
             <ul className="space-y-2 pr-2">
               {tasks.slice(0, 5).map((task) => (
                   <li key={task.id}>

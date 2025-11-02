@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { ArrowDown, ArrowRight, ArrowUp, MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { trackEvent } from '@/lib/analytics';
 
 interface StatsCardProps {
     title: string;
@@ -12,7 +13,6 @@ interface StatsCardProps {
     icon: LucideIcon;
     trend: string;
     trendDirection: 'up' | 'down' | 'none';
-    actions?: { label: string, href?: string, action?: () => void }[];
 }
 
 const trendConfig = {
@@ -21,32 +21,26 @@ const trendConfig = {
     none: { icon: ArrowRight, color: 'text-muted-foreground' }
 }
 
-export function StatsCard({ title, value, icon: Icon, trend, trendDirection, actions }: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, trend, trendDirection }: StatsCardProps) {
   const TrendIcon = trendConfig[trendDirection].icon;
   const trendColor = trendConfig[trendDirection].color;
+
+  const handleQuickAction = (action: string) => {
+    trackEvent({
+        eventName: 'quick_action',
+        properties: {
+            action: action,
+            target_type: 'kpi_card',
+            target_id: title
+        }
+    })
+  }
 
   return (
       <Card className="flex flex-col transition-all duration-200 hover:shadow-lg hover:scale-[1.02]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            {actions && actions.length > 0 ? (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <MoreHorizontal className="h-4 w-4"/>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {actions.map((action, i) => (
-                           <DropdownMenuItem key={i} asChild>
-                             {action.href ? <Link href={action.href}>{action.label}</Link> : <button onClick={action.action} className="w-full text-left">{action.label}</button>}
-                           </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            ) : (
-                 <Icon className="h-4 w-4 text-muted-foreground" />
-            )}
+          <Icon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold">{value}</div>
