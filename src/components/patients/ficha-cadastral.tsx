@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -17,6 +18,7 @@ import Link from 'next/link';
 import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -87,8 +89,14 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
         <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-8 space-y-6">
                 
-                <FieldSet legend="Identificação">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                             <User className="w-5 h-5 text-primary" />
+                             Identificação
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField label="Nome Completo">
                             {isEditing ? <Input value={editedData.firstName + ' ' + editedData.lastName} disabled /> : <span>{displayData.firstName} {displayData.lastName}</span>}
                         </FormField>
@@ -128,11 +136,17 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         <FormField label="Estado Civil">
                             {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
                         </FormField>
-                    </div>
-                </FieldSet>
+                    </CardContent>
+                </Card>
                 
-                 <FieldSet legend="Contatos">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                             <Phone className="w-5 h-5 text-primary" />
+                             Contatos
+                        </CardTitle>
+                    </CardHeader>
+                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <FormField label="Telefone Principal">
                             <span>{displayData.phones?.[0]?.number}</span>
                              <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
@@ -144,28 +158,36 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         <FormField label="Contato Preferencial">
                             <span>{displayData.preferredContactMethod}</span>
                         </FormField>
-                     </div>
-                </FieldSet>
+                     </CardContent>
+                </Card>
                 
-                 <FieldSet legend="Contatos de Emergência">
-                     <div className="space-y-3">
-                        {displayData.emergencyContacts?.map((contact, index) => (
-                        <div key={index} className="flex items-center justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                            <div className="flex items-center gap-3">
-                                <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                                <div>
-                                    <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                    <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                            <Users className="w-5 h-5 text-primary" />
+                            Contatos de Emergência
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            {displayData.emergencyContacts?.map((contact, index) => (
+                            <div key={index} className="flex items-center justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                                <div className="flex items-center gap-3">
+                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                    <div>
+                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                                <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                            </div>
+                            ))}
                         </div>
-                        ))}
-                    </div>
-                 </FieldSet>
+                    </CardContent>
+                 </Card>
 
             </div>
 
