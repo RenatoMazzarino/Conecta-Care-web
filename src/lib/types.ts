@@ -3,29 +3,31 @@
 import { LucideIcon } from 'lucide-react';
 
 export type Patient = {
-  id: string; // 1. Dados Pessoais
-  name: string; // 1. Dados Pessoais
-  socialName?: string; // 1. Dados Pessoais
-  cpf: string; // 1. Dados Pessoais
-  rg?: string; // 1. Dados Pessoais
-  rgEmissor?: string; // 1. Dados Pessoais
-  dateOfBirth: string; // 1. Dados Pessoais
-  sexo?: 'Masculino' | 'Feminino' | 'Outro'; // 1. Dados Pessoais
-  estadoCivil?: string; // 1. Dados Pessoais
-  nacionalidade?: string; // 1. Dados Pessoais
-  naturalidade?: string; // 1. Dados Pessoais
-  email: string; // 1. Dados Pessoais
-  phone: string; // 1. Dados Pessoais
-  emergencyContact: { // 1. Dados Pessoais
+  // 1. Dados Pessoais
+  id: string;
+  name: string;
+  socialName?: string;
+  cpf: string;
+  rg?: string;
+  rgEmissor?: string;
+  dateOfBirth: string;
+  sexo?: 'Masculino' | 'Feminino' | 'Outro';
+  estadoCivil?: string;
+  nacionalidade?: string;
+  naturalidade?: string;
+  email: string;
+  phone: string;
+  emergencyContact: {
     name: string;
     relationship: string;
     phone: string;
   };
-  avatarUrl: string; // 1. Dados Pessoais
+  avatarUrl: string;
   avatarHint: string;
-  rgDigitalUrl?: string; // 1. Dados Pessoais
+  rgDigitalUrl?: string;
 
-  address: { // 2. Endereço
+  // 2. Endereço
+  address: {
     street: string;
     number: string;
     complement?: string;
@@ -41,7 +43,8 @@ export type Patient = {
     animalDescricao?: string;
   };
 
-  clinicalData: { // 3. Dados Clínicos
+  // 3. Dados Clínicos
+  clinicalData: {
     diagnosticoPrincipal: string;
     diagnosticosSecundarios?: string[];
     cid?: string[];
@@ -51,12 +54,19 @@ export type Patient = {
     estadoConsciencia?: string;
     dispositivos?: ('GTT' | 'SNE' | 'CVD' | 'Traqueostomia')[];
     acessorios?: string;
+    medications: {
+        name: string;
+        dosage: string;
+        frequency: string;
+        notes?: string;
+    }[];
     ultimaAvaliacaoMedica?: string;
     ultimoExameLaboratorial?: string;
     observacoesGerais?: string;
   };
 
-  adminData: { // 4. Dados Administrativos
+  // 4. Dados Administrativos
+  adminData: {
     status: 'Ativo' | 'Inativo' | 'Suspenso';
     complexity: 'Baixa' | 'Média' | 'Alta';
     servicePackage: 'Básico' | 'Intermediário' | 'Completo';
@@ -70,7 +80,8 @@ export type Patient = {
     observacoesInternas?: string;
   };
   
-  financial: { // 5. Informações Financeiras
+  // 5. Informações Financeiras
+  financial: {
     vinculo: 'Plano de Saúde' | 'Particular' | 'Convênio' | 'Público';
     operadora?: string;
     carteirinha?: string;
@@ -81,7 +92,8 @@ export type Patient = {
     observacoesFinanceiras?: string;
   };
 
-  supportNetwork: { // 6. Rede de Apoio
+  // 6. Rede de Apoio
+  supportNetwork: {
       responsavelLegal: string;
       parentescoResponsavel: string;
       contatoResponsavel: string;
@@ -91,7 +103,8 @@ export type Patient = {
       familiaresAppIds?: string[];
   };
 
-  documents: { // 7. Documentos
+  // 7. Documentos
+  documents: {
       termoConsentimentoUrl?: string;
       termoLgpdUrl?: string;
       documentoComFotoUrl?: string;
@@ -101,15 +114,29 @@ export type Patient = {
       protocoloAuditoriaUrl?: string;
   };
 
-  audit: { // 8. Auditoria
+  // 8. Auditoria
+  audit: {
       createdAt: string;
       createdBy: string;
       updatedAt: string;
       updatedBy: string;
-      // historicoAlteracoes: any[]; // Log
   };
 
-  // Campos 9 e 10 são para IA e integrações futuras, podem ser omitidos do tipo principal por enquanto
+  // Deprecated fields to be removed
+  age?: number;
+  bloodType?: string;
+  familyContact?: any;
+  allergies?: any;
+  chronicConditions?: any;
+  medications?: any;
+  diet?: string;
+  lowStockCount?: number;
+  criticalStockCount?: number;
+  status?: 'Ativo' | 'Inativo';
+  complexity?: 'baixa' | 'media' | 'alta';
+  supervisorId?: string;
+  schedulerId?: string;
+  servicePackage?: string;
 };
 
 export type InventoryItem = {

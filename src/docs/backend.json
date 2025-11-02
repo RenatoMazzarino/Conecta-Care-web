@@ -31,6 +31,7 @@
           "required": ["name", "phone"]
         },
         "avatarUrl": { "type": "string", "format": "uri", "description": "1. Foto do Paciente para identificação visual." },
+        "avatarHint": { "type": "string" },
         "rgDigitalUrl": { "type": "string", "format": "uri", "description": "1. Upload do RG Digital para validação documental." },
         
         "address": {
@@ -66,6 +67,20 @@
             "estadoConsciencia": { "type": "string", "description": "Avaliação neurológica básica do paciente." },
             "dispositivos": { "type": "array", "items": { "type": "string", "enum": ["GTT", "SNE", "CVD", "Traqueostomia"] }, "description": "Uso de dispositivos como GTT, SNE, etc." },
             "acessorios": { "type": "string", "description": "Dispositivos e acessórios como cadeira de rodas, andador." },
+            "medications": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "dosage": {"type": "string"},
+                        "frequency": {"type": "string"},
+                        "notes": {"type": "string"}
+                    },
+                    "required": ["name", "dosage", "frequency"]
+                },
+                "description": "A list of medications the patient is taking."
+            },
             "ultimaAvaliacaoMedica": { "type": "string", "format": "date", "description": "Data da última avaliação médica." },
             "ultimoExameLaboratorial": { "type": "string", "format": "date", "description": "Data do último exame laboratorial." },
             "observacoesGerais": { "type": "string", "description": "Campo livre para observações clínicas gerais." }
