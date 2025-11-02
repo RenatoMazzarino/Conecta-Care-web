@@ -20,7 +20,7 @@ export const patients: Patient[] = [
     cpf: '123.456.789-00',
     rg: '12.345.678-9',
     rgEmissor: 'SSP/SP',
-    dateOfBirth: '1946-05-20',
+    dateOfBirth: '1945-05-20',
     sexo: 'Masculino',
     estadoCivil: 'Viúvo',
     nacionalidade: 'Brasileiro',
@@ -49,9 +49,11 @@ export const patients: Patient[] = [
       possuiAnimal: false,
     },
     clinicalData: {
-        diagnosticoPrincipal: 'Doença Pulmonar Obstrutiva Crônica (DPOC)',
-        diagnosticosSecundarios: ['Hipertensão Arterial Sistêmica', 'Diabetes Mellitus Tipo 2'],
-        cid: ['J44.9', 'I10', 'E11'],
+        diagnoses: [
+            { name: 'Doença Pulmonar Obstrutiva Crônica', code: 'J44.9' },
+            { name: 'Hipertensão Arterial Sistêmica', code: 'I10' },
+            { name: 'Diabetes Mellitus Tipo 2', code: 'E11' },
+        ],
         allergies: ['Penicilina'],
         restricoes: ['Dieta hipossódica'],
         mobilidade: 'Parcialmente Dependente',
@@ -73,7 +75,7 @@ export const patients: Patient[] = [
         billingDay: 10,
     },
     // Mock data for other sections to avoid breaking the app
-    adminData: { status: 'Ativo', complexity: 'Alta', servicePackage: 'Completo', dataInicioAtendimento: '2023-01-10' },
+    adminData: { status: 'Ativo', complexity: 'Alta', servicePackage: 'Completo', dataInicioAtendimento: '2023-01-10', supervisorId: 'prof-1', schedulerId: 'prof-5', },
     supportNetwork: { responsavelLegal: 'Maria da Silva', parentescoResponsavel: 'Filha', contatoResponsavel: '+55 (11) 98765-4321', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-01-10T10:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-20T15:00:00Z', updatedBy: 'Carla Nogueira' },
@@ -82,8 +84,6 @@ export const patients: Patient[] = [
     status: 'Ativo',
     complexity: 'alta',
     servicePackage: 'Completo',
-    supervisorId: 'prof-1',
-    schedulerId: 'prof-5',
     familyContact: {
       name: 'Maria da Silva',
       phone: '+55 (11) 98765-4321',
@@ -116,7 +116,9 @@ export const patients: Patient[] = [
       animalDescricao: '1 gato persa, tranquilo.',
     },
      clinicalData: {
-        diagnosticoPrincipal: 'Artrite Reumatoide',
+        diagnoses: [
+            { name: 'Artrite Reumatoide', code: 'M05' }
+        ],
         allergies: [],
         mobilidade: 'Autônomo',
         medications: [
@@ -129,14 +131,13 @@ export const patients: Patient[] = [
         monthlyFee: 8500,
         billingDay: 5,
     },
-    adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', dataInicioAtendimento: '2023-05-20' },
+    adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', dataInicioAtendimento: '2023-05-20', supervisorId: 'prof-3', },
     supportNetwork: { responsavelLegal: 'Carlos Lopes', parentescoResponsavel: 'Filho', contatoResponsavel: '+55 (21) 91234-5678', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-05-20T11:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-19T10:00:00Z', updatedBy: 'Admin' },
     status: 'Ativo',
     complexity: 'media',
     servicePackage: 'Intermediário',
-    supervisorId: 'prof-3',
   },
   {
     id: 'patient-789',
@@ -162,7 +163,9 @@ export const patients: Patient[] = [
       acessoAmbulancia: false,
     },
     clinicalData: {
-        diagnosticoPrincipal: 'Asma Crônica',
+        diagnoses: [
+            { name: 'Asma Crônica', code: 'J45' }
+        ],
         allergies: ['Iodo', 'Poeira'],
         mobilidade: 'Autônomo',
         medications: [],
@@ -174,15 +177,13 @@ export const patients: Patient[] = [
         monthlyFee: 950,
         billingDay: 15,
     },
-     adminData: { status: 'Inativo', complexity: 'Baixa', servicePackage: 'Básico', dataInicioAtendimento: '2024-01-15', dataTerminoAtendimento: '2024-06-30' },
+     adminData: { status: 'Inativo', complexity: 'Baixa', servicePackage: 'Básico', dataInicioAtendimento: '2024-01-15', dataTerminoAtendimento: '2024-06-30', supervisorId: 'prof-1', schedulerId: 'prof-5' },
     supportNetwork: { responsavelLegal: 'Ana Mendes', parentescoResponsavel: 'Esposa', contatoResponsavel: '+55 (31) 95555-8888', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2024-01-15T09:00:00Z', createdBy: 'Admin', updatedAt: '2024-06-30T18:00:00Z', updatedBy: 'Admin' },
     status: 'Inativo',
     complexity: 'baixa',
     servicePackage: 'Básico',
-    supervisorId: 'prof-1',
-    schedulerId: 'prof-5',
   },
 ];
 

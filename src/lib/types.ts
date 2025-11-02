@@ -2,6 +2,11 @@
 
 import { LucideIcon } from 'lucide-react';
 
+export type Diagnosis = {
+  name: string;
+  code: string;
+};
+
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
@@ -45,10 +50,11 @@ export type Patient = {
 
   // 3. Dados Clínicos e Assistenciais
   clinicalData: {
+    diagnoses: Diagnosis[];
     equipamentosDomiciliares?: string[];
-    diagnosticoPrincipal: string;
-    diagnosticosSecundarios?: string[];
-    cid?: string[];
+    diagnosticoPrincipal: string; // Deprecated
+    diagnosticosSecundarios?: string[]; // Deprecated
+    cid?: string[]; // Deprecated
     allergies: string[];
     restricoes?: string[];
     mobilidade?: 'Autônomo' | 'Parcialmente Dependente' | 'Acamado';

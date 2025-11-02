@@ -3,13 +3,13 @@
 'use client';
 
 import * as React from 'react';
-import type { Patient } from '@/lib/types';
+import type { Diagnosis, Patient } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -83,8 +83,26 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         handleChange('clinicalData.medications', newMeds);
     };
 
+    const addDiagnosis = () => {
+        if (!editedData) return;
+        const newDiagnoses = [...(editedData.clinicalData?.diagnoses || []), { name: '', code: '' }];
+        handleChange('clinicalData.diagnoses', newDiagnoses);
+    };
+
+    const removeDiagnosis = (index: number) => {
+        if (!editedData || !editedData.clinicalData?.diagnoses) return;
+        const newDiagnoses = editedData.clinicalData.diagnoses.filter((_, i) => i !== index);
+        handleChange('clinicalData.diagnoses', newDiagnoses);
+    };
+
+    const updateDiagnosis = (index: number, field: keyof Diagnosis, value: string) => {
+        if (!editedData || !editedData.clinicalData?.diagnoses) return;
+        const newDiagnoses = [...editedData.clinicalData.diagnoses];
+        newDiagnoses[index] = { ...newDiagnoses[index], [field]: value };
+        handleChange('clinicalData.diagnoses', newDiagnoses);
+    };
+
     const data = editedData || displayData;
-    const age = data.dateOfBirth ? `${new Date().getFullYear() - new Date(data.dateOfBirth).getFullYear()} anos` : '';
 
 
     if (!data) return null;
@@ -123,7 +141,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         </div>
                         <div>
                             <Label>Data de Nascimento</Label>
-                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
+                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}` : '-'}</ValueDisplay>}
                         </div>
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -286,19 +304,59 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
             <Card>
                 <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Stethoscope className="w-5 h-5 text-primary" />Dados Clínicos e Assistenciais</CardTitle></CardHeader>
                 <CardContent className="space-y-6">
-                    <div>
-                        <Label>Diagnóstico Principal</Label>
-                        {isEditing ? <Textarea value={data.clinicalData?.diagnosticoPrincipal || ''} onChange={e => handleChange('clinicalData.diagnosticoPrincipal', e.target.value)} /> : <ValueDisplay>{data.clinicalData?.diagnosticoPrincipal}</ValueDisplay>}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <Label>Diagnósticos Secundários</Label>
-                            {isEditing ? <Input value={data.clinicalData?.diagnosticosSecundarios?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.diagnosticosSecundarios', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.diagnosticosSecundarios} />}
+                    
+                     <div className="p-4 bg-muted/50 rounded-lg">
+                        <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-semibold flex items-center gap-2"><NotebookTabs className="w-4 h-4"/>Diagnósticos</h4>
+                            {isEditing && (
+                            <Button onClick={addDiagnosis} size="sm" variant="outline">
+                                <Plus className="w-4 h-4 mr-1" />
+                                Adicionar
+                            </Button>
+                            )}
                         </div>
-                        <div>
-                            <Label>CID(s)</Label>
-                            {isEditing ? <Input value={data.clinicalData?.cid?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.cid', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.cid} />}
-                        </div>
+                        {isEditing ? (
+                             <div className="space-y-4">
+                                {data.clinicalData?.diagnoses?.map((diag, index) => (
+                                    <Card key={index} className="p-4 bg-background">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <h4 className="font-medium">Diagnóstico {index + 1}</h4>
+                                            <Button onClick={() => removeDiagnosis(index)} size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10 h-7 w-7">
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-3">
+                                            <div>
+                                                <Label>Nome do Diagnóstico</Label>
+                                                <Input value={diag.name} onChange={(e) => updateDiagnosis(index, 'name', e.target.value)} />
+                                            </div>
+                                            <div>
+                                                <Label>Código (CID)</Label>
+                                                <Input value={diag.code} onChange={(e) => updateDiagnosis(index, 'code', e.target.value)} />
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                                {(!data.clinicalData?.diagnoses || data.clinicalData.diagnoses.length === 0) && (
+                                    <p className="text-muted-foreground text-center py-4">Nenhum diagnóstico para editar.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {data.clinicalData?.diagnoses?.length > 0 ? (
+                                    data.clinicalData.diagnoses.map((diag, i) => (
+                                    <div key={i} className="p-3 bg-secondary/30 rounded-lg">
+                                        <div className="flex justify-between items-start">
+                                            <p className="font-semibold text-secondary-foreground">{diag.name}</p>
+                                            {diag.code && <span className="text-xs font-mono bg-secondary-foreground/20 text-secondary-foreground py-0.5 px-1.5 rounded-sm">{diag.code}</span>}
+                                        </div>
+                                    </div>
+                                    ))
+                                ) : (
+                                    <p className="text-muted-foreground text-center py-4">Nenhum diagnóstico cadastrado.</p>
+                                )}
+                            </div>
+                        )}
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
