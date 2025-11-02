@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -432,7 +431,7 @@ export type GridShiftState = {
 export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
   active: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
   completed: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  pending: { base: 'bg-muted/60 dark:bg-gray-800 hover:bg-muted dark:hover:bg-gray-700', border: 'border-l-muted-foreground/30', text: 'text-gray-500 dark:text-gray-400' },
+  pending: { base: 'bg-card hover:bg-accent', border: 'border-l-muted-foreground/30', text: 'text-muted-foreground' },
   issue: { base: 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900', border: 'border-l-red-500', text: 'text-red-800 dark:text-red-200' },
   filled: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
   open: { base: 'bg-card', border: 'border-muted-foreground/30', text: 'text-muted-foreground' },
@@ -533,6 +532,7 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
 
