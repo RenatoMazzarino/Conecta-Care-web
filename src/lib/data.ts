@@ -2,7 +2,7 @@
 
 import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem } from './types';
 import { PlaceHolderImages } from './placeholder-images';
-import { format, addDays, startOfWeek, subMonths } from 'date-fns';
+import { format, addDays, startOfWeek, subMonths, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck, MapPin, AlertTriangle, Clock } from 'lucide-react';
 
@@ -74,20 +74,16 @@ export const patients: Patient[] = [
         monthlyFee: 1200,
         billingDay: 10,
     },
-    // Mock data for other sections to avoid breaking the app
     adminData: { status: 'Ativo', complexity: 'Alta', servicePackage: 'Completo', dataInicioAtendimento: '2023-01-10', supervisorId: 'prof-1', schedulerId: 'prof-5', },
     supportNetwork: { responsavelLegal: 'Maria da Silva', parentescoResponsavel: 'Filha', contatoResponsavel: '+55 (11) 98765-4321', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-01-10T10:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-20T15:00:00Z', updatedBy: 'Carla Nogueira' },
-
-    // Deprecated fields
-    status: 'Ativo',
-    complexity: 'alta',
-    servicePackage: 'Completo',
-    familyContact: {
-      name: 'Maria da Silva',
-      phone: '+55 (11) 98765-4321',
-    },
+    
+    // Operational data
+    last_visit_date: subDays(new Date(), 1).toISOString(),
+    next_visit_date: addDays(new Date(), 1).toISOString(),
+    consent_status: 'ok',
+    pending_documents: 0,
   },
   {
     id: 'patient-456',
@@ -132,12 +128,17 @@ export const patients: Patient[] = [
         billingDay: 5,
     },
     adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', dataInicioAtendimento: '2023-05-20', supervisorId: 'prof-3', },
-    supportNetwork: { responsavelLegal: 'Carlos Lopes', parentescoResponsavel: 'Filho', contatoResponsavel: '+55 (21) 91234-5678', autorizacaoAcessoDados: true },
-    documents: {},
+    supportNetwork: { responsavelLegal: 'Carlos Lopes', parentescoResponsavel: 'Filho', contatoResponsavel: '+55 (21) 91234-5678', autorizacaoAcessoDados: false },
+    documents: {
+        termoLgpdUrl: '#'
+    },
     audit: { createdAt: '2023-05-20T11:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-19T10:00:00Z', updatedBy: 'Admin' },
-    status: 'Ativo',
-    complexity: 'media',
-    servicePackage: 'Intermediário',
+
+     // Operational data
+    last_visit_date: subDays(new Date(), 5).toISOString(),
+    next_visit_date: addDays(new Date(), 3).toISOString(),
+    consent_status: 'pending',
+    pending_documents: 1,
   },
   {
     id: 'patient-789',
@@ -181,9 +182,11 @@ export const patients: Patient[] = [
     supportNetwork: { responsavelLegal: 'Ana Mendes', parentescoResponsavel: 'Esposa', contatoResponsavel: '+55 (31) 95555-8888', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2024-01-15T09:00:00Z', createdBy: 'Admin', updatedAt: '2024-06-30T18:00:00Z', updatedBy: 'Admin' },
-    status: 'Inativo',
-    complexity: 'baixa',
-    servicePackage: 'Básico',
+    
+     // Operational data
+    last_visit_date: subDays(new Date(), 30).toISOString(),
+    consent_status: 'ok',
+    pending_documents: 3,
   },
 ];
 
@@ -395,13 +398,7 @@ export const mockShiftHistory: ShiftHistoryEvent[] = [
     { time: '20:10', event: 'Fim do Plantão', details: 'Aguardando finalização do plantão.', icon: Clock, status: 'late' },
 ];
 
-export const mockPatients = patients.map(p => ({
-  ...p,
-  lowStockCount: 0,
-  criticalStockCount: 0,
-}));
-
-export const inventory: InventoryItem[] = [
+export const mockInventory: InventoryItem[] = [
   { id: 'item-001', name: 'Gaze Estéril', description: 'Pacote com 10 unidades 10x10cm', stock: 45, lowStockThreshold: 20 },
   { id: 'item-002', name: 'Pomada Antibiótica', description: 'Tubo de 30g', stock: 8, lowStockThreshold: 5 },
   { id: 'item-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', stock: 12, lowStockThreshold: 10 },
@@ -411,7 +408,6 @@ export const inventory: InventoryItem[] = [
   { id: 'item-007', name: 'Curativos Adesivos', description: 'Caixa com tamanhos variados', stock: 150, lowStockThreshold: 50 },
   { id: 'item-008', name: 'Álcool 70%', description: 'Frasco de 1L', stock: 1, lowStockThreshold: 2 },
 ];
-export const mockInventory = inventory;
 
 export const mockShiftReports: ShiftReport[] = [
   {

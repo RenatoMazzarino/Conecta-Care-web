@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -12,16 +13,32 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { FileText } from 'lucide-react';
+import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { format, formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-const complexityVariant: { [key in Patient['complexity']]: string } = {
-    baixa: 'bg-green-100 text-green-800 border-green-200',
-    media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    alta: 'bg-red-100 text-red-800 border-red-200',
+const complexityVariant: { [key in Patient['adminData']['complexity']]: string } = {
+    Baixa: 'bg-green-100 text-green-800 border-green-200',
+    Média: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    Alta: 'bg-red-100 text-red-800 border-red-200',
+}
+
+function formatVisitDate(dateString?: string) {
+    if (!dateString) return { text: '-', inPast: false };
+    const date = new Date(dateString);
+    const now = new Date();
+    const isPast = date < now;
+    const formattedDate = formatDistanceToNow(date, { addSuffix: true, locale: ptBR });
+    return {
+        text: formattedDate,
+        inPast: isPast
+    }
 }
 
 export function PatientTable({ 
@@ -84,8 +101,7 @@ export function PatientTable({
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
             <TableHead>Complexidade</TableHead>
-            <TableHead>Pacote de Serviços</TableHead>
-            <TableHead>Vínculo</TableHead>
+            <TableHead>Próximo/Último Plantão</TableHead>
             <TableHead>Supervisor</TableHead>
             <TableHead>Escalista</TableHead>
             <TableHead className="text-right w-[100px]">Ações</TableHead>
@@ -93,8 +109,10 @@ export function PatientTable({
         </TableHeader>
         <TableBody>
           {patients.map((patient) => {
-            const supervisorName = patient.supervisorId ? professionalMap.get(patient.supervisorId) : '-';
-            const schedulerName = patient.schedulerId ? professionalMap.get(patient.schedulerId) : '-';
+            const supervisorName = patient.adminData.supervisorId ? professionalMap.get(patient.adminData.supervisorId) : '-';
+            const schedulerName = patient.adminData.schedulerId ? professionalMap.get(patient.adminData.schedulerId) : '-';
+            const visitDate = patient.next_visit_date ? formatVisitDate(patient.next_visit_date) : formatVisitDate(patient.last_visit_date);
+            const hasPendingItems = patient.consent_status === 'pending' || patient.pending_documents > 0;
             
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
@@ -117,32 +135,39 @@ export function PatientTable({
                             </Avatar>
                             <span className={cn(
                                 "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-card",
-                                patient.status === 'Ativo' ? 'bg-green-500' : 'bg-gray-400'
+                                patient.adminData.status === 'Ativo' ? 'bg-green-500' : 'bg-gray-400'
                             )} />
                         </div>
-                        <span className="font-medium group-hover:underline">{patient.name}</span>
+                        <div className="flex items-center gap-2">
+                             <span className="font-medium group-hover:underline">{patient.name}</span>
+                             {hasPendingItems && (
+                                 <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Pendências no cadastro!</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                 </TooltipProvider>
+                             )}
+                        </div>
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Badge variant="outline" className={complexityVariant[patient.complexity]}>
-                        {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)}
-                    </Badge>
-                </TableCell>
-                 <TableCell>
-                    <Badge variant="outline">
-                        {patient.servicePackage}
+                    <Badge variant="outline" className={complexityVariant[patient.adminData.complexity]}>
+                        {patient.adminData.complexity}
                     </Badge>
                 </TableCell>
                 <TableCell>
-                    <Badge variant="outline">
-                        {patient.financial.plan === 'plano_de_saude' 
-                        ? `Plano: ${patient.financial.healthPlan || 'Não especificado'}` 
-                        : 'Particular'}
-                    </Badge>
+                     <div className={cn("text-sm", visitDate.inPast ? "text-muted-foreground" : "text-foreground")}>
+                        {visitDate.text}
+                    </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {patient.supervisorId && supervisorName ? (
-                    <Link href={`/team/${patient.supervisorId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
+                  {patient.adminData.supervisorId && supervisorName ? (
+                    <Link href={`/team/${patient.adminData.supervisorId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
                       {supervisorName}
                     </Link>
                   ) : (
@@ -150,19 +175,40 @@ export function PatientTable({
                   )}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {patient.schedulerId && schedulerName ? (
-                    <Link href={`/team/${patient.schedulerId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
+                  {patient.adminData.schedulerId && schedulerName ? (
+                    <Link href={`/team/${patient.adminData.schedulerId}`} onClick={e => e.stopPropagation()} className="hover:underline hover:text-primary transition-colors">
                       {schedulerName}
                     </Link>
                   ) : (
                     '-'
                   )}
                 </TableCell>
-                <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => onViewDetails(patient.id)}>
-                        <FileText className="mr-2 h-4 w-4" />
-                        Detalhes
-                    </Button>
+                <TableCell className="text-right">
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onViewDetails(patient.id)}>
+                                <FileText className="mr-2 h-4 w-4" />
+                                Ver Detalhes
+                            </DropdownMenuItem>
+                             <DropdownMenuItem>
+                                <CalendarPlus className="mr-2 h-4 w-4" />
+                                Agendar Plantão
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                Chat com a Família
+                            </DropdownMenuItem>
+                             <DropdownMenuItem>
+                                <FileUp className="mr-2 h-4 w-4" />
+                                Anexar Documento
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </TableCell>
                 </TableRow>
             )

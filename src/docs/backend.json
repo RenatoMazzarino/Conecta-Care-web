@@ -70,9 +70,6 @@
               }
             },
             "equipamentosDomiciliares": { "type": "array", "items": { "type": "string" }, "description": "Equipamentos como oxigênio, cama hospitalar, etc." },
-            "diagnosticoPrincipal": { "type": "string", "description": "Diagnóstico principal que baseia o plano de cuidado. CAMPO DEPRECADO" },
-            "diagnosticosSecundarios": { "type": "array", "items": { "type": "string" }, "description": "Diagnósticos secundários para contexto clínico. CAMPO DEPRECADO" },
-            "cid": { "type": "array", "items": { "type": "string" }, "description": "Códigos CID para indexação médica. CAMPO DEPRECADO" },
             "allergies": { "type": "array", "items": { "type": "string" }, "description": "Lista de alergias conhecidas." },
             "restricoes": { "type": "array", "items": { "type": "string" }, "description": "Restrições alimentares, físicas, etc." },
             "mobilidade": { "type": "string", "enum": ["Autônomo", "Parcialmente Dependente", "Acamado"], "description": "Escala de dependência de mobilidade." },
@@ -169,7 +166,12 @@
             "updatedAt": { "type": "string", "format": "date-time" },
             "updatedBy": { "type": "string" }
           }
-        }
+        },
+        
+        "last_visit_date": { "type": "string", "format": "date", "description": "9. Data do último plantão/visita." },
+        "next_visit_date": { "type": "string", "format": "date", "description": "9. Data do próximo plantão/visita agendado." },
+        "consent_status": { "type": "string", "enum": ["ok", "pending"], "description": "9. Status do termo de consentimento (LGPD)." },
+        "pending_documents": { "type": "number", "description": "9. Contagem de documentos importantes faltando." }
       },
       "required": [ "id", "name", "cpf", "dateOfBirth", "address" ]
     },

@@ -1,5 +1,4 @@
 
-
 import { LucideIcon } from 'lucide-react';
 
 export type Diagnosis = {
@@ -52,9 +51,6 @@ export type Patient = {
   clinicalData: {
     diagnoses: Diagnosis[];
     equipamentosDomiciliares?: string[];
-    diagnosticoPrincipal: string; // Deprecated
-    diagnosticosSecundarios?: string[]; // Deprecated
-    cid?: string[]; // Deprecated
     allergies: string[];
     restricoes?: string[];
     mobilidade?: 'Autônomo' | 'Parcialmente Dependente' | 'Acamado';
@@ -128,22 +124,12 @@ export type Patient = {
       updatedAt: string;
       updatedBy: string;
   };
-
-  // Deprecated fields to be removed
-  age?: number;
-  bloodType?: string;
-  familyContact?: any;
-  allergies?: any;
-  chronicConditions?: any;
-  medications?: any;
-  diet?: string;
-  lowStockCount?: number;
-  criticalStockCount?: number;
-  status?: 'Ativo' | 'Inativo';
-  complexity?: 'baixa' | 'media' | 'alta';
-  supervisorId?: string;
-  schedulerId?: string;
-  servicePackage?: string;
+  
+  // 9. Dados operacionais (para a lista)
+  last_visit_date?: string;
+  next_visit_date?: string;
+  consent_status: 'ok' | 'pending';
+  pending_documents: number;
 };
 
 export type InventoryItem = {
@@ -302,5 +288,3 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
-
-    
