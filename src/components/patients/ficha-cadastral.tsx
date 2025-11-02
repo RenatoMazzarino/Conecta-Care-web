@@ -16,11 +16,12 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { EditMode } from './patient-details-panel';
+import { Badge } from '@/components/ui/badge';
 
 // Define a simple SVG icon for WhatsApp
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 32 32" {...props}>
-      <path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm12.108-2.162c-2.31-2.31-5.4-3.582-8.664-3.582-6.8 0-12.32 5.52-12.32 12.32 0 2.162.56 4.212 1.562 5.952L2.5 29.5l4.68-1.562c1.632 1 3.582 1.562 5.82 1.562 6.8 0 12.32-5.52 12.32-12.32 0-3.264-1.272-6.354-3.582-8.664zM13 27.5c-2.088 0-4.044-.81-5.52-2.28l-.372-.444-4.152 1.39 1.432-4.044-.444-.372c-1.47-1.47-2.28-3.432-2.28-5.52 0-5.49 4.47-9.96 9.96-9.96 2.688 0 5.16 1.044 7.044 2.928 1.884 1.884 2.928 4.356 2.928 7.044-.012 5.48-4.47 9.96-9.96 9.96z" fill="#FFF" />
+      <path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm12.108-2.162c-2.31-2.31-5.4-3.582-8.664-3.582-6.8 0-12.32 5.52-12.32 12.32 0 2.162.56 4.212 1.562 5.952L2.5 29.5l4.68-1.562c1.632 1 3.582 1.562 5.82 1.562 6.8 0 12.32-5.52 12.32-12.32 0-3.264-1.272-6.354-3.582-8.664zM13 27.5c-2.088 0-4.044-.81-5.52-2.28l-.372-.444-4.152 1.39 1.432-4.044-.444-.372c-1.47-1.47-2.28-3.432-2.28-5.52 0-5.49 4.47-9.96 9.96-9.96 2.688 0 5.16 1.044 7.044 2.928 1.884 1.884 2.928 4.356 2.928 7.044-.012 5.48-4.47 9.96-9.96 9.96z" fillRule="evenodd" />
     </svg>
 );
 
@@ -141,11 +142,9 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
       <AccordionItem value="dadosPessoais" className="border-b-0">
         <Card>
           <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
-            <div className="flex justify-between items-center">
+             <div className="flex justify-between items-center w-full">
               <AccordionTrigger className="flex-1 p-0">
-                <div className="flex justify-between items-center w-full">
                   <CardTitle className="text-xl">1. Dados Pessoais e Contato</CardTitle>
-                </div>
               </AccordionTrigger>
               <CardEditButton card="dadosPessoais" editMode={editMode} setEditMode={setEditMode} />
             </div>
@@ -412,7 +411,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
       <AccordionItem value="endereco" className="border-b-0">
         <Card>
            <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
-             <div className="flex justify-between items-center">
+             <div className="flex justify-between items-center w-full">
               <AccordionTrigger className="flex-1 p-0">
                   <CardTitle className="text-xl">2. Endereço e Ambiente Domiciliar</CardTitle>
               </AccordionTrigger>
@@ -488,7 +487,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
        <AccordionItem value="clinico" className="border-b-0">
         <Card>
           <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
-             <div className="flex justify-between items-center">
+             <div className="flex justify-between items-center w-full">
               <AccordionTrigger className="flex-1 p-0">
                   <CardTitle className="text-xl">3. Dados Clínicos e Assistenciais</CardTitle>
               </AccordionTrigger>
@@ -508,7 +507,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
        <AccordionItem value="administrativo" className="border-b-0">
         <Card>
           <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
-             <div className="flex justify-between items-center">
+             <div className="flex justify-between items-center w-full">
               <AccordionTrigger className="flex-1 p-0">
                   <CardTitle className="text-xl">4. Dados Administrativos</CardTitle>
               </AccordionTrigger>
