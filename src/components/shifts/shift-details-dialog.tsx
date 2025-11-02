@@ -205,6 +205,23 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                                     </AlertDescription>
                                 </Alert>
                             )}
+                             <div className="flex items-center justify-between p-4 rounded-lg border bg-background">
+                                <div className="flex items-center space-x-3">
+                                    <Megaphone className="h-6 w-6 text-amber-600"/>
+                                    <div>
+                                        <Label htmlFor="urgent-switch-publish" className="font-semibold">
+                                            Marcação Urgente
+                                        </Label>
+                                        <p className="text-xs text-muted-foreground">A vaga será destacada para atrair mais profissionais.</p>
+                                    </div>
+                                </div>
+                                <Switch 
+                                    id="urgent-switch-publish"
+                                    checked={publishData.isUrgent} 
+                                    onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} 
+                                    className="data-[state=checked]:bg-amber-500"
+                                />
+                            </div>
                           </CardContent>
                         </Card>
                         
