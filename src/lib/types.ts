@@ -13,6 +13,7 @@ export type Patient = {
   firstName: string;
   lastName: string;
   displayName: string;
+  initials: string;
   pronouns?: 'Sr.' | 'Sra.' | 'Sre.' | 'none';
   avatarUrl: string;
   avatarHint: string;
