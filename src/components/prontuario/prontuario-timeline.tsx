@@ -32,9 +32,11 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                 </CardTitle>
             </CardHeader>
             <CardContent className="relative pt-6">
-                <div className="absolute left-6 top-6 bottom-6 w-2 bg-muted rounded-full">
+                {/* Vertical track bar */}
+                <div className="absolute left-4 top-6 bottom-6 w-2 bg-muted rounded-full" style={{ transform: 'translateX(-50%)' }}>
+                     {/* Progress bar with shimmer */}
                      <div 
-                        className="absolute top-0 left-0 w-full bg-primary rounded-full animate-pulse"
+                        className="absolute top-0 left-0 w-full bg-primary rounded-full"
                         style={{ 
                             height: `${currentProgress}%`,
                             backgroundImage: 'linear-gradient(110deg, hsl(var(--primary)), 45%, hsl(var(--primary-foreground)), 55%, hsl(var(--primary)))',
