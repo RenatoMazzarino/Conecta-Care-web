@@ -6,8 +6,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit, FileHeart } from 'lucide-react';
+import { Save, X, FileText, Upload, BookUser, ArrowLeft, Stethoscope, Dumbbell, Apple, Activity, Brain, Bone, Edit, FileHeart, Gavel } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
+import { trackEvent } from '@/lib/analytics';
 
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
 import { ProntuarioEnfermagem } from '@/components/prontuario/prontuario-enfermagem';
@@ -20,6 +21,8 @@ import { patients as mockPatients } from '@/lib/data';
 import { FichaCadastral } from './ficha-cadastral';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import Link from 'next/link';
 
 
 interface PatientDetailsPanelProps {
@@ -38,7 +41,29 @@ const prontuarioTabs = [
   { id: 'psicologia', label: 'Psicologia', icon: Brain },
   { id: 'fonoaudiologia', label: 'Fonoaudiologia', icon: Bone },
   { id: 'documentos', label: 'Documentos', icon: FileText },
+  { id: 'juridico', label: 'Jurídico', icon: Gavel },
 ];
+
+const ProntuarioJuridico: React.FC = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Termos e Consentimentos</CardTitle>
+        <CardDescription>
+          Gerenciamento de consentimentos e documentos legais do paciente.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="p-4 border rounded-md bg-muted/50">
+            <h4 className="font-semibold">Termo de Consentimento para Tratamento de Dados (LGPD)</h4>
+            <p className="text-sm text-muted-foreground mt-1">Assinado em 20 de Janeiro de 2023</p>
+            <Button variant="link" asChild className="px-0 h-auto mt-2">
+                <Link href="#" target="_blank">Visualizar Documento</Link>
+            </Button>
+        </div>
+      </CardContent>
+    </Card>
+);
+
 
 const ProntuarioContent: React.FC<{ tabId: string; isEditing: boolean; editedData: Patient | null; setEditedData: (data: Patient | null) => void; }> = ({ tabId, isEditing, editedData, setEditedData }) => {
     switch (tabId) {
@@ -48,6 +73,7 @@ const ProntuarioContent: React.FC<{ tabId: string; isEditing: boolean; editedDat
       case 'fisioterapia': return <ProntuarioFisioterapia />;
       case 'nutricao': return <ProntuarioNutricao />;
       case 'documentos': return <ProntuarioDocumentos />;
+      case 'juridico': return <ProntuarioJuridico />;
       default: return (
         <div className="flex items-center justify-center h-full text-muted-foreground p-8 text-center">
           <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 h-80">
@@ -83,6 +109,15 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
         setPatient(foundPatient || null);
         if (foundPatient) {
           setEditedData(JSON.parse(JSON.stringify(foundPatient)));
+          // Track event for auditing purposes (LGPD)
+          trackEvent({
+              eventName: 'patient_record_viewed',
+              properties: {
+                  patientId: foundPatient.id,
+                  userId: 'user-123', // Placeholder for current user's ID
+                  timestamp: new Date().toISOString()
+              }
+          })
         } else {
           setEditedData(null);
         }
@@ -135,8 +170,6 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                   ) : (
                     <span>
                       {age ? `${age} anos` : ''}
-                      {age && displayData?.cpf ? ' \u2022 ' : ''}
-                      {displayData?.cpf}
                     </span>
                   )}
                 </div>
@@ -187,7 +220,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
 
             {!isLoading && displayData && currentView === 'prontuario' && (
                <Tabs defaultValue="dashboard" value={activeProntuarioTab} onValueChange={setActiveProntuarioTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-8">
+                  <TabsList className={cn("grid w-full", `grid-cols-${prontuarioTabs.length}`)}>
                     {prontuarioTabs.map(tab => (
                       <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
                         <tab.icon className="h-4 w-4" />

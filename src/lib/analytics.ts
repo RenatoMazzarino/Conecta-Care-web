@@ -65,7 +65,16 @@ type AnalyticsEvent =
         type: string;
         target_url: string;
       };
+    }
+  | {
+      eventName: 'patient_record_viewed';
+      properties: {
+        patientId: string;
+        userId: string; // ID of the user viewing the record
+        timestamp: string;
+      }
     };
+
 
 /**
  * Placeholder function to track analytics events.
