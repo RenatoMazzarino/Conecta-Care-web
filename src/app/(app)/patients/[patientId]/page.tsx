@@ -21,10 +21,13 @@ import { Shield, AlertTriangle, Star } from 'lucide-react';
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
 const TABS = [
-    { id: "ficha", label: "Ficha Cadastral" },
-    { id: "clinico", label: "Dados Clínicos" },
-    { id: "financeiro", label: "Financeiro" },
+    { id: "pessoais", label: "Dados Pessoais" },
+    { id: "endereco", label: "Endereço e Ambiente" },
+    { id: "clinicos", label: "Dados Clínicos" },
     { id: "administrativo", label: "Administrativo" },
+    { id: "financeiro", label: "Financeiro" },
+    { id: "documentos", label: "Documentos e Consentimentos" },
+    { id: "auditoria", label: "Histórico e Auditoria" },
 ];
 
 export default function PatientProfilePage() {
@@ -126,7 +129,7 @@ export default function PatientProfilePage() {
                             {fullName} <span className="text-sm text-muted-foreground">— {displayData.displayName}</span>
                         </h2>
                         <div className="mt-1 text-sm text-slate-600 flex items-center">
-                            {age && <span>{age}</span>}
+                            {age && <span>{age} anos</span>}
                             <span className="mx-2">•</span>
                             <span className="text-sm text-slate-500">CPF: <strong>{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
                         </div>
@@ -163,14 +166,14 @@ export default function PatientProfilePage() {
             </div>
         </Card>
 
-        <Tabs defaultValue="ficha">
+        <Tabs defaultValue="pessoais">
             <TabsList className="mb-6">
                 {TABS.map(tab => (
                     <TabsTrigger key={tab.id} value={tab.id}>{tab.label}</TabsTrigger>
                 ))}
             </TabsList>
 
-            <TabsContent value="ficha">
+            <TabsContent value="pessoais">
                  <FichaCadastral 
                     editMode={editMode} 
                     setEditMode={setEditMode} 
@@ -180,11 +183,33 @@ export default function PatientProfilePage() {
                 />
             </TabsContent>
             
-             <TabsContent value="clinico">
+             <TabsContent value="endereco">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Endereço e Ambiente</CardTitle>
+                        <CardDescription>Esta seção conterá os detalhes de endereço e ambiente domiciliar.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Em breve.</p>
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+            <TabsContent value="clinicos">
                  <Card>
                     <CardHeader>
                         <CardTitle>Dados Clínicos</CardTitle>
                         <CardDescription>Esta seção conterá os dados clínicos detalhados do paciente.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Em breve.</p>
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+            <TabsContent value="administrativo">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Administrativo</CardTitle>
+                        <CardDescription>Esta seção conterá os dados administrativos do paciente.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">Em breve.</p>
@@ -202,11 +227,22 @@ export default function PatientProfilePage() {
                     </CardContent>
                  </Card>
             </TabsContent>
-             <TabsContent value="administrativo">
+             <TabsContent value="documentos">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Administrativo</CardTitle>
-                        <CardDescription>Esta seção conterá os dados administrativos do paciente.</CardDescription>
+                        <CardTitle>Documentos e Consentimentos</CardTitle>
+                        <CardDescription>Esta seção conterá os documentos e consentimentos do paciente.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Em breve.</p>
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+            <TabsContent value="auditoria">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Histórico e Auditoria</CardTitle>
+                        <CardDescription>Esta seção conterá o histórico de alterações do paciente.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">Em breve.</p>
