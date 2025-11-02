@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
+import { Button } from '../ui/button';
 
 interface FichaCadastralProps {
     isEditing: boolean;
@@ -25,9 +26,9 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         if (!editedData) return;
         const keys = path.split('.');
         const newEditedData = JSON.parse(JSON.stringify(editedData)); // Deep copy
-        let current = newEditedData;
+        let current: any = newEditedData;
         for (let i = 0; i < keys.length - 1; i++) {
-            if (current[keys[i]] === undefined) {
+            if (current[keys[i]] === undefined || current[keys[i]] === null) {
               current[keys[i]] = {}; // Create nested object if it doesn't exist
             }
             current = current[keys[i]];
@@ -35,12 +36,42 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         current[keys[keys.length - 1]] = value;
         setEditedData(newEditedData);
     };
+
+    const handleArrayChange = (path: string, value: string) => {
+        const newArray = value.split(',').map(item => item.trim()).filter(Boolean);
+        handleChange(path, newArray);
+    }
     
     const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
         <div className={cn("font-medium mt-1 text-sm text-foreground break-words", className)}>
             {children || '-'}
         </div>
     );
+
+    const ArrayValueDisplay = ({ value }: { value?: string[] }) => (
+        <div className="font-medium mt-1 text-sm text-foreground break-words">
+            {value && value.length > 0 ? value.join(', ') : '-'}
+        </div>
+    );
+
+    const addMedication = () => {
+        if (!editedData) return;
+        const newMeds = [...(editedData.clinicalData?.medications || []), { name: '', dosage: '', frequency: '', notes: '' }];
+        handleChange('clinicalData.medications', newMeds);
+    };
+
+    const removeMedication = (index: number) => {
+        if (!editedData || !editedData.clinicalData?.medications) return;
+        const newMeds = editedData.clinicalData.medications.filter((_, i) => i !== index);
+        handleChange('clinicalData.medications', newMeds);
+    };
+
+    const updateMedication = (index: number, field: string, value: string) => {
+        if (!editedData || !editedData.clinicalData?.medications) return;
+        const newMeds = [...editedData.clinicalData.medications];
+        newMeds[index] = { ...newMeds[index], [field]: value };
+        handleChange('clinicalData.medications', newMeds);
+    };
 
     const data = editedData || displayData;
 
@@ -226,6 +257,144 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                     </div>
                 </CardContent>
             </Card>
+
+            {/* 3. DADOS CLÍNICOS E ASSISTENCIAIS */}
+            <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Stethoscope className="w-5 h-5 text-primary" />Dados Clínicos e Assistenciais</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <Label>Diagnóstico Principal</Label>
+                        {isEditing ? <Textarea value={data.clinicalData?.diagnosticoPrincipal || ''} onChange={e => handleChange('clinicalData.diagnosticoPrincipal', e.target.value)} /> : <ValueDisplay>{data.clinicalData?.diagnosticoPrincipal}</ValueDisplay>}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <Label>Diagnósticos Secundários</Label>
+                            {isEditing ? <Input value={data.clinicalData?.diagnosticosSecundarios?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.diagnosticosSecundarios', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.diagnosticosSecundarios} />}
+                        </div>
+                        <div>
+                            <Label>CID(s)</Label>
+                            {isEditing ? <Input value={data.clinicalData?.cid?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.cid', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.cid} />}
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <Label>Alergias</Label>
+                            {isEditing ? <Input value={data.clinicalData?.allergies?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.allergies', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.allergies} />}
+                        </div>
+                        <div>
+                            <Label>Restrições (alimentares, físicas, etc.)</Label>
+                            {isEditing ? <Input value={data.clinicalData?.restricoes?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.restricoes', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.restricoes} />}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <Label>Mobilidade</Label>
+                            {isEditing ? (
+                                <Select value={data.clinicalData?.mobilidade || ''} onValueChange={v => handleChange('clinicalData.mobilidade', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Autônomo">Autônomo</SelectItem>
+                                        <SelectItem value="Parcialmente Dependente">Parcialmente Dependente</SelectItem>
+                                        <SelectItem value="Acamado">Acamado</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ) : <ValueDisplay>{data.clinicalData?.mobilidade}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Estado de Consciência</Label>
+                            {isEditing ? <Input value={data.clinicalData?.estadoConsciencia || ''} onChange={e => handleChange('clinicalData.estadoConsciencia', e.target.value)} /> : <ValueDisplay>{data.clinicalData?.estadoConsciencia}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Dispositivos (GTT, SNE, etc.)</Label>
+                            {isEditing ? <Input value={data.clinicalData?.dispositivos?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.dispositivos', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.dispositivos} />}
+                        </div>
+                    </div>
+                     <div className="p-4 bg-muted/50 rounded-lg">
+                        <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-semibold flex items-center gap-2"><Pill className="w-4 h-4"/>Medicações em Uso</h4>
+                            {isEditing && (
+                            <Button onClick={addMedication} size="sm" variant="outline">
+                                <Plus className="w-4 h-4 mr-1" />
+                                Adicionar
+                            </Button>
+                            )}
+                        </div>
+                         {isEditing ? (
+                            <div className="space-y-4">
+                                {data.clinicalData?.medications?.map((med, index) => (
+                                    <Card key={index} className="p-4 bg-background">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <h4 className="font-medium">Medicação {index + 1}</h4>
+                                        <Button
+                                        onClick={() => removeMedication(index)}
+                                        size="icon"
+                                        variant="ghost"
+                                        className="text-destructive hover:bg-destructive/10 h-7 w-7"
+                                        >
+                                        <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <Label>Nome</Label>
+                                            <Input
+                                                value={med.name}
+                                                onChange={(e) => updateMedication(index, 'name', e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Dosagem</Label>
+                                            <Input
+                                                value={med.dosage}
+                                                onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-span-2 sm:col-span-1">
+                                            <Label>Frequência</Label>
+                                            <Input
+                                                value={med.frequency}
+                                                onChange={(e) => updateMedication(index, 'frequency', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="col-span-2">
+                                            <Label>Observações</Label>
+                                            <Input
+                                                value={med.notes || ''}
+                                                onChange={(e) => updateMedication(index, 'notes', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    </Card>
+                                ))}
+                                {(!data.clinicalData?.medications || data.clinicalData.medications.length === 0) && (
+                                    <p className="text-muted-foreground text-center py-4">Nenhuma medicação para editar.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {data.clinicalData?.medications?.length > 0 ? (
+                                    data.clinicalData.medications.map((med, i) => (
+                                    <div key={i} className="p-3 bg-secondary/30 rounded-lg">
+                                        <p className="font-semibold text-secondary-foreground">{med.name}</p>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                        {med.dosage} &bull; {med.frequency}
+                                        </p>
+                                        {med.notes && (
+                                        <p className="text-xs text-muted-foreground mt-2 italic">"{med.notes}"</p>
+                                        )}
+                                    </div>
+                                    ))
+                                ) : (
+                                    <p className="text-muted-foreground text-center py-4">Nenhuma medicação cadastrada</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
     )
 }
+
+    
