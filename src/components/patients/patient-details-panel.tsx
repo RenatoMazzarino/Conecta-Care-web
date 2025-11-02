@@ -147,7 +147,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                     </Avatar>
                   )
                )}
-               <div className="flex flex-col gap-2">
+               <div className="flex flex-col gap-1">
                 <SheetTitle className="text-xl">
                   {isLoading ? <Skeleton className="h-7 w-48" /> : <span>{displayData?.name}</span>}
                 </SheetTitle>
@@ -167,13 +167,13 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                              {primaryDiagnosis}
                         </Badge>
                      )}
-                     {allergies && allergies.length > 0 && (
-                        <Badge className="border border-red-300 bg-red-100 text-red-700 font-medium py-1 px-2 text-sm">
-                             <AlertTriangle className="w-4 h-4 mr-1.5 text-red-700"/>
-                             Alergia: {allergies.join(', ')}
-                        </Badge>
-                     )}
                 </div>
+                 {allergies && allergies.length > 0 && (
+                    <Badge variant="destructive" className="items-center gap-1.5 mt-1.5 py-1 px-2 text-sm w-fit">
+                        <AlertTriangle className="w-4 h-4"/>
+                        Alergia: {allergies.join(', ')}
+                    </Badge>
+                 )}
               </div>
             </div>
             <div className="flex items-center gap-2">
