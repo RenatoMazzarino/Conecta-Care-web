@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -25,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 
 interface PatientDetailsPanelProps {
@@ -162,6 +164,16 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
+               {isLoading ? (
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                ) : (
+                  displayData && (
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={displayData.avatarUrl} alt={displayData.name} />
+                      <AvatarFallback>{displayData.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                  )
+               )}
                <div>
                 <SheetTitle className="text-xl">
                   {isLoading ? <Skeleton className="h-7 w-48" /> : <span>{displayData?.name}</span>}

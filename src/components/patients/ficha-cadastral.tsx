@@ -98,32 +98,20 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
             {/* 1. DADOS PESSOAIS */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center gap-6">
-                        <Avatar className="h-24 w-24 border-4 shadow-sm">
-                            <AvatarImage src={data.avatarUrl} alt={data.name} data-ai-hint={data.avatarHint} />
-                            <AvatarFallback>{data.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                             <CardTitle className="flex items-center gap-2 text-xl mb-2"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
-                             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
-                                <div>
-                                    <Label>ID do Paciente</Label>
-                                    <ValueDisplay className="font-mono text-xs">{data.id}</ValueDisplay>
-                                </div>
-                                <div className="md:col-span-2">
-                                    <Label>Nome Completo</Label>
-                                    {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <CardTitle className="flex items-center gap-2 text-xl mb-2"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6 pt-6">
+                <CardContent className="space-y-6">
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
+                        <div className="md:col-span-2">
+                            <Label>Nome Completo</Label>
+                            {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
+                        </div>
+                         <div>
                             <Label>Nome Social</Label>
                             {isEditing ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
                         </div>
+                     </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <Label>CPF</Label>
                             {isEditing ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
@@ -132,12 +120,12 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             <Label>RG</Label>
                             {isEditing ? <Input value={data.rg || ''} onChange={e => handleChange('rg', e.target.value)} /> : <ValueDisplay>{data.rg}</ValueDisplay>}
                         </div>
-                     </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <Label>Órgão Emissor</Label>
                             {isEditing ? <Input value={data.rgEmissor || ''} onChange={e => handleChange('rgEmissor', e.target.value)} /> : <ValueDisplay>{data.rgEmissor}</ValueDisplay>}
                         </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <Label>Data de Nascimento</Label>
                             {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
@@ -155,12 +143,12 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 </Select>
                             ) : <ValueDisplay>{data.sexo}</ValueDisplay>}
                         </div>
-                    </div>
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                         <div>
+                        <div>
                             <Label>Estado Civil</Label>
                             {isEditing ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
                         </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
                             <Label>Nacionalidade</Label>
                             {isEditing ? <Input value={data.nacionalidade || ''} onChange={e => handleChange('nacionalidade', e.target.value)} /> : <ValueDisplay>{data.nacionalidade}</ValueDisplay>}
@@ -197,14 +185,21 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                         </div>
                     </div>
-                     <div className="p-4 bg-muted/50 rounded-lg">
-                        <h4 className="font-semibold mb-2 flex items-center gap-2"><FileText className="w-4 h-4" />Documentos Digitais</h4>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <Label>RG Digital (URL)</Label>
-                                {isEditing ? <Input value={data.rgDigitalUrl || ''} onChange={e => handleChange('rgDigitalUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.rgDigitalUrl} label="Visualizar RG"/>}
-                            </div>
-                         </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                        <Button variant="link" className="p-0 h-auto font-semibold text-foreground" onClick={() => alert('Abrir modal do Drive (futuro)')}>
+                            <h4 className="flex items-center gap-2"><FileText className="w-4 h-4" />Documentos Digitais</h4>
+                        </Button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <Label>RG Digital (URL)</Label>
+                            {isEditing ? (
+                            <Input value={data.rgDigitalUrl || ''} onChange={(e) => handleChange('rgDigitalUrl', e.target.value)} placeholder="https://..." />
+                            ) : (
+                            <LinkValueDisplay url={data.rgDigitalUrl} label="Visualizar RG" />
+                            )}
+                        </div>
+                        {/* Adicionar mais campos de documentos aqui conforme necessário */}
+                        </div>
                     </div>
                 </CardContent>
             </Card>
