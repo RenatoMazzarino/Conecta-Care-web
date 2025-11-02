@@ -8,21 +8,31 @@
       "description": "Representa um paciente recebendo serviços de homecare, com estrutura de dados ampliada.",
       "properties": {
         "id": { "type": "string", "description": "1. Identificador único para o paciente (Auto)." },
-        "name": { "type": "string", "description": "1. Nome completo para identificação civil." },
-        "socialName": { "type": "string", "description": "1. Nome social para inclusão e respeito à identidade." },
+        "fullName": { "type": "string", "description": "1. Nome completo legal." },
+        "displayName": { "type": "string", "description": "1. Nome preferido / nome social." },
         "pronouns": { "type": "string", "description": "1. Pronomes de preferência (ex: ele/dele, ela/dela)." },
         "cpf": { "type": "string", "description": "1. CPF para documentação." },
         "cns": { "type": "string", "description": "1. Cartão Nacional de Saúde (CNS)." },
         "rg": { "type": "string", "description": "1. RG para documentação complementar." },
-        "rgEmissor": { "type": "string", "description": "1. Órgão emissor do RG." },
+        "rgIssuer": { "type": "string", "description": "1. Órgão emissor do RG." },
         "dateOfBirth": { "type": "string", "format": "date", "description": "1. Data de Nascimento para cálculo de idade e protocolos." },
         "sexo": { "type": "string", "enum": ["Masculino", "Feminino", "Outro"], "description": "1. Sexo para estatísticas e protocolos." },
         "estadoCivil": { "type": "string", "description": "1. Estado civil para registro social." },
         "nacionalidade": { "type": "string", "description": "1. Nacionalidade para documentação." },
         "naturalidade": { "type": "string", "description": "1. Cidade/UF de nascimento para histórico civil." },
         "email": { "type": "string", "format": "email", "description": "1. Email para comunicação digital." },
-        "phone": { "type": "string", "description": "1. Telefone fixo para contato." },
-        "mobile": { "type": "string", "description": "1. Telefone celular para contato, geralmente usado para WhatsApp." },
+        "phones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["mobile", "home", "work"] },
+              "number": { "type": "string" },
+              "verified": { "type": "boolean" },
+              "preferred": { "type": "boolean" }
+            }
+          }
+        },
         "preferredContactMethod": { "type": "string", "enum": ["Telefone", "WhatsApp", "Email"], "description": "1. Método de contato preferencial." },
         "preferredLanguage": { "type": "string", "description": "1. Idioma de preferência para comunicação." },
         "emergencyContacts": {
@@ -184,7 +194,7 @@
         "consent_status": { "type": "string", "enum": ["ok", "pending"], "description": "9. Status do termo de consentimento (LGPD)." },
         "pending_documents": { "type": "number", "description": "9. Contagem de documentos importantes faltando." }
       },
-      "required": [ "id", "name", "cpf", "dateOfBirth", "address" ]
+      "required": [ "id", "fullName", "cpf", "dateOfBirth", "address" ]
     },
     "Professional": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -328,5 +338,3 @@
     "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/entities/Notification" }, "description": "Notifications for a patient." }
   }
 }
-
-    

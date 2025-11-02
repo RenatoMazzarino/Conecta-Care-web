@@ -116,7 +116,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     onPatientUpdate(editedData);
     toast({
       title: "Dados Salvos",
-      description: `As informações de ${editedData.name} foram atualizadas.`,
+      description: `As informações de ${editedData.displayName} foram atualizadas.`,
     });
     setEditMode('none');
   };
@@ -152,14 +152,14 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                 ) : (
                   displayData && (
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={displayData.avatarUrl} alt={displayData.name} />
-                      <AvatarFallback>{displayData.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                      <AvatarImage src={displayData.avatarUrl} alt={displayData.fullName} />
+                      <AvatarFallback>{displayData.displayName.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                     </Avatar>
                   )
                )}
                <div className="flex flex-col gap-1">
                 <SheetTitle className="text-xl">
-                  {isLoading ? <Skeleton className="h-7 w-48" /> : <span>{displayData?.name}</span>}
+                  {isLoading ? <Skeleton className="h-7 w-48" /> : <span>{displayData?.displayName}</span>}
                 </SheetTitle>
                 <div className="flex items-center gap-2 flex-wrap">
                     <SheetDescription className="text-sm text-muted-foreground">

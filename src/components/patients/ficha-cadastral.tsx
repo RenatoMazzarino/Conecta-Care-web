@@ -193,11 +193,11 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                             <div className="md:col-span-2">
                                 <Label>Nome Completo</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.fullName || ''} onChange={e => handleChange('fullName', e.target.value)} /> : <ValueDisplay>{data.fullName}</ValueDisplay>}
                             </div>
                              <div className="md:col-span-1">
                                 <Label>Nome Social</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.displayName || ''} onChange={e => handleChange('displayName', e.target.value)} /> : <ValueDisplay>{data.displayName}</ValueDisplay>}
                             </div>
                              <div className="md:col-span-1">
                                 <Label>Pronomes</Label>
@@ -252,11 +252,11 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                             </div>
                              <div>
                                 <Label>Telefone Celular (WhatsApp)</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.mobile || ''} onChange={e => handleChange('mobile', e.target.value)} /> : <PhoneValueDisplay value={data.mobile} />}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.phones.find(p => p.type === 'mobile')?.number || ''} onChange={e => handleChange('mobile', e.target.value)} /> : <PhoneValueDisplay value={data.phones.find(p => p.type === 'mobile')?.number} />}
                             </div>
                             <div>
                                 <Label>Telefone Fixo</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phone}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.phones.find(p => p.type === 'home')?.number || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phones.find(p => p.type === 'home')?.number}</ValueDisplay>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -889,5 +889,3 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         </Accordion>
     )
 }
-
-    

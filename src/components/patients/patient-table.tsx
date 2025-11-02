@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -165,7 +166,7 @@ export function PatientTable({
                     <Checkbox
                         checked={selectedPatients.has(patient.id)}
                         onCheckedChange={() => handleToggleSelect(patient.id)}
-                        aria-label={`Selecionar ${patient.name}`}
+                        aria-label={`Selecionar ${patient.fullName}`}
                     />
                 </TableCell>
                 <TableCell>
@@ -186,10 +187,10 @@ export function PatientTable({
                         className="flex items-center gap-3 group cursor-pointer"
                     >
                         <Avatar className="h-9 w-9">
-                            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
-                            <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            <AvatarImage src={patient.avatarUrl} alt={patient.fullName} data-ai-hint={patient.avatarHint} />
+                            <AvatarFallback>{patient.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
-                        <span className="font-medium group-hover:underline">{patient.name}</span>
+                        <span className="font-medium group-hover:underline">{patient.displayName}</span>
                     </div>
                 </TableCell>
                 <TableCell>

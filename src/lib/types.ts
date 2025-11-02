@@ -10,21 +10,27 @@ export type Diagnosis = {
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
-  name: string;
-  socialName?: string;
+  fullName: string; // Changed from name
+  displayName: string; // Changed from socialName
   pronouns?: string;
   cpf: string;
   cns?: string;
   rg?: string;
-  rgEmissor?: string;
+  rgIssuer?: string;
   dateOfBirth: string;
   sexo?: 'Masculino' | 'Feminino' | 'Outro';
   estadoCivil?: string;
   nacionalidade?: string;
   naturalidade?: string;
   email: string;
-  phone?: string; // Telefone Fixo
-  mobile?: string; // Celular
+  phone?: string; // To be deprecated
+  mobile?: string; // To be deprecated
+  phones: {
+    type: 'mobile' | 'home' | 'work';
+    number: string;
+    verified: boolean;
+    preferred: boolean;
+  }[];
   preferredContactMethod?: 'Telefone' | 'WhatsApp' | 'Email';
   preferredLanguage?: string;
   emergencyContacts: {
@@ -295,5 +301,3 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
-
-    
