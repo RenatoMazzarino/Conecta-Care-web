@@ -430,12 +430,12 @@ export type GridShiftState = {
 };
 
 export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  active: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  issue: { base: 'bg-amber-100 dark:bg-amber-950 hover:bg-amber-200/60 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
-  completed: { base: 'bg-green-100 dark:bg-green-950 hover:bg-green-200/60 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  filled: { base: 'bg-secondary hover:bg-secondary/80', border: 'border-l-gray-400', text: 'text-secondary-foreground' },
-  pending: { base: 'bg-blue-100 dark:bg-blue-950 hover:bg-blue-200/60 dark:hover:bg-blue-900 border-blue-500', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  open: { base: 'bg-card hover:bg-accent', border: 'border-l-border', text: 'text-foreground' },
+  active: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  issue: { base: 'bg-amber-50 dark:bg-amber-950 hover:bg-amber-100 dark:hover:bg-amber-900', border: 'border-l-amber-500', text: 'text-amber-800 dark:text-amber-200' },
+  completed: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
+  filled: { base: 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700', border: 'border-l-slate-400', text: 'text-slate-600 dark:text-slate-300' },
+  pending: { base: 'bg-orange-50 dark:bg-orange-950 hover:bg-orange-100 dark:hover:bg-orange-900', border: 'border-l-orange-500', text: 'text-orange-800 dark:text-orange-200' },
+  open: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
 };
 
 
@@ -478,24 +478,32 @@ export const FilledShiftCard = ({ professional, onClick }: { professional: Profe
 };
 
 export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: string, urgent?: boolean, onClick: () => void }) => (
-  <div onClick={onClick} className={`flex items-center gap-2 p-2 rounded-lg border-2 border-dashed cursor-pointer hover:bg-accent ${urgent ? 'border-destructive text-destructive' : 'border-muted-foreground'}`}>
+  <div onClick={onClick} className={cn("flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
+    urgent 
+        ? 'border-destructive/50 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:border-destructive' 
+        : 'border-muted-foreground/30 bg-card text-muted-foreground hover:bg-accent hover:border-muted-foreground'
+  )}>
     {urgent ? (
-       <AlertTriangle className="h-5 w-5 text-destructive" />
+       <AlertTriangle className="h-4 w-4" />
     ) : (
-      <Plus className="h-5 w-5 text-muted-foreground" />
+      <Plus className="h-4 w-4" />
     )}
-    <span className={`text-sm font-semibold ${urgent ? 'text-destructive' : 'text-muted-foreground'}`}>{urgent ? 'URGENTE' : ''} Preencher {shiftType}</span>
+    <span className="text-sm font-medium">
+      {shiftType === 'diurno' ? 'Dia' : 'Noite'}
+    </span>
   </div>
 );
 
 export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     const config = statusConfig.pending;
     return (
-        <div onClick={onClick} className={cn("flex items-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
+        <div onClick={onClick} className={cn("flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
             <UserPlus className={cn("h-5 w-5", config.text)} />
-            <span className={cn("text-sm font-semibold", config.text)}>Candidaturas</span>
+            <span className={cn("text-sm font-semibold", config.text)}>Candidatos</span>
         </div>
     );
 }
+
+    
 
     
