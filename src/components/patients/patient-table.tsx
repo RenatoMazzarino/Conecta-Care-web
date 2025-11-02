@@ -126,7 +126,10 @@ export function PatientTable({
           {patients.map((patient) => {
             const supervisorName = patient.adminData.supervisorId ? professionalMap.get(patient.adminData.supervisorId) : '-';
             const visitDate = patient.next_visit_date ? formatVisitDate(patient.next_visit_date) : formatVisitDate(patient.last_visit_date);
-            const hasPendingItems = patient.consent_status === 'pending' || patient.pending_documents > 0;
+            
+            const hasPendingConsent = patient.consent_status === 'pending';
+            const hasPendingDocuments = patient.pending_documents > 0;
+            const hasPendingItems = hasPendingConsent || hasPendingDocuments;
             
             let patientStatusKey: 'active' | 'pending' | 'inactive';
             if (patient.adminData.status === 'Inativo') {
@@ -138,8 +141,18 @@ export function PatientTable({
             }
             const patientStatus = patientStatusConfig[patientStatusKey];
             const StatusIcon = patientStatus.icon;
+
+            const tooltipContent = () => {
+              if (patientStatusKey !== 'pending') {
+                return patientStatus.text;
+              }
+              const reasons = [];
+              if (hasPendingConsent) reasons.push("Termo de consentimento");
+              if (hasPendingDocuments) reasons.push(`${patient.pending_documents} documento(s)`);
+              return `${patientStatus.text} - ${reasons.join(' e ')} pendente(s).`;
+            };
             
-            const docStatusKey = patient.pending_documents > 0 ? 'pending' : 'ok';
+            const docStatusKey = hasPendingDocuments ? 'pending' : 'ok';
             const docStatus = docStatusConfig[docStatusKey];
 
             return (
@@ -158,7 +171,7 @@ export function PatientTable({
                                 <StatusIcon className={cn("h-5 w-5", patientStatus.className)} />
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>{patientStatus.text}</p>
+                                <p>{tooltipContent()}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
