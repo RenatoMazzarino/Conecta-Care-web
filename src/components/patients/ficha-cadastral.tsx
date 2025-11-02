@@ -17,13 +17,14 @@ import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import type { EditMode } from './patient-details-panel';
+import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
-// Define a simple SVG icon for WhatsApp
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 32 32" fill="currentColor" {...props}><path d=" M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39zm-2.708.272c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.63-.63c0-1.562 1.432-2.822 2.822-2.822a2.822 2.822 0 0 1 2.822 2.822c0 .372-.258.63-.63.63a1.518 1.518 0 0 1-1.518-1.39z M16.749 21.13c-1.389 0-2.5-1.11-2.5-2.5 0-1.389 1.111-2.5 2.5-2.5 1.389 0 2.5 1.111 2.5 2.5 0 1.39-1.111 2.5-2.5 2.5z M22.311 19.74c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-.258 0-.81.272-1.39.272s-1.132-.272-1.39-.272c-2.08 0-3.72-1.72-3.72-3.72s1.72-3.72 3.72-3.72c.258 0 .81-.272 1.39-.272s1.132.272 1.39.272c.258 0 .81-.272 1.39.272s1.132.272 1.39.272c.258 0 .81-.272 1.39.272s1.132.272 1.39-.272c2.08 0 3.72 1.72 3.72 3.72s-1.72 3.72-3.72-3.72z" /></svg>
+    <svg viewBox="0 0 32 32" fill="currentColor" {...props}>
+        <path d="M16.483 3.39a12.872 12.872 0 0 0-12.87 12.87c0 3.43 1.34 6.55 3.51 8.88l-2.22 6.45a.63.63 0 0 0 .78.78l6.45-2.22a12.872 12.872 0 0 0 8.88 3.51c7.11 0 12.87-5.76 12.87-12.87S23.593 3.39 16.483 3.39zm6.39 17.28c-.46.22-2.73 1.35-3.15 1.5s-.73.22-.98 0c-.26-.22-.98-1.2-1.35-2.25s-.37-.88-.37-1.13c0-.25.12-.37.24-.5.13-.12.28-.3.43-.45.14-.15.2-.2.27-.33.07-.13.04-.25-.04-.37s-.98-2.36-1.34-3.25c-.37-.88-.73-1.03-.98-1.03s-.49 0-.74.01c-.25.01-.58.22-.88.62s-1.16 1.13-1.16 2.75c0 1.62 1.18 3.18 1.34 3.4.16.22 2.36 3.62 5.72 5.06.8.34 1.44.54 1.94.69.8.25 1.54.21 2.12.12.65-.08 1.98-.81 2.25-1.58.28-.77.28-1.43.2-1.58-.08-.15-.3-.22-.58-.4z" />
+    </svg>
 );
 
 
@@ -118,65 +119,65 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     };
     
     return (
-        <section aria-labelledby="patient-personal-title">
-            {/* HEADER */}
-            <header className="flex items-center justify-between gap-4 p-5 bg-card rounded-t-lg border">
-                <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <Avatar className="w-24 h-24 rounded-md text-3xl">
-                            <AvatarImage src={displayData.avatarUrl} alt={fullName} className="object-cover border" />
-                            <AvatarFallback>{displayData.initials}</AvatarFallback>
-                        </Avatar>
-                        {displayData.photoConsent?.granted && (
-                             <Badge className="absolute -bottom-2 -right-2 bg-green-600 text-white shadow" title="Consentimento para uso de foto: Sim">Foto: OK</Badge>
+        <Card>
+            <CardHeader>
+                <div className="flex items-center justify-between gap-4 p-5">
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <Avatar className="w-24 h-24 rounded-md text-3xl">
+                                <AvatarImage src={displayData.avatarUrl} alt={fullName} className="object-cover border" />
+                                <AvatarFallback>{displayData.initials}</AvatarFallback>
+                            </Avatar>
+                            {displayData.photoConsent?.granted && (
+                                <Badge className="absolute -bottom-2 -right-2 bg-green-600 text-white shadow" title="Consentimento para uso de foto: Sim">Foto: OK</Badge>
+                            )}
+                        </div>
+                        <div className="min-w-0">
+                            <h2 id="patient-personal-title" className="text-xl font-semibold text-slate-900 truncate">
+                                {fullName} <span className="text-sm text-muted-foreground">— {displayData.displayName}</span>
+                            </h2>
+                            <div className="mt-1 text-sm text-slate-600 flex items-center">
+                                {age && <span id="patient-age">{age}</span>}
+                                <span className="mx-2">•</span>
+                                <span id="patient-cpf" className="text-sm text-slate-500">CPF: <strong className="ml-1">{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
+                                <Button type="button" title="Copiar CPF" variant="ghost" size="icon" className="ml-2 h-7 w-7 text-gray-500 hover:bg-gray-50">
+                                    <Copy className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <div className="mt-3 flex items-center gap-2">
+                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100">
+                                    <Shield className="w-4 h-4 mr-2" />
+                                    Consentimento: Assinado
+                                </Badge>
+                                {mainAllergy && (
+                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-100">
+                                        <AlertTriangle className="w-4 h-4 mr-2" />
+                                        Alergia: {mainAllergy}
+                                    </Badge>
+                                )}
+                                <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-100">
+                                    <Star className="w-4 h-4 mr-2" />
+                                    Complexidade: {displayData.adminData.complexity}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Button variant="outline" onClick={() => onSwitchView('prontuario')}><BookUser className="w-4 h-4 mr-2"/> Ver Prontuário</Button>
+                        {isEditing ? (
+                            <>
+                            <Button variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2"/> Cancelar</Button>
+                            <Button onClick={onSave}><BadgeCheck className="w-4 h-4 mr-2"/> Salvar Alterações</Button>
+                            </>
+                        ) : (
+                            <Button onClick={() => setEditMode('full')}><Edit className="w-4 h-4 mr-2"/> Editar Ficha</Button>
                         )}
                     </div>
-                    <div className="min-w-0">
-                        <h2 id="patient-personal-title" className="text-xl font-semibold text-slate-900 truncate">
-                            {fullName} <span className="text-sm text-muted-foreground">— {displayData.displayName}</span>
-                        </h2>
-                        <div className="mt-1 text-sm text-slate-600 flex items-center">
-                            {age && <span id="patient-age">{age}</span>}
-                            <span className="mx-2">•</span>
-                            <span id="patient-cpf" className="text-sm text-slate-500">CPF: <strong className="ml-1">{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
-                             <Button type="button" title="Copiar CPF" variant="ghost" size="icon" className="ml-2 h-7 w-7 text-gray-500 hover:bg-gray-50">
-                                <Copy className="w-4 h-4" />
-                            </Button>
-                        </div>
-                        <div className="mt-3 flex items-center gap-2">
-                             <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100">
-                                <Shield className="w-4 h-4 mr-2" />
-                                Consentimento: Assinado
-                             </Badge>
-                             {mainAllergy && (
-                                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-100">
-                                    <AlertTriangle className="w-4 h-4 mr-2" />
-                                    Alergia: {mainAllergy}
-                                 </Badge>
-                             )}
-                              <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-100">
-                                <Star className="w-4 h-4 mr-2" />
-                                Complexidade: {displayData.adminData.complexity}
-                             </Badge>
-                        </div>
-                    </div>
                 </div>
-
-                <div className="flex items-center gap-3">
-                     <Button variant="outline" onClick={() => onSwitchView('prontuario')}><BookUser className="w-4 h-4 mr-2"/> Ver Prontuário</Button>
-                     {isEditing ? (
-                        <>
-                         <Button variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2"/> Cancelar</Button>
-                         <Button onClick={onSave}><BadgeCheck className="w-4 h-4 mr-2"/> Salvar Alterações</Button>
-                        </>
-                    ) : (
-                         <Button onClick={() => setEditMode('full')}><Edit className="w-4 h-4 mr-2"/> Editar Ficha</Button>
-                    )}
-                </div>
-            </header>
+            </CardHeader>
             
-            {/* BODY */}
-            <div className="p-6 bg-card rounded-b-lg border border-t-0">
+            <CardContent className="p-6">
                 <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
                     <AccordionItem value="item-1">
                         <AccordionTrigger>
@@ -287,7 +288,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
-            </div>
-        </section>
+            </CardContent>
+        </Card>
     );
 }

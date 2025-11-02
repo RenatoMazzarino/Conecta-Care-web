@@ -12,8 +12,16 @@ import { trackEvent } from '@/lib/analytics';
 import { FichaCadastral } from '@/components/patients/ficha-cadastral';
 import { ProntuarioPanel } from '@/components/prontuario/prontuario-panel';
 import { patients as mockPatients } from '@/lib/data';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
+
+const TABS = [
+    { id: "ficha", label: "Ficha Cadastral" },
+    { id: "clinico", label: "Dados Clínicos" },
+    { id: "financeiro", label: "Financeiro" },
+    { id: "administrativo", label: "Administrativo" },
+];
 
 export default function PatientProfilePage() {
   const params = useParams();
@@ -92,16 +100,40 @@ export default function PatientProfilePage() {
             Voltar para a lista
         </Button>
         
-        <FichaCadastral 
-            editMode={editMode} 
-            setEditMode={setEditMode} 
-            displayData={displayData} 
-            editedData={editedData} 
-            setEditedData={setEditedData} 
-            onSave={handleSave}
-            onCancel={handleCancelEdit}
-            onSwitchView={() => setIsProntuarioOpen(true)}
-        />
+        <Tabs defaultValue="ficha">
+            <TabsList className="mb-6">
+                {TABS.map(tab => (
+                    <TabsTrigger key={tab.id} value={tab.id}>{tab.label}</TabsTrigger>
+                ))}
+            </TabsList>
+            <TabsContent value="ficha">
+                 <FichaCadastral 
+                    editMode={editMode} 
+                    setEditMode={setEditMode} 
+                    displayData={displayData} 
+                    editedData={editedData} 
+                    setEditedData={setEditedData} 
+                    onSave={handleSave}
+                    onCancel={handleCancelEdit}
+                    onSwitchView={() => setIsProntuarioOpen(true)}
+                />
+            </TabsContent>
+             <TabsContent value="clinico">
+                 <FichaCadastral 
+                    editMode={editMode} 
+                    setEditMode={setEditMode} 
+                    displayData={displayData} 
+                    editedData={editedData} 
+                    setEditedData={setEditedData} 
+                    onSave={handleSave}
+                    onCancel={handleCancelEdit}
+                    onSwitchView={() => setIsProntuarioOpen(true)}
+                />
+            </TabsContent>
+            {/* Add other TabsContent here as they are built */}
+        </Tabs>
+        
+       
         
         <ProntuarioPanel
             patient={displayData}

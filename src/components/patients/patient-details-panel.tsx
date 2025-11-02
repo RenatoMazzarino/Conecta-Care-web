@@ -49,7 +49,7 @@ export function ProntuarioPanel({ patient, isOpen, onOpenChange }: ProntuarioPan
 
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
              <ProntuarioDashboard 
-                editMode={'none'} // No edit mode for now in prontuario panel
+                editMode={'none'} 
                 setEditMode={() => {}}
                 editedData={editedData}
                 setEditedData={setEditedData}
