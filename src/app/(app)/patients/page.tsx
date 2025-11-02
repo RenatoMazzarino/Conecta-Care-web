@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X } from 'lucide-react';
+import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X, Users, AlertTriangle, ShieldCheck, HeartPulse } from 'lucide-react';
 import Link from 'next/link';
 import type { Patient, Professional } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,7 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
 import { PatientDetailsPanel } from '@/components/patients/patient-details-panel';
+import { StatsCard } from '@/components/ui/stats-card';
 
+type KpiFilter = 'all' | 'pending' | 'active' | 'high_complexity';
 
 export default function PatientsPage() {
   const { toast } = useToast();
@@ -31,6 +33,7 @@ export default function PatientsPage() {
   const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
 
   // State for filters
+  const [kpiFilter, setKpiFilter] = React.useState<KpiFilter>('all');
   const [searchTerm, setSearchTerm] = React.useState('');
   const [complexityFilter, setComplexityFilter] = React.useState('all');
   const [packageFilter, setPackageFilter] = React.useState('all');
@@ -56,7 +59,18 @@ export default function PatientsPage() {
     []
   );
 
+  const kpis = React.useMemo(() => {
+    const total = allPatients.length;
+    const active = allPatients.filter(p => p.adminData.status === 'Ativo').length;
+    const pending = allPatients.filter(p => p.consent_status === 'pending' || p.pending_documents > 0).length;
+    const highComplexity = allPatients.filter(p => p.adminData.complexity === 'Alta').length;
+
+    return { total, active, pending, highComplexity };
+  }, [allPatients]);
+
+
   const resetFilters = () => {
+    setKpiFilter('all');
     setSearchTerm('');
     setComplexityFilter('all');
     setPackageFilter('all');
@@ -68,6 +82,7 @@ export default function PatientsPage() {
   }
 
   const activeFilterCount = [
+    kpiFilter,
     searchTerm, 
     complexityFilter, 
     packageFilter, 
@@ -82,23 +97,33 @@ export default function PatientsPage() {
   React.useEffect(() => {
     let results = allPatients;
 
+    // KPI Filter
+    if (kpiFilter === 'active') {
+      results = results.filter(p => p.adminData.status === 'Ativo');
+    } else if (kpiFilter === 'pending') {
+      results = results.filter(p => p.consent_status === 'pending' || p.pending_documents > 0);
+    } else if (kpiFilter === 'high_complexity') {
+        results = results.filter(p => p.adminData.complexity === 'Alta');
+    }
+
+    // Search and advanced filters
     if (searchTerm) {
       results = results.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
     if (complexityFilter !== 'all') {
-      results = results.filter(p => p.complexity === complexityFilter);
+      results = results.filter(p => p.adminData.complexity === complexityFilter);
     }
     if (packageFilter !== 'all') {
-        results = results.filter(p => p.servicePackage === packageFilter);
+        results = results.filter(p => p.adminData.servicePackage === packageFilter);
     }
     if (planFilter !== 'all') {
-        results = results.filter(p => p.financial.plan === planFilter);
+        results = results.filter(p => p.financial.vinculo === planFilter);
     }
      if (statusFilter !== 'all') {
-      results = results.filter(p => p.status === statusFilter);
+      results = results.filter(p => p.adminData.status === statusFilter);
     }
     if (supervisorFilter !== 'all') {
-        results = results.filter(p => p.supervisorId === supervisorFilter);
+        results = results.filter(p => p.adminData.supervisorId === supervisorFilter);
     }
     if (cityFilter) {
       results = results.filter(p => p.address.city.toLowerCase().includes(cityFilter.toLowerCase()));
@@ -108,7 +133,7 @@ export default function PatientsPage() {
     }
 
     setFilteredPatients(results);
-  }, [searchTerm, complexityFilter, packageFilter, planFilter, statusFilter, supervisorFilter, cityFilter, stateFilter, allPatients]);
+  }, [kpiFilter, searchTerm, complexityFilter, packageFilter, planFilter, statusFilter, supervisorFilter, cityFilter, stateFilter, allPatients]);
   
   const handleViewPatientDetails = (patientId: string) => {
     setSelectedPatientId(patientId);
@@ -153,7 +178,7 @@ export default function PatientsPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6 gap-4">
+      <div className="flex items-start justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Lista de Pacientes</h1>
           <p className="text-muted-foreground">Gerencie todos os pacientes em um só lugar.</p>
@@ -185,6 +210,13 @@ export default function PatientsPage() {
             )}
         </div>
       </div>
+
+       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <StatsCard title="Total de Pacientes" value={kpis.total} icon={Users} isActive={kpiFilter === 'all'} onClick={() => setKpiFilter('all')} />
+        <StatsCard title="Pacientes Ativos" value={kpis.active} icon={ShieldCheck} isActive={kpiFilter === 'active'} onClick={() => setKpiFilter('active')} />
+        <StatsCard title="Com Pendências" value={kpis.pending} icon={AlertTriangle} isActive={kpiFilter === 'pending'} onClick={() => setKpiFilter('pending')} />
+        <StatsCard title="Alta Complexidade" value={kpis.highComplexity} icon={HeartPulse} isActive={kpiFilter === 'high_complexity'} onClick={() => setKpiFilter('high_complexity')} />
+      </div>
        
        <Collapsible className="mb-6">
         <div className="flex items-center justify-between p-4 border rounded-t-lg bg-card">
@@ -215,9 +247,9 @@ export default function PatientsPage() {
                         <SelectTrigger><SelectValue placeholder="Complexidade" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Toda Complexidade</SelectItem>
-                            <SelectItem value="baixa">Baixa</SelectItem>
-                            <SelectItem value="media">Média</SelectItem>
-                            <SelectItem value="alta">Alta</SelectItem>
+                            <SelectItem value="Baixa">Baixa</SelectItem>
+                            <SelectItem value="Média">Média</SelectItem>
+                            <SelectItem value="Alta">Alta</SelectItem>
                         </SelectContent>
                     </Select>
                   </div>
@@ -239,8 +271,10 @@ export default function PatientsPage() {
                         <SelectTrigger><SelectValue placeholder="Vínculo" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos Vínculos</SelectItem>
-                            <SelectItem value="particular">Particular</SelectItem>
-                            <SelectItem value="plano_de_saude">Plano de Saúde</SelectItem>
+                            <SelectItem value="Particular">Particular</SelectItem>
+                            <SelectItem value="Plano de Saúde">Plano de Saúde</SelectItem>
+                             <SelectItem value="Convênio">Convênio</SelectItem>
+                            <SelectItem value="Público">Público</SelectItem>
                         </SelectContent>
                     </Select>
                   </div>

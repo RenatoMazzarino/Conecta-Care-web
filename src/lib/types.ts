@@ -3,7 +3,7 @@ import { LucideIcon } from 'lucide-react';
 
 export type Diagnosis = {
   name: string;
-  code: string;
+  code?: string;
 };
 
 export type Patient = {
