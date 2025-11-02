@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -22,9 +21,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 32 32" fill="currentColor" {...props}>
-        <path d="M16.483 3.39a12.872 12.872 0 0 0-12.87 12.87c0 3.43 1.34 6.55 3.51 8.88l-2.22 6.45a.63.63 0 0 0 .78.78l6.45-2.22a12.872 12.872 0 0 0 8.88 3.51c7.11 0 12.87-5.76 12.87-12.87S23.593 3.39 16.483 3.39zm6.39 17.28c-.46.22-2.73 1.35-3.15 1.5s-.73.22-.98 0c-.26-.22-.98-1.2-1.35-2.25s-.37-.88-.37-1.13c0-.25.12-.37.24-.5.13-.12.28-.3.43-.45.14-.15.2-.2.27-.33.07-.13.04-.25-.04-.37s-.98-2.36-1.34-3.25c-.37-.88-.73-1.03-.98-1.03s-.49 0-.74.01c-.25.01-.58.22-.88.62s-1.16 1.13-1.16 2.75c0 1.62 1.18 3.18 1.34 3.4.16.22 2.36 3.62 5.72 5.06.8.34 1.44.54 1.94.69.8.25 1.54.21 2.12.12.65-.08 1.98-.81 2.25-1.58.28-.77.28-1.43.2-1.58-.08-.15-.3-.22-.58-.4z" />
-    </svg>
+  <svg viewBox="0 0 32 32" fill="currentColor" {...props}>
+    <path d="M16.483 3.39a12.872 12.872 0 0 0-12.87 12.87c0 3.43 1.34 6.55 3.51 8.88l-2.22 6.45a.63.63 0 0 0 .78.78l6.45-2.22a12.872 12.872 0 0 0 8.88 3.51c7.11 0 12.87-5.76 12.87-12.87S23.593 3.39 16.483 3.39zm6.39 17.28c-.46.22-2.73 1.35-3.15 1.5s-.73.22-.98 0c-.26-.22-.98-1.2-1.35-2.25s-.37-.88-.37-1.13c0-.25.12-.37.24-.5.13-.12.28-.3.43-.45.14-.15.2-.2.27-.33.07-.13.04-.25-.04-.37s-.98-2.36-1.34-3.25c-.37-.88-.73-1.03-.98-1.03s-.49 0-.74.01c-.25.01-.58.22-.88.62s-1.16 1.13-1.16 2.75c0 1.62 1.18 3.18 1.34 3.4.16.22 2.36 3.62 5.72 5.06.8.34 1.44.54 1.94.69.8.25 1.54.21 2.12.12.65-.08 1.98-.81 2.25-1.58.28-.77.28-1.43.2-1.58-.08-.15-.3-.22-.58-.4z" />
+  </svg>
 );
 
 
@@ -33,55 +32,52 @@ type FormSectionProps = {
     title: string;
     action?: React.ReactNode;
     children: React.ReactNode;
+    className?: string;
 };
 
-const FormSection: React.FC<FormSectionProps> = ({ icon: Icon, title, action, children }) => {
+const FormSection: React.FC<FormSectionProps> = ({ icon: Icon, title, action, children, className }) => {
     return (
-        <fieldset>
-            <div className="flex items-center justify-between">
-                <legend className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                    <Icon className="w-5 h-5 text-slate-700" />
-                    {title}
-                </legend>
-                {action}
-            </div>
-            <div className="mt-4">{children}</div>
-        </fieldset>
+        <Card className={cn(className)}>
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                        <Icon className="w-5 h-5 text-slate-700" />
+                        {title}
+                    </CardTitle>
+                    {action}
+                </div>
+            </CardHeader>
+            <CardContent>
+                {children}
+            </CardContent>
+        </Card>
     );
 };
 
 const FormRow = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", className)}>{children}</div>
+    <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4", className)}>{children}</div>
 );
 
-const FormField = ({ label, value, action, isEditing, editComponent }: { 
+const FormField = ({ label, value, action, isEditing, editComponent, className }: { 
     label: string, 
     value: React.ReactNode, 
     action?: React.ReactNode,
     isEditing?: boolean,
-    editComponent?: React.ReactNode
+    editComponent?: React.ReactNode,
+    className?: string
 }) => (
-    <div>
+    <div className={cn(className)}>
         <div className="text-xs text-gray-600 flex items-center gap-2 mb-1">
           <Label>{label}</Label>
           {action}
         </div>
         {isEditing ? (
-             <div className="">{editComponent}</div>
+             <div>{editComponent}</div>
         ) : (
             <div className="w-full rounded-md border bg-muted/50 p-2 text-sm text-foreground min-h-[36px] flex items-center justify-between">
                 <div>{value || <span className="text-muted-foreground italic">Não informado</span>}</div>
-                {action && isEditing && <div className="ml-2">{action}</div>}
             </div>
         )}
-    </div>
-);
-
-
-const FormInput = ({ label, value, onChange, placeholder, isFullWidth, required=false }: { label: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string, isFullWidth?: boolean, required?: boolean }) => (
-    <div className={cn(isFullWidth && "md:col-span-2")}>
-        <Label className="text-xs text-gray-600">{label}</Label>
-        <Input value={value || ''} onChange={onChange} placeholder={placeholder} className="mt-1 text-sm" required={required}/>
     </div>
 );
 
@@ -111,6 +107,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
             let current = newEditedData;
             const keys = path.split('.');
             for (let i = 0; i < keys.length - 1; i++) {
+                current[keys[i]] = current[keys[i]] || {};
                 current = current[keys[i]];
             }
             current[keys[keys.length - 1]] = value;
@@ -119,9 +116,10 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     };
     
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex items-center justify-between gap-4 p-5">
+        <div className="space-y-6">
+            {/* HEADER */}
+            <Card className="overflow-hidden">
+                <div className="flex items-center justify-between gap-4 p-5 bg-muted/30">
                     <div className="flex items-center gap-4">
                         <div className="relative">
                             <Avatar className="w-24 h-24 rounded-md text-3xl">
@@ -175,120 +173,122 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         )}
                     </div>
                 </div>
-            </CardHeader>
-            
-            <CardContent className="p-6">
-                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger>
-                          <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <User className="w-5 h-5 text-primary" /> Dados Pessoais
-                          </h3>
-                        </AccordionTrigger>
-                        <AccordionContent className="p-4 pt-2">
-                          <div className="grid grid-cols-12 gap-x-8">
-                              <div className="col-span-12 lg:col-span-7 space-y-6">
-                                <FormSection icon={User} title="Identificação Básica">
-                                    <FormRow>
-                                         <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
-                                            editComponent={
-                                                <Select value={editedData.pronouns} onValueChange={(v) => handleFieldChange('pronouns', v)}>
-                                                    <SelectTrigger><SelectValue/></SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="none">Nenhum</SelectItem>
-                                                        <SelectItem value="Sr.">Sr.</SelectItem>
-                                                        <SelectItem value="Sra.">Sra.</SelectItem>
-                                                        <SelectItem value="Sre.">Sre.</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            }
-                                        />
-                                        <FormField label="Nome Social" value={displayData.displayName} isEditing={isEditing}
-                                            editComponent={<Input value={editedData.displayName} onChange={(e) => handleFieldChange('displayName', e.target.value)} />}
-                                        />
-                                    </FormRow>
-                                    <hr className="my-4" />
-                                     <FormRow>
-                                        <FormField label="Nome" value={displayData.firstName} isEditing={isEditing}
-                                            editComponent={<Input value={editedData.firstName} onChange={(e) => handleFieldChange('firstName', e.target.value)} />}
-                                        />
-                                        <FormField label="Sobrenome" value={displayData.lastName} isEditing={isEditing}
-                                            editComponent={<Input value={editedData.lastName} onChange={(e) => handleFieldChange('lastName', e.target.value)} />}
-                                        />
-                                    </FormRow>
-                                    <hr className="my-4"/>
-                                    <FormRow>
-                                        <FormField label="CPF" value={displayData.cpf} action={ <Badge variant={editedData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(editedData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} />
-                                        <FormField label="RG" value={displayData.rg} action={ <Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} />
-                                    </FormRow>
-                                     <FormRow className="mt-4">
-                                        <FormField label="CNS" value={displayData.cns} action={ <Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} />
-                                    </FormRow>
-                                </FormSection>
-                              </div>
-                              <aside className="col-span-12 lg:col-span-5">
-                                  <FormSection icon={Gavel} title="Representante Legal">
-                                      <FormField label="Nome" value={displayData.legalGuardian?.name} />
-                                      <div className="mt-4">
-                                        <FormField label="Documento" value={displayData.legalGuardian?.document} />
-                                      </div>
-                                      <div className="mt-4">
-                                        <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
-                                      </div>
-                                  </FormSection>
-                              </aside>
-                          </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-2">
-                        <AccordionTrigger>
-                           <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <Phone className="w-5 h-5 text-primary" /> Contato e Responsáveis
-                          </h3>
-                        </AccordionTrigger>
-                        <AccordionContent className="p-4 pt-2">
-                            <FormSection icon={Phone} title="Informações de Contato" action={
-                              <Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>
-                            }>
-                              <FormRow>
-                                  <FormField label="Telefone" value={displayData.phones[0]?.number} action={
-                                      <a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700"><WhatsAppIcon className="h-5 w-5"/></a>
-                                  }/>
-                                  <FormField label="Email" value={displayData.emails?.[0]?.email} action={
-                                      <a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary"><Mail className="h-4 w-4"/></a>
-                                  }/>
-                              </FormRow>
-                            </FormSection>
-                            
-                            <hr className="my-6"/>
-                            <FormSection icon={Users} title="Contatos de Emergência">
-                              <div className="space-y-3">
-                                {displayData.emergencyContacts.map((contact, index) => (
-                                  <div key={index} className="p-3 border rounded-lg bg-background">
-                                      <div className="flex items-center justify-between">
-                                        <div className="font-medium text-slate-900">
-                                            {contact.name}
-                                            {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
-                                        </div>
-                                      </div>
-                                      <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
-                                  </div>
-                                ))}
-                              </div>
-                              {isEditing && (
-                                <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
-                                    <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
-                                </Button>
-                              )}
-                            </FormSection>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </CardContent>
-        </Card>
+            </Card>
+
+            {/* BODY */}
+            <div className="grid grid-cols-12 gap-8">
+                <div className="col-span-12 lg:col-span-8 space-y-6">
+                    <FormSection icon={User} title="Identificação Básica">
+                         <FormRow>
+                            <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
+                                editComponent={
+                                    <Select value={editedData.pronouns} onValueChange={(v) => handleFieldChange('pronouns', v)}>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">Nenhum</SelectItem>
+                                            <SelectItem value="Sr.">Sr.</SelectItem>
+                                            <SelectItem value="Sra.">Sra.</SelectItem>
+                                            <SelectItem value="Sre.">Sre.</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                }
+                            />
+                            <FormField label="Nome Social" value={displayData.displayName} isEditing={isEditing}
+                                editComponent={<Input value={editedData.displayName} onChange={(e) => handleFieldChange('displayName', e.target.value)} />}
+                            />
+                        </FormRow>
+                        <hr className="my-4"/>
+                        <FormRow>
+                            <FormField label="Nome" value={displayData.firstName} isEditing={isEditing}
+                                editComponent={<Input value={editedData.firstName} onChange={(e) => handleFieldChange('firstName', e.target.value)} />}
+                            />
+                            <FormField label="Sobrenome" value={displayData.lastName} isEditing={isEditing}
+                                editComponent={<Input value={editedData.lastName} onChange={(e) => handleFieldChange('lastName', e.target.value)} />}
+                            />
+                        </FormRow>
+                        <hr className="my-4"/>
+                        <FormRow>
+                             <FormField label="CPF" value={displayData.cpf} 
+                                action={<Badge variant={editedData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(editedData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} 
+                                isEditing={isEditing}
+                                editComponent={<Input value={editedData.cpf} onChange={(e) => handleFieldChange('cpf', e.target.value)} />}
+                             />
+                             <FormField label="RG" value={displayData.rg} 
+                                action={<Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>}
+                                isEditing={isEditing}
+                                editComponent={<Input value={editedData.rg} onChange={(e) => handleFieldChange('rg', e.target.value)} />}
+                             />
+                         </FormRow>
+                         <FormRow>
+                              <FormField label="Órgão Emissor do RG" value={displayData.rgIssuer} isEditing={isEditing}
+                                editComponent={<Input value={editedData.rgIssuer} onChange={(e) => handleFieldChange('rgIssuer', e.target.value)} />}
+                              />
+                             <FormField label="CNS" value={displayData.cns} 
+                                action={<Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} 
+                                isEditing={isEditing}
+                                editComponent={<Input value={editedData.cns} onChange={(e) => handleFieldChange('cns', e.target.value)} />}
+                             />
+                         </FormRow>
+                    </FormSection>
+
+                     <FormSection 
+                        icon={Phone} 
+                        title="Informações de Contato"
+                        action={<Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>}
+                      >
+                         <FormRow>
+                             <FormField label="Telefone" value={displayData.phones[0]?.number} 
+                                action={<a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700 ml-2"><WhatsAppIcon className="h-5 w-5"/></a>}
+                                isEditing={isEditing}
+                                editComponent={<Input value={editedData.phones[0]?.number} onChange={(e) => handleFieldChange('phones.0.number', e.target.value)} />}
+                             />
+                             <FormField label="Email" value={displayData.emails?.[0]?.email}
+                                action={<a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary ml-2"><Mail className="h-4 w-4"/></a>}
+                                isEditing={isEditing}
+                                editComponent={<Input value={editedData.emails[0]?.email} onChange={(e) => handleFieldChange('emails.0.email', e.target.value)} />}
+                              />
+                         </FormRow>
+                     </FormSection>
+
+                    <FormSection icon={Users} title="Contatos de Emergência">
+                         <div className="space-y-3">
+                           {displayData.emergencyContacts.map((contact, index) => (
+                             <div key={index} className="p-3 border rounded-lg bg-background">
+                                 <div className="flex items-center justify-between">
+                                   <div className="font-medium text-slate-900">
+                                       {contact.name}
+                                       {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
+                                   </div>
+                                   <div className="flex items-center gap-1">
+                                       <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                       <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
+                                   </div>
+                                 </div>
+                                 <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
+                             </div>
+                           ))}
+                         </div>
+                         {isEditing && (
+                           <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
+                               <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
+                           </Button>
+                         )}
+                     </FormSection>
+
+                </div>
+
+                <aside className="col-span-12 lg:col-span-4 space-y-6">
+                    <FormSection icon={Gavel} title="Representante Legal">
+                         <FormField label="Nome" value={displayData.legalGuardian?.name} />
+                         <div className="mt-4">
+                           <FormField label="Documento" value={displayData.legalGuardian?.document} />
+                         </div>
+                         <div className="mt-4">
+                           <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
+                         </div>
+                     </FormSection>
+                </aside>
+            </div>
+        </div>
     );
 }

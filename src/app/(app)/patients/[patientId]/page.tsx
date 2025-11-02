@@ -106,6 +106,7 @@ export default function PatientProfilePage() {
                     <TabsTrigger key={tab.id} value={tab.id}>{tab.label}</TabsTrigger>
                 ))}
             </TabsList>
+
             <TabsContent value="ficha">
                  <FichaCadastral 
                     editMode={editMode} 
@@ -118,22 +119,42 @@ export default function PatientProfilePage() {
                     onSwitchView={() => setIsProntuarioOpen(true)}
                 />
             </TabsContent>
+            
              <TabsContent value="clinico">
-                 <FichaCadastral 
-                    editMode={editMode} 
-                    setEditMode={setEditMode} 
-                    displayData={displayData} 
-                    editedData={editedData} 
-                    setEditedData={setEditedData} 
-                    onSave={handleSave}
-                    onCancel={handleCancelEdit}
-                    onSwitchView={() => setIsProntuarioOpen(true)}
-                />
+                 {/* Placeholder for other content panels */}
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Dados Clínicos</CardTitle>
+                        <CardDescription>Esta seção conterá os dados clínicos detalhados do paciente.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Em breve.</p>
+                    </CardContent>
+                 </Card>
             </TabsContent>
-            {/* Add other TabsContent here as they are built */}
+             <TabsContent value="financeiro">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Financeiro</CardTitle>
+                        <CardDescription>Esta seção conterá os dados financeiros do paciente.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Em breve.</p>
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+             <TabsContent value="administrativo">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Administrativo</CardTitle>
+                        <CardDescription>Esta seção conterá os dados administrativos do paciente.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Em breve.</p>
+                    </CardContent>
+                 </Card>
+            </TabsContent>
         </Tabs>
-        
-       
         
         <ProntuarioPanel
             patient={displayData}
