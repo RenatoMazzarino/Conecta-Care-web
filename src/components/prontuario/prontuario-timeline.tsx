@@ -36,12 +36,12 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                     Linha do Tempo do Plantão
                 </CardTitle>
             </CardHeader>
-            <CardContent className="relative pl-4">
+            <CardContent className="relative pl-2">
                 {/* Progress Bar Background */}
-                <div className="absolute left-6 top-0 h-full w-1 bg-muted rounded-full -translate-x-1/2" />
+                <div className="absolute left-4 top-0 h-full w-1 bg-muted rounded-full" />
                 {/* Progress Bar Fill */}
                 <div 
-                    className="absolute left-6 top-0 w-1 bg-primary rounded-full -translate-x-1/2 transition-all duration-500" 
+                    className="absolute left-4 top-0 w-1 bg-primary rounded-full transition-all duration-500" 
                     style={{ height: `${currentProgress}%`}} 
                 />
                 
@@ -51,12 +51,11 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                          const config = statusConfig[event.status || 'default'];
 
                         return (
-                             <Link href="#" key={index} className={cn("relative group flex items-center gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
-                                {/* Timeline line */}
-                                <div className="absolute left-4 top-5 -bottom-5 w-px bg-border group-last:hidden" />
+                             <Link href="#" key={index} className={cn("relative group flex items-start gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
+                                {/* Timeline line connecting dots - This is handled by the parent divs now */}
                                 
                                 {/* Icon and line */}
-                                <div className="flex-shrink-0 z-10">
+                                <div className="flex-shrink-0 z-10 mt-1">
                                      <div className={cn(
                                         "flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-colors z-10",
                                         isEventActive ? config.base : 'bg-muted'
@@ -66,7 +65,7 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                                 </div>
                                 
                                 {/* Content */}
-                                <div className="min-w-0">
+                                <div className="min-w-0 pt-1">
                                     <div className="flex justify-between items-center">
                                         <p className="font-semibold text-sm text-foreground">{event.event}</p>
                                         <p className="text-xs text-muted-foreground">{event.time}</p>
