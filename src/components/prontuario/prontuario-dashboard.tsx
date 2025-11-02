@@ -18,22 +18,29 @@ type ProntuarioDashboardProps = {
 export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: ProntuarioDashboardProps) {
 
    const addMedication = () => {
-    if (!editedData) return;
-    const newMeds = [...(editedData.medications || []), { name: '', dosage: '', frequency: '', notes: '' }];
-    setEditedData({ ...editedData, medications: newMeds });
+    if (!editedData || !editedData.clinicalData) return;
+    const newMeds = [...(editedData.clinicalData.medications || []), { name: '', dosage: '', frequency: '', notes: '' }];
+    // Create a deep copy to ensure state updates correctly
+    const newEditedData = JSON.parse(JSON.stringify(editedData));
+    newEditedData.clinicalData.medications = newMeds;
+    setEditedData(newEditedData);
   };
 
   const removeMedication = (index: number) => {
-    if (!editedData) return;
-    const newMeds = editedData.medications.filter((_, i) => i !== index);
-    setEditedData({ ...editedData, medications: newMeds });
+    if (!editedData || !editedData.clinicalData?.medications) return;
+    const newMeds = editedData.clinicalData.medications.filter((_, i) => i !== index);
+    const newEditedData = JSON.parse(JSON.stringify(editedData));
+    newEditedData.clinicalData.medications = newMeds;
+    setEditedData(newEditedData);
   };
 
   const updateMedication = (index: number, field: string, value: string) => {
-    if (!editedData) return;
-    const newMeds = [...editedData.medications];
+    if (!editedData || !editedData.clinicalData?.medications) return;
+    const newMeds = [...editedData.clinicalData.medications];
     newMeds[index] = { ...newMeds[index], [field]: value };
-    setEditedData({ ...editedData, medications: newMeds });
+    const newEditedData = JSON.parse(JSON.stringify(editedData));
+    newEditedData.clinicalData.medications = newMeds;
+    setEditedData(newEditedData);
   };
 
   const displayData = editedData;
@@ -67,7 +74,7 @@ export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: Pr
             <CardContent className="p-6">
               {isEditing ? (
                 <div className="space-y-4">
-                  {displayData.medications?.map((med, index) => (
+                  {displayData.clinicalData.medications?.map((med, index) => (
                     <Card key={index} className="p-4 bg-background">
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-medium">Medicação {index + 1}</h4>
@@ -112,14 +119,14 @@ export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: Pr
                       </div>
                     </Card>
                   ))}
-                   {(!displayData.medications || displayData.medications.length === 0) && (
+                   {(!displayData.clinicalData.medications || displayData.clinicalData.medications.length === 0) && (
                     <p className="text-muted-foreground text-center py-4">Nenhuma medicação para editar.</p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {displayData.medications?.length > 0 ? (
-                    displayData.medications.map((med, i) => (
+                  {displayData.clinicalData.medications?.length > 0 ? (
+                    displayData.clinicalData.medications.map((med, i) => (
                       <div key={i} className="p-3 bg-secondary/30 rounded-lg">
                         <p className="font-semibold text-secondary-foreground">{med.name}</p>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -166,3 +173,5 @@ export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: Pr
     </div>
   )
 }
+
+    
