@@ -161,8 +161,8 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                         </Badge>
                      )}
                      {allergies && allergies.length > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                             <AlertTriangle className="w-3 h-3 mr-1.5"/>
+                        <Badge className="border border-red-300 bg-red-100 text-red-700 font-medium py-1 px-2 text-sm">
+                             <AlertTriangle className="w-4 h-4 mr-1.5 text-red-700"/>
                              Alergia: {allergies.join(', ')}
                         </Badge>
                      )}
@@ -242,4 +242,3 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     </>
   );
 }
-
