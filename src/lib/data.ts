@@ -17,7 +17,7 @@ export const patients: Patient[] = [
     id: 'patient-123',
     fullName: 'João da Silva',
     displayName: 'João',
-    pronouns: 'Ele/Dele',
+    pronouns: 'Sr.',
     avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
     avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
     photoConsent: { granted: true, grantedBy: 'Maria da Silva', date: '2023-01-10T10:00:00Z' },
@@ -34,10 +34,13 @@ export const patients: Patient[] = [
     estadoCivil: 'Viúvo',
     nacionalidade: 'Brasileiro',
     naturalidade: 'São Paulo/SP',
-    preferredLanguage: 'pt',
+    preferredLanguage: 'Português',
 
-    phones: [{ type: 'mobile', number: '+55 (11) 98888-1111', verified: true, preferred: true }],
-    emails: [{ email: 'joao.silva@example.com', verified: true, preferred: false }],
+    phones: [
+      { type: 'mobile', number: '+55 (11) 98888-1111', verified: true, preferred: true },
+      { type: 'home', number: '+55 (11) 2222-3333', verified: true, preferred: false },
+    ],
+    emails: [{ email: 'joao.silva@example.com', verified: true, preferred: true }],
     preferredContactMethod: 'WhatsApp',
 
     emergencyContacts: [{
@@ -103,9 +106,11 @@ export const patients: Patient[] = [
     id: 'patient-456',
     fullName: 'Maria Lopes',
     displayName: 'Maria',
-    pronouns: 'Ela/Dela',
+    pronouns: 'Sra.',
     avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
     avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
+    nacionalidade: 'Brasileira',
+    naturalidade: 'Rio de Janeiro/RJ',
 
     cpf: '987.654.321-00',
     cns: '700 5081 1234 5678',

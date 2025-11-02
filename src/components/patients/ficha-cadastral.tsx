@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle, Edit, Save } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle, Edit, Save, BadgeCheck, BadgeAlert } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -59,18 +59,18 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         handleChange(path, newArray);
     }
     
-    const handleEmergencyContactChange = (index: number, field: string, value: string) => {
+    const handleEmergencyContactChange = (index: number, field: string, value: string | boolean) => {
         if (!editedData || !editedData.emergencyContacts) return;
         const newContacts = [...editedData.emergencyContacts];
-        newContacts[index] = { ...newContacts[index], [field]: value };
+        (newContacts[index] as any)[field] = value;
         handleChange('emergencyContacts', newContacts);
     };
 
     const addEmergencyContact = () => {
         const baseData = editedData || displayData;
-        const newContacts = [...(baseData.emergencyContacts || []), { name: '', relationship: '', phone: '' }];
+        const newContact = { name: '', relationship: '', phone: '', email: '', isLegalRepresentative: false, permissions: { view: false, authorize: false } };
+        const newContacts = [...(baseData.emergencyContacts || []), newContact];
         
-        // Se não estiver em modo de edição, precisamos criar um novo objeto de edição
         if (!editedData) {
             const newEditedState = JSON.parse(JSON.stringify(displayData));
             newEditedState.emergencyContacts = newContacts;
@@ -146,7 +146,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     const updateMedication = (index: number, field: string, value: string) => {
         if (!editedData || !editedData.clinicalData?.medications) return;
         const newMeds = [...editedData.clinicalData.medications];
-        newMeds[index] = { ...newMeds[index], [field]: value };
+        (newMeds[index] as any)[field] = value;
         handleChange('clinicalData.medications', newMeds);
     };
     
@@ -190,23 +190,40 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6">
-                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                            <div className="md:col-span-2">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                           <div>
+                                <Label>ID do Paciente</Label>
+                                <ValueDisplay>{data.id}</ValueDisplay>
+                           </div>
+                           <div className="md:col-span-3">
                                 <Label>Nome Completo</Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.fullName || ''} onChange={e => handleChange('fullName', e.target.value)} /> : <ValueDisplay>{data.fullName}</ValueDisplay>}
                             </div>
-                             <div className="md:col-span-1">
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                            <div className="md:col-span-2">
                                 <Label>Nome Social</Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.displayName || ''} onChange={e => handleChange('displayName', e.target.value)} /> : <ValueDisplay>{data.displayName}</ValueDisplay>}
                             </div>
-                             <div className="md:col-span-1">
-                                <Label>Pronomes</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.pronouns || ''} onChange={e => handleChange('pronouns', e.target.value)} placeholder="Ex: ela/dela"/> : <ValueDisplay>{data.pronouns}</ValueDisplay>}
+                             <div className="md:col-span-2">
+                                <Label>Tratamento (Pronome)</Label>
+                                {isCardEditing('dadosPessoais') ? (
+                                    <Select value={data.pronouns || ''} onValueChange={v => handleChange('pronouns', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Sr.">Sr. (Senhor)</SelectItem>
+                                            <SelectItem value="Sra.">Sra. (Senhora)</SelectItem>
+                                            <SelectItem value="">Não usar / Outro</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : <ValueDisplay>{data.pronouns}</ValueDisplay>}
                             </div>
                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
-                                <Label>CPF</Label>
+                                <Label className="flex items-center gap-2">CPF
+                                    {data.cpfStatus === 'valid' ? <BadgeCheck className="h-4 w-4 text-green-600" /> : <BadgeAlert className="h-4 w-4 text-amber-600" />}
+                                </Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
                             </div>
                             <div>
@@ -224,7 +241,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                 {isCardEditing('dadosPessoais') ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
                             </div>
                             <div>
-                                <Label>Sexo</Label>
+                                <Label>Sexo de Nascimento</Label>
                                 {isCardEditing('dadosPessoais') ? (
                                     <Select value={data.sexo || ''} onValueChange={v => handleChange('sexo', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
@@ -237,10 +254,24 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                 ) : <ValueDisplay>{data.sexo}</ValueDisplay>}
                             </div>
                             <div>
+                                <Label>Identidade de Gênero</Label>
+                                {isCardEditing('dadosPessoais') ? <Input value={data.genderIdentity || ''} onChange={e => handleChange('genderIdentity', e.target.value)} /> : <ValueDisplay>{data.genderIdentity}</ValueDisplay>}
+                            </div>
+                             <div>
                                 <Label>Estado Civil</Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
                             </div>
-                             <div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div>
+                                <Label>Nacionalidade</Label>
+                                {isCardEditing('dadosPessoais') ? <Input value={data.nacionalidade || ''} onChange={e => handleChange('nacionalidade', e.target.value)} /> : <ValueDisplay>{data.nacionalidade}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label>Local de Nascimento</Label>
+                                {isCardEditing('dadosPessoais') ? <Input value={data.naturalidade || ''} onChange={e => handleChange('naturalidade', e.target.value)} /> : <ValueDisplay>{data.naturalidade}</ValueDisplay>}
+                            </div>
+                            <div>
                                 <Label>Idioma</Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.preferredLanguage || ''} onChange={e => handleChange('preferredLanguage', e.target.value)} placeholder="Ex: Português" /> : <ValueDisplay>{data.preferredLanguage}</ValueDisplay>}
                             </div>
@@ -248,15 +279,15 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                              <div>
                                 <Label>Email</Label>
-                                {isCardEditing('dadosPessoais') ? <Input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{data.email}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input type="email" value={data.emails?.[0]?.email || ''} onChange={e => handleChange('emails', [{ email: e.target.value }])} /> : <ValueDisplay>{data.emails?.[0]?.email}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Telefone Celular (WhatsApp)</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.phones.find(p => p.type === 'mobile')?.number || ''} onChange={e => handleChange('mobile', e.target.value)} /> : <PhoneValueDisplay value={data.phones.find(p => p.type === 'mobile')?.number} />}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.phones?.find(p => p.type === 'mobile')?.number || ''} onChange={e => handleChange('phones', [{ type: 'mobile', number: e.target.value }])} /> : <PhoneValueDisplay value={data.phones?.find(p => p.type === 'mobile')?.number} />}
                             </div>
                             <div>
                                 <Label>Telefone Fixo</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.phones.find(p => p.type === 'home')?.number || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phones.find(p => p.type === 'home')?.number}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.phones?.find(p => p.type === 'home')?.number || ''} onChange={e => handleChange('phones', [{ type: 'home', number: e.target.value }])} /> : <ValueDisplay>{data.phones?.find(p => p.type === 'home')?.number}</ValueDisplay>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -272,7 +303,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                         </SelectContent>
                                     </Select>
                                 ) : <ValueDisplay className="flex items-center gap-2">
-                                        {data.preferredContactMethod === 'WhatsApp' && <MessageCircle className="w-4 h-4 text-green-600"/>}
+                                        {data.preferredContactMethod === 'WhatsApp' && <WhatsAppIcon className="w-4 h-4 text-green-600"/>}
                                         {data.preferredContactMethod === 'Email' && <Mail className="w-4 h-4"/>}
                                         {data.preferredContactMethod === 'Telefone' && <Phone className="w-4 h-4"/>}
                                         {data.preferredContactMethod}
@@ -309,7 +340,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                             </div>
                                             <div>
                                                 <Label>Telefone</Label>
-                                                {isCardEditing('dadosPessoais') ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <ValueDisplay>{contact.phone}</ValueDisplay>}
+                                                {isCardEditing('dadosPessoais') ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <PhoneValueDisplay value={contact.phone} />}
                                             </div>
                                         </div>
                                     </Card>
@@ -709,7 +740,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <Label>Valor Mensal (R$)</Label>
-                                    {isCardEditing('financeiro') ? <Input type="number" value={data.financial?.monthlyFee || ''} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{data.financial?.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
+                                    {isCardEditing('financeiro') ? <Input type="number" value={data.financial?.monthlyFee || ''} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{data.financial?.monthlyFee?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
                                 </div>
                                 <div>
                                     <Label>Dia do Vencimento</Label>
