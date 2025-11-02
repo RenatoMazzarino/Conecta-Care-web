@@ -1,6 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   Bell,
@@ -36,7 +38,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Image from 'next/image';
 import { logoutAction } from '@/app/logout/actions';
 import { Input } from './ui/input';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';

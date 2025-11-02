@@ -165,8 +165,6 @@ export default function DashboardPage() {
                           title={stat.title} 
                           value={stat.value ?? 0}
                           icon={stat.icon} 
-                          trend="+2" /* Mock data */
-                          trendDirection="up" /* Mock data */
                       />
                   </Link>
               ))
@@ -194,27 +192,27 @@ export default function DashboardPage() {
         <div className="lg:col-span-1 space-y-6 flex flex-col">
            {!noData && (
               <>
-                  <div className="relative flex-1">
-                    {isRefreshing && <LoadingOverlay />}
+                  <div className={cn("relative transition-opacity duration-300", isRefreshing && "opacity-70")}>
                     <TasksCard tasks={tasks} onTaskUpdate={handleTaskUpdate} onTaskClick={handleTaskClick} />
+                    {isRefreshing && <LoadingOverlay />}
                   </div>
-                  <div className="relative flex-1">
-                     {isRefreshing && <LoadingOverlay />}
+                  <div className={cn("relative transition-opacity duration-300", isRefreshing && "opacity-70")}>
                     <CommunicationsCard notifications={data.notifications} />
+                    {isRefreshing && <LoadingOverlay />}
                   </div>
-                  <div className="relative flex-1">
-                     {isRefreshing && <LoadingOverlay />}
+                  <div className={cn("relative transition-opacity duration-300", isRefreshing && "opacity-70")}>
                     <RecentEvolutionsCard reports={data.evolutions} patients={data.patients} />
+                    {isRefreshing && <LoadingOverlay />}
                   </div>
               </>
             )}
         </div>
         <div className="lg:col-span-1 relative h-full">
           {!noData && (
-            <>
-              {isRefreshing && <LoadingOverlay />}
+            <div className={cn("relative h-full transition-opacity duration-300", isRefreshing && "opacity-70")}>
               <ActivityFeed events={data.activityEvents} />
-            </>
+              {isRefreshing && <LoadingOverlay />}
+            </div>
           )}
         </div>
       </div>

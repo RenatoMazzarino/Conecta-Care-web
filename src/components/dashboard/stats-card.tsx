@@ -1,30 +1,16 @@
+
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { LucideIcon } from 'lucide-react';
-import { Button } from '../ui/button';
-import { ArrowDown, ArrowRight, ArrowUp, MoreHorizontal } from 'lucide-react';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
-import { cn } from '@/lib/utils';
 import { trackEvent } from '@/lib/analytics';
 
 interface StatsCardProps {
     title: string;
     value: string | number;
     icon: LucideIcon;
-    trend: string;
-    trendDirection: 'up' | 'down' | 'none';
 }
 
-const trendConfig = {
-    up: { icon: ArrowUp, color: 'text-red-600' },
-    down: { icon: ArrowDown, color: 'text-green-600' },
-    none: { icon: ArrowRight, color: 'text-muted-foreground' }
-}
-
-export function StatsCard({ title, value, icon: Icon, trend, trendDirection }: StatsCardProps) {
-  const TrendIcon = trendConfig[trendDirection].icon;
-  const trendColor = trendConfig[trendDirection].color;
-
+export function StatsCard({ title, value, icon: Icon }: StatsCardProps) {
   const handleQuickAction = (action: string) => {
     trackEvent({
         eventName: 'quick_action',
@@ -44,11 +30,9 @@ export function StatsCard({ title, value, icon: Icon, trend, trendDirection }: S
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold">{value}</div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <TrendIcon className={cn("h-3 w-3", trendColor)} />
-            <span className={cn("font-semibold", trendColor)}>{trend}</span>
-            <span>em relação a ontem</span>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Comparado ao último período
+          </p>
         </CardContent>
       </Card>
   );
