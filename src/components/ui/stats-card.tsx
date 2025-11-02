@@ -7,11 +7,12 @@ interface StatsCardProps {
     title: string;
     value: string | number;
     icon: LucideIcon;
+    comparisonText?: string;
     isActive?: boolean;
     onClick?: () => void;
 }
 
-export function StatsCard({ title, value, icon: Icon, isActive = false, onClick }: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, comparisonText, isActive = false, onClick }: StatsCardProps) {
   return (
       <Card 
         className={cn(
@@ -28,7 +29,7 @@ export function StatsCard({ title, value, icon: Icon, isActive = false, onClick 
         <CardContent>
           <div className="text-4xl font-bold">{value}</div>
           <p className="text-xs text-muted-foreground">
-            Clique para filtrar
+            {comparisonText || 'Clique para filtrar'}
           </p>
         </CardContent>
       </Card>

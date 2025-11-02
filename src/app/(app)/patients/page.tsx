@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -212,10 +213,10 @@ export default function PatientsPage() {
       </div>
 
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatsCard title="Total de Pacientes" value={kpis.total} icon={Users} isActive={kpiFilter === 'all'} onClick={() => setKpiFilter('all')} />
-        <StatsCard title="Pacientes Ativos" value={kpis.active} icon={ShieldCheck} isActive={kpiFilter === 'active'} onClick={() => setKpiFilter('active')} />
-        <StatsCard title="Com Pendências" value={kpis.pending} icon={AlertTriangle} isActive={kpiFilter === 'pending'} onClick={() => setKpiFilter('pending')} />
-        <StatsCard title="Alta Complexidade" value={kpis.highComplexity} icon={HeartPulse} isActive={kpiFilter === 'high_complexity'} onClick={() => setKpiFilter('high_complexity')} />
+        <StatsCard title="Total de Pacientes" value={kpis.total} icon={Users} isActive={kpiFilter === 'all'} onClick={() => setKpiFilter('all')} comparisonText="+2 vs. mês passado" />
+        <StatsCard title="Pacientes Ativos" value={kpis.active} icon={ShieldCheck} isActive={kpiFilter === 'active'} onClick={() => setKpiFilter('active')} comparisonText="+1 na última semana"/>
+        <StatsCard title="Com Pendências" value={kpis.pending} icon={AlertTriangle} isActive={kpiFilter === 'pending'} onClick={() => setKpiFilter('pending')} comparisonText="-3 vs. semana passada"/>
+        <StatsCard title="Alta Complexidade" value={kpis.highComplexity} icon={HeartPulse} isActive={kpiFilter === 'high_complexity'} onClick={() => setKpiFilter('high_complexity')} comparisonText="Estável" />
       </div>
        
        <Collapsible className="mb-6">
