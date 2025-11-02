@@ -13,6 +13,7 @@ import { FichaCadastral } from '@/components/patients/ficha-cadastral';
 import { ProntuarioPanel } from '@/components/prontuario/prontuario-panel';
 import { patients as mockPatients } from '@/lib/data';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
