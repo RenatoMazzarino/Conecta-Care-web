@@ -16,7 +16,6 @@ import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
-import { PatientDetailsPanel } from '@/components/patients/patient-details-panel';
 import { StatsCard } from '@/components/ui/stats-card';
 
 type KpiFilter = 'all' | 'pending' | 'active' | 'low_complexity' | 'medium_complexity' | 'high_complexity';
@@ -29,10 +28,6 @@ export default function PatientsPage() {
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
   const [selectedPatients, setSelectedPatients] = React.useState<Set<string>>(new Set());
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = React.useState(false);
-
-  // State for the details panel
-  const [isPanelOpen, setIsPanelOpen] = React.useState(false);
-  const [selectedPatientId, setSelectedPatientId] = React.useState<string | null>(null);
 
   // State for filters
   const [kpiFilter, setKpiFilter] = React.useState<KpiFilter>('all');
@@ -143,18 +138,6 @@ export default function PatientsPage() {
     setFilteredPatients(results);
   }, [kpiFilter, searchTerm, complexityFilter, packageFilter, planFilter, statusFilter, supervisorFilter, cityFilter, stateFilter, allPatients]);
   
-  const handleViewPatientDetails = (patientId: string) => {
-    setSelectedPatientId(patientId);
-    setIsPanelOpen(true);
-  }
-  
-  const handlePanelClose = () => {
-    setIsPanelOpen(false);
-    // Give animation time to finish before clearing patientId
-    setTimeout(() => {
-        setSelectedPatientId(null);
-    }, 300);
-  }
 
   const handleSelectionChange = (newSelection: Set<string>) => {
     setSelectedPatients(newSelection);
@@ -176,10 +159,6 @@ export default function PatientsPage() {
         description: 'A atribuição de supervisor e escalista foi registrada com sucesso.'
     });
     setSelectedPatients(new Set());
-  }
-  
-  const handlePatientDataUpdate = (updatedPatient: Patient) => {
-      setAllPatients(prev => prev.map(p => p.id === updatedPatient.id ? updatedPatient : p));
   }
 
   const noData = !isLoading && !allPatients.length;
@@ -353,7 +332,6 @@ export default function PatientsPage() {
             professionals={professionals}
             selectedPatients={selectedPatients}
             onSelectionChange={handleSelectionChange}
-            onViewDetails={handleViewPatientDetails}
         />
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground bg-card p-12 text-center h-96">
@@ -373,15 +351,6 @@ export default function PatientsPage() {
         allProfessionals={professionals}
         onSuccess={handleAssignmentSuccess}
       />
-      
-      {selectedPatientId && (
-        <PatientDetailsPanel
-            patientId={selectedPatientId}
-            isOpen={isPanelOpen}
-            onOpenChange={handlePanelClose}
-            onPatientUpdate={handlePatientDataUpdate}
-        />
-      )}
     </>
   );
 }

@@ -54,14 +54,12 @@ export function PatientTable({
     patients,
     professionals,
     selectedPatients, 
-    onSelectionChange,
-    onViewDetails
+    onSelectionChange
 }: { 
     patients: Patient[];
     professionals: Professional[];
     selectedPatients: Set<string>;
     onSelectionChange: (selection: Set<string>) => void;
-    onViewDetails: (patientId: string) => void;
 }) {
   const { toast } = useToast();
 
@@ -182,16 +180,17 @@ export function PatientTable({
                     </TooltipProvider>
                 </TableCell>
                 <TableCell>
-                    <div
-                        onClick={() => onViewDetails(patient.id)}
-                        className="flex items-center gap-3 group cursor-pointer"
-                    >
-                        <Avatar className="h-9 w-9">
-                            <AvatarImage src={patient.avatarUrl} alt={fullName} data-ai-hint={patient.avatarHint} />
-                            <AvatarFallback>{patient.firstName.charAt(0)}{patient.lastName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium group-hover:underline">{patient.displayName}</span>
-                    </div>
+                    <Link href={`/patients/${patient.id}`}>
+                      <div
+                          className="flex items-center gap-3 group cursor-pointer"
+                      >
+                          <Avatar className="h-9 w-9">
+                              <AvatarImage src={patient.avatarUrl} alt={fullName} data-ai-hint={patient.avatarHint} />
+                              <AvatarFallback>{patient.firstName.charAt(0)}{patient.lastName.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium group-hover:underline">{patient.displayName}</span>
+                      </div>
+                    </Link>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className={cn(complexityVariant[patient.adminData.complexity])}>
@@ -226,9 +225,11 @@ export function PatientTable({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onViewDetails(patient.id)}>
-                                <FileText className="mr-2 h-4 w-4" />
-                                Ver Detalhes
+                            <DropdownMenuItem asChild>
+                                <Link href={`/patients/${patient.id}`}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Ver Detalhes
+                                </Link>
                             </DropdownMenuItem>
                              <DropdownMenuItem asChild>
                                 <Link href="/shifts">

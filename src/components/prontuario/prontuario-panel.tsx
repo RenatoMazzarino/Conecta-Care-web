@@ -1,15 +1,13 @@
-
-
 'use client';
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
 import { Button } from '../ui/button';
 import { Upload } from 'lucide-react';
 import { ProntuarioUploadDialog } from '../prontuario/prontuario-upload-dialog';
+import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 
 interface ProntuarioPanelProps {
   patient: Patient | null;
@@ -49,7 +47,7 @@ export function ProntuarioPanel({ patient, isOpen, onOpenChange }: ProntuarioPan
 
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
              <ProntuarioDashboard 
-                editMode={'none'} // No edit mode for now in prontuario panel
+                editMode={'none' as EditMode} // No edit mode for now in prontuario panel
                 setEditMode={() => {}}
                 editedData={editedData}
                 setEditedData={setEditedData}
