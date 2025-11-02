@@ -37,24 +37,17 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                 </CardTitle>
             </CardHeader>
             <CardContent className="relative pl-2">
-                {/* Progress Bar Background */}
-                <div className="absolute left-4 top-0 h-full w-1 bg-muted rounded-full" />
-                {/* Progress Bar Fill */}
-                <div 
-                    className="absolute left-4 top-0 w-1 bg-primary rounded-full transition-all duration-500" 
-                    style={{ height: `${currentProgress}%`}} 
-                />
-                
                 <div className="space-y-2">
                     {mockShiftHistory.map((event, index) => {
                          const isEventActive = index * (100 / (mockShiftHistory.length - 1)) <= currentProgress;
                          const config = statusConfig[event.status || 'default'];
 
                         return (
-                             <Link href="#" key={index} className={cn("relative group flex items-start gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
-                                {/* Timeline line connecting dots - This is handled by the parent divs now */}
+                             <Link href="#" key={index} className={cn("relative flex items-start gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-accent", !isEventActive && "opacity-40")}>
+                                {/* Timeline line connecting dots */}
+                                 <div className="absolute left-4 top-5 h-full w-px bg-border group-last:hidden" />
                                 
-                                {/* Icon and line */}
+                                {/* Icon */}
                                 <div className="flex-shrink-0 z-10 mt-1">
                                      <div className={cn(
                                         "flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-colors z-10",
