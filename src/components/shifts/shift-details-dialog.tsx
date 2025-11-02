@@ -10,7 +10,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X, CalendarClock, Info } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -20,7 +20,8 @@ import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription } from '../ui/alert';
 
 // Mock candidates for pending shifts
 const mockCandidates: Professional[] = [
@@ -60,6 +61,9 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     notes: '',
     isUrgent: shift.isUrgent || false,
   });
+  
+  const isTimeInvalid = publishData.startTime && publishData.endTime && publishData.startTime > publishData.endTime;
+
 
   const { toast } = useToast();
   
@@ -163,72 +167,113 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
 
     if (view === 'publish') {
       const fullAddress = `${patient.address.street}, ${patient.address.number} - ${patient.address.neighborhood}, ${patient.address.city}/${patient.address.state}`;
+      const formattedDate = new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' });
       return (
         <div className="py-4 max-h-[70vh]">
-          <h4 className="font-semibold text-lg text-center mb-4">Revisar e Publicar Vaga</h4>
-          <ScrollArea className="h-[55vh] pr-4">
-            <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base"><Calendar className="h-5 w-5 text-primary" />Detalhes do Plantão</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Data</Label>
-                      <Input value={new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' })} disabled />
-                    </div>
-                    <div>
-                      <Label>Tipo de Plantão</Label>
-                      <Input value={`Plantão ${shift.shiftType}`} disabled />
-                    </div>
-                </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <Label>Hora Início</Label>
-                        <Input value={publishData.startTime} onChange={e => setPublishData({...publishData, startTime: e.target.value})} type="time" />
-                    </div>
-                    <div>
-                        <Label>Hora Fim</Label>
-                        <Input value={publishData.endTime} onChange={e => setPublishData({...publishData, endTime: e.target.value})} type="time" />
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <Label>Título da Vaga</Label>
-                        <Input defaultValue={`Plantão ${shift.shiftType} - ${patient.name}`} />
-                    </div>
-                     <div>
-                        <Label>Valor Oferecido (R$)</Label>
-                        <Input type="number" value={publishData.valueOffered} onChange={e => setPublishData({...publishData, valueOffered: Number(e.target.value)})} />
-                    </div>
-                </div>
-              </CardContent>
-            </Card>
+            <h4 className="font-semibold text-lg text-center mb-4">Revisar e Publicar Vaga</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <ScrollArea className="md:col-span-2 h-[55vh] pr-6">
+                    <div className="space-y-6">
+                        <Card>
+                          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarClock className="h-5 w-5 text-primary" />Detalhes do Plantão</CardTitle></CardHeader>
+                          <CardContent className="space-y-4">
+                             <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label>Data</Label>
+                                  <Input value={formattedDate} disabled />
+                                </div>
+                                <div>
+                                  <Label>Tipo de Plantão</Label>
+                                  <Input value={`Plantão ${shift.shiftType}`} disabled />
+                                </div>
+                            </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label>Hora Início</Label>
+                                    <Input value={publishData.startTime} onChange={e => setPublishData({...publishData, startTime: e.target.value})} type="time" />
+                                </div>
+                                <div>
+                                    <Label>Hora Fim</Label>
+                                    <Input value={publishData.endTime} onChange={e => setPublishData({...publishData, endTime: e.target.value})} type="time" />
+                                </div>
+                            </div>
+                             {isTimeInvalid && (
+                                <Alert variant="destructive">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    <AlertDescription>
+                                        O horário de início não pode ser posterior ao horário de término.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                            <CardHeader><CardTitle className="flex items-center gap-2 text-base"><DollarSign className="h-5 w-5 text-primary" />Valores e Informações Adicionais</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                               <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>Título da Vaga</Label>
+                                        <Input defaultValue={`Plantão ${shift.shiftType} - ${patient.name}`} />
+                                    </div>
+                                     <div>
+                                        <Label>Valor Oferecido (R$)</Label>
+                                        <Input type="number" value={publishData.valueOffered} onChange={e => setPublishData({...publishData, valueOffered: Number(e.target.value)})} />
+                                    </div>
+                                </div>
+                                <div>
+                                  <Label htmlFor="notes">Observações para os Profissionais</Label>
+                                  <Textarea id="notes" placeholder="Ex: Paciente necessita de atenção especial para mobilidade." value={publishData.notes} onChange={e => setPublishData({...publishData, notes: e.target.value})} />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base"><MapPin className="h-5 w-5 text-primary" />Endereço</CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md">{fullAddress}</p>
-              </CardContent>
-            </Card>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="notes">Observações para os Profissionais</Label>
-              <Textarea id="notes" placeholder="Ex: Paciente necessita de atenção especial para mobilidade." value={publishData.notes} onChange={e => setPublishData({...publishData, notes: e.target.value})} />
-            </div>
+                    </div>
+                </ScrollArea>
 
+                <div className="md:col-span-1">
+                    <Card className="sticky top-0 bg-muted/50">
+                        <CardHeader>
+                            <CardTitle className="text-base">Preview da Vaga</CardTitle>
+                            <CardDescription>É assim que os profissionais verão a vaga.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4 text-sm">
+                            <div className="flex items-center justify-between font-bold text-lg text-primary">
+                                <span>{patient.name}</span>
+                                {publishData.isUrgent && <Badge variant="destructive" className="bg-amber-500 text-white">Urgente</Badge>}
+                            </div>
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="font-semibold text-muted-foreground">Localização</p>
+                                    <p>{patient.address.neighborhood}, {patient.address.city} - {patient.address.state}</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-muted-foreground">Data e Horário</p>
+                                    <p>{formattedDate}</p>
+                                    <p>{publishData.startTime} às {publishData.endTime}</p>
+                                </div>
+                                 <div>
+                                    <p className="font-semibold text-muted-foreground">Valor</p>
+                                    <p className="font-bold text-green-600 text-base">{publishData.valueOffered.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                                </div>
+                                {publishData.notes && (
+                                    <div>
+                                        <p className="font-semibold text-muted-foreground">Observações</p>
+                                        <p className="italic">"{publishData.notes}"</p>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
-          </ScrollArea>
         </div>
       )
     }
 
     return (
         <div className="p-6 space-y-6">
-             <div className="flex items-center justify-between p-4 rounded-lg border">
+            <div className="flex items-center justify-between p-4 rounded-lg border">
                 <div className="flex items-center space-x-3">
                     <Megaphone className="h-6 w-6 text-amber-600"/>
                     <div>
@@ -403,7 +448,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
           
           <DialogFooter className="pt-4 mt-4 border-t">
             {(view === 'assign' || view === 'publish') && <Button variant="outline" onClick={() => setView('default')}>Voltar</Button>}
-            {view === 'publish' && <Button onClick={handlePublishVacancy}><FileUp className="mr-2 h-4 w-4" />Confirmar e Publicar</Button>}
+            {view === 'publish' && <Button onClick={handlePublishVacancy} disabled={isTimeInvalid}><FileUp className="mr-2 h-4 w-4" />Confirmar e Publicar</Button>}
             <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
