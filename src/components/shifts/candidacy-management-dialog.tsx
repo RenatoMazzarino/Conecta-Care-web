@@ -33,12 +33,12 @@ const mockPendingShifts: OpenShiftInfo[] = [
 ];
 
 const mockCandidates: Professional[] = [
-    { ...professionals.find(p => p.id === 'prof-1')!, compatibilityTags: [{text: 'Já atendeu este paciente', icon: UserCheck}] },
-    { ...professionals.find(p => p.id === 'prof-2')!, compatibilityTags: [] },
-    { ...professionals.find(p => p.id === 'prof-6')!, compatibilityTags: [{text: 'Especialista em Curativos', icon: Heart}] },
-    { ...professionals.find(p => p.id === 'prof-4')!, compatibilityTags: [] }, // COREN Inativo
-    { ...professionals.find(p => p.id === 'prof-5')!, compatibilityTags: [{text: 'Disponível no período', icon: CalendarCheck}] },
-].filter(Boolean);
+    professionals.find(p => p.id === 'prof-1')!,
+    professionals.find(p => p.id === 'prof-2')!,
+    professionals.find(p => p.id === 'prof-6')!,
+    professionals.find(p => p.id === 'prof-4')!,
+    professionals.find(p => p.id === 'prof-5')!,
+].filter(Boolean) as Professional[];
 // --- End Mock Data ---
 
 
@@ -96,8 +96,7 @@ export function CandidacyManagementDialog({
 
   const shift = mockPendingShifts[0]; // Assuming one shift for simplicity
   const formattedDate = shift?.dayKey ? new Date(shift.dayKey).toLocaleDateString('pt-BR', {timeZone: 'UTC', day: '2-digit', month: 'long' }) : 'data indefinida';
-  const shiftTime = shift?.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
-
+  
   if (!shift) {
     return null;
   }

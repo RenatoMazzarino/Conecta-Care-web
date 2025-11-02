@@ -502,25 +502,24 @@ export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftTyp
         </span>
     </div>
     <div className="absolute inset-0 flex items-center justify-center gap-2 bg-accent/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
-        <Button size="icon" variant="ghost" className="h-8 w-8"><FileUp className="h-4 w-4" /></Button>
-        <Button size="icon" variant="ghost" className="h-8 w-8"><UserCheck className="h-4 w-4" /></Button>
+        <Button size="sm" variant="ghost" className="h-8 text-foreground"><FileUp className="h-4 w-4 mr-2" />Publicar</Button>
+        <Button size="sm" variant="ghost" className="h-8 text-foreground"><UserCheck className="h-4 w-4 mr-2" />Atribuir</Button>
     </div>
   </div>
 );
 
 export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
-    const config = statusConfig.pending;
     // Mock candidate count
     const candidateCount = 3; 
 
     return (
-        <div onClick={onClick} className={cn("group relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
-            <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold ring-2 ring-card">
+        <div onClick={onClick} className={cn("group relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", statusConfig.pending.base, statusConfig.pending.border)}>
+            <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white text-xs font-bold ring-2 ring-card">
               {candidateCount}
             </div>
             <div className="flex items-center justify-center gap-2 z-10 opacity-100 group-hover:opacity-0 transition-opacity">
-                <UserPlus className={cn("h-5 w-5", config.text)} />
-                <span className={cn("text-sm font-semibold", config.text)}>Candidatos</span>
+                <UserPlus className={cn("h-5 w-5", statusConfig.pending.text)} />
+                <span className={cn("text-sm font-semibold", statusConfig.pending.text)}>Candidatos</span>
             </div>
             <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
                 <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><Edit className="h-4 w-4" /></Button>
@@ -532,6 +531,7 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
 

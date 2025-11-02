@@ -1,9 +1,10 @@
 
+
 import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube } from 'lucide-react';
+import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck } from 'lucide-react';
 
 const patientAvatars = {
   'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
@@ -168,7 +169,8 @@ export const professionals: Professional[] = [
     reviews: [
       { from: 'Família Silva', quote: 'Profissional exemplar, sempre pontual e muito carinhosa com nosso pai.' },
       { from: 'Home Care ABC', quote: 'Uma das melhores enfermeiras da nossa equipe. Proativa e muito competente.' }
-    ]
+    ],
+    compatibilityTags: [{ text: 'Já atendeu este paciente', icon: UserCheck }],
   },
   {
     id: 'prof-2',
@@ -190,7 +192,8 @@ export const professionals: Professional[] = [
     specialties: ['Curativos Complexos', 'Monitoramento de Sinais Vitais'],
     reviews: [
         { from: 'Hospital Central', quote: 'Muito atencioso e técnico. Um ótimo profissional para se ter na equipe.' },
-    ]
+    ],
+    compatibilityTags: [],
   },
   {
     id: 'prof-3',
@@ -210,7 +213,8 @@ export const professionals: Professional[] = [
     role: 'Supervisor(a)',
     employmentType: 'interno',
     specialties: ['UTI', 'Ventilação Mecânica', 'Cuidados Paliativos'],
-    reviews: []
+    reviews: [],
+    compatibilityTags: [],
   },
     {
     id: 'prof-4',
@@ -232,7 +236,8 @@ export const professionals: Professional[] = [
     specialties: ['Pediatria'],
     reviews: [
          { from: 'Hospital Infantil', quote: 'Atrasou em 2 dos 3 plantões alocados.' },
-    ]
+    ],
+    compatibilityTags: [],
   },
   {
     id: 'prof-5',
@@ -254,7 +259,8 @@ export const professionals: Professional[] = [
     specialties: ['Cardiologia', 'Home Care', 'Reabilitação'],
     reviews: [
       { from: 'Clínica do Coração', quote: 'Excelente profissional, muito conhecimento técnico e ótimo com os pacientes.' },
-    ]
+    ],
+    compatibilityTags: [{ text: 'Disponível no período', icon: CalendarCheck }],
   },
   {
     id: 'prof-6',
@@ -277,7 +283,8 @@ export const professionals: Professional[] = [
     reviews: [
       { from: 'DermaClin', quote: 'Extremamente cuidadosa e atenta aos detalhes.' },
       { from: 'Home Care Senior', quote: 'Paciente adorou a atenção e o cuidado.' }
-    ]
+    ],
+    compatibilityTags: [{ text: 'Especialista em Curativos', icon: Heart }],
   },
   {
     id: 'prof-7',
@@ -297,7 +304,8 @@ export const professionals: Professional[] = [
     role: 'Fisioterapeuta',
     employmentType: 'fixo',
     specialties: ['Fisioterapia Respiratória', 'Fisioterapia Motora'],
-    reviews: []
+    reviews: [],
+    compatibilityTags: [],
   }
 ];
 
