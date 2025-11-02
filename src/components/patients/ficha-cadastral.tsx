@@ -88,13 +88,15 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     };
     
     const ContactValueDisplay = ({ value, type }: { value: string; type: 'phone' | 'email' | 'whatsapp' }) => {
-        const handleWhatsAppClick = () => {
+        const handleWhatsAppClick = (e: React.MouseEvent) => {
+            e.stopPropagation();
             if (!value) return;
             const phoneNumber = value.replace(/\D/g, '');
             window.open(`https://wa.me/${phoneNumber}`, '_blank');
         };
         
-        const handleEmailClick = () => {
+        const handleEmailClick = (e: React.MouseEvent) => {
+            e.stopPropagation();
             if (!value) return;
             window.location.href = `mailto:${value}`;
         }
@@ -306,7 +308,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                             </div>
                         </div>
                         <div className="space-y-4 mb-6">
-                            {data.phones?.map((phone, index) => (
+                             {data.phones?.map((phone, index) => (
                                 <div key={`phone-${index}`}>
                                     <Label>Telefone ({phone.type})</Label>
                                     {isCardEditing('dadosPessoais') ? <Input value={phone.number || ''} onChange={e => {
@@ -957,3 +959,4 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         </Accordion>
     )
 }
+
