@@ -1,5 +1,7 @@
 
 
+import { LucideIcon } from 'lucide-react';
+
 export type Patient = {
   id: string;
   name: string;
@@ -81,7 +83,7 @@ export type Professional = {
   employmentType: 'interno' | 'fixo' | 'externo';
   reviews: { from: string; quote: string }[];
   specialties: string[];
-  compatibilityTags?: { text: string; icon: React.ElementType }[];
+  compatibilityTags?: { text: string; icon: LucideIcon }[];
 };
 
 export type Shift = {
