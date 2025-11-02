@@ -193,12 +193,13 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                 <Button variant="outline" onClick={() => setCurrentView('prontuario')} disabled={isLoading}><FileText className="mr-2 h-4 w-4" />Ver Prontuário</Button>
               )}
               <Button onClick={() => handleFeaturePlaceholder('Anexar Documento')} variant="outline" disabled={isLoading}><Upload className="mr-2 h-4 w-4" />Anexar</Button>
-              {!isEditing ? (
+              {editMode === 'none' ? (
                 <Button onClick={() => setEditMode('full')} disabled={isLoading}>
                   <Edit className="w-4 h-4 mr-2" />
                   Editar
                 </Button>
-              ) : (
+              ) : null}
+              {editMode === 'full' ? (
                 <div className="flex gap-2">
                   <Button onClick={handleCancelEdit} variant="outline">
                     <X className="w-4 h-4 mr-2" />
@@ -209,7 +210,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                     Salvar
                   </Button>
                 </div>
-              )}
+              ) : null}
             </div>
           </SheetHeader>
 
@@ -223,7 +224,15 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             )}
 
             {!isLoading && displayData && currentView === 'ficha' && (
-              <div><FichaCadastral editMode={editMode} setEditMode={setEditMode} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
+              <div><FichaCadastral 
+                  editMode={editMode} 
+                  setEditMode={setEditMode} 
+                  displayData={displayData} 
+                  editedData={editedData} 
+                  setEditedData={setEditedData} 
+                  onSave={handleSave}
+                  onCancel={handleCancelEdit}
+              /></div>
             )}
 
             {!isLoading && displayData && currentView === 'prontuario' && (
