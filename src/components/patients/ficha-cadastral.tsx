@@ -106,6 +106,9 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
 
 
     if (!data) return null;
+    
+    const age = data?.dateOfBirth ? `${new Date().getFullYear() - new Date(data.dateOfBirth).getFullYear()} anos` : null;
+
 
     return (
          <div className="space-y-6">
@@ -141,7 +144,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         </div>
                         <div>
                             <Label>Data de Nascimento</Label>
-                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}` : '-'}</ValueDisplay>}
+                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
                         </div>
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
