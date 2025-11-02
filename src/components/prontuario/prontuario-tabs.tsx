@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -12,6 +13,7 @@ import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documen
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
 import { Button } from '../ui/button';
+import type { EditMode } from '../patients/patient-details-panel';
 
 // Definição das abas do prontuário
 export const prontuarioTabs = [
@@ -47,16 +49,17 @@ const ProntuarioJuridico: React.FC = () => (
 
 type ProntuarioContentProps = {
     tabId: string;
-    isEditing: boolean;
+    editMode: EditMode;
+    setEditMode: (mode: EditMode) => void;
     editedData: Patient | null;
     setEditedData: (data: Patient | null) => void;
 };
 
 // Componente que renderiza o conteúdo da aba ativa
-export function ProntuarioContent({ tabId, isEditing, editedData, setEditedData }: ProntuarioContentProps) {
+export function ProntuarioContent({ tabId, editMode, setEditMode, editedData, setEditedData }: ProntuarioContentProps) {
   switch (tabId) {
     case 'dashboard':
-      return <ProntuarioDashboard isEditing={isEditing} editedData={editedData} setEditedData={setEditedData} />;
+      return <ProntuarioDashboard editMode={editMode} setEditMode={setEditMode} editedData={editedData} setEditedData={setEditedData} />;
     case 'enfermagem':
       return <ProntuarioEnfermagem />;
     case 'medico':

@@ -9,12 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle, Edit } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import type { EditMode } from './patient-details-panel';
 
 // Define a simple SVG icon for WhatsApp
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -25,13 +26,16 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 interface FichaCadastralProps {
-    isEditing: boolean;
+    editMode: EditMode;
+    setEditMode: (mode: EditMode) => void;
     displayData: Patient;
     editedData: Patient | null;
     setEditedData: (data: Patient | null) => void;
 }
 
-export function FichaCadastral({ isEditing, displayData, editedData, setEditedData }: FichaCadastralProps) {
+export function FichaCadastral({ editMode, setEditMode, displayData, editedData, setEditedData }: FichaCadastralProps) {
+
+    const isCardEditing = (card: EditMode) => editMode === 'full' || editMode === card;
 
     const handleChange = (path: string, value: any) => {
         if (!editedData) return;
@@ -72,6 +76,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         } else {
             handleChange('emergencyContacts', newContacts);
         }
+        setEditMode('dadosPessoais');
     };
 
     const removeEmergencyContact = (index: number) => {
@@ -161,6 +166,15 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         newDiagnoses[index] = { ...newDiagnoses[index], [field]: value };
         handleChange('clinicalData.diagnoses', newDiagnoses);
     };
+    
+    const CardEditButton = ({ card }: { card: EditMode }) => {
+        if (isCardEditing(card)) return null;
+        return (
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setEditMode(card); }}>
+                <Edit className="h-4 w-4" />
+            </Button>
+        )
+    };
 
     const data = editedData || displayData;
 
@@ -177,45 +191,48 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
              <AccordionItem value="item-1" className="border-none">
                  <Card>
                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-xl"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
+                        <div className="flex justify-between w-full">
+                           <CardTitle className="flex items-center gap-3 text-xl"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
+                           <CardEditButton card="dadosPessoais" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6">
                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                             <div className="md:col-span-2">
                                 <Label>Nome Completo</Label>
-                                {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
                             </div>
                              <div className="md:col-span-1">
                                 <Label>Nome Social</Label>
-                                {isEditing ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.socialName || ''} onChange={e => handleChange('socialName', e.target.value)} /> : <ValueDisplay>{data.socialName}</ValueDisplay>}
                             </div>
                              <div className="md:col-span-1">
                                 <Label>Pronomes</Label>
-                                {isEditing ? <Input value={data.pronouns || ''} onChange={e => handleChange('pronouns', e.target.value)} placeholder="Ex: ela/dela"/> : <ValueDisplay>{data.pronouns}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.pronouns || ''} onChange={e => handleChange('pronouns', e.target.value)} placeholder="Ex: ela/dela"/> : <ValueDisplay>{data.pronouns}</ValueDisplay>}
                             </div>
                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
                                 <Label>CPF</Label>
-                                {isEditing ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>CNS (Cartão SUS)</Label>
-                                {isEditing ? <Input value={data.cns || ''} onChange={e => handleChange('cns', e.target.value)} /> : <ValueDisplay>{data.cns}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.cns || ''} onChange={e => handleChange('cns', e.target.value)} /> : <ValueDisplay>{data.cns}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>RG</Label>
-                                {isEditing ? <Input value={data.rg || ''} onChange={e => handleChange('rg', e.target.value)} /> : <ValueDisplay>{data.rg}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.rg || ''} onChange={e => handleChange('rg', e.target.value)} /> : <ValueDisplay>{data.rg}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                             <div>
                                 <Label>Data de Nascimento</Label>
-                                {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Sexo</Label>
-                                {isEditing ? (
+                                {isCardEditing('dadosPessoais') ? (
                                     <Select value={data.sexo || ''} onValueChange={v => handleChange('sexo', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -228,31 +245,31 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                             <div>
                                 <Label>Estado Civil</Label>
-                                {isEditing ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.estadoCivil || ''} onChange={e => handleChange('estadoCivil', e.target.value)} /> : <ValueDisplay>{data.estadoCivil}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Idioma</Label>
-                                {isEditing ? <Input value={data.preferredLanguage || ''} onChange={e => handleChange('preferredLanguage', e.target.value)} placeholder="Ex: Português" /> : <ValueDisplay>{data.preferredLanguage}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.preferredLanguage || ''} onChange={e => handleChange('preferredLanguage', e.target.value)} placeholder="Ex: Português" /> : <ValueDisplay>{data.preferredLanguage}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                              <div>
                                 <Label>Email</Label>
-                                {isEditing ? <Input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{data.email}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{data.email}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Telefone Celular (WhatsApp)</Label>
-                                {isEditing ? <Input value={data.mobile || ''} onChange={e => handleChange('mobile', e.target.value)} /> : <PhoneValueDisplay value={data.mobile} />}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.mobile || ''} onChange={e => handleChange('mobile', e.target.value)} /> : <PhoneValueDisplay value={data.mobile} />}
                             </div>
                             <div>
                                 <Label>Telefone Fixo</Label>
-                                {isEditing ? <Input value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phone}</ValueDisplay>}
+                                {isCardEditing('dadosPessoais') ? <Input value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phone}</ValueDisplay>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                              <div>
                                 <Label>Método de Contato Preferencial</Label>
-                                {isEditing ? (
+                                {isCardEditing('dadosPessoais') ? (
                                      <Select value={data.preferredContactMethod || ''} onValueChange={v => handleChange('preferredContactMethod', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -272,7 +289,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         <div className="p-4 bg-muted/50 rounded-lg mb-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold">Contatos de Emergência</h4>
-                                <Button onClick={addEmergencyContact} size="sm" variant="outline" disabled={!isEditing && !editedData}>
+                                <Button onClick={addEmergencyContact} size="sm" variant="outline">
                                     <Plus className="w-4 h-4 mr-1" />
                                     Adicionar Contato
                                 </Button>
@@ -282,7 +299,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                     <Card key={index} className="p-4 bg-background">
                                         <div className="flex justify-between items-start mb-3">
                                             <h5 className="font-medium">Contato {index + 1}</h5>
-                                            {isEditing && (
+                                            {isCardEditing('dadosPessoais') && (
                                                 <Button onClick={() => removeEmergencyContact(index)} size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10 h-7 w-7">
                                                     <X className="w-4 h-4" />
                                                 </Button>
@@ -291,22 +308,22 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
                                                 <Label>Nome</Label>
-                                                {isEditing ? <Input value={contact.name} onChange={e => handleEmergencyContactChange(index, 'name', e.target.value)} /> : <ValueDisplay>{contact.name}</ValueDisplay>}
+                                                {isCardEditing('dadosPessoais') ? <Input value={contact.name} onChange={e => handleEmergencyContactChange(index, 'name', e.target.value)} /> : <ValueDisplay>{contact.name}</ValueDisplay>}
                                             </div>
                                             <div>
                                                 <Label>Parentesco</Label>
-                                                {isEditing ? <Input value={contact.relationship} onChange={e => handleEmergencyContactChange(index, 'relationship', e.target.value)} /> : <ValueDisplay>{contact.relationship}</ValueDisplay>}
+                                                {isCardEditing('dadosPessoais') ? <Input value={contact.relationship} onChange={e => handleEmergencyContactChange(index, 'relationship', e.target.value)} /> : <ValueDisplay>{contact.relationship}</ValueDisplay>}
                                             </div>
                                             <div>
                                                 <Label>Telefone</Label>
-                                                {isEditing ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <ValueDisplay>{contact.phone}</ValueDisplay>}
+                                                {isCardEditing('dadosPessoais') ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <ValueDisplay>{contact.phone}</ValueDisplay>}
                                             </div>
                                         </div>
                                     </Card>
                                 ))}
                                 {(!data.emergencyContacts || data.emergencyContacts.length === 0) && (
                                     <p className="text-muted-foreground text-center py-4">
-                                        {isEditing ? 'Clique em "Adicionar Contato" para começar.' : 'Nenhum contato de emergência cadastrado.'}
+                                        {isCardEditing('dadosPessoais') ? 'Clique em "Adicionar Contato" para começar.' : 'Nenhum contato de emergência cadastrado.'}
                                     </p>
                                 )}
                             </div>
@@ -318,7 +335,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                             <div>
                                 <Label>RG Digital (URL)</Label>
-                                {isEditing ? (
+                                {isCardEditing('dadosPessoais') ? (
                                 <Input value={data.rgDigitalUrl || ''} onChange={(e) => handleChange('rgDigitalUrl', e.target.value)} placeholder="https://..." />
                                 ) : (
                                 <LinkValueDisplay url={data.rgDigitalUrl} label="Visualizar RG" />
@@ -335,46 +352,49 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
              <AccordionItem value="item-2" className="border-none">
                  <Card>
                     <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-lg"><Home className="w-5 h-5 text-primary" />Endereço e Ambiente Domiciliar</CardTitle>
+                        <div className="flex justify-between w-full">
+                           <CardTitle className="flex items-center gap-3 text-lg"><Home className="w-5 h-5 text-primary" />Endereço e Ambiente Domiciliar</CardTitle>
+                            <CardEditButton card="endereco" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div className="md:col-span-1">
                                 <Label>CEP</Label>
-                                 {isEditing ? <Input value={data.address?.zipCode || ''} onChange={e => handleChange('address.zipCode', e.target.value)} /> : <ValueDisplay>{data.address?.zipCode}</ValueDisplay>}
+                                 {isCardEditing('endereco') ? <Input value={data.address?.zipCode || ''} onChange={e => handleChange('address.zipCode', e.target.value)} /> : <ValueDisplay>{data.address?.zipCode}</ValueDisplay>}
                             </div>
                             <div className="md:col-span-3">
                                 <Label>Logradouro</Label>
-                                {isEditing ? <Input value={data.address?.street || ''} onChange={e => handleChange('address.street', e.target.value)} /> : <ValueDisplay>{data.address?.street}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Input value={data.address?.street || ''} onChange={e => handleChange('address.street', e.target.value)} /> : <ValueDisplay>{data.address?.street}</ValueDisplay>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div>
                                 <Label>Número</Label>
-                                {isEditing ? <Input value={data.address?.number || ''} onChange={e => handleChange('address.number', e.target.value)} /> : <ValueDisplay>{data.address?.number}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Input value={data.address?.number || ''} onChange={e => handleChange('address.number', e.target.value)} /> : <ValueDisplay>{data.address?.number}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Complemento</Label>
-                                {isEditing ? <Input value={data.address?.complement || ''} onChange={e => handleChange('address.complement', e.target.value)} /> : <ValueDisplay>{data.address?.complement}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Input value={data.address?.complement || ''} onChange={e => handleChange('address.complement', e.target.value)} /> : <ValueDisplay>{data.address?.complement}</ValueDisplay>}
                             </div>
                              <div className="md:col-span-2">
                                 <Label>Bairro</Label>
-                                {isEditing ? <Input value={data.address?.neighborhood || ''} onChange={e => handleChange('address.neighborhood', e.target.value)} /> : <ValueDisplay>{data.address?.neighborhood}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Input value={data.address?.neighborhood || ''} onChange={e => handleChange('address.neighborhood', e.target.value)} /> : <ValueDisplay>{data.address?.neighborhood}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="md:col-span-2">
                                 <Label>Cidade</Label>
-                                {isEditing ? <Input value={data.address?.city || ''} onChange={e => handleChange('address.city', e.target.value)} /> : <ValueDisplay>{data.address?.city}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Input value={data.address?.city || ''} onChange={e => handleChange('address.city', e.target.value)} /> : <ValueDisplay>{data.address?.city}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Estado</Label>
-                                {isEditing ? <Input value={data.address?.state || ''} onChange={e => handleChange('address.state', e.target.value)} /> : <ValueDisplay>{data.address?.state}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Input value={data.address?.state || ''} onChange={e => handleChange('address.state', e.target.value)} /> : <ValueDisplay>{data.address?.state}</ValueDisplay>}
                             </div>
                         </div>
                          <div>
                             <Label>Ponto de Referência</Label>
-                            {isEditing ? <Input value={data.address?.pontoReferencia || ''} onChange={e => handleChange('address.pontoReferencia', e.target.value)} /> : <ValueDisplay>{data.address?.pontoReferencia}</ValueDisplay>}
+                            {isCardEditing('endereco') ? <Input value={data.address?.pontoReferencia || ''} onChange={e => handleChange('address.pontoReferencia', e.target.value)} /> : <ValueDisplay>{data.address?.pontoReferencia}</ValueDisplay>}
                         </div>
 
                         <div className="p-4 bg-muted/50 rounded-lg space-y-4">
@@ -382,7 +402,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                  <div>
                                     <Label className="flex items-center gap-2 mb-2"><Building className="w-4 h-4"/>Tipo de Residência</Label>
-                                     {isEditing ? (
+                                     {isCardEditing('endereco') ? (
                                         <Select value={data.address?.tipoResidencia || ''} onValueChange={v => handleChange('address.tipoResidencia', v)}>
                                             <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                             <SelectContent>
@@ -396,21 +416,21 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 </div>
                                 <div className="flex items-center gap-4 pt-5">
                                      <Label htmlFor="acessoAmbulancia" className="flex items-center gap-2 cursor-pointer"><Ambulance className="w-4 h-4"/>Acesso para Ambulância</Label>
-                                     {isEditing ? <Switch id="acessoAmbulancia" checked={data.address?.acessoAmbulancia || false} onCheckedChange={c => handleChange('address.acessoAmbulancia', c)} /> : <ValueDisplay>{data.address?.acessoAmbulancia ? 'Sim' : 'Não'}</ValueDisplay>}
+                                     {isCardEditing('endereco') ? <Switch id="acessoAmbulancia" checked={data.address?.acessoAmbulancia || false} onCheckedChange={c => handleChange('address.acessoAmbulancia', c)} /> : <ValueDisplay>{data.address?.acessoAmbulancia ? 'Sim' : 'Não'}</ValueDisplay>}
                                 </div>
                                  <div className="flex items-center gap-4 pt-5">
                                      <Label htmlFor="possuiAnimal" className="flex items-center gap-2 cursor-pointer"><Dog className="w-4 h-4"/>Possui Animal?</Label>
-                                     {isEditing ? <Switch id="possuiAnimal" checked={data.address?.possuiAnimal || false} onCheckedChange={c => handleChange('address.possuiAnimal', c)} /> : <ValueDisplay>{data.address?.possuiAnimal ? 'Sim' : 'Não'}</ValueDisplay>}
+                                     {isCardEditing('endereco') ? <Switch id="possuiAnimal" checked={data.address?.possuiAnimal || false} onCheckedChange={c => handleChange('address.possuiAnimal', c)} /> : <ValueDisplay>{data.address?.possuiAnimal ? 'Sim' : 'Não'}</ValueDisplay>}
                                 </div>
                              </div>
                              <div>
                                 <Label>Condições/Observações do Domicílio</Label>
-                                {isEditing ? <Textarea value={data.address?.condicoesDomicilio || ''} onChange={e => handleChange('address.condicoesDomicilio', e.target.value)} placeholder="Ex: Acesso por escadas, pouca iluminação no corredor..." /> : <ValueDisplay>{data.address?.condicoesDomicilio}</ValueDisplay>}
+                                {isCardEditing('endereco') ? <Textarea value={data.address?.condicoesDomicilio || ''} onChange={e => handleChange('address.condicoesDomicilio', e.target.value)} placeholder="Ex: Acesso por escadas, pouca iluminação no corredor..." /> : <ValueDisplay>{data.address?.condicoesDomicilio}</ValueDisplay>}
                              </div>
-                             {(isEditing || data.address?.possuiAnimal) && (
+                             {(isCardEditing('endereco') || data.address?.possuiAnimal) && (
                                  <div>
                                     <Label>Descrição dos Animais</Label>
-                                    {isEditing ? <Input value={data.address?.animalDescricao || ''} onChange={e => handleChange('address.animalDescricao', e.target.value)} placeholder="Ex: 1 cão de pequeno porte, dócil." /> : <ValueDisplay>{data.address?.animalDescricao}</ValueDisplay>}
+                                    {isCardEditing('endereco') ? <Input value={data.address?.animalDescricao || ''} onChange={e => handleChange('address.animalDescricao', e.target.value)} placeholder="Ex: 1 cão de pequeno porte, dócil." /> : <ValueDisplay>{data.address?.animalDescricao}</ValueDisplay>}
                                 </div>
                              )}
                         </div>
@@ -422,21 +442,24 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
              <AccordionItem value="item-3" className="border-none">
                  <Card>
                      <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-lg"><Stethoscope className="w-5 h-5 text-primary" />Dados Clínicos e Assistenciais</CardTitle>
+                        <div className="flex justify-between w-full">
+                           <CardTitle className="flex items-center gap-3 text-lg"><Stethoscope className="w-5 h-5 text-primary" />Dados Clínicos e Assistenciais</CardTitle>
+                           <CardEditButton card="clinico" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 space-y-6">
                         
                          <div className="p-4 bg-muted/50 rounded-lg">
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold flex items-center gap-2"><NotebookTabs className="w-4 h-4"/>Diagnósticos</h4>
-                                {isEditing && (
+                                {isCardEditing('clinico') && (
                                 <Button onClick={addDiagnosis} size="sm" variant="outline">
                                     <Plus className="w-4 h-4 mr-1" />
                                     Adicionar
                                 </Button>
                                 )}
                             </div>
-                            {isEditing ? (
+                            {isCardEditing('clinico') ? (
                                  <div className="space-y-4">
                                     {data.clinicalData?.diagnoses?.map((diag, index) => (
                                         <Card key={index} className="p-4 bg-background">
@@ -482,17 +505,17 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <Label>Alergias</Label>
-                                {isEditing ? <Input value={data.clinicalData?.allergies?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.allergies', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.allergies} />}
+                                {isCardEditing('clinico') ? <Input value={data.clinicalData?.allergies?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.allergies', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.allergies} />}
                             </div>
                             <div>
                                 <Label>Restrições (alimentares, físicas, etc.)</Label>
-                                {isEditing ? <Input value={data.clinicalData?.restricoes?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.restricoes', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.restricoes} />}
+                                {isCardEditing('clinico') ? <Input value={data.clinicalData?.restricoes?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.restricoes', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.restricoes} />}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <Label>Mobilidade</Label>
-                                {isEditing ? (
+                                {isCardEditing('clinico') ? (
                                     <Select value={data.clinicalData?.mobilidade || ''} onValueChange={v => handleChange('clinicalData.mobilidade', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -505,24 +528,24 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                             <div>
                                 <Label>Estado de Consciência</Label>
-                                {isEditing ? <Input value={data.clinicalData?.estadoConsciencia || ''} onChange={e => handleChange('clinicalData.estadoConsciencia', e.target.value)} /> : <ValueDisplay>{data.clinicalData?.estadoConsciencia}</ValueDisplay>}
+                                {isCardEditing('clinico') ? <Input value={data.clinicalData?.estadoConsciencia || ''} onChange={e => handleChange('clinicalData.estadoConsciencia', e.target.value)} /> : <ValueDisplay>{data.clinicalData?.estadoConsciencia}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Dispositivos (GTT, SNE, etc.)</Label>
-                                {isEditing ? <Input value={data.clinicalData?.dispositivos?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.dispositivos', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.dispositivos} />}
+                                {isCardEditing('clinico') ? <Input value={data.clinicalData?.dispositivos?.join(', ') || ''} onChange={e => handleArrayChange('clinicalData.dispositivos', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.clinicalData?.dispositivos} />}
                             </div>
                         </div>
                          <div className="p-4 bg-muted/50 rounded-lg">
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold flex items-center gap-2"><Pill className="w-4 h-4"/>Medicações em Uso</h4>
-                                {isEditing && (
+                                {isCardEditing('clinico') && (
                                 <Button onClick={addMedication} size="sm" variant="outline">
                                     <Plus className="w-4 h-4 mr-1" />
                                     Adicionar
                                 </Button>
                                 )}
                             </div>
-                             {isEditing ? (
+                             {isCardEditing('clinico') ? (
                                 <div className="space-y-4">
                                     {data.clinicalData?.medications?.map((med, index) => (
                                         <Card key={index} className="p-4 bg-background">
@@ -601,13 +624,16 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
              <AccordionItem value="item-4" className="border-none">
                  <Card>
                      <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-lg"><Briefcase className="w-5 h-5 text-primary" />Informações Administrativas e Internas</CardTitle>
+                        <div className="flex justify-between w-full">
+                           <CardTitle className="flex items-center gap-3 text-lg"><Briefcase className="w-5 h-5 text-primary" />Informações Administrativas e Internas</CardTitle>
+                           <CardEditButton card="administrativo" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <Label>Status do Paciente</Label>
-                                 {isEditing ? (
+                                 {isCardEditing('administrativo') ? (
                                     <Select value={data.adminData?.status || ''} onValueChange={v => handleChange('adminData.status', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -620,7 +646,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                             <div>
                                 <Label>Complexidade</Label>
-                                 {isEditing ? (
+                                 {isCardEditing('administrativo') ? (
                                     <Select value={data.adminData?.complexity || ''} onValueChange={v => handleChange('adminData.complexity', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -633,7 +659,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                             <div>
                                 <Label>Pacote de Serviço</Label>
-                                 {isEditing ? (
+                                 {isCardEditing('administrativo') ? (
                                     <Select value={data.adminData?.servicePackage || ''} onValueChange={v => handleChange('adminData.servicePackage', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -648,39 +674,39 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <Label>Data de Início do Atendimento</Label>
-                                {isEditing ? <Input type="date" value={data.adminData?.dataInicioAtendimento || ''} onChange={e => handleChange('adminData.dataInicioAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataInicioAtendimento ? new Date(data.adminData.dataInicioAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                                {isCardEditing('administrativo') ? <Input type="date" value={data.adminData?.dataInicioAtendimento || ''} onChange={e => handleChange('adminData.dataInicioAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataInicioAtendimento ? new Date(data.adminData.dataInicioAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Data de Término do Atendimento</Label>
-                                {isEditing ? <Input type="date" value={data.adminData?.dataTerminoAtendimento || ''} onChange={e => handleChange('adminData.dataTerminoAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataTerminoAtendimento ? new Date(data.adminData.dataTerminoAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                                {isCardEditing('administrativo') ? <Input type="date" value={data.adminData?.dataTerminoAtendimento || ''} onChange={e => handleChange('adminData.dataTerminoAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataTerminoAtendimento ? new Date(data.adminData.dataTerminoAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <Label>Supervisor(a)</Label>
                                 {/* TODO: Replace with a Professional selector component */}
-                                {isEditing ? <Input value={data.adminData?.supervisorId || ''} onChange={e => handleChange('adminData.supervisorId', e.target.value)} /> : <ValueDisplay>{data.adminData?.supervisorId}</ValueDisplay>}
+                                {isCardEditing('administrativo') ? <Input value={data.adminData?.supervisorId || ''} onChange={e => handleChange('adminData.supervisorId', e.target.value)} /> : <ValueDisplay>{data.adminData?.supervisorId}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Escalista</Label>
-                                {isEditing ? <Input value={data.adminData?.schedulerId || ''} onChange={e => handleChange('adminData.schedulerId', e.target.value)} /> : <ValueDisplay>{data.adminData?.schedulerId}</ValueDisplay>}
+                                {isCardEditing('administrativo') ? <Input value={data.adminData?.schedulerId || ''} onChange={e => handleChange('adminData.schedulerId', e.target.value)} /> : <ValueDisplay>{data.adminData?.schedulerId}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Enfermeiro Responsável</Label>
-                                {isEditing ? <Input value={data.adminData?.enfermeiroResponsavelId || ''} onChange={e => handleChange('adminData.enfermeiroResponsavelId', e.target.value)} /> : <ValueDisplay>{data.adminData?.enfermeiroResponsavelId}</ValueDisplay>}
+                                {isCardEditing('administrativo') ? <Input value={data.adminData?.enfermeiroResponsavelId || ''} onChange={e => handleChange('adminData.enfermeiroResponsavelId', e.target.value)} /> : <ValueDisplay>{data.adminData?.enfermeiroResponsavelId}</ValueDisplay>}
                             </div>
                          </div>
                           <div>
                             <Label>Frequência de Atendimento</Label>
-                            {isEditing ? <Input value={data.adminData?.frequenciaAtendimento || ''} onChange={e => handleChange('adminData.frequenciaAtendimento', e.target.value)} placeholder="Ex: 24h, 12h, 3x/semana" /> : <ValueDisplay>{data.adminData?.frequenciaAtendimento}</ValueDisplay>}
+                            {isCardEditing('administrativo') ? <Input value={data.adminData?.frequenciaAtendimento || ''} onChange={e => handleChange('adminData.frequenciaAtendimento', e.target.value)} placeholder="Ex: 24h, 12h, 3x/semana" /> : <ValueDisplay>{data.adminData?.frequenciaAtendimento}</ValueDisplay>}
                         </div>
                          <div>
                             <Label>Observações Internas</Label>
-                            {isEditing ? <Textarea value={data.adminData?.observacoesInternas || ''} onChange={e => handleChange('adminData.observacoesInternas', e.target.value)} placeholder="Anotações visíveis apenas para a equipe..." /> : <ValueDisplay className="min-h-[80px] h-auto">{data.adminData?.observacoesInternas}</ValueDisplay>}
+                            {isCardEditing('administrativo') ? <Textarea value={data.adminData?.observacoesInternas || ''} onChange={e => handleChange('adminData.observacoesInternas', e.target.value)} placeholder="Anotações visíveis apenas para a equipe..." /> : <ValueDisplay className="min-h-[80px] h-auto">{data.adminData?.observacoesInternas}</ValueDisplay>}
                         </div>
                         <div>
                             <Label>Cuidador(es) IDs</Label>
-                            {isEditing ? <Input value={data.adminData?.cuidadoresIds?.join(', ') || ''} onChange={e => handleArrayChange('adminData.cuidadoresIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.adminData?.cuidadoresIds} />}
+                            {isCardEditing('administrativo') ? <Input value={data.adminData?.cuidadoresIds?.join(', ') || ''} onChange={e => handleArrayChange('adminData.cuidadoresIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.adminData?.cuidadoresIds} />}
                         </div>
                     </AccordionContent>
                  </Card>
@@ -690,13 +716,16 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
              <AccordionItem value="item-5" className="border-none">
                  <Card>
                      <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-lg"><Wallet className="w-5 h-5 text-primary" />Informações Financeiras</CardTitle>
+                        <div className="flex justify-between w-full">
+                            <CardTitle className="flex items-center gap-3 text-lg"><Wallet className="w-5 h-5 text-primary" />Informações Financeiras</CardTitle>
+                            <CardEditButton card="financeiro" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <Label>Tipo de Vínculo</Label>
-                                {isEditing ? (
+                                {isCardEditing('financeiro') ? (
                                     <Select value={data.financial?.vinculo || ''} onValueChange={v => handleChange('financial.vinculo', v)}>
                                         <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                                         <SelectContent>
@@ -710,36 +739,36 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             </div>
                             <div>
                                 <Label>Operadora / Convênio</Label>
-                                {isEditing ? <Input value={data.financial?.operadora || ''} onChange={e => handleChange('financial.operadora', e.target.value)} /> : <ValueDisplay>{data.financial?.operadora}</ValueDisplay>}
+                                {isCardEditing('financeiro') ? <Input value={data.financial?.operadora || ''} onChange={e => handleChange('financial.operadora', e.target.value)} /> : <ValueDisplay>{data.financial?.operadora}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <Label>Nº da Carteirinha</Label>
-                                {isEditing ? <Input value={data.financial?.carteirinha || ''} onChange={e => handleChange('financial.carteirinha', e.target.value)} /> : <ValueDisplay>{data.financial?.carteirinha}</ValueDisplay>}
+                                {isCardEditing('financeiro') ? <Input value={data.financial?.carteirinha || ''} onChange={e => handleChange('financial.carteirinha', e.target.value)} /> : <ValueDisplay>{data.financial?.carteirinha}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Validade da Carteirinha</Label>
-                                {isEditing ? <Input type="date" value={data.financial?.validadeCarteirinha || ''} onChange={e => handleChange('financial.validadeCarteirinha', e.target.value)} /> : <ValueDisplay>{data.financial?.validadeCarteirinha ? new Date(data.financial.validadeCarteirinha).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                                {isCardEditing('financeiro') ? <Input type="date" value={data.financial?.validadeCarteirinha || ''} onChange={e => handleChange('financial.validadeCarteirinha', e.target.value)} /> : <ValueDisplay>{data.financial?.validadeCarteirinha ? new Date(data.financial.validadeCarteirinha).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <Label>Valor Mensal (R$)</Label>
-                                {isEditing ? <Input type="number" value={data.financial?.monthlyFee || ''} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{data.financial?.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
+                                {isCardEditing('financeiro') ? <Input type="number" value={data.financial?.monthlyFee || ''} onChange={e => handleChange('financial.monthlyFee', parseFloat(e.target.value))} /> : <ValueDisplay>{data.financial?.monthlyFee.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Dia do Vencimento</Label>
-                                {isEditing ? <Input type="number" value={data.financial?.billingDay || ''} onChange={e => handleChange('financial.billingDay', parseInt(e.target.value))} /> : <ValueDisplay>{data.financial?.billingDay}</ValueDisplay>}
+                                {isCardEditing('financeiro') ? <Input type="number" value={data.financial?.billingDay || ''} onChange={e => handleChange('financial.billingDay', parseInt(e.target.value))} /> : <ValueDisplay>{data.financial?.billingDay}</ValueDisplay>}
                             </div>
                              <div>
                                 <Label>Forma de Pagamento</Label>
-                                {isEditing ? <Input value={data.financial?.formaPagamento || ''} onChange={e => handleChange('financial.formaPagamento', e.target.value)} /> : <ValueDisplay>{data.financial?.formaPagamento}</ValueDisplay>}
+                                {isCardEditing('financeiro') ? <Input value={data.financial?.formaPagamento || ''} onChange={e => handleChange('financial.formaPagamento', e.target.value)} /> : <ValueDisplay>{data.financial?.formaPagamento}</ValueDisplay>}
                             </div>
                         </div>
                          <div>
                             <Label>Observações Financeiras</Label>
-                            {isEditing ? <Textarea value={data.financial?.observacoesFinanceiras || ''} onChange={e => handleChange('financial.observacoesFinanceiras', e.target.value)} placeholder="Anotações sobre faturamento, pagamentos, etc..." /> : <ValueDisplay className="min-h-[80px] h-auto">{data.financial?.observacoesFinanceiras}</ValueDisplay>}
+                            {isCardEditing('financeiro') ? <Textarea value={data.financial?.observacoesFinanceiras || ''} onChange={e => handleChange('financial.observacoesFinanceiras', e.target.value)} placeholder="Anotações sobre faturamento, pagamentos, etc..." /> : <ValueDisplay className="min-h-[80px] h-auto">{data.financial?.observacoesFinanceiras}</ValueDisplay>}
                         </div>
                     </AccordionContent>
                  </Card>
@@ -749,36 +778,39 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
             <AccordionItem value="item-6" className="border-none">
                  <Card>
                      <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-lg"><Users className="w-5 h-5 text-primary" />Rede de Apoio e Responsáveis</CardTitle>
+                        <div className="flex justify-between w-full">
+                           <CardTitle className="flex items-center gap-3 text-lg"><Users className="w-5 h-5 text-primary" />Rede de Apoio e Responsáveis</CardTitle>
+                           <CardEditButton card="redeDeApoio" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <Label>Nome do Responsável Legal</Label>
-                                {isEditing ? <Input value={data.supportNetwork?.responsavelLegal || ''} onChange={e => handleChange('supportNetwork.responsavelLegal', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.responsavelLegal}</ValueDisplay>}
+                                {isCardEditing('redeDeApoio') ? <Input value={data.supportNetwork?.responsavelLegal || ''} onChange={e => handleChange('supportNetwork.responsavelLegal', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.responsavelLegal}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Parentesco</Label>
-                                {isEditing ? <Input value={data.supportNetwork?.parentescoResponsavel || ''} onChange={e => handleChange('supportNetwork.parentescoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.parentescoResponsavel}</ValueDisplay>}
+                                {isCardEditing('redeDeApoio') ? <Input value={data.supportNetwork?.parentescoResponsavel || ''} onChange={e => handleChange('supportNetwork.parentescoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.parentescoResponsavel}</ValueDisplay>}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <Label>Telefone do Responsável</Label>
-                                {isEditing ? <Input value={data.supportNetwork?.contatoResponsavel || ''} onChange={e => handleChange('supportNetwork.contatoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.contatoResponsavel}</ValueDisplay>}
+                                {isCardEditing('redeDeApoio') ? <Input value={data.supportNetwork?.contatoResponsavel || ''} onChange={e => handleChange('supportNetwork.contatoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.contatoResponsavel}</ValueDisplay>}
                             </div>
                             <div>
                                 <Label>Email do Responsável</Label>
-                                {isEditing ? <Input type="email" value={data.supportNetwork?.emailResponsavel || ''} onChange={e => handleChange('supportNetwork.emailResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.emailResponsavel}</ValueDisplay>}
+                                {isCardEditing('redeDeApoio') ? <Input type="email" value={data.supportNetwork?.emailResponsavel || ''} onChange={e => handleChange('supportNetwork.emailResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.emailResponsavel}</ValueDisplay>}
                             </div>
                         </div>
                          <div>
                             <Label>Endereço do Responsável (se diferente)</Label>
-                            {isEditing ? <Input value={data.supportNetwork?.enderecoResponsavel || ''} onChange={e => handleChange('supportNetwork.enderecoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.enderecoResponsavel}</ValueDisplay>}
+                            {isCardEditing('redeDeApoio') ? <Input value={data.supportNetwork?.enderecoResponsavel || ''} onChange={e => handleChange('supportNetwork.enderecoResponsavel', e.target.value)} /> : <ValueDisplay>{data.supportNetwork?.enderecoResponsavel}</ValueDisplay>}
                         </div>
                          <div>
                             <Label>Familiares Cadastrados no App (IDs)</Label>
-                            {isEditing ? <Input value={data.supportNetwork?.familiaresAppIds?.join(', ') || ''} onChange={e => handleArrayChange('supportNetwork.familiaresAppIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.supportNetwork?.familiaresAppIds} />}
+                            {isCardEditing('redeDeApoio') ? <Input value={data.supportNetwork?.familiaresAppIds?.join(', ') || ''} onChange={e => handleArrayChange('supportNetwork.familiaresAppIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.supportNetwork?.familiaresAppIds} />}
                         </div>
                          <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
                             <div className="flex items-center space-x-3">
@@ -790,7 +822,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                     <p className="text-xs text-muted-foreground">O responsável autoriza o compartilhamento de dados do paciente com a equipe de cuidado, conforme LGPD.</p>
                                 </div>
                             </div>
-                            {isEditing ? (
+                            {isCardEditing('redeDeApoio') ? (
                                 <Switch 
                                     id="lgpd-auth"
                                     checked={data.supportNetwork?.autorizacaoAcessoDados || false} 
@@ -808,7 +840,10 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
              <AccordionItem value="item-7" className="border-none">
                  <Card>
                      <AccordionTrigger className="p-6 hover:no-underline">
-                        <CardTitle className="flex items-center gap-3 text-lg"><FolderOpen className="w-5 h-5 text-primary" />Documentos e Consentimentos</CardTitle>
+                        <div className="flex justify-between w-full">
+                           <CardTitle className="flex items-center gap-3 text-lg"><FolderOpen className="w-5 h-5 text-primary" />Documentos e Consentimentos</CardTitle>
+                           <CardEditButton card="documentos" />
+                        </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6 space-y-4">
                         <div className="p-4 bg-muted/50 rounded-lg">
@@ -820,31 +855,31 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                 <div>
                                     <Label>Termo de Consentimento</Label>
-                                    {isEditing ? <Input value={data.documents?.termoConsentimentoUrl || ''} onChange={(e) => handleChange('documents.termoConsentimentoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.termoConsentimentoUrl} label="Visualizar Termo" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.termoConsentimentoUrl || ''} onChange={(e) => handleChange('documents.termoConsentimentoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.termoConsentimentoUrl} label="Visualizar Termo" />}
                                 </div>
                                 <div>
                                     <Label>Termo de LGPD / Uso de Imagem</Label>
-                                    {isEditing ? <Input value={data.documents?.termoLgpdUrl || ''} onChange={(e) => handleChange('documents.termoLgpdUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.termoLgpdUrl} label="Visualizar Termo LGPD" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.termoLgpdUrl || ''} onChange={(e) => handleChange('documents.termoLgpdUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.termoLgpdUrl} label="Visualizar Termo LGPD" />}
                                 </div>
                                 <div>
                                     <Label>Documento com Foto (RG/CNH)</Label>
-                                    {isEditing ? <Input value={data.documents?.documentoComFotoUrl || ''} onChange={(e) => handleChange('documents.documentoComFotoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.documentoComFotoUrl} label="Visualizar Documento" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.documentoComFotoUrl || ''} onChange={(e) => handleChange('documents.documentoComFotoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.documentoComFotoUrl} label="Visualizar Documento" />}
                                 </div>
                                 <div>
                                     <Label>Comprovante de Endereço</Label>
-                                    {isEditing ? <Input value={data.documents?.comprovanteEnderecoUrl || ''} onChange={(e) => handleChange('documents.comprovanteEnderecoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.comprovanteEnderecoUrl} label="Visualizar Comprovante" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.comprovanteEnderecoUrl || ''} onChange={(e) => handleChange('documents.comprovanteEnderecoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.comprovanteEnderecoUrl} label="Visualizar Comprovante" />}
                                 </div>
                                  <div>
                                     <Label>Ficha de Avaliação de Enfermagem</Label>
-                                    {isEditing ? <Input value={data.documents?.fichaAvaliacaoEnfermagemUrl || ''} onChange={(e) => handleChange('documents.fichaAvaliacaoEnfermagemUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.fichaAvaliacaoEnfermagemUrl} label="Visualizar Ficha" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.fichaAvaliacaoEnfermagemUrl || ''} onChange={(e) => handleChange('documents.fichaAvaliacaoEnfermagemUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.fichaAvaliacaoEnfermagemUrl} label="Visualizar Ficha" />}
                                 </div>
                                 <div>
                                     <Label>Plano de Cuidado Individualizado</Label>
-                                    {isEditing ? <Input value={data.documents?.planoCuidadoUrl || ''} onChange={(e) => handleChange('documents.planoCuidadoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.planoCuidadoUrl} label="Visualizar Plano" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.planoCuidadoUrl || ''} onChange={(e) => handleChange('documents.planoCuidadoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.planoCuidadoUrl} label="Visualizar Plano" />}
                                 </div>
                                 <div>
                                     <Label>Último Protocolo de Auditoria</Label>
-                                    {isEditing ? <Input value={data.documents?.protocoloAuditoriaUrl || ''} onChange={(e) => handleChange('documents.protocoloAuditoriaUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.protocoloAuditoriaUrl} label="Visualizar Protocolo" />}
+                                    {isCardEditing('documentos') ? <Input value={data.documents?.protocoloAuditoriaUrl || ''} onChange={(e) => handleChange('documents.protocoloAuditoriaUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.protocoloAuditoriaUrl} label="Visualizar Protocolo" />}
                                 </div>
                             </div>
                         </div>

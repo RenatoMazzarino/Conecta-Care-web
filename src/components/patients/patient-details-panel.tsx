@@ -38,6 +38,9 @@ interface PatientDetailsPanelProps {
   onPatientUpdate: (patient: Patient) => void;
 }
 
+export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
+
+
 const ProntuarioJuridico: React.FC = () => (
     <Card>
       <CardHeader>
@@ -64,18 +67,20 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
   const [isLoading, setIsLoading] = React.useState(true);
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
 
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [editMode, setEditMode] = React.useState<EditMode>('none');
   const [editedData, setEditedData] = React.useState<Patient | null>(null);
 
   const [currentView, setCurrentView] = React.useState<'prontuario' | 'ficha'>('prontuario');
   const [activeProntuarioTab, setActiveProntuarioTab] = React.useState('dashboard');
+  
+  const isEditing = editMode !== 'none';
 
   React.useEffect(() => {
     if (isOpen && patientId) {
       setIsLoading(true);
       setCurrentView('prontuario');
       setActiveProntuarioTab('dashboard');
-      setIsEditing(false);
+      setEditMode('none');
       const timer = setTimeout(() => {
         const foundPatient = mockPatients.find(p => p.id === patientId);
         setPatient(foundPatient || null);
@@ -113,8 +118,13 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
       title: "Dados Salvos",
       description: `As informações de ${editedData.name} foram atualizadas.`,
     });
-    setIsEditing(false);
+    setEditMode('none');
   };
+  
+  const handleCancelEdit = () => {
+    setEditMode('none');
+    setEditedData(JSON.parse(JSON.stringify(patient))); // Reset changes
+  }
   
   const handleFeaturePlaceholder = (featureName: string) => {
     toast({
@@ -184,16 +194,13 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
               )}
               <Button onClick={() => handleFeaturePlaceholder('Anexar Documento')} variant="outline" disabled={isLoading}><Upload className="mr-2 h-4 w-4" />Anexar</Button>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} disabled={isLoading}>
+                <Button onClick={() => setEditMode('full')} disabled={isLoading}>
                   <Edit className="w-4 h-4 mr-2" />
                   Editar
                 </Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button onClick={() => {
-                    setIsEditing(false);
-                    setEditedData(JSON.parse(JSON.stringify(patient)));
-                  }} variant="outline">
+                  <Button onClick={handleCancelEdit} variant="outline">
                     <X className="w-4 h-4 mr-2" />
                     Cancelar
                   </Button>
@@ -216,7 +223,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             )}
 
             {!isLoading && displayData && currentView === 'ficha' && (
-              <div><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
+              <div><FichaCadastral editMode={editMode} setEditMode={setEditMode} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
             )}
 
             {!isLoading && displayData && currentView === 'prontuario' && (
@@ -234,7 +241,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                   </ScrollArea>
                   {prontuarioTabs.map(tab => (
                     <TabsContent key={tab.id} value={tab.id} className="mt-6">
-                      <ProntuarioContent tabId={tab.id} isEditing={isEditing} editedData={editedData} setEditedData={setEditedData}/>
+                      <ProntuarioContent tabId={tab.id} editMode={editMode} setEditMode={setEditMode} editedData={editedData} setEditedData={setEditedData}/>
                     </TabsContent>
                   ))}
                </Tabs>

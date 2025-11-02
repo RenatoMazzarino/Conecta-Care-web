@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,16 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, X, Stethoscope, Dumbbell, Apple, Pill } from 'lucide-react';
+import { Plus, X, Stethoscope, Dumbbell, Apple, Pill, Edit } from 'lucide-react';
 import { ProntuarioTimeline } from './prontuario-timeline';
+import type { EditMode } from '../patients/patient-details-panel';
 
 type ProntuarioDashboardProps = {
-    isEditing: boolean;
+    editMode: EditMode;
+    setEditMode: (mode: EditMode) => void;
     editedData: Patient | null;
     setEditedData: (data: Patient | null) => void;
 };
 
-export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: ProntuarioDashboardProps) {
+export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEditedData }: ProntuarioDashboardProps) {
+
+   const isEditing = editMode === 'full' || editMode === 'medicacoes';
 
    const addMedication = () => {
     if (!editedData || !editedData.clinicalData) return;
@@ -63,6 +68,11 @@ export function ProntuarioDashboard({ isEditing, editedData, setEditedData }: Pr
                   <Pill className="w-5 h-5 text-primary" />
                   Medicações em Uso
                 </CardTitle>
+                {!isEditing && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditMode('medicacoes')}>
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                )}
                 {isEditing && (
                   <Button onClick={addMedication} size="sm" variant="outline">
                     <Plus className="w-4 h-4 mr-1" />
