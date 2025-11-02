@@ -26,7 +26,7 @@ export type Patient = {
   avatarHint: string;
   rgDigitalUrl?: string;
 
-  // 2. Endereço
+  // 2. Endereço e Ambiente Domiciliar
   address: {
     street: string;
     number: string;
@@ -43,8 +43,9 @@ export type Patient = {
     animalDescricao?: string;
   };
 
-  // 3. Dados Clínicos
+  // 3. Dados Clínicos e Assistenciais
   clinicalData: {
+    equipamentosDomiciliares?: string[];
     diagnosticoPrincipal: string;
     diagnosticosSecundarios?: string[];
     cid?: string[];

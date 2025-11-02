@@ -8,7 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance } from 'lucide-react';
+import { Switch } from '../ui/switch';
+import { Textarea } from '../ui/textarea';
 
 interface FichaCadastralProps {
     isEditing: boolean;
@@ -138,6 +140,89 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 {isEditing ? <Input value={data.emergencyContact?.phone || ''} onChange={e => handleChange('emergencyContact.phone', e.target.value)} /> : <ValueDisplay>{data.emergencyContact?.phone}</ValueDisplay>}
                             </div>
                         </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+             {/* 2. ENDEREÇO E AMBIENTE */}
+            <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Home className="w-5 h-5 text-primary" />Endereço e Ambiente Domiciliar</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="md:col-span-1">
+                            <Label>CEP</Label>
+                             {isEditing ? <Input value={data.address?.zipCode || ''} onChange={e => handleChange('address.zipCode', e.target.value)} /> : <ValueDisplay>{data.address?.zipCode}</ValueDisplay>}
+                        </div>
+                        <div className="md:col-span-3">
+                            <Label>Logradouro</Label>
+                            {isEditing ? <Input value={data.address?.street || ''} onChange={e => handleChange('address.street', e.target.value)} /> : <ValueDisplay>{data.address?.street}</ValueDisplay>}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <Label>Número</Label>
+                            {isEditing ? <Input value={data.address?.number || ''} onChange={e => handleChange('address.number', e.target.value)} /> : <ValueDisplay>{data.address?.number}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Complemento</Label>
+                            {isEditing ? <Input value={data.address?.complement || ''} onChange={e => handleChange('address.complement', e.target.value)} /> : <ValueDisplay>{data.address?.complement}</ValueDisplay>}
+                        </div>
+                         <div className="md:col-span-2">
+                            <Label>Bairro</Label>
+                            {isEditing ? <Input value={data.address?.neighborhood || ''} onChange={e => handleChange('address.neighborhood', e.target.value)} /> : <ValueDisplay>{data.address?.neighborhood}</ValueDisplay>}
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2">
+                            <Label>Cidade</Label>
+                            {isEditing ? <Input value={data.address?.city || ''} onChange={e => handleChange('address.city', e.target.value)} /> : <ValueDisplay>{data.address?.city}</ValueDisplay>}
+                        </div>
+                         <div>
+                            <Label>Estado</Label>
+                            {isEditing ? <Input value={data.address?.state || ''} onChange={e => handleChange('address.state', e.target.value)} /> : <ValueDisplay>{data.address?.state}</ValueDisplay>}
+                        </div>
+                    </div>
+                     <div>
+                        <Label>Ponto de Referência</Label>
+                        {isEditing ? <Input value={data.address?.pontoReferencia || ''} onChange={e => handleChange('address.pontoReferencia', e.target.value)} /> : <ValueDisplay>{data.address?.pontoReferencia}</ValueDisplay>}
+                    </div>
+
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                         <h4 className="font-semibold">Detalhes do Ambiente</h4>
+                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                             <div>
+                                <Label className="flex items-center gap-2 mb-2"><Building className="w-4 h-4"/>Tipo de Residência</Label>
+                                 {isEditing ? (
+                                    <Select value={data.address?.tipoResidencia || ''} onValueChange={v => handleChange('address.tipoResidencia', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Casa">Casa</SelectItem>
+                                            <SelectItem value="Apartamento">Apartamento</SelectItem>
+                                            <SelectItem value="Chácara">Chácara</SelectItem>
+                                            <SelectItem value="Condomínio">Condomínio</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : <ValueDisplay>{data.address?.tipoResidencia}</ValueDisplay>}
+                            </div>
+                            <div className="flex items-center gap-4 pt-5">
+                                 <Label htmlFor="acessoAmbulancia" className="flex items-center gap-2 cursor-pointer"><Ambulance className="w-4 h-4"/>Acesso para Ambulância</Label>
+                                 {isEditing ? <Switch id="acessoAmbulancia" checked={data.address?.acessoAmbulancia || false} onCheckedChange={c => handleChange('address.acessoAmbulancia', c)} /> : <ValueDisplay>{data.address?.acessoAmbulancia ? 'Sim' : 'Não'}</ValueDisplay>}
+                            </div>
+                             <div className="flex items-center gap-4 pt-5">
+                                 <Label htmlFor="possuiAnimal" className="flex items-center gap-2 cursor-pointer"><Dog className="w-4 h-4"/>Possui Animal?</Label>
+                                 {isEditing ? <Switch id="possuiAnimal" checked={data.address?.possuiAnimal || false} onCheckedChange={c => handleChange('address.possuiAnimal', c)} /> : <ValueDisplay>{data.address?.possuiAnimal ? 'Sim' : 'Não'}</ValueDisplay>}
+                            </div>
+                         </div>
+                         <div>
+                            <Label>Condições/Observações do Domicílio</Label>
+                            {isEditing ? <Textarea value={data.address?.condicoesDomicilio || ''} onChange={e => handleChange('address.condicoesDomicilio', e.target.value)} placeholder="Ex: Acesso por escadas, pouca iluminação no corredor..." /> : <ValueDisplay>{data.address?.condicoesDomicilio}</ValueDisplay>}
+                         </div>
+                         {data.address?.possuiAnimal && (
+                             <div>
+                                <Label>Descrição dos Animais</Label>
+                                {isEditing ? <Input value={data.address?.animalDescricao || ''} onChange={e => handleChange('address.animalDescricao', e.target.value)} placeholder="Ex: 1 cão de pequeno porte, dócil." /> : <ValueDisplay>{data.address?.animalDescricao}</ValueDisplay>}
+                            </div>
+                         )}
                     </div>
                 </CardContent>
             </Card>

@@ -47,7 +47,7 @@
             "zipCode": {"type": "string"},
             "pontoReferencia": { "type": "string", "description": "Ponto de referência para logística de atendimento." },
             "tipoResidencia": { "type": "string", "enum": ["Casa", "Apartamento", "Chácara", "Condomínio"], "description": "Tipo de residência para planejamento de visita." },
-            "condicoesDomicilio": { "type": "string", "description": "Condições do domicílio para avaliação de risco." },
+            "condicoesDomicilio": { "type": "string", "description": "Condições do domicílio para avaliação de risco (acesso, escadas, elevador, iluminação)." },
             "acessoAmbulancia": { "type": "boolean", "description": "Se há acesso fácil para ambulância." },
             "possuiAnimal": { "type": "boolean", "description": "Se há animais domésticos na residência." },
             "animalDescricao": { "type": "string", "description": "Descrição dos animais, se houver." }
@@ -58,6 +58,7 @@
           "type": "object",
           "description": "3. Dados clínicos e assistenciais detalhados.",
           "properties": {
+            "equipamentosDomiciliares": { "type": "array", "items": { "type": "string" }, "description": "Equipamentos como oxigênio, cama hospitalar, etc." },
             "diagnosticoPrincipal": { "type": "string", "description": "Diagnóstico principal que baseia o plano de cuidado." },
             "diagnosticosSecundarios": { "type": "array", "items": { "type": "string" }, "description": "Diagnósticos secundários para contexto clínico." },
             "cid": { "type": "array", "items": { "type": "string" }, "description": "Códigos CID para indexação médica." },
