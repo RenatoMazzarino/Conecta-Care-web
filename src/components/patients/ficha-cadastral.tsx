@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -691,6 +691,53 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             ) : (
                                 <ValueDisplay className="w-20 justify-center">{data.supportNetwork?.autorizacaoAcessoDados ? 'Sim' : 'Não'}</ValueDisplay>
                             )}
+                        </div>
+                    </AccordionContent>
+                 </Card>
+             </AccordionItem>
+             {/* 7. DOCUMENTOS E CONSENTIMENTOS */}
+             <AccordionItem value="item-7" className="border-none">
+                 <Card>
+                     <AccordionTrigger className="p-6 hover:no-underline">
+                        <CardTitle className="flex items-center gap-3 text-lg"><FolderOpen className="w-5 h-5 text-primary" />Documentos e Consentimentos</CardTitle>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6 space-y-4">
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                             <Button variant="link" className="p-0 h-auto font-semibold text-foreground" onClick={() => alert('Abrir modal do Drive (futuro)')}>
+                                <h4 className="flex items-center gap-2"><FileText className="w-4 h-4" />Central de Documentos</h4>
+                            </Button>
+                            <p className="text-xs text-muted-foreground mt-1 mb-4">Abaixo estão os links diretos para os documentos importantes do paciente.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <div>
+                                    <Label>Termo de Consentimento</Label>
+                                    {isEditing ? <Input value={data.documents?.termoConsentimentoUrl || ''} onChange={(e) => handleChange('documents.termoConsentimentoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.termoConsentimentoUrl} label="Visualizar Termo" />}
+                                </div>
+                                <div>
+                                    <Label>Termo de LGPD / Uso de Imagem</Label>
+                                    {isEditing ? <Input value={data.documents?.termoLgpdUrl || ''} onChange={(e) => handleChange('documents.termoLgpdUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.termoLgpdUrl} label="Visualizar Termo LGPD" />}
+                                </div>
+                                <div>
+                                    <Label>Documento com Foto (RG/CNH)</Label>
+                                    {isEditing ? <Input value={data.documents?.documentoComFotoUrl || ''} onChange={(e) => handleChange('documents.documentoComFotoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.documentoComFotoUrl} label="Visualizar Documento" />}
+                                </div>
+                                <div>
+                                    <Label>Comprovante de Endereço</Label>
+                                    {isEditing ? <Input value={data.documents?.comprovanteEnderecoUrl || ''} onChange={(e) => handleChange('documents.comprovanteEnderecoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.comprovanteEnderecoUrl} label="Visualizar Comprovante" />}
+                                </div>
+                                 <div>
+                                    <Label>Ficha de Avaliação de Enfermagem</Label>
+                                    {isEditing ? <Input value={data.documents?.fichaAvaliacaoEnfermagemUrl || ''} onChange={(e) => handleChange('documents.fichaAvaliacaoEnfermagemUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.fichaAvaliacaoEnfermagemUrl} label="Visualizar Ficha" />}
+                                </div>
+                                <div>
+                                    <Label>Plano de Cuidado Individualizado</Label>
+                                    {isEditing ? <Input value={data.documents?.planoCuidadoUrl || ''} onChange={(e) => handleChange('documents.planoCuidadoUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.planoCuidadoUrl} label="Visualizar Plano" />}
+                                </div>
+                                <div>
+                                    <Label>Último Protocolo de Auditoria</Label>
+                                    {isEditing ? <Input value={data.documents?.protocoloAuditoriaUrl || ''} onChange={(e) => handleChange('documents.protocoloAuditoriaUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.documents?.protocoloAuditoriaUrl} label="Visualizar Protocolo" />}
+                                </div>
+                            </div>
                         </div>
                     </AccordionContent>
                  </Card>
