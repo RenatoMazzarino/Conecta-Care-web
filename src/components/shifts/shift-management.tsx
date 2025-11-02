@@ -432,7 +432,7 @@ export type GridShiftState = {
 export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
   active: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
   completed: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  pending: { base: 'bg-orange-50 dark:bg-orange-950 hover:bg-orange-100 dark:hover:bg-orange-900', border: 'border-l-orange-500', text: 'text-orange-800 dark:text-orange-200' },
+  pending: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
   issue: { base: 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900', border: 'border-l-red-500', text: 'text-red-800 dark:text-red-200' },
   filled: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
   open: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
@@ -440,11 +440,11 @@ export const statusConfig: { [key in GridShiftState['status']]: { base: string, 
 
 
 export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift, professional: Professional, onClick: () => void }) => {
-  const config = statusConfig[shift.status] || statusConfig.active;
+  const config = shift.status === 'issue' ? statusConfig.issue : statusConfig.active;
 
   return (
     <div onClick={onClick} className={cn("relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
-       {shift.hasNotification && (
+       {(shift.hasNotification || shift.status === 'issue') && (
         <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-destructive fill-destructive/20" />
       )}
       <div className="flex items-center gap-2">
@@ -496,10 +496,16 @@ export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftTyp
 
 export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     const config = statusConfig.pending;
+    // Mock candidate count
+    const candidateCount = 3; 
+
     return (
-        <div onClick={onClick} className={cn("flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
+        <div onClick={onClick} className={cn("relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
             <UserPlus className={cn("h-5 w-5", config.text)} />
             <span className={cn("text-sm font-semibold", config.text)}>Candidatos</span>
+            <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">
+              {candidateCount}
+            </div>
         </div>
     );
 }
@@ -507,5 +513,6 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
