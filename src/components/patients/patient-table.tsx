@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const complexityVariant: { [key in Patient['adminData']['complexity']]: string } = {
@@ -28,6 +28,18 @@ const complexityVariant: { [key in Patient['adminData']['complexity']]: string }
     Média: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     Alta: 'bg-red-100 text-red-800 border-red-200',
 }
+
+const patientStatusConfig: { [key: string]: { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline', className: string } } = {
+  active: { text: 'Ativo', variant: 'secondary', className: 'bg-green-100 text-green-800 border-green-200' },
+  pending: { text: 'Com Pendência', variant: 'default', className: 'bg-amber-100 text-amber-800 border-amber-200' },
+  inactive: { text: 'Inativo', variant: 'outline', className: 'bg-gray-100 text-gray-500 border-gray-200' },
+};
+
+const docStatusConfig: { [key: string]: { text: string; variant: 'secondary' | 'destructive', className: string } } = {
+  ok: { text: 'OK', variant: 'secondary', className: 'bg-green-100 text-green-800' },
+  pending: { text: 'Pendente', variant: 'destructive', className: 'bg-amber-100 text-amber-800' },
+};
+
 
 function formatVisitDate(dateString?: string) {
     if (!dateString) return { text: '-', inPast: false };
@@ -100,7 +112,8 @@ export function PatientTable({
               />
             </TableHead>
             <TableHead className="w-[250px]">Paciente</TableHead>
-            <TableHead>Complexidade</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Documentação</TableHead>
             <TableHead>Próximo/Último Plantão</TableHead>
             <TableHead>Supervisor</TableHead>
             <TableHead>Escalista</TableHead>
@@ -114,6 +127,19 @@ export function PatientTable({
             const visitDate = patient.next_visit_date ? formatVisitDate(patient.next_visit_date) : formatVisitDate(patient.last_visit_date);
             const hasPendingItems = patient.consent_status === 'pending' || patient.pending_documents > 0;
             
+            let patientStatusKey: 'active' | 'pending' | 'inactive';
+            if (patient.adminData.status === 'Inativo') {
+                patientStatusKey = 'inactive';
+            } else if (hasPendingItems) {
+                patientStatusKey = 'pending';
+            } else {
+                patientStatusKey = 'active';
+            }
+            const patientStatus = patientStatusConfig[patientStatusKey];
+            
+            const docStatusKey = hasPendingItems ? 'pending' : 'ok';
+            const docStatus = docStatusConfig[docStatusKey];
+
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
                 <TableCell>
@@ -128,37 +154,24 @@ export function PatientTable({
                         onClick={() => onViewDetails(patient.id)}
                         className="flex items-center gap-3 group cursor-pointer"
                     >
-                        <div className="relative">
-                            <Avatar className="h-9 w-9">
-                                <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
-                                <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <span className={cn(
-                                "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-card",
-                                patient.adminData.status === 'Ativo' ? 'bg-green-500' : 'bg-gray-400'
-                            )} />
-                        </div>
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint={patient.avatarHint} />
+                            <AvatarFallback>{patient.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
                         <div className="flex items-center gap-2">
                              <span className="font-medium group-hover:underline">{patient.name}</span>
-                             {hasPendingItems && (
-                                 <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <AlertTriangle className="h-4 w-4 text-amber-500" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Pendências no cadastro!</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                 </TooltipProvider>
-                             )}
                         </div>
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Badge variant="outline" className={complexityVariant[patient.adminData.complexity]}>
-                        {patient.adminData.complexity}
-                    </Badge>
+                  <Badge variant={patientStatus.variant} className={patientStatus.className}>
+                    {patientStatus.text}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                   <Badge variant={docStatus.variant} className={docStatus.className}>
+                    {docStatus.text}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                      <div className={cn("text-sm", visitDate.inPast ? "text-muted-foreground" : "text-foreground")}>
