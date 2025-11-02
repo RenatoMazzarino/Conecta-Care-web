@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { LucideIcon } from 'lucide-react';
-import { trackEvent } from '@/lib/analytics';
 
 interface StatsCardProps {
     title: string;
@@ -11,17 +10,6 @@ interface StatsCardProps {
 }
 
 export function StatsCard({ title, value, icon: Icon }: StatsCardProps) {
-  const handleQuickAction = (action: string) => {
-    trackEvent({
-        eventName: 'quick_action',
-        properties: {
-            action: action,
-            target_type: 'kpi_card',
-            target_id: title
-        }
-    })
-  }
-
   return (
       <Card className="flex flex-col transition-all duration-200 hover:shadow-lg hover:scale-[1.02]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
