@@ -2,17 +2,28 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
 
 interface StatsCardProps {
     title: string;
     value: string | number;
     icon: LucideIcon;
     comparisonText?: string;
+    trend?: 'up' | 'down' | 'neutral';
     isActive?: boolean;
     onClick?: () => void;
 }
 
-export function StatsCard({ title, value, icon: Icon, comparisonText, isActive = false, onClick }: StatsCardProps) {
+const trendConfig = {
+    up: { icon: ArrowUp, color: 'text-green-600' },
+    down: { icon: ArrowDown, color: 'text-red-600' },
+    neutral: { icon: Minus, color: 'text-muted-foreground' },
+}
+
+export function StatsCard({ title, value, icon: Icon, comparisonText, trend = 'neutral', isActive = false, onClick }: StatsCardProps) {
+  const TrendIcon = trendConfig[trend].icon;
+  const trendColor = trendConfig[trend].color;
+  
   return (
       <Card 
         className={cn(
@@ -28,9 +39,12 @@ export function StatsCard({ title, value, icon: Icon, comparisonText, isActive =
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold">{value}</div>
-          <p className="text-xs text-muted-foreground">
-            {comparisonText || 'Clique para filtrar'}
-          </p>
+          {comparisonText && (
+            <p className={cn("text-xs flex items-center gap-1", trendColor)}>
+                <TrendIcon className="h-3 w-3" />
+                {comparisonText}
+            </p>
+          )}
         </CardContent>
       </Card>
   );

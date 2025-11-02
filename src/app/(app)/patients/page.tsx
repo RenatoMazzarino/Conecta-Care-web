@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X, Users, AlertTriangle, ShieldCheck, HeartPulse } from 'lucide-react';
+import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X, Users, AlertTriangle, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
 import Link from 'next/link';
 import type { Patient, Professional } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { PatientDetailsPanel } from '@/components/patients/patient-details-panel';
 import { StatsCard } from '@/components/ui/stats-card';
 
-type KpiFilter = 'all' | 'pending' | 'active' | 'high_complexity';
+type KpiFilter = 'all' | 'pending' | 'active' | 'low_complexity' | 'medium_complexity' | 'high_complexity';
 
 export default function PatientsPage() {
   const { toast } = useToast();
@@ -64,9 +64,11 @@ export default function PatientsPage() {
     const total = allPatients.length;
     const active = allPatients.filter(p => p.adminData.status === 'Ativo').length;
     const pending = allPatients.filter(p => p.consent_status === 'pending' || p.pending_documents > 0).length;
+    const lowComplexity = allPatients.filter(p => p.adminData.complexity === 'Baixa').length;
+    const mediumComplexity = allPatients.filter(p => p.adminData.complexity === 'Média').length;
     const highComplexity = allPatients.filter(p => p.adminData.complexity === 'Alta').length;
 
-    return { total, active, pending, highComplexity };
+    return { total, active, pending, lowComplexity, mediumComplexity, highComplexity };
   }, [allPatients]);
 
 
@@ -103,6 +105,10 @@ export default function PatientsPage() {
       results = results.filter(p => p.adminData.status === 'Ativo');
     } else if (kpiFilter === 'pending') {
       results = results.filter(p => p.consent_status === 'pending' || p.pending_documents > 0);
+    } else if (kpiFilter === 'low_complexity') {
+        results = results.filter(p => p.adminData.complexity === 'Baixa');
+    } else if (kpiFilter === 'medium_complexity') {
+        results = results.filter(p => p.adminData.complexity === 'Média');
     } else if (kpiFilter === 'high_complexity') {
         results = results.filter(p => p.adminData.complexity === 'Alta');
     }
@@ -212,11 +218,13 @@ export default function PatientsPage() {
         </div>
       </div>
 
-       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatsCard title="Total de Pacientes" value={kpis.total} icon={Users} isActive={kpiFilter === 'all'} onClick={() => setKpiFilter('all')} comparisonText="+2 vs. mês passado" />
-        <StatsCard title="Pacientes Ativos" value={kpis.active} icon={ShieldCheck} isActive={kpiFilter === 'active'} onClick={() => setKpiFilter('active')} comparisonText="+1 na última semana"/>
-        <StatsCard title="Com Pendências" value={kpis.pending} icon={AlertTriangle} isActive={kpiFilter === 'pending'} onClick={() => setKpiFilter('pending')} comparisonText="-3 vs. semana passada"/>
-        <StatsCard title="Alta Complexidade" value={kpis.highComplexity} icon={HeartPulse} isActive={kpiFilter === 'high_complexity'} onClick={() => setKpiFilter('high_complexity')} comparisonText="Estável" />
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-6">
+        <StatsCard title="Total de Pacientes" value={kpis.total} icon={Users} isActive={kpiFilter === 'all'} onClick={() => setKpiFilter('all')} comparisonText="+2 vs. mês passado" trend="up"/>
+        <StatsCard title="Pacientes Ativos" value={kpis.active} icon={ShieldCheck} isActive={kpiFilter === 'active'} onClick={() => setKpiFilter('active')} comparisonText="+1 na última semana" trend="up"/>
+        <StatsCard title="Com Pendências" value={kpis.pending} icon={AlertTriangle} isActive={kpiFilter === 'pending'} onClick={() => setKpiFilter('pending')} comparisonText="-3 vs. semana passada" trend="down"/>
+        <StatsCard title="Baixa Complexidade" value={kpis.lowComplexity} icon={Activity} isActive={kpiFilter === 'low_complexity'} onClick={() => setKpiFilter('low_complexity')} comparisonText="Estável" trend="neutral"/>
+        <StatsCard title="Média Complexidade" value={kpis.mediumComplexity} icon={Activity} isActive={kpiFilter === 'medium_complexity'} onClick={() => setKpiFilter('medium_complexity')} comparisonText="+1" trend="up"/>
+        <StatsCard title="Alta Complexidade" value={kpis.highComplexity} icon={HeartPulse} isActive={kpiFilter === 'high_complexity'} onClick={() => setKpiFilter('high_complexity')} comparisonText="Estável" trend="neutral" />
       </div>
        
        <Collapsible className="mb-6">
