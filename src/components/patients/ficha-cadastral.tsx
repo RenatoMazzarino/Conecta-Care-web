@@ -66,7 +66,7 @@ const CardEditButton = ({ card, editMode, setEditMode }: CardEditButtonProps) =>
   if (editMode === card) return null;
 
   return (
-    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditMode(card)}>
+    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setEditMode(card); }}>
       <Edit className="h-4 w-4" />
     </Button>
   );
@@ -155,8 +155,8 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
                   <FormSection icon={User} title="Identificação Básica" className="pt-0">
-                    <FormField label="ID do Paciente" isEditing={false} value={displayData.id} className="md:col-span-2" />
-                    <FormField label="Tratamento (Pronomes)" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.pronouns}>
+                    <FormField label="ID do Paciente" isEditing={false} value={displayData.id} className="md:col-span-3" />
+                    <FormField label="Tratamento" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.pronouns}>
                         <Select value={editedData?.pronouns || ''} onValueChange={(v) => handleFieldChange('adminData', 'pronouns', v)}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -172,7 +172,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                     <FormField label="Nome Completo" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.fullName} className="md:col-span-2">
                         <Input value={editedData?.fullName || ''} onChange={(e) => handleFieldChange('adminData', 'fullName', e.target.value)} />
                     </FormField>
-                    <FormField label="Nome Social" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.displayName} className="md:col-span-2">
+                    <FormField label="Nome Social" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.displayName} className="md:col-span-3">
                         <Input value={editedData?.displayName || ''} onChange={(e) => handleFieldChange('adminData', 'displayName', e.target.value)} />
                     </FormField>
                   </FormSection>
@@ -192,19 +192,19 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
 
                  <FormSection icon={FileText} title="Documentos e Identificação Civil">
                     <FormField 
-                        label={<span className="flex items-center gap-2">CPF <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn('h-5', displayData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}>{displayData.cpfStatus === 'valid' ? 'Verificado' : 'Inválido'}</Badge></span>}
+                        label={<span className="flex items-center gap-2">CPF <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(displayData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1" />{displayData.cpfStatus === 'valid' ? 'Verificado' : 'Inválido'}</Badge></span>}
                         isEditing={isFullEditing || editMode === 'dadosPessoais'} 
                         value={displayData.cpf}
                     >
                       <Input value={editedData?.cpf || ''} onChange={(e) => handleFieldChange('adminData', 'cpf', e.target.value)} />
                     </FormField>
-                    <FormField label={<span className="flex items-center gap-2">RG <Badge variant="outline" className="h-5">Verificado</Badge></span>} isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.rg || '-'}>
+                    <FormField label={<span className="flex items-center gap-2">RG <Badge variant="outline" className="h-5"><BadgeCheck className="h-3 w-3 mr-1"/>Verificado</Badge></span>} isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.rg || '-'}>
                         <Input value={editedData?.rg || ''} onChange={(e) => handleFieldChange('adminData', 'rg', e.target.value)} />
                     </FormField>
                     <FormField label="Órgão Emissor" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.rgIssuer || '-'}>
                         <Input value={editedData?.rgIssuer || ''} onChange={(e) => handleFieldChange('adminData', 'rgIssuer', e.target.value)} />
                     </FormField>
-                    <FormField label={<span className="flex items-center gap-2">CNS (Cartão SUS) <Badge variant="outline" className="h-5">Verificado</Badge></span>} isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.cns || '-'}>
+                    <FormField label={<span className="flex items-center gap-2">CNS (Cartão SUS) <Badge variant="outline" className="h-5"><BadgeCheck className="h-3 w-3 mr-1" />Verificado</Badge></span>} isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.cns || '-'}>
                         <Input value={editedData?.cns || ''} onChange={(e) => handleFieldChange('adminData', 'cns', e.target.value)} />
                     </FormField>
                      <FormField label="Doc. Estrangeiro (National ID)" isEditing={isFullEditing || editMode === 'dadosPessoais'} value={displayData.nationalId || '-'}>
@@ -301,14 +301,14 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         key={index}
                         label={`Telefone (${phone.type})`} 
                         isEditing={false} 
-                        value={<>
+                        value={<span className="flex items-center gap-2">
                           <span>{phone.number}</span>
                           {phone.type === 'mobile' &&
                             <a href={`https://wa.me/${phone.number.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
                               <Button variant="ghost" size="icon" className="text-green-500 hover:text-green-600 h-8 w-8 -ml-1"><WhatsAppIcon className="h-5 w-5" /></Button>
                             </a>
                           }
-                        </>}
+                        </span>}
                       />
                     ))
                   )}
@@ -338,17 +338,18 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         key={index}
                         label={`Email`} 
                         isEditing={false} 
-                        value={<>
+                        value={<span className="flex items-center gap-2">
                           <span>{email.email}</span>
                           <a href={`mailto:${email.email}`}>
                             <Button variant="ghost" size="icon" className="text-primary hover:text-primary h-8 w-8 -ml-2"><Mail className="h-5 w-5" /></Button>
                           </a>
-                        </>}
+                        </span>}
                       />
                     ))
                   )}
                   
                   { (isFullEditing || editMode === 'dadosPessoais') && (
+                    <>
                      <FormField label="Método de Contato Preferencial" isEditing={true} value={displayData.preferredContactMethod}>
                        <Select value={editedData?.preferredContactMethod || ''} onValueChange={(v) => handleFieldChange('adminData', 'preferredContactMethod', v)}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -359,6 +360,17 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                           </SelectContent>
                         </Select>
                     </FormField>
+                    <FormField
+                      label="Não receber comunicações"
+                      isEditing={true}
+                      value={null}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Switch id="communication-opt-out" checked={!!editedData?.communicationOptOut} onCheckedChange={(checked) => handleFieldChange('adminData', 'communicationOptOut', checked ? [{ type: 'sms', optedOut: true, date: new Date().toISOString() }] : [])}/>
+                        <Label htmlFor="communication-opt-out">Opt-out de SMS/Marketing</Label>
+                      </div>
+                    </FormField>
+                    </>
                   )}
                 </FormSection>
 
@@ -393,7 +405,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                      ) : (
                         displayData.emergencyContacts.map((contact, index) => (
                           <div key={index} className="p-3 border rounded-md bg-muted/50">
-                            <p className="font-semibold">{contact.name} <span className="text-sm font-normal text-muted-foreground">({contact.relationship})</span> {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                            <div className="font-semibold flex items-center">{contact.name} <span className="text-sm font-normal text-muted-foreground ml-1">({contact.relationship})</span> {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</div>
                             <p className="text-sm text-muted-foreground">{contact.phone}</p>
                             <p className="text-sm text-muted-foreground">{contact.email}</p>
                           </div>
@@ -420,10 +432,10 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         <Card>
            <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
              <div className="flex justify-between items-center w-full">
-              <AccordionTrigger className="flex-1 p-0">
-                  <CardTitle className="text-xl">2. Endereço e Ambiente Domiciliar</CardTitle>
-              </AccordionTrigger>
-              <CardEditButton card="endereco" editMode={editMode} setEditMode={setEditMode} />
+                <AccordionTrigger className="flex-1 p-0">
+                    <CardTitle className="text-xl">2. Endereço e Ambiente Domiciliar</CardTitle>
+                </AccordionTrigger>
+                <CardEditButton card="endereco" editMode={editMode} setEditMode={setEditMode} />
             </div>
           </CardHeader>
           <AccordionContent className="p-6">
@@ -496,9 +508,9 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         <Card>
           <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
              <div className="flex justify-between items-center w-full">
-              <AccordionTrigger className="flex-1 p-0">
-                  <CardTitle className="text-xl">3. Dados Clínicos e Assistenciais</CardTitle>
-              </AccordionTrigger>
+                <AccordionTrigger className="flex-1 p-0">
+                    <CardTitle className="text-xl">3. Dados Clínicos e Assistenciais</CardTitle>
+                </AccordionTrigger>
               <CardEditButton card="clinico" editMode={editMode} setEditMode={setEditMode} />
             </div>
           </CardHeader>
@@ -516,9 +528,9 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         <Card>
           <CardHeader className="p-4 hover:bg-muted/30 rounded-t-lg">
              <div className="flex justify-between items-center w-full">
-              <AccordionTrigger className="flex-1 p-0">
-                  <CardTitle className="text-xl">4. Dados Administrativos</CardTitle>
-              </AccordionTrigger>
+                <AccordionTrigger className="flex-1 p-0">
+                    <CardTitle className="text-xl">4. Dados Administrativos</CardTitle>
+                </AccordionTrigger>
               <CardEditButton card="administrativo" editMode={editMode} setEditMode={setEditMode} />
             </div>
           </CardHeader>
@@ -532,3 +544,5 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     </Accordion>
   );
 }
+
+    
