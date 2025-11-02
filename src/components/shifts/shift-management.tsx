@@ -349,7 +349,7 @@ export function ShiftManagement() {
                 title="Vagas com Candidatos"
                 value={stats.pending}
                 icon={UserPlus}
-                className="text-orange-600"
+                className="text-amber-600"
                 onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
                 isActive={statusFilter === 'pending'}
             />
@@ -533,6 +533,7 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
 

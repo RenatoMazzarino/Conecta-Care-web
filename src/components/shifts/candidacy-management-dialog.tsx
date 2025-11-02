@@ -95,8 +95,12 @@ export function CandidacyManagementDialog({
   }, [minRating]);
 
   const shift = mockPendingShifts[0]; // Assuming one shift for simplicity
-  const formattedDate = new Date(shift.dayKey).toLocaleDateString('pt-BR', {timeZone: 'UTC', day: '2-digit', month: 'long' });
-  const shiftTime = shift.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
+  const formattedDate = shift?.dayKey ? new Date(shift.dayKey).toLocaleDateString('pt-BR', {timeZone: 'UTC', day: '2-digit', month: 'long' }) : 'data indefinida';
+  const shiftTime = shift?.shiftType === 'diurno' ? '08:00 - 20:00' : '20:00 - 08:00';
+
+  if (!shift) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
