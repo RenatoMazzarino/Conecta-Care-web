@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, Megaphone } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, Megaphone, Edit, X, UserCheck } from 'lucide-react';
 import type { Professional, Shift, OpenShiftInfo, Patient } from '@/lib/types';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -435,7 +435,7 @@ export const statusConfig: { [key in GridShiftState['status']]: { base: string, 
   pending: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
   issue: { base: 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900', border: 'border-l-red-500', text: 'text-red-800 dark:text-red-200' },
   filled: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  open: { base: 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700', border: 'border-l-gray-300', text: 'text-gray-500 dark:text-gray-400' },
+  open: { base: 'bg-card', border: 'border-muted-foreground/30', text: 'text-muted-foreground' },
 };
 
 
@@ -443,7 +443,7 @@ export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift
   const config = shift.status === 'issue' ? statusConfig.issue : statusConfig.active;
 
   return (
-    <div onClick={onClick} className={cn("relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+    <div onClick={onClick} className={cn("group relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
        {(shift.hasNotification || shift.status === 'issue') && (
         <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-destructive fill-destructive/20" />
       )}
@@ -459,6 +459,10 @@ export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift
            <Progress value={shift.progress} className="h-1.5 w-full" />
         </div>
       )}
+      <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><Edit className="h-4 w-4" /></Button>
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><X className="h-4 w-4" /></Button>
+      </div>
     </div>
   )
 };
@@ -466,31 +470,41 @@ export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift
 export const FilledShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => {
   const config = statusConfig.filled;
   return (
-    <div onClick={onClick} className={cn("relative flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
+    <div onClick={onClick} className={cn("group relative flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
        <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-muted-foreground/20" />
        <Avatar className="h-8 w-8">
           <AvatarImage src={professional.avatarUrl} alt={professional.name} data-ai-hint={professional.avatarHint} />
           <AvatarFallback>{professional.initials}</AvatarFallback>
         </Avatar>
       <span className="text-sm font-medium truncate text-foreground">{professional.name}</span>
+       <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><Edit className="h-4 w-4" /></Button>
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><X className="h-4 w-4" /></Button>
+      </div>
     </div>
   )
 };
 
 export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: string, urgent?: boolean, onClick: () => void }) => (
-  <div onClick={onClick} className={cn("flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
+  <div onClick={onClick} className={cn("group relative flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
     urgent 
         ? 'border-amber-500/50 bg-amber-500/5 text-amber-600 hover:bg-amber-500/10 hover:border-amber-500' 
         : 'border-muted-foreground/30 bg-card text-muted-foreground hover:bg-accent hover:border-muted-foreground'
   )}>
-    {urgent ? (
-       <Megaphone className="h-4 w-4" />
-    ) : (
-      <Plus className="h-4 w-4" />
-    )}
-    <span className="text-sm font-medium">
-      {shiftType === 'diurno' ? 'Dia' : 'Noite'}
-    </span>
+    <div className="flex flex-col items-center justify-center gap-1 z-10 opacity-100 group-hover:opacity-0 transition-opacity">
+        {urgent ? (
+        <Megaphone className="h-4 w-4" />
+        ) : (
+        <Plus className="h-4 w-4" />
+        )}
+        <span className="text-sm font-medium">
+        {shiftType === 'diurno' ? 'Dia' : 'Noite'}
+        </span>
+    </div>
+    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-accent/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+        <Button size="icon" variant="ghost" className="h-8 w-8"><FileUp className="h-4 w-4" /></Button>
+        <Button size="icon" variant="ghost" className="h-8 w-8"><UserCheck className="h-4 w-4" /></Button>
+    </div>
   </div>
 );
 
@@ -500,11 +514,16 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     const candidateCount = 3; 
 
     return (
-        <div onClick={onClick} className={cn("relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
-            <UserPlus className={cn("h-5 w-5", config.text)} />
-            <span className={cn("text-sm font-semibold", config.text)}>Candidatos</span>
-            <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">
+        <div onClick={onClick} className={cn("group relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", config.base, config.border)}>
+            <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold ring-2 ring-card">
               {candidateCount}
+            </div>
+            <div className="flex items-center justify-center gap-2 z-10 opacity-100 group-hover:opacity-0 transition-opacity">
+                <UserPlus className={cn("h-5 w-5", config.text)} />
+                <span className={cn("text-sm font-semibold", config.text)}>Candidatos</span>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+                <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><Edit className="h-4 w-4" /></Button>
             </div>
         </div>
     );
@@ -513,6 +532,7 @@ export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
     
 
     
+
 
 
 
