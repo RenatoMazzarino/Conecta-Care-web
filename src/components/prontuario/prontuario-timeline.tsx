@@ -32,61 +32,48 @@ export function ProntuarioTimeline({ currentProgress }: { currentProgress: numbe
                 </CardTitle>
             </CardHeader>
             <CardContent className="relative pt-6">
-                <div className="flex gap-4">
-                    {/* Vertical Progress Bar */}
-                    <div className="relative w-10 flex-shrink-0 flex justify-center">
-                        <div className="w-2 h-full bg-muted rounded-full">
-                            <div 
-                                className="w-full bg-primary rounded-full animate-pulse"
-                                style={{ height: `${currentProgress}%` }}
-                            />
-                        </div>
-                         {/* Event Icons inside the bar */}
-                        {mockShiftHistory.map((event, index) => {
-                            const eventProgress = (index / (totalEvents -1)) * 100;
-                            const isEventActive = eventProgress <= currentProgress;
-                            const config = statusConfig[event.status || 'default'];
+                <div className="absolute left-6 top-6 bottom-6 w-2 bg-muted rounded-full">
+                     <div 
+                        className="absolute top-0 left-0 w-full bg-primary rounded-full animate-pulse"
+                        style={{ 
+                            height: `${currentProgress}%`,
+                            backgroundImage: 'linear-gradient(110deg, hsl(var(--primary)), 45%, hsl(var(--primary-foreground)), 55%, hsl(var(--primary)))',
+                            backgroundSize: '200% 100%',
+                            animation: 'shimmer 2s linear infinite',
+                         }}
+                    />
+                </div>
 
-                            return (
-                                <div
-                                    key={index}
-                                    className={cn(
-                                        "absolute left-1/2 -translate-x-1/2 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-all",
-                                        isEventActive ? config.icon : 'bg-muted border'
-                                    )}
-                                    style={{ top: `calc(${eventProgress}% - 16px)` }}
-                                >
-                                    <event.icon className="h-4 w-4" />
+                <div className="relative space-y-8">
+                     {mockShiftHistory.map((event, index) => {
+                        const eventProgress = (index / (totalEvents -1)) * 100;
+                        const isEventActive = eventProgress <= currentProgress;
+                        const config = statusConfig[event.status || 'default'];
+
+                        return (
+                             <div key={index} className="grid grid-cols-[auto_1fr] items-start gap-4">
+                                <div className="flex-shrink-0 z-10">
+                                    <div
+                                        className={cn(
+                                            "flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-card transition-all",
+                                            isEventActive ? config.icon : 'bg-muted border'
+                                        )}
+                                    >
+                                        <event.icon className="h-4 w-4" />
+                                    </div>
                                 </div>
-                            )
-                        })}
-                    </div>
-                    {/* Event Details */}
-                    <div className="flex-1 relative">
-                         {mockShiftHistory.map((event, index) => {
-                            const eventProgress = (index / (totalEvents - 1)) * 100;
-                            const isEventActive = eventProgress <= currentProgress;
-                            return (
-                                <div 
-                                    key={index} 
-                                    className={cn(
-                                        "absolute w-full -translate-y-1/2 pl-4 transition-opacity",
-                                        !isEventActive && "opacity-40"
-                                    )}
-                                    style={{ top: `${eventProgress}%` }}
-                                >
-                                    <div className="flex justify-between items-center">
+                                
+                                <div className={cn("pt-1 transition-opacity", !isEventActive && "opacity-50")}>
+                                     <div className="flex justify-between items-center">
                                         <p className="font-semibold text-sm text-foreground">{event.event}</p>
                                         <p className="text-xs text-muted-foreground">{event.time}</p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-1">{event.details}</p>
+                                    <p className="text-sm text-muted-foreground mt-0.5">{event.details}</p>
                                 </div>
-                            )
-                        })}
-                    </div>
+                            </div>
+                        )
+                    })}
                 </div>
-                {/* Empty div to create space for the timeline content */}
-                <div style={{ height: `${(totalEvents - 1) * 80}px` }}></div>
             </CardContent>
         </Card>
     )
