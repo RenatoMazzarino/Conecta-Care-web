@@ -95,10 +95,11 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   
   const renderOpenContent = () => {
     if (view === 'assign') {
+        const previousAssignments = [allProfessionals[0], allProfessionals[2], allProfessionals[4]].filter(Boolean) as Professional[];
         return (
-             <div className="py-4 max-h-[60vh] flex flex-col">
+             <div className="py-4 max-h-[70vh] flex flex-col">
                 <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-semibold">Atribuir Profissional Diretamente</h4>
+                    <h4 className="font-semibold text-lg">Atribuir Profissional Diretamente</h4>
                     <div className="relative w-72">
                          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                          <Input 
@@ -109,6 +110,29 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                         />
                     </div>
                 </div>
+                
+                 <Card className="mb-4 bg-amber-50 border-amber-200">
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2 text-amber-800">
+                            <User className="h-5 w-5" />
+                            Histórico de Plantões do Paciente
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex gap-4 overflow-x-auto pb-4">
+                        {previousAssignments.map(prof => (
+                            <div key={prof.id} className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card border w-36 text-center shrink-0">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={prof.avatarUrl} data-ai-hint={prof.avatarHint} />
+                                    <AvatarFallback>{prof.initials}</AvatarFallback>
+                                </Avatar>
+                                <p className="text-sm font-semibold truncate w-full">{prof.name}</p>
+                                <p className="text-xs text-muted-foreground">Último plantão: 2 sem. atrás</p>
+                                <Button size="sm" variant="secondary" className="w-full h-8 mt-1" onClick={() => handleAssignDirectly(prof)}>Re-atribuir</Button>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+
                 <ScrollArea className="flex-1 -mr-2 pr-2">
                     <div className="space-y-2">
                     {filteredProfessionals.map(prof => (
@@ -215,18 +239,22 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     }
 
     return (
-        <div className="flex flex-col items-center justify-center h-96 gap-6 text-center">
-            <h3 className="text-xl font-semibold">Preencher Vaga em Aberto</h3>
-            <p className="text-muted-foreground max-w-md">
-                Você pode publicar esta vaga para que os profissionais disponíveis se candidatem, ou pode atribuir diretamente a um profissional específico da sua equipe.
-            </p>
-            <div className="flex gap-4">
-                 <Button size="lg" variant="secondary" onClick={() => setView('assign')}>
-                    <UserCheck className="mr-2 h-4 w-4" /> Atribuir Diretamente
-                </Button>
-                <Button size="lg" onClick={() => setView('publish')}>
-                    <FileUp className="mr-2 h-4 w-4" /> Publicar Vaga
-                </Button>
+        <div className="h-96 text-center grid grid-cols-2 gap-6 items-center justify-center p-6">
+            <div 
+              className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
+              onClick={() => setView('assign')}
+            >
+              <UserCheck className="h-16 w-16 text-primary" />
+              <h3 className="text-xl font-semibold">Atribuir Diretamente</h3>
+              <p className="text-muted-foreground">Escolha um profissional específico da sua equipe para este plantão.</p>
+            </div>
+             <div 
+              className="flex flex-col items-center justify-center gap-4 p-6 border rounded-lg h-full cursor-pointer hover:bg-accent hover:border-primary/50 transition-colors"
+              onClick={() => setView('publish')}
+            >
+              <FileUp className="h-16 w-16 text-primary" />
+              <h3 className="text-xl font-semibold">Publicar Vaga</h3>
+              <p className="text-muted-foreground">Torne a vaga visível para que profissionais qualificados possam se candidatar.</p>
             </div>
         </div>
     );
