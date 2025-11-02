@@ -27,7 +27,9 @@ export const patients: Patient[] = [
     rg: '12.345.678-9',
     rgIssuer: 'SSP/SP',
     cns: '898 0010 8888 1234',
-    
+    nationalId: undefined,
+    documentValidation: { status: 'validated', validatedBy: 'Admin', validatedAt: '2023-01-11T14:00:00Z', method: 'manual' },
+
     dateOfBirth: '1945-05-20',
     sexo: 'Masculino',
     genderIdentity: 'Masculino',
@@ -40,8 +42,12 @@ export const patients: Patient[] = [
       { type: 'mobile', number: '+55 (11) 98888-1111', verified: true, preferred: true },
       { type: 'home', number: '+55 (11) 2222-3333', verified: true, preferred: false },
     ],
-    emails: [{ email: 'joao.silva@example.com', verified: true, preferred: true }],
+    emails: [
+        { email: 'joao.silva@example.com', verified: true, preferred: true },
+        { email: 'joao.contato@email.com', verified: false, preferred: false },
+    ],
     preferredContactMethod: 'WhatsApp',
+    communicationOptOut: [],
 
     emergencyContacts: [{
       id: 'ec-1',
@@ -51,6 +57,7 @@ export const patients: Patient[] = [
       isLegalRepresentative: true,
       permissions: { view: true, authorize: true },
     }],
+    legalGuardian: undefined,
 
     address: {
       street: 'Rua das Flores',
@@ -111,13 +118,16 @@ export const patients: Patient[] = [
     avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
     nacionalidade: 'Brasileira',
     naturalidade: 'Rio de Janeiro/RJ',
+    photoConsent: undefined,
 
     cpf: '987.654.321-00',
     cns: '700 5081 1234 5678',
     cpfStatus: 'valid',
-    
+    documentValidation: { status: 'pending' },
+
     dateOfBirth: '1942-11-15',
     sexo: 'Feminino',
+    genderIdentity: 'Feminino',
     
     phones: [
         { type: 'home', number: '+55 (21) 2222-7777', verified: true, preferred: true },
@@ -184,7 +194,8 @@ export const patients: Patient[] = [
     dateOfBirth: '1959-03-01',
     avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
     avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
-    
+    documentValidation: { status: 'none' },
+
     phones: [{ type: 'mobile', number: '+55 (31) 96666-3333', verified: false, preferred: true }],
     emails: [{ email: 'jorge.mendes@example.com', verified: false, preferred: true }],
     

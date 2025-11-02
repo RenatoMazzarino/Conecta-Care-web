@@ -86,24 +86,23 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
         const newContacts = editedData.emergencyContacts.filter((_, i) => i !== index);
         handleChange('emergencyContacts', newContacts);
     };
-
-    const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-        <div className={cn("flex items-center h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm", className)}>
-            {children || '-'}
-        </div>
-    );
     
-    const PhoneValueDisplay = ({ value, className }: { value?: string, className?: string }) => {
+    const ContactValueDisplay = ({ value, type }: { value: string; type: 'phone' | 'email' | 'whatsapp' }) => {
         const handleWhatsAppClick = () => {
             if (!value) return;
             const phoneNumber = value.replace(/\D/g, '');
             window.open(`https://wa.me/${phoneNumber}`, '_blank');
         };
+        
+        const handleEmailClick = () => {
+            if (!value) return;
+            window.location.href = `mailto:${value}`;
+        }
 
         return (
-            <div className={cn("flex items-center h-10 w-full rounded-md border border-input bg-muted/50 text-sm", className)}>
-                 <span className="flex-1 px-3 py-2">{value || '-'}</span>
-                {value && (
+            <div className="flex items-center h-10 w-full rounded-md border border-input bg-muted/50 text-sm">
+                <span className="flex-1 px-3 py-2">{value}</span>
+                {type === 'whatsapp' && (
                     <Button
                         variant="ghost"
                         size="icon"
@@ -113,10 +112,26 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                         <WhatsAppIcon className="w-5 h-5" />
                     </Button>
                 )}
+                 {type === 'email' && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 mr-1 text-muted-foreground hover:bg-accent"
+                        onClick={handleEmailClick}
+                    >
+                        <Mail className="w-5 h-5" />
+                    </Button>
+                )}
             </div>
         );
     };
 
+    const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+        <div className={cn("flex items-center h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm", className)}>
+            {children || '-'}
+        </div>
+    );
+    
     const ArrayValueDisplay = ({ value }: { value?: string[] }) => (
         <ValueDisplay>{value && value.length > 0 ? value.join(', ') : '-'}</ValueDisplay>
     );
@@ -166,6 +181,22 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                 <Button variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2" /> Cancelar</Button>
                 <Button onClick={onSave}><Save className="w-4 h-4 mr-2" /> Salvar</Button>
             </div>
+        )
+    };
+    
+    const DocumentStatusBadge = ({ status }: { status: 'none' | 'pending' | 'validated' | undefined }) => {
+        const config = {
+            validated: { icon: BadgeCheck, color: 'text-green-600', text: 'Validado' },
+            pending: { icon: BadgeAlert, color: 'text-amber-600', text: 'Pendente' },
+            none: { icon: BadgeAlert, color: 'text-muted-foreground', text: 'Não Verificado' },
+        }[status || 'none'];
+
+        const Icon = config.icon;
+        return (
+            <span className={cn("flex items-center gap-1 text-xs font-medium", config.color)}>
+                <Icon className="h-3 w-3" />
+                {config.text}
+            </span>
         )
     };
 
@@ -221,18 +252,16 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div>
-                                <Label className="flex items-center gap-2">CPF
-                                    {data.cpfStatus === 'valid' ? <BadgeCheck className="h-4 w-4 text-green-600" /> : <BadgeAlert className="h-4 w-4 text-amber-600" />}
-                                </Label>
+                                <Label className="flex items-center gap-2">CPF <DocumentStatusBadge status={data.cpfStatus} /></Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.cpf || ''} onChange={e => handleChange('cpf', e.target.value)} /> : <ValueDisplay>{data.cpf}</ValueDisplay>}
                             </div>
-                            <div>
-                                <Label>CNS (Cartão SUS)</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.cns || ''} onChange={e => handleChange('cns', e.target.value)} /> : <ValueDisplay>{data.cns}</ValueDisplay>}
-                            </div>
                              <div>
-                                <Label>RG</Label>
+                                <Label className="flex items-center gap-2">RG <DocumentStatusBadge status={data.documentValidation?.status} /></Label>
                                 {isCardEditing('dadosPessoais') ? <Input value={data.rg || ''} onChange={e => handleChange('rg', e.target.value)} /> : <ValueDisplay>{data.rg}</ValueDisplay>}
+                            </div>
+                            <div>
+                                <Label className="flex items-center gap-2">CNS (Cartão SUS) <DocumentStatusBadge status={data.documentValidation?.status} /></Label>
+                                {isCardEditing('dadosPessoais') ? <Input value={data.cns || ''} onChange={e => handleChange('cns', e.target.value)} /> : <ValueDisplay>{data.cns}</ValueDisplay>}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -276,19 +305,27 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                 {isCardEditing('dadosPessoais') ? <Input value={data.preferredLanguage || ''} onChange={e => handleChange('preferredLanguage', e.target.value)} placeholder="Ex: Português" /> : <ValueDisplay>{data.preferredLanguage}</ValueDisplay>}
                             </div>
                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                             <div>
-                                <Label>Email</Label>
-                                {isCardEditing('dadosPessoais') ? <Input type="email" value={data.emails?.[0]?.email || ''} onChange={e => handleChange('emails', [{ email: e.target.value }])} /> : <ValueDisplay>{data.emails?.[0]?.email}</ValueDisplay>}
-                            </div>
-                             <div>
-                                <Label>Telefone Celular (WhatsApp)</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.phones?.find(p => p.type === 'mobile')?.number || ''} onChange={e => handleChange('phones', [{ type: 'mobile', number: e.target.value }])} /> : <PhoneValueDisplay value={data.phones?.find(p => p.type === 'mobile')?.number} />}
-                            </div>
-                            <div>
-                                <Label>Telefone Fixo</Label>
-                                {isCardEditing('dadosPessoais') ? <Input value={data.phones?.find(p => p.type === 'home')?.number || ''} onChange={e => handleChange('phones', [{ type: 'home', number: e.target.value }])} /> : <ValueDisplay>{data.phones?.find(p => p.type === 'home')?.number}</ValueDisplay>}
-                            </div>
+                        <div className="space-y-4 mb-6">
+                            {data.phones?.map((phone, index) => (
+                                <div key={`phone-${index}`}>
+                                    <Label>Telefone ({phone.type})</Label>
+                                    {isCardEditing('dadosPessoais') ? <Input value={phone.number || ''} onChange={e => {
+                                        const newPhones = [...(data.phones || [])];
+                                        newPhones[index].number = e.target.value;
+                                        handleChange('phones', newPhones);
+                                    }} /> : <ContactValueDisplay value={phone.number} type={phone.type === 'mobile' ? 'whatsapp' : 'phone'} />}
+                                </div>
+                            ))}
+                             {data.emails?.map((email, index) => (
+                                <div key={`email-${index}`}>
+                                    <Label>Email</Label>
+                                    {isCardEditing('dadosPessoais') ? <Input type="email" value={email.email || ''} onChange={e => {
+                                         const newEmails = [...(data.emails || [])];
+                                        newEmails[index].email = e.target.value;
+                                        handleChange('emails', newEmails);
+                                    }} /> : <ContactValueDisplay value={email.email} type="email" />}
+                                </div>
+                            ))}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                              <div>
@@ -340,7 +377,7 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
                                             </div>
                                             <div>
                                                 <Label>Telefone</Label>
-                                                {isCardEditing('dadosPessoais') ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <PhoneValueDisplay value={contact.phone} />}
+                                                {isCardEditing('dadosPessoais') ? <Input value={contact.phone} onChange={e => handleEmergencyContactChange(index, 'phone', e.target.value)} /> : <ContactValueDisplay value={contact.phone} type="whatsapp" />}
                                             </div>
                                         </div>
                                     </Card>
