@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -15,9 +16,7 @@ import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
 
@@ -112,115 +111,140 @@ export function FichaCadastral({ editMode, setEditMode, displayData, editedData,
     
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-12 gap-8">
-                <div className="col-span-12 lg:col-span-8 space-y-6">
-                    <FormSection icon={User} title="Dados Pessoais">
-                         <FormRow>
-                            <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
-                                editComponent={
-                                    <Select value={editedData.pronouns || 'none'} onValueChange={(v) => handleFieldChange('pronouns', v)}>
-                                        <SelectTrigger><SelectValue/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="none">Nenhum</SelectItem>
-                                            <SelectItem value="Sr.">Sr.</SelectItem>
-                                            <SelectItem value="Sra.">Sra.</SelectItem>
-                                            <SelectItem value="Sre.">Sre.</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                }
-                            />
-                            <FormField label="Nome Social" value={displayData.displayName} isEditing={isEditing}
-                                editComponent={<Input value={editedData.displayName} onChange={(e) => handleFieldChange('displayName', e.target.value)} />}
-                            />
-                        </FormRow>
-                        <hr className="my-4"/>
-                        <FormRow>
-                            <FormField label="Nome" value={displayData.firstName} isEditing={isEditing}
-                                editComponent={<Input value={editedData.firstName} onChange={(e) => handleFieldChange('firstName', e.target.value)} />}
-                            />
-                            <FormField label="Sobrenome" value={displayData.lastName} isEditing={isEditing}
-                                editComponent={<Input value={editedData.lastName} onChange={(e) => handleFieldChange('lastName', e.target.value)} />}
-                            />
-                        </FormRow>
-                        <hr className="my-4"/>
-                        <FormRow>
-                             <FormField label="CPF" value={displayData.cpf} 
-                                action={<Badge variant={editedData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(editedData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} 
-                                isEditing={isEditing}
-                                editComponent={<Input value={editedData.cpf} onChange={(e) => handleFieldChange('cpf', e.target.value)} />}
-                             />
-                             <FormField label="RG" value={displayData.rg} 
-                                action={<Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>}
-                                isEditing={isEditing}
-                                editComponent={<Input value={editedData.rg || ''} onChange={(e) => handleFieldChange('rg', e.target.value)} />}
-                             />
-                         </FormRow>
-                         <FormRow>
-                              <FormField label="Órgão Emissor do RG" value={displayData.rgIssuer} isEditing={isEditing}
-                                editComponent={<Input value={editedData.rgIssuer || ''} onChange={(e) => handleFieldChange('rgIssuer', e.target.value)} />}
-                              />
-                             <FormField label="CNS" value={displayData.cns} 
-                                action={<Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} 
-                                isEditing={isEditing}
-                                editComponent={<Input value={editedData.cns || ''} onChange={(e) => handleFieldChange('cns', e.target.value)} />}
-                             />
-                         </FormRow>
-                          <hr className="my-4"/>
-                         <FormSection icon={Phone} title="Informações de Contato" action={<Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>}>
-                            <FormRow>
-                                <FormField label="Telefone" value={displayData.phones[0]?.number} 
-                                    action={<a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700 ml-2"><WhatsAppIcon className="h-5 w-5"/></a>}
-                                    isEditing={isEditing}
-                                    editComponent={<Input value={editedData.phones[0]?.number} onChange={(e) => handleFieldChange('phones.0.number', e.target.value)} />}
-                                />
-                                <FormField label="Email" value={displayData.emails?.[0]?.email}
-                                    action={<a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary ml-2"><Mail className="h-4 w-4"/></a>}
-                                    isEditing={isEditing}
-                                    editComponent={<Input value={editedData.emails?.[0]?.email} onChange={(e) => handleFieldChange('emails.0.email', e.target.value)} />}
-                                />
-                            </FormRow>
-                        </FormSection>
-                         <hr className="my-4"/>
-                        <FormSection icon={Users} title="Contatos de Emergência">
-                          <div className="space-y-3">
-                            {displayData.emergencyContacts.map((contact, index) => (
-                              <div key={index} className="p-3 border rounded-lg bg-background">
-                                  <div className="flex items-center justify-between">
-                                    <div className="font-medium text-slate-900">
-                                        {contact.name}
-                                        {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
-                                    </div>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
-                              </div>
-                            ))}
-                          </div>
-                          {isEditing && (
-                            <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
-                                <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
-                            </Button>
-                          )}
-                      </FormSection>
-                    </FormSection>
+            <FormSection icon={User} title="Identificação Básica">
+                <FormRow>
+                    <FormField label="Tratamento" value={displayData.pronouns} isEditing={isEditing}
+                        editComponent={
+                            <Select value={editedData.pronouns || 'none'} onValueChange={(v) => handleFieldChange('pronouns', v)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Nenhum</SelectItem>
+                                    <SelectItem value="Sr.">Sr.</SelectItem>
+                                    <SelectItem value="Sra.">Sra.</SelectItem>
+                                    <SelectItem value="Sre.">Sre.</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        }
+                    />
+                    <FormField label="Nome Social" value={displayData.displayName} isEditing={isEditing}
+                        editComponent={<Input value={editedData.displayName} onChange={(e) => handleFieldChange('displayName', e.target.value)} />}
+                    />
+                </FormRow>
+                <hr className="my-4"/>
+                <FormRow>
+                    <FormField label="Nome" value={displayData.firstName} isEditing={isEditing}
+                        editComponent={<Input value={editedData.firstName} onChange={(e) => handleFieldChange('firstName', e.target.value)} />}
+                    />
+                    <FormField label="Sobrenome" value={displayData.lastName} isEditing={isEditing}
+                        editComponent={<Input value={editedData.lastName} onChange={(e) => handleFieldChange('lastName', e.target.value)} />}
+                    />
+                </FormRow>
+                 <hr className="my-4"/>
+                <FormRow>
+                    <FormField label="Data de Nascimento" value={displayData.dateOfBirth ? new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : ''} isEditing={isEditing}
+                        editComponent={<Input type="date" value={editedData.dateOfBirth} onChange={(e) => handleFieldChange('dateOfBirth', e.target.value)} />} />
+                    <FormField label="Sexo de Nascimento" value={displayData.sexo} isEditing={isEditing}
+                        editComponent={
+                            <Select value={editedData.sexo || ''} onValueChange={(v) => handleFieldChange('sexo', v)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Masculino">Masculino</SelectItem>
+                                    <SelectItem value="Feminino">Feminino</SelectItem>
+                                    <SelectItem value="Outro">Outro</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        }
+                    />
+                </FormRow>
+                <FormRow>
+                    <FormField label="Identidade de Gênero" value={displayData.genderIdentity} isEditing={isEditing}
+                        editComponent={<Input value={editedData.genderIdentity || ''} onChange={(e) => handleFieldChange('genderIdentity', e.target.value)} />} />
+                    <FormField label="Estado Civil" value={displayData.estadoCivil} isEditing={isEditing}
+                        editComponent={<Input value={editedData.estadoCivil || ''} onChange={(e) => handleFieldChange('estadoCivil', e.target.value)} />} />
+                </FormRow>
+                <FormRow>
+                    <FormField label="Nacionalidade" value={displayData.nacionalidade} isEditing={isEditing}
+                        editComponent={<Input value={editedData.nacionalidade || ''} onChange={(e) => handleFieldChange('nacionalidade', e.target.value)} />} />
+                    <FormField label="Local de Nascimento" value={displayData.naturalidade} isEditing={isEditing}
+                        editComponent={<Input value={editedData.naturalidade || ''} onChange={(e) => handleFieldChange('naturalidade', e.target.value)} />} />
+                </FormRow>
+            </FormSection>
 
-                </div>
+            <FormSection icon={FileText} title="Documentos e Identificação Civil">
+                <FormRow>
+                     <FormField label="CPF" value={displayData.cpf} 
+                        action={<Badge variant={editedData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className={cn(editedData.cpfStatus === 'valid' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>} 
+                        isEditing={isEditing}
+                        editComponent={<Input value={editedData.cpf} onChange={(e) => handleFieldChange('cpf', e.target.value)} />}
+                     />
+                     <FormField label="RG" value={displayData.rg} 
+                        action={<Badge variant={editedData.documentValidation?.status === 'validated' ? 'secondary' : 'destructive'} className={cn(editedData.documentValidation?.status === 'validated' && 'bg-green-100 text-green-800')}><BadgeCheck className="h-3 w-3 mr-1"/> Verificado</Badge>}
+                        isEditing={isEditing}
+                        editComponent={<Input value={editedData.rg || ''} onChange={(e) => handleFieldChange('rg', e.target.value)} />}
+                     />
+                 </FormRow>
+                 <FormRow>
+                      <FormField label="Órgão Emissor do RG" value={displayData.rgIssuer} isEditing={isEditing}
+                        editComponent={<Input value={editedData.rgIssuer || ''} onChange={(e) => handleFieldChange('rgIssuer', e.target.value)} />}
+                      />
+                     <FormField label="CNS" value={displayData.cns} 
+                        action={<Badge variant="outline"><X className="w-3 h-3 mr-1"/> Pendente</Badge>} 
+                        isEditing={isEditing}
+                        editComponent={<Input value={editedData.cns || ''} onChange={(e) => handleFieldChange('cns', e.target.value)} />}
+                     />
+                 </FormRow>
+            </FormSection>
+            
+             <FormSection icon={Phone} title="Informações de Contato" action={<Badge variant="outline">Contato Preferencial: {displayData.preferredContactMethod}</Badge>}>
+                <FormRow>
+                    <FormField label="Telefone" value={displayData.phones[0]?.number} 
+                        action={<a href="#" title="Iniciar conversa no WhatsApp" className="text-green-600 hover:text-green-700 ml-2"><WhatsAppIcon className="h-5 w-5"/></a>}
+                        isEditing={isEditing}
+                        editComponent={<Input value={editedData.phones[0]?.number} onChange={(e) => handleFieldChange('phones.0.number', e.target.value)} />}
+                    />
+                    <FormField label="Email" value={displayData.emails?.[0]?.email}
+                        action={<a href="#" title="Enviar email" className="text-muted-foreground hover:text-primary ml-2"><Mail className="h-4 w-4"/></a>}
+                        isEditing={isEditing}
+                        editComponent={<Input value={editedData.emails?.[0]?.email} onChange={(e) => handleFieldChange('emails.0.email', e.target.value)} />}
+                    />
+                </FormRow>
+            </FormSection>
 
-                <aside className="col-span-12 lg:col-span-4 space-y-6">
-                    <FormSection icon={Gavel} title="Representante Legal">
-                         <FormField label="Nome" value={displayData.legalGuardian?.name} />
-                         <div className="mt-4">
-                           <FormField label="Documento" value={displayData.legalGuardian?.document} />
-                         </div>
-                         <div className="mt-4">
-                           <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
-                         </div>
-                     </FormSection>
-                </aside>
-            </div>
+            <FormSection icon={Users} title="Contatos de Emergência">
+              <div className="space-y-3">
+                {displayData.emergencyContacts.map((contact, index) => (
+                  <div key={index} className="p-3 border rounded-lg bg-background">
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium text-slate-900">
+                            {contact.name}
+                            {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8"><WhatsAppIcon className="h-5 w-5 text-green-600"/></Button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{contact.relationship} • {contact.phone}</p>
+                  </div>
+                ))}
+              </div>
+              {isEditing && (
+                <Button variant="outline" className="mt-4 w-full border-dashed" onClick={() => { /* TODO */}}>
+                    <Plus className="h-4 w-4 mr-2"/> Adicionar Contato
+                </Button>
+              )}
+            </FormSection>
+            
+            <FormSection icon={Gavel} title="Representante Legal">
+                 <FormField label="Nome" value={displayData.legalGuardian?.name} />
+                 <div className="mt-4">
+                   <FormField label="Documento" value={displayData.legalGuardian?.document} />
+                 </div>
+                 <div className="mt-4">
+                   <FormField label="Procuração / Documento Comprobatório" value={<Button variant="link" asChild className="p-0 h-auto"><Link href={displayData.legalGuardian?.powerOfAttorneyUrl || '#'}>Visualizar Documento</Link></Button>} />
+                 </div>
+             </FormSection>
+
         </div>
     );
 }
