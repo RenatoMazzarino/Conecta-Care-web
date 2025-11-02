@@ -18,26 +18,37 @@ export const patients: Patient[] = [
     fullName: 'João da Silva',
     displayName: 'João',
     pronouns: 'Ele/Dele',
+    avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
+    avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
+    photoConsent: { granted: true, grantedBy: 'Maria da Silva', date: '2023-01-10T10:00:00Z' },
+    
     cpf: '123.456.789-00',
-    cns: '898 0010 8888 1234',
+    cpfStatus: 'valid',
     rg: '12.345.678-9',
     rgIssuer: 'SSP/SP',
+    cns: '898 0010 8888 1234',
+    
     dateOfBirth: '1945-05-20',
     sexo: 'Masculino',
+    genderIdentity: 'Masculino',
     estadoCivil: 'Viúvo',
     nacionalidade: 'Brasileiro',
     naturalidade: 'São Paulo/SP',
-    email: 'joao.silva@example.com',
+    preferredLanguage: 'pt',
+
     phones: [{ type: 'mobile', number: '+55 (11) 98888-1111', verified: true, preferred: true }],
+    emails: [{ email: 'joao.silva@example.com', verified: true, preferred: false }],
     preferredContactMethod: 'WhatsApp',
-    preferredLanguage: 'Português',
+
     emergencyContacts: [{
+      id: 'ec-1',
       name: 'Maria da Silva',
       relationship: 'Filha',
       phone: '+55 (11) 98765-4321',
+      isLegalRepresentative: true,
+      permissions: { view: true, authorize: true },
     }],
-    avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
-    avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
+
     address: {
       street: 'Rua das Flores',
       number: '123',
@@ -83,7 +94,6 @@ export const patients: Patient[] = [
     documents: {},
     audit: { createdAt: '2023-01-10T10:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-20T15:00:00Z', updatedBy: 'Carla Nogueira' },
     
-    // Operational data
     last_visit_date: subDays(new Date(), 1).toISOString(),
     next_visit_date: addDays(new Date(), 1).toISOString(),
     consent_status: 'ok',
@@ -94,22 +104,32 @@ export const patients: Patient[] = [
     fullName: 'Maria Lopes',
     displayName: 'Maria',
     pronouns: 'Ela/Dela',
+    avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
+    avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
+
     cpf: '987.654.321-00',
     cns: '700 5081 1234 5678',
+    cpfStatus: 'valid',
+    
     dateOfBirth: '1942-11-15',
-    email: 'maria.lopes@example.com',
+    sexo: 'Feminino',
+    
     phones: [
-        { type: 'mobile', number: '+55 (21) 97777-2222', verified: true, preferred: false },
         { type: 'home', number: '+55 (21) 2222-7777', verified: true, preferred: true },
+        { type: 'mobile', number: '+55 (21) 97777-2222', verified: true, preferred: false },
     ],
+    emails: [{ email: 'maria.lopes@example.com', verified: true, preferred: true }],
     preferredContactMethod: 'Telefone',
+
     emergencyContacts: [{
+        id: 'ec-2',
         name: 'Carlos Lopes',
         relationship: 'Filho',
         phone: '+55 (21) 91234-5678',
+        isLegalRepresentative: true,
+        permissions: { view: true, authorize: true }
     }],
-    avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
-    avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
+    
      address: {
       street: 'Avenida Copacabana',
       number: '1000',
@@ -145,7 +165,6 @@ export const patients: Patient[] = [
     },
     audit: { createdAt: '2023-05-20T11:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-19T10:00:00Z', updatedBy: 'Admin' },
 
-     // Operational data
     last_visit_date: subDays(new Date(), 5).toISOString(),
     next_visit_date: addDays(new Date(), 3).toISOString(),
     consent_status: 'pending',
@@ -156,16 +175,23 @@ export const patients: Patient[] = [
     fullName: 'Jorge Mendes',
     displayName: 'Jorge',
     cpf: '111.222.333-44',
+    cpfStatus: 'unknown',
     dateOfBirth: '1959-03-01',
-    email: 'jorge.mendes@example.com',
+    avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
+    avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
+    
     phones: [{ type: 'mobile', number: '+55 (31) 96666-3333', verified: false, preferred: true }],
+    emails: [{ email: 'jorge.mendes@example.com', verified: false, preferred: true }],
+    
     emergencyContacts: [{
+        id: 'ec-3',
         name: 'Ana Mendes',
         relationship: 'Esposa',
         phone: '+55 (31) 95555-8888',
+        isLegalRepresentative: true,
+        permissions: { view: true, authorize: true }
     }],
-    avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
-    avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
+    
      address: {
       street: 'Rua da Bahia',
       number: '500',
@@ -195,7 +221,6 @@ export const patients: Patient[] = [
     documents: {},
     audit: { createdAt: '2024-01-15T09:00:00Z', createdBy: 'Admin', updatedAt: '2024-06-30T18:00:00Z', updatedBy: 'Admin' },
     
-     // Operational data
     last_visit_date: subDays(new Date(), 30).toISOString(),
     consent_status: 'ok',
     pending_documents: 3,

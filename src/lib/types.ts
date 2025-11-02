@@ -10,37 +10,82 @@ export type Diagnosis = {
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
-  fullName: string; // Changed from name
-  displayName: string; // Changed from socialName
+  fullName: string;
+  displayName: string;
   pronouns?: string;
+  avatarUrl: string;
+  avatarHint: string;
+  photoConsent?: {
+    granted: boolean;
+    grantedBy: string;
+    date: string;
+  };
+  
+  // Documentos
   cpf: string;
-  cns?: string;
+  cpfStatus?: 'valid' | 'invalid' | 'unknown';
   rg?: string;
   rgIssuer?: string;
+  rgDigitalUrl?: string;
+  cns?: string;
+  nationalId?: string; // Para estrangeiros
+  documentValidation?: {
+    status: 'none' | 'pending' | 'validated';
+    validatedBy?: string;
+    validatedAt?: string;
+    method?: 'ocr' | 'manual';
+  };
+
+  // Demográfico
   dateOfBirth: string;
-  sexo?: 'Masculino' | 'Feminino' | 'Outro';
-  estadoCivil?: string;
+  // age é calculado dinamicamente
+  sexo?: 'Masculino' | 'Feminino' | 'Outro'; // Mantido como sexo para compatibilidade, representa sexAtBirth
+  genderIdentity?: string;
+  estadoCivil?: string; // representa civilStatus
   nacionalidade?: string;
-  naturalidade?: string;
-  email: string;
-  phone?: string; // To be deprecated
-  mobile?: string; // To be deprecated
+  naturalidade?: string; // representa placeOfBirth
+  preferredLanguage?: 'pt' | 'en' | 'es' | string;
+  
+  // Contato
   phones: {
     type: 'mobile' | 'home' | 'work';
     number: string;
     verified: boolean;
     preferred: boolean;
   }[];
+  emails?: {
+    email: string;
+    verified: boolean;
+    preferred: boolean;
+  }[];
   preferredContactMethod?: 'Telefone' | 'WhatsApp' | 'Email';
-  preferredLanguage?: string;
+  communicationOptOut?: {
+    type: 'sms' | 'email' | 'whatsapp';
+    optedOut: boolean;
+    date: string;
+  }[];
+
+  // Contatos de Emergência & Responsáveis
   emergencyContacts: {
+    id?: string;
     name: string;
     relationship: string;
     phone: string;
+    email?: string;
+    isLegalRepresentative?: boolean;
+    permissions?: {
+      view: boolean;
+      authorize: boolean;
+    };
+    documentUrl?: string;
   }[];
-  avatarUrl: string;
-  avatarHint: string;
-  rgDigitalUrl?: string;
+  legalGuardian?: {
+    name: string;
+    document: string;
+    validityDate: string;
+    powerOfAttorneyUrl: string;
+  };
+
 
   // 2. Endereço e Ambiente Domiciliar
   address: {
@@ -108,7 +153,7 @@ export type Patient = {
     observacoesFinanceiras?: string;
   };
 
-  // 6. Rede de Apoio
+  // 6. Rede de Apoio (Agora parte de Dados Pessoais - mantido para compatibilidade, mas dados estão em emergencyContacts/legalGuardian)
   supportNetwork: {
       responsavelLegal: string;
       parentescoResponsavel: string;
