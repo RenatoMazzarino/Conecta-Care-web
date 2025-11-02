@@ -35,11 +35,6 @@ const patientStatusConfig: { [key: string]: { text: string; icon: React.ElementT
   inactive: { text: 'Inativo', icon: XCircle, className: 'text-gray-400' },
 };
 
-const docStatusConfig: { [key: string]: { text: string; variant: 'secondary' | 'destructive', className: string } } = {
-  ok: { text: 'OK', variant: 'secondary', className: 'bg-green-100 text-green-800' },
-  pending: { text: 'Pendente', variant: 'destructive', className: 'bg-amber-100 text-amber-800' },
-};
-
 
 function formatVisitDate(dateString?: string) {
     if (!dateString) return { text: '-', inPast: false };
@@ -113,7 +108,6 @@ export function PatientTable({
             </TableHead>
             <TableHead className="w-[40px] text-center">Status</TableHead>
             <TableHead className="w-[250px]">Nome</TableHead>
-            <TableHead>Documentação</TableHead>
             <TableHead>Complexidade</TableHead>
             <TableHead>Vínculo</TableHead>
             <TableHead>Pacote</TableHead>
@@ -151,9 +145,6 @@ export function PatientTable({
               if (hasPendingDocuments) reasons.push(`${patient.pending_documents} documento(s)`);
               return `${patientStatus.text} - ${reasons.join(' e ')} pendente(s).`;
             };
-            
-            const docStatusKey = hasPendingDocuments ? 'pending' : 'ok';
-            const docStatus = docStatusConfig[docStatusKey];
 
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>
@@ -187,11 +178,6 @@ export function PatientTable({
                         </Avatar>
                         <span className="font-medium group-hover:underline">{patient.name}</span>
                     </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={docStatus.variant} className={docStatus.className}>
-                    {docStatus.text}
-                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className={cn(complexityVariant[patient.adminData.complexity])}>
