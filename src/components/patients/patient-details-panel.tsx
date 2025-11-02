@@ -115,6 +115,13 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     });
     setIsEditing(false);
   };
+  
+  const handleFeaturePlaceholder = (featureName: string) => {
+    toast({
+        title: "Funcionalidade em Breve",
+        description: `A funcionalidade de "${featureName}" será implementada em breve.`,
+    })
+  }
 
   const displayData = editedData || patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
@@ -175,7 +182,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
               ) : (
                 <Button variant="outline" onClick={() => setCurrentView('prontuario')} disabled={isLoading}><FileText className="mr-2 h-4 w-4" />Ver Prontuário</Button>
               )}
-              <Button onClick={() => setIsUploadOpen(true)} variant="outline" disabled={isLoading}><Upload className="mr-2 h-4 w-4" />Anexar</Button>
+              <Button onClick={() => handleFeaturePlaceholder('Anexar Documento')} variant="outline" disabled={isLoading}><Upload className="mr-2 h-4 w-4" />Anexar</Button>
               {!isEditing ? (
                 <Button onClick={() => setIsEditing(true)} disabled={isLoading}>
                   <Edit className="w-4 h-4 mr-2" />

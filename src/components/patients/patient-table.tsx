@@ -22,6 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 const complexityVariant: { [key in Patient['adminData']['complexity']]: string } = {
     Baixa: 'bg-green-100 text-green-800 border-green-200',
@@ -61,6 +62,7 @@ export function PatientTable({
     onSelectionChange: (selection: Set<string>) => void;
     onViewDetails: (patientId: string) => void;
 }) {
+  const { toast } = useToast();
 
   const handleToggleSelect = (patientId: string) => {
     const newSelection = new Set(selectedPatients);
@@ -84,6 +86,13 @@ export function PatientTable({
     new Map(professionals.map(p => [p.id, p.name])),
     [professionals]
   );
+  
+  const handleFeaturePlaceholder = (featureName: string) => {
+    toast({
+        title: "Funcionalidade em Breve",
+        description: `A funcionalidade de "${featureName}" será implementada em breve.`,
+    })
+  }
 
   return (
     <div className="rounded-lg border shadow-sm bg-card">
@@ -220,15 +229,17 @@ export function PatientTable({
                                 <FileText className="mr-2 h-4 w-4" />
                                 Ver Detalhes
                             </DropdownMenuItem>
-                             <DropdownMenuItem>
-                                <CalendarPlus className="mr-2 h-4 w-4" />
-                                Agendar Plantão
+                             <DropdownMenuItem asChild>
+                                <Link href="/shifts">
+                                    <CalendarPlus className="mr-2 h-4 w-4" />
+                                    Agendar Plantão
+                                </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleFeaturePlaceholder('Chat com Família')}>
                                 <MessageSquare className="mr-2 h-4 w-4" />
                                 Chat com a Família
                             </DropdownMenuItem>
-                             <DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => handleFeaturePlaceholder('Anexar Documento')}>
                                 <FileUp className="mr-2 h-4 w-4" />
                                 Anexar Documento
                             </DropdownMenuItem>
