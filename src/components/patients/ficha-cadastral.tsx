@@ -45,25 +45,23 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
     }
     
     const ValueDisplay = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-        <div className={cn("font-medium mt-1 text-sm text-foreground break-words", className)}>
+        <div className={cn("flex items-center h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm", className)}>
             {children || '-'}
         </div>
     );
 
     const ArrayValueDisplay = ({ value }: { value?: string[] }) => (
-        <div className="font-medium mt-1 text-sm text-foreground break-words">
-            {value && value.length > 0 ? value.join(', ') : '-'}
-        </div>
+        <ValueDisplay>{value && value.length > 0 ? value.join(', ') : '-'}</ValueDisplay>
     );
     
     const LinkValueDisplay = ({ url, label }: { url?: string, label: string }) => (
-        <div className="font-medium mt-1 text-sm text-foreground">
+        <ValueDisplay>
             {url ? (
-                <Button variant="link" asChild className="p-0 h-auto">
+                <Button variant="link" asChild className="p-0 h-auto -ml-1">
                     <Link href={url} target="_blank" rel="noopener noreferrer">{label}</Link>
                 </Button>
             ) : '-'}
-        </div>
+        </ValueDisplay>
     );
 
     const addMedication = () => {
