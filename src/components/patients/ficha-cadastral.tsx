@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -448,7 +449,25 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             {isEditing ? <Input type="date" value={data.adminData?.dataTerminoAtendimento || ''} onChange={e => handleChange('adminData.dataTerminoAtendimento', e.target.value)} /> : <ValueDisplay>{data.adminData?.dataTerminoAtendimento ? new Date(data.adminData.dataTerminoAtendimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
                         </div>
                     </div>
-                     {/* TODO: Add professional selectors */}
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <Label>Supervisor(a)</Label>
+                            {/* TODO: Replace with a Professional selector component */}
+                            {isEditing ? <Input value={data.adminData?.supervisorId || ''} onChange={e => handleChange('adminData.supervisorId', e.target.value)} /> : <ValueDisplay>{data.adminData?.supervisorId}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Escalista</Label>
+                            {isEditing ? <Input value={data.adminData?.schedulerId || ''} onChange={e => handleChange('adminData.schedulerId', e.target.value)} /> : <ValueDisplay>{data.adminData?.schedulerId}</ValueDisplay>}
+                        </div>
+                        <div>
+                            <Label>Enfermeiro Responsável</Label>
+                            {isEditing ? <Input value={data.adminData?.enfermeiroResponsavelId || ''} onChange={e => handleChange('adminData.enfermeiroResponsavelId', e.target.value)} /> : <ValueDisplay>{data.adminData?.enfermeiroResponsavelId}</ValueDisplay>}
+                        </div>
+                     </div>
+                      <div>
+                        <Label>Frequência de Atendimento</Label>
+                        {isEditing ? <Input value={data.adminData?.frequenciaAtendimento || ''} onChange={e => handleChange('adminData.frequenciaAtendimento', e.target.value)} placeholder="Ex: 24h, 12h, 3x/semana" /> : <ValueDisplay>{data.adminData?.frequenciaAtendimento}</ValueDisplay>}
+                    </div>
                      <div>
                         <Label>Observações Internas</Label>
                         {isEditing ? <Textarea value={data.adminData?.observacoesInternas || ''} onChange={e => handleChange('adminData.observacoesInternas', e.target.value)} placeholder="Anotações visíveis apenas para a equipe..." /> : <ValueDisplay>{data.adminData?.observacoesInternas}</ValueDisplay>}
