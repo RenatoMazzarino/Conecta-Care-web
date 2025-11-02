@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText, NotebookTabs, Wallet, Users, ShieldCheck, FolderOpen, History, MessageCircle } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
@@ -53,9 +53,17 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
     };
 
     const addEmergencyContact = () => {
-        if (!editedData) return;
-        const newContacts = [...(editedData.emergencyContacts || []), { name: '', relationship: '', phone: '' }];
-        handleChange('emergencyContacts', newContacts);
+        const baseData = editedData || displayData;
+        const newContacts = [...(baseData.emergencyContacts || []), { name: '', relationship: '', phone: '' }];
+        
+        // Se não estiver em modo de edição, precisamos criar um novo objeto de edição
+        if (!editedData) {
+            const newEditedState = JSON.parse(JSON.stringify(displayData));
+            newEditedState.emergencyContacts = newContacts;
+            setEditedData(newEditedState);
+        } else {
+            handleChange('emergencyContacts', newContacts);
+        }
     };
 
     const removeEmergencyContact = (index: number) => {
@@ -195,7 +203,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 {isEditing ? <Input value={data.preferredLanguage || ''} onChange={e => handleChange('preferredLanguage', e.target.value)} placeholder="Ex: Português" /> : <ValueDisplay>{data.preferredLanguage}</ValueDisplay>}
                             </div>
                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                              <div>
                                 <Label>Email</Label>
                                 {isEditing ? <Input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} /> : <ValueDisplay>{data.email}</ValueDisplay>}
@@ -204,28 +212,44 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 <Label>Telefone</Label>
                                 {isEditing ? <Input value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} /> : <ValueDisplay>{data.phone}</ValueDisplay>}
                             </div>
+                             <div>
+                                <Label>Método de Contato Preferencial</Label>
+                                {isEditing ? (
+                                     <Select value={data.preferredContactMethod || ''} onValueChange={v => handleChange('preferredContactMethod', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Telefone">Telefone</SelectItem>
+                                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                            <SelectItem value="Email">Email</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : <ValueDisplay className="flex items-center gap-2">
+                                        {data.preferredContactMethod === 'WhatsApp' && <MessageCircle className="w-4 h-4 text-green-600"/>}
+                                        {data.preferredContactMethod === 'Email' && <Mail className="w-4 h-4"/>}
+                                        {data.preferredContactMethod === 'Telefone' && <Phone className="w-4 h-4"/>}
+                                        {data.preferredContactMethod}
+                                    </ValueDisplay>}
+                            </div>
                         </div>
                         <div className="p-4 bg-muted/50 rounded-lg mb-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h4 className="font-semibold">Contatos de Emergência</h4>
-                                {isEditing && (
-                                    <Button onClick={addEmergencyContact} size="sm" variant="outline">
-                                        <Plus className="w-4 h-4 mr-1" />
-                                        Adicionar Contato
-                                    </Button>
-                                )}
+                                <Button onClick={addEmergencyContact} size="sm" variant="outline">
+                                    <Plus className="w-4 h-4 mr-1" />
+                                    Adicionar Contato
+                                </Button>
                             </div>
                             <div className="space-y-4">
                                 {data.emergencyContacts?.map((contact, index) => (
                                     <Card key={index} className="p-4 bg-background">
-                                        {isEditing && (
-                                            <div className="flex justify-between items-start mb-3">
-                                                <h5 className="font-medium">Contato {index + 1}</h5>
+                                        <div className="flex justify-between items-start mb-3">
+                                            <h5 className="font-medium">Contato {index + 1}</h5>
+                                            {isEditing && (
                                                 <Button onClick={() => removeEmergencyContact(index)} size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10 h-7 w-7">
                                                     <X className="w-4 h-4" />
                                                 </Button>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
                                                 <Label>Nome</Label>
