@@ -80,6 +80,7 @@ export type Professional = {
   employmentType: 'interno' | 'fixo' | 'externo';
   reviews: { from: string; quote: string }[];
   specialties: string[];
+  compatibilityTags?: { text: string; icon: React.ElementType }[];
 };
 
 export type Shift = {
