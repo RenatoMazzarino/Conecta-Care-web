@@ -148,7 +148,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
     setIsEditing(false);
   };
 
-  const displayData = isEditing ? editedData : patient;
+  const displayData = editedData || patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
 
   const age = displayData?.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
@@ -156,7 +156,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-muted/40 shadow-none">
+        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col shadow-lg">
           <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg z-20">
             <div className="flex items-center gap-4 flex-1">
               {(currentView === 'ficha') && (
@@ -219,7 +219,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto bg-background p-4 sm:p-6">
+          <div className="flex-1 overflow-y-auto bg-muted/30 p-4 sm:p-6">
             {isLoading && (
               <div className="p-6"><Skeleton className="h-[70vh] w-full" /></div>
             )}
