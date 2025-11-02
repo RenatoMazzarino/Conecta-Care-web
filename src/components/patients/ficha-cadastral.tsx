@@ -9,10 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Building, Dog, Ambulance, Stethoscope, Pill, Plus, X, Briefcase, Link as LinkIcon, FileText } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import Link from 'next/link';
 
 interface FichaCadastralProps {
     isEditing: boolean;
@@ -54,6 +56,16 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
             {value && value.length > 0 ? value.join(', ') : '-'}
         </div>
     );
+    
+    const LinkValueDisplay = ({ url, label }: { url?: string, label: string }) => (
+        <div className="font-medium mt-1 text-sm text-foreground">
+            {url ? (
+                <Button variant="link" asChild className="p-0 h-auto">
+                    <Link href={url} target="_blank" rel="noopener noreferrer">{label}</Link>
+                </Button>
+            ) : '-'}
+        </div>
+    );
 
     const addMedication = () => {
         if (!editedData) return;
@@ -75,6 +87,8 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
     };
 
     const data = editedData || displayData;
+    const age = data.dateOfBirth ? `${new Date().getFullYear() - new Date(data.dateOfBirth).getFullYear()} anos` : '';
+
 
     if (!data) return null;
 
@@ -83,18 +97,28 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
             
             {/* 1. DADOS PESSOAIS */}
             <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><User className="w-5 h-5 text-primary" />Dados Pessoais</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                         <div>
-                            <Label>ID do Paciente</Label>
-                            <ValueDisplay className="font-mono text-xs">{data.id}</ValueDisplay>
-                        </div>
-                        <div className="md:col-span-2">
-                            <Label>Nome Completo</Label>
-                            {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
+                <CardHeader>
+                    <div className="flex items-center gap-6">
+                        <Avatar className="h-24 w-24 border-4 shadow-sm">
+                            <AvatarImage src={data.avatarUrl} alt={data.name} data-ai-hint={data.avatarHint} />
+                            <AvatarFallback>{data.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                             <CardTitle className="flex items-center gap-2 text-xl mb-2"><User className="w-6 h-6 text-primary" />Dados Pessoais</CardTitle>
+                             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+                                <div>
+                                    <Label>ID do Paciente</Label>
+                                    <ValueDisplay className="font-mono text-xs">{data.id}</ValueDisplay>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <Label>Nome Completo</Label>
+                                    {isEditing ? <Input value={data.name || ''} onChange={e => handleChange('name', e.target.value)} /> : <ValueDisplay>{data.name}</ValueDisplay>}
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <Label>Nome Social</Label>
@@ -116,7 +140,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         </div>
                         <div>
                             <Label>Data de Nascimento</Label>
-                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</ValueDisplay>}
+                            {isEditing ? <Input type="date" value={data.dateOfBirth || ''} onChange={e => handleChange('dateOfBirth', e.target.value)} /> : <ValueDisplay>{data.dateOfBirth ? `${new Date(data.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (${age})` : '-'}</ValueDisplay>}
                         </div>
                          <div>
                             <Label>Sexo</Label>
@@ -142,7 +166,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             {isEditing ? <Input value={data.nacionalidade || ''} onChange={e => handleChange('nacionalidade', e.target.value)} /> : <ValueDisplay>{data.nacionalidade}</ValueDisplay>}
                         </div>
                          <div>
-                            <Label>Naturalidade</Label>
+                            <Label>Naturalidade (Cidade/UF)</Label>
                             {isEditing ? <Input value={data.naturalidade || ''} onChange={e => handleChange('naturalidade', e.target.value)} /> : <ValueDisplay>{data.naturalidade}</ValueDisplay>}
                         </div>
                     </div>
@@ -172,6 +196,15 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                                 {isEditing ? <Input value={data.emergencyContact?.phone || ''} onChange={e => handleChange('emergencyContact.phone', e.target.value)} /> : <ValueDisplay>{data.emergencyContact?.phone}</ValueDisplay>}
                             </div>
                         </div>
+                    </div>
+                     <div className="p-4 bg-muted/50 rounded-lg">
+                        <h4 className="font-semibold mb-2 flex items-center gap-2"><FileText className="w-4 h-4" />Documentos Digitais</h4>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Label>RG Digital (URL)</Label>
+                                {isEditing ? <Input value={data.rgDigitalUrl || ''} onChange={e => handleChange('rgDigitalUrl', e.target.value)} placeholder="https://..." /> : <LinkValueDisplay url={data.rgDigitalUrl} label="Visualizar RG"/>}
+                            </div>
+                         </div>
                     </div>
                 </CardContent>
             </Card>
@@ -249,7 +282,7 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                             <Label>Condições/Observações do Domicílio</Label>
                             {isEditing ? <Textarea value={data.address?.condicoesDomicilio || ''} onChange={e => handleChange('address.condicoesDomicilio', e.target.value)} placeholder="Ex: Acesso por escadas, pouca iluminação no corredor..." /> : <ValueDisplay>{data.address?.condicoesDomicilio}</ValueDisplay>}
                          </div>
-                         {data.address?.possuiAnimal && (
+                         {(isEditing || data.address?.possuiAnimal) && (
                              <div>
                                 <Label>Descrição dos Animais</Label>
                                 {isEditing ? <Input value={data.address?.animalDescricao || ''} onChange={e => handleChange('address.animalDescricao', e.target.value)} placeholder="Ex: 1 cão de pequeno porte, dócil." /> : <ValueDisplay>{data.address?.animalDescricao}</ValueDisplay>}
@@ -472,6 +505,10 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
                         <Label>Observações Internas</Label>
                         {isEditing ? <Textarea value={data.adminData?.observacoesInternas || ''} onChange={e => handleChange('adminData.observacoesInternas', e.target.value)} placeholder="Anotações visíveis apenas para a equipe..." /> : <ValueDisplay>{data.adminData?.observacoesInternas}</ValueDisplay>}
                     </div>
+                    <div>
+                        <Label>Cuidador(es) IDs</Label>
+                        {isEditing ? <Input value={data.adminData?.cuidadoresIds?.join(', ') || ''} onChange={e => handleArrayChange('adminData.cuidadoresIds', e.target.value)} placeholder="Separados por vírgula"/> : <ArrayValueDisplay value={data.adminData?.cuidadoresIds} />}
+                    </div>
 
                 </CardContent>
             </Card>
@@ -479,5 +516,3 @@ export function FichaCadastral({ isEditing, displayData, editedData, setEditedDa
         </div>
     )
 }
-
-    

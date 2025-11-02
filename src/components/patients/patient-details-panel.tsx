@@ -1,8 +1,9 @@
+
 'use client';
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -148,12 +149,12 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
   const displayData = isEditing ? editedData : patient;
   const isSaveDisabled = patient && editedData ? deepEqual(patient, editedData) : true;
 
-  const age = displayData ? new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear() : null;
+  const age = displayData?.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
 
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-muted/40 border-0 shadow-none">
+        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw] p-0 flex flex-col bg-muted/40 shadow-none">
           <SheetHeader className="flex-row items-center justify-between p-4 border-b space-y-0 bg-card rounded-t-lg z-20">
             <div className="flex items-center gap-4 flex-1">
               {(currentView === 'ficha') && (
@@ -161,19 +162,19 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
-              <div className="flex text-center sm:text-left flex-col space-y-1.5">
-                <SheetTitle>
-                  {isLoading ? <Skeleton className="h-8 w-48" /> : <span>{displayData?.name}</span>}
+               <div>
+                <SheetTitle className="text-xl">
+                  {isLoading ? <Skeleton className="h-7 w-48" /> : <span>{displayData?.name}</span>}
                 </SheetTitle>
-                <div className="text-sm text-muted-foreground">
-                  {isLoading ? (
-                    <Skeleton className="h-4 w-32 mt-1" />
-                  ) : (
-                    <span>
-                      {age ? `${age} anos` : ''}
-                    </span>
-                  )}
-                </div>
+                <SheetDescription className="text-sm text-muted-foreground">
+                    {isLoading ? (
+                      <Skeleton className="h-4 w-32 mt-1" />
+                    ) : (
+                      <span>
+                        {age ? `Paciente, ${age}` : `ID: ${displayData?.id}`}
+                      </span>
+                    )}
+                </SheetDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -206,7 +207,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto bg-card rounded-b-lg p-6">
+          <div className="flex-1 overflow-y-auto bg-background p-4 sm:p-6">
             {isLoading && (
               <div className="p-6"><Skeleton className="h-[70vh] w-full" /></div>
             )}
@@ -216,7 +217,7 @@ export function PatientDetailsPanel({ patientId, isOpen, onOpenChange, onPatient
             )}
 
             {!isLoading && displayData && currentView === 'ficha' && (
-              <div className="p-6"><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
+              <div><FichaCadastral isEditing={isEditing} displayData={displayData} editedData={editedData} setEditedData={setEditedData} /></div>
             )}
 
             {!isLoading && displayData && currentView === 'prontuario' && (
