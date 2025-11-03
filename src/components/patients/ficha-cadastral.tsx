@@ -80,7 +80,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
              <div className="flex flex-col gap-6">
-                 <Card className="flex-1 flex flex-col">
+                <Card className="flex flex-col h-full">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-base flex items-center gap-2">
                             <User className="w-5 h-5 text-primary" />
@@ -193,7 +193,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
             </div>
             
             <div className="flex flex-col gap-6 w-full">
-                <Card>
+                <Card className="h-48">
                     <CardHeader className="flex flex-row items-start justify-between">
                         <div className="flex items-center gap-2">
                             <Gavel className="w-5 h-5 text-primary mt-1" />
@@ -206,8 +206,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             </Badge>
                         )}
                     </CardHeader>
-                    <CardContent>
-                        <ScrollArea>
+                    <CardContent className="h-full">
+                        <ScrollArea className="h-full">
                            <div className="p-1 pr-4">
                                 {displayData.legalGuardian?.name ? (
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -231,69 +231,69 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         </ScrollArea>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Contatos de Emergência</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ScrollArea>
-                        <div className="space-y-3 pr-4">
-                            {displayData.emergencyContacts?.map((contact, index) => (
-                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                                <div className="flex items-center gap-3">
-                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                                    <div>
-                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
-                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
-                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                                </div>
-                            </div>
-                            ))}
-                            {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
-                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
-                            )}
-                        </div>
-                       </ScrollArea>
-                    </CardContent>
-                </Card>
-                 <Card>
+                <Card className="flex flex-col">
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                             <Phone className="w-5 h-5 text-primary" />
-                            Contatos do Paciente
+                            Contatos
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <FormField label="Telefone Principal">
-                                <div className="flex items-center gap-2">
-                                    <span>{displayData.phones?.[0]?.number}</span>
-                                    <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
-                                </div>
-                            </FormField>
-                            <FormField label="E-mail">
-                                <div className="flex items-center gap-2">
-                                    <span>{displayData.emails?.[0]?.email}</span>
-                                    <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
-                                </div>
-                            </FormField>
-                            <FormField label="Contato Preferencial">
-                                <span>{displayData.preferredContactMethod}</span>
-                            </FormField>
-                            <FormField label="Opt-Out de Comunicação" className="md:col-span-2 lg:col-span-3">
-                                {displayData.communicationOptOut?.length > 0 ? (
-                                    <div className="flex gap-2">
-                                        {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
+                    <CardContent className="flex-1">
+                        <div>
+                            <h4 className="mb-2 font-medium text-sm text-slate-800">Contatos de Emergência</h4>
+                            <ScrollArea className="h-64">
+                                <div className="space-y-3 pr-4">
+                                    {displayData.emergencyContacts?.map((contact, index) => (
+                                    <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                            <div>
+                                                <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                                <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                                {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <span>Nenhum</span>
-                                )}
-                            </FormField>
+                                    ))}
+                                    {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
+                                        <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </div>
+                        <Separator className="my-4" />
+                        <div>
+                             <h4 className="mb-4 font-medium text-sm text-slate-800">Contatos do Paciente</h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <FormField label="Telefone Principal">
+                                    <div className="flex items-center gap-2">
+                                        <span>{displayData.phones?.[0]?.number}</span>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
+                                    </div>
+                                </FormField>
+                                <FormField label="E-mail">
+                                    <div className="flex items-center gap-2">
+                                        <span>{displayData.emails?.[0]?.email}</span>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
+                                    </div>
+                                </FormField>
+                                <FormField label="Contato Preferencial">
+                                    <span>{displayData.preferredContactMethod}</span>
+                                </FormField>
+                                <FormField label="Opt-Out de Comunicação" className="md:col-span-2 lg:col-span-3">
+                                    {displayData.communicationOptOut?.length > 0 ? (
+                                        <div className="flex gap-2">
+                                            {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
+                                        </div>
+                                    ) : (
+                                        <span>Nenhum</span>
+                                    )}
+                                </FormField>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
