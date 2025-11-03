@@ -75,7 +75,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     };
 
     const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
-    const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
 
     return (
         <div className="space-y-6">
@@ -84,7 +83,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                              <User className="w-5 h-5 text-primary" />
-                             Identificação e Perfil
+                             Identificação
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -154,19 +153,20 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 </Badge>
                             )}
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent>
                             {displayData.legalGuardian?.name ? (
-                                <>
-                                    <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
-                                    <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
-                                    <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
-                                    {displayData.legalGuardian.validityDate && <FormField label="Validade">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                    <FormField label="Nome do Responsável" className="col-span-1">{displayData.legalGuardian.name}</FormField>
+                                    <FormField label="Documento" className="col-span-1">{displayData.legalGuardian.document}</FormField>
+                                    <FormField label="Tipo" className="col-span-1">{displayData.legalGuardian.documentType}</FormField>
                                     {displayData.legalGuardian.powerOfAttorneyUrl && (
-                                        <Button variant="outline" size="sm" asChild className="w-full">
-                                            <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
-                                        </Button>
+                                        <div className="col-span-1 flex items-end">
+                                            <Button variant="outline" size="sm" asChild className="w-full">
+                                                <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
+                                            </Button>
+                                        </div>
                                     )}
-                                </>
+                                </div>
                             ) : (
                                 <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
                             )}
