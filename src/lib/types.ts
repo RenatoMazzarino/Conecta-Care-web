@@ -14,7 +14,7 @@ export type Patient = {
   lastName: string;
   displayName: string;
   initials: string;
-  pronouns?: 'Sr.' | 'Sra.' | 'Sre.' | 'none' | string;
+  pronouns?: string;
   avatarUrl: string;
   avatarHint: string;
   photoConsent?: {
@@ -40,13 +40,12 @@ export type Patient = {
 
   // Demográfico
   dateOfBirth: string;
-  // age é calculado dinamicamente
-  sexo?: 'Masculino' | 'Feminino' | 'Outro'; // Mantido como sexo para compatibilidade, representa sexAtBirth
+  sexo?: 'Masculino' | 'Feminino' | 'Outro';
   genderIdentity?: string;
-  estadoCivil?: string; // representa civilStatus
+  estadoCivil?: string;
   nacionalidade?: string;
   naturalidade?: string; // representa placeOfBirth
-  preferredLanguage?: 'Português' | 'Inglês' | 'Espanhol';
+  preferredLanguage?: 'Português' | 'Inglês' | 'Espanhol' | string;
   
   // Contato
   phones: {
@@ -348,3 +347,5 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
+
+    

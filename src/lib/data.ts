@@ -19,15 +19,16 @@ export const patients: Patient[] = [
     lastName: 'da Silva',
     displayName: 'João',
     initials: 'JS',
-    pronouns: 'Sr.',
+    pronouns: 'Ele/Dele',
     avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
     avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
-    photoConsent: { granted: true, grantedBy: 'Maria da Silva', date: '2023-01-10T10:00:00Z' },
+    photoConsent: { granted: true, grantedBy: 'Maria da Silva (Filha)', date: '2023-01-10T10:00:00Z' },
     
     cpf: '123.456.789-00',
     cpfStatus: 'valid',
     rg: '12.345.678-9',
     rgIssuer: 'SSP/SP',
+    rgDigitalUrl: '#',
     cns: '898 0010 8888 1234',
     nationalId: undefined,
     documentValidation: { status: 'validated', validatedBy: 'Admin', validatedAt: '2023-01-11T14:00:00Z', method: 'manual' },
@@ -46,7 +47,6 @@ export const patients: Patient[] = [
     ],
     emails: [
         { email: 'joao.silva@example.com', verified: true, preferred: true },
-        { email: 'joao.contato@email.com', verified: false, preferred: false },
     ],
     preferredContactMethod: 'WhatsApp',
     communicationOptOut: [],
@@ -59,6 +59,7 @@ export const patients: Patient[] = [
       email: 'maria.filha@example.com',
       isLegalRepresentative: true,
       permissions: { view: true, authorize: true },
+      documentUrl: '#'
     }],
     legalGuardian: {
       name: 'Maria da Silva',
@@ -122,7 +123,7 @@ export const patients: Patient[] = [
     lastName: 'Lopes',
     initials: 'ML',
     displayName: 'Maria',
-    pronouns: 'Sra.',
+    pronouns: 'Ela/Dela',
     avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
     avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
     nacionalidade: 'Brasileira',
@@ -138,6 +139,7 @@ export const patients: Patient[] = [
 
     dateOfBirth: '1942-11-15',
     sexo: 'Feminino',
+    estadoCivil: 'Casada',
     
     phones: [
         { type: 'home', number: '+55 (21) 2222-7777', verified: true, preferred: true },
@@ -145,6 +147,7 @@ export const patients: Patient[] = [
     ],
     emails: [{ email: 'maria.lopes@example.com', verified: true, preferred: true }],
     preferredContactMethod: 'Telefone',
+    communicationOptOut: [{type: 'sms', optedOut: true, date: '2024-01-01T00:00:00Z'}],
 
     emergencyContacts: [{
         id: 'ec-2',
@@ -202,6 +205,7 @@ export const patients: Patient[] = [
     lastName: 'Mendes',
     initials: 'JM',
     displayName: 'Jorge',
+    pronouns: 'Ele/Dele',
     cpf: '111.222.333-44',
     cpfStatus: 'unknown',
     dateOfBirth: '1959-03-01',
@@ -576,3 +580,5 @@ export const mockMonthlyRevenue = [
   { month: format(subMonths(today, 1), 'MMM', { locale: ptBR }), revenue: 21500 },
   { month: format(today, 'MMM', { locale: ptBR }), revenue: 10650 },
 ];
+
+    

@@ -17,7 +17,7 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 
 const FormField = ({ label, children, className }: { 
@@ -85,7 +85,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                              Identificação
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                         <FormField label="Nome Completo">
                             {isEditing ? <Input value={`${editedData.firstName} ${editedData.lastName}`} disabled /> : <span>{displayData.firstName} {displayData.lastName}</span>}
                         </FormField>
@@ -105,9 +105,21 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 <span>{displayData.genderIdentity || '-'} / {displayData.pronouns || '-'}</span>
                             )}
                         </FormField>
+                        <FormField label="Estado Civil">
+                            {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
+                        </FormField>
+                        <FormField label="Idioma">
+                            {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
+                        </FormField>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="w-5 h-5 text-primary" />Documentos e Validação</CardTitle></CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                          <FormField label="CPF">
                             <span className="font-mono">{displayData.cpf}</span>
-                            <Button size="sm" variant="outline" className="ml-auto h-7 text-xs" onClick={() => handleCopy(displayData.cpf, 'CPF')}><Copy className="w-3 h-3 mr-1"/>Copiar</Button>
+                            <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className="ml-auto">{displayData.cpfStatus}</Badge>
                         </FormField>
                         <FormField label="RG / Órgão Emissor">
                             {isEditing ? (
@@ -116,14 +128,20 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                     <Input value={editedData.rgIssuer || ''} placeholder="Órgão Emissor" onChange={e => handleFieldChange('rgIssuer', e.target.value)} />
                                 </div>
                             ) : (
-                                <span>{displayData.rg || '-'} / {displayData.rgIssuer || '-'}</span>
+                                <span className="truncate">{displayData.rg || '-'} / {displayData.rgIssuer || '-'}</span>
                             )}
                         </FormField>
                         <FormField label="CNS (Cartão SUS)">
                             {isEditing ? <Input value={editedData.cns || ''} onChange={e => handleFieldChange('cns', e.target.value)} /> : <span>{displayData.cns || '-'}</span>}
                         </FormField>
-                        <FormField label="Estado Civil">
-                            {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
+                         <FormField label="Doc. Estrangeiro (National ID)">
+                            {isEditing ? <Input value={editedData.nationalId || ''} onChange={e => handleFieldChange('nationalId', e.target.value)} /> : <span>{displayData.nationalId || '-'}</span>}
+                        </FormField>
+                         <FormField label="Validação de Documentos">
+                             <div className="flex items-center gap-2">
+                                <Badge variant={displayData.documentValidation?.status === 'validated' ? 'secondary' : 'default'}>{displayData.documentValidation?.status}</Badge>
+                                <span className="text-xs text-muted-foreground">({displayData.documentValidation?.method} por {displayData.documentValidation?.validatedBy} em {displayData.documentValidation?.validatedAt ? new Date(displayData.documentValidation.validatedAt).toLocaleDateString('pt-BR') : 'N/A'})</span>
+                             </div>
                         </FormField>
                     </CardContent>
                 </Card>
@@ -132,40 +150,46 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                              <Phone className="w-5 h-5 text-primary" />
-                             Contatos
+                             Contatos & Responsáveis
                         </CardTitle>
                     </CardHeader>
-                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <FormField label="Telefone Principal">
-                            <span>{displayData.phones?.[0]?.number}</span>
-                             <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
-                        </FormField>
-                        <FormField label="E-mail">
-                            <span>{displayData.emails?.[0]?.email}</span>
-                             <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
-                        </FormField>
-                        <FormField label="Contato Preferencial">
-                            <span>{displayData.preferredContactMethod}</span>
-                        </FormField>
-                     </CardContent>
-                </Card>
-                
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2">
-                            <Users className="w-5 h-5 text-primary" />
-                            Contatos de Emergência
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
+                     <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <FormField label="Telefone Principal">
+                                <span>{displayData.phones?.[0]?.number}</span>
+                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
+                            </FormField>
+                            <FormField label="E-mail">
+                                <span>{displayData.emails?.[0]?.email}</span>
+                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
+                            </FormField>
+                            <FormField label="Contato Preferencial">
+                                <span>{displayData.preferredContactMethod}</span>
+                            </FormField>
+                             <FormField label="Opt-Out de Comunicação">
+                                {displayData.communicationOptOut?.length > 0 ? (
+                                    <div className="flex gap-2">
+                                        {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
+                                    </div>
+                                ) : (
+                                    <span>Nenhum</span>
+                                )}
+                            </FormField>
+                        </div>
+                        <div className="space-y-3 pt-4 border-t">
+                            <h4 className="font-medium text-sm">Contatos de Emergência</h4>
                             {displayData.emergencyContacts?.map((contact, index) => (
-                            <div key={index} className="flex items-center justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
                                 <div className="flex items-center gap-3">
                                     <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
                                     <div>
                                         <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
                                         <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {contact.permissions?.view && <Badge variant="outline" className="text-xs">Pode Visualizar</Badge>}
+                                            {contact.permissions?.authorize && <Badge variant="outline" className="text-xs">Pode Autorizar</Badge>}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -175,8 +199,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             </div>
                             ))}
                         </div>
-                    </CardContent>
-                 </Card>
+                     </CardContent>
+                </Card>
 
             </div>
 
@@ -192,15 +216,29 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         <div className="flex justify-between"><dt className="text-muted-foreground">Última atualização</dt><dd className="text-xs text-muted-foreground">{new Date(displayData.audit.updatedAt).toLocaleDateString('pt-BR')}</dd></div>
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2"><Gavel className="w-5 h-5 text-primary"/>Responsável Legal</CardTitle>
+                    </CardHeader>
+                     <CardContent>
+                        {displayData.legalGuardian ? (
+                            <div className="space-y-2 text-sm">
+                                <p><span className="font-semibold">Nome:</span> {displayData.legalGuardian.name}</p>
+                                <p><span className="font-semibold">Documento:</span> {displayData.legalGuardian.document}</p>
+                                {displayData.legalGuardian.powerOfAttorneyUrl && <Button asChild variant="link" className="p-0 h-auto"><Link href={displayData.legalGuardian.powerOfAttorneyUrl}>Ver Procuração</Link></Button>}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Não há um responsável legal formal (procurador) cadastrado.</p>
+                        )}
+                    </CardContent>
+                </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Verificação de Identidade</CardTitle>
+                        <CardTitle className="text-base">Consentimentos</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-sm space-y-2">
-                         <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd className="font-medium flex items-center gap-1 text-green-600"><BadgeCheck className="w-4 h-4"/> Verificado</dd></div>
-                        <div className="flex justify-between"><dt className="text-muted-foreground">Método</dt><dd className="font-medium">{displayData.documentValidation?.method}</dd></div>
-                        <div className="flex justify-between"><dt className="text-muted-foreground">Data</dt><dd className="text-xs">{displayData.documentValidation?.validatedAt ? new Date(displayData.documentValidation.validatedAt).toLocaleDateString('pt-BR') : '-'}</dd></div>
-                         <div className="flex justify-between"><dt className="text-muted-foreground">Responsável</dt><dd className="text-xs">{displayData.documentValidation?.validatedBy}</dd></div>
+                    <CardContent className="text-sm space-y-3">
+                         <div className="flex justify-between items-center"><span className="flex items-center gap-2"><FileText className="h-4 w-4"/>Uso de Imagem</span> <Badge variant={displayData.photoConsent?.granted ? "secondary" : "destructive"}>{displayData.photoConsent?.granted ? 'Concedido' : 'Pendente'}</Badge></div>
+                         <div className="flex justify-between items-center"><span className="flex items-center gap-2"><FileText className="h-4 w-4"/>LGPD</span> <Badge variant="secondary">Assinado</Badge></div>
                     </CardContent>
                 </Card>
              </aside>
@@ -208,3 +246,5 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
         </div>
     );
 }
+
+    
