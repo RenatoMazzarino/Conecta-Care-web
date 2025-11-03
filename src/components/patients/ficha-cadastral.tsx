@@ -76,7 +76,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-8 space-y-6">
+            <div className="col-span-12 space-y-6">
                 
                 <Card>
                     <CardHeader>
@@ -196,46 +196,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                 </Card>
 
             </div>
-
-             <aside className="col-span-12 lg:col-span-4 space-y-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Resumo Rápido</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm space-y-2">
-                         <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd className="font-medium">{displayData.adminData.status}</dd></div>
-                        <div className="flex justify-between"><dt className="text-muted-foreground">Complexidade</dt><dd className="font-medium text-red-600">{displayData.adminData.complexity}</dd></div>
-                        <div className="flex justify-between"><dt className="text-muted-foreground">Pacote</dt><dd className="font-medium">{displayData.adminData.servicePackage}</dd></div>
-                        <div className="flex justify-between"><dt className="text-muted-foreground">Última atualização</dt><dd className="text-xs text-muted-foreground">{new Date(displayData.audit.updatedAt).toLocaleDateString('pt-BR')}</dd></div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2"><Gavel className="w-5 h-5 text-primary"/>Responsável Legal</CardTitle>
-                    </CardHeader>
-                     <CardContent>
-                        {displayData.legalGuardian ? (
-                            <div className="space-y-2 text-sm">
-                                <p><span className="font-semibold">Nome:</span> {displayData.legalGuardian.name}</p>
-                                <p><span className="font-semibold">Documento:</span> {displayData.legalGuardian.document}</p>
-                                {displayData.legalGuardian.powerOfAttorneyUrl && <Button asChild variant="link" className="p-0 h-auto"><Link href={displayData.legalGuardian.powerOfAttorneyUrl}>Ver Procuração</Link></Button>}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">Não há um responsável legal formal (procurador) cadastrado.</p>
-                        )}
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Consentimentos</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm space-y-3">
-                         <div className="flex justify-between items-center"><span className="flex items-center gap-2"><FileText className="h-4 w-4"/>Uso de Imagem</span> <Badge variant={displayData.photoConsent?.granted ? "secondary" : "destructive"}>{displayData.photoConsent?.granted ? 'Concedido' : 'Pendente'}</Badge></div>
-                         <div className="flex justify-between items-center"><span className="flex items-center gap-2"><FileText className="h-4 w-4"/>LGPD</span> <Badge variant="secondary">Assinado</Badge></div>
-                    </CardContent>
-                </Card>
-             </aside>
-
         </div>
     );
 }
