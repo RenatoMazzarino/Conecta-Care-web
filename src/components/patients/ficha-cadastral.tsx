@@ -12,11 +12,13 @@ import { cn } from '@/lib/utils';
 import { 
     User, Phone, Mail, Calendar, Home, Copy, FileText, BadgeCheck, Gavel, Eye
 } from 'lucide-react';
+import { Switch } from '../ui/switch';
+import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const FormField = ({ label, children, className }: { 
@@ -76,12 +78,13 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="space-y-6">
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                {/* Coluna Esquerda */}
+                <Card className="lg:col-span-1">
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                              <User className="w-5 h-5 text-primary" />
-                             Identificação
+                             Identificação e Perfil
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -136,9 +139,10 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     </CardContent>
                 </Card>
 
+                {/* Coluna Direita */}
                 <div className="lg:col-span-1 space-y-6">
                     <Card>
-                        <CardHeader>
+                         <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
                                 <Gavel className="w-5 h-5 text-primary" />
                                 Representante Legal
@@ -156,7 +160,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             )}
                         </CardContent>
                     </Card>
-
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
@@ -184,6 +187,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 </div>
                             </div>
                             ))}
+                             {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
+                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -230,7 +236,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                          <Phone className="w-5 h-5 text-primary" />
-                         Contatos
+                         Contatos do Paciente
                     </CardTitle>
                 </CardHeader>
                  <CardContent>
