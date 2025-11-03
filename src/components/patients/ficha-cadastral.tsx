@@ -79,8 +79,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-             {/* Coluna da Esquerda */}
-            <div className="flex flex-col gap-6">
+             <div className="flex flex-col gap-6">
                  <Card className="flex-1 flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-base flex items-center gap-2">
@@ -152,7 +151,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 label={
                                     <div className="flex items-center gap-2">
                                         <span>CPF</span>
-                                        {displayData.cpfStatus && <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'}>{displayData.cpfStatus}</Badge>}
+                                        {displayData.cpfStatus === 'valid' && <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">{displayData.cpfStatus}</Badge>}
+                                        {displayData.cpfStatus === 'invalid' && <Badge variant="destructive">{displayData.cpfStatus}</Badge>}
+                                        {displayData.cpfStatus === 'unknown' && <Badge variant="outline">{displayData.cpfStatus}</Badge>}
                                     </div>
                                 }
                                 className="md:col-span-1"
@@ -187,6 +188,77 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 </div>
                             </FormField>
                         </div>
+                    </CardContent>
+                </Card>
+            </div>
+            
+            <div className="flex flex-col gap-6 w-full">
+                <Card>
+                    <CardHeader className="flex flex-row items-start justify-between">
+                        <div className="flex items-center gap-2">
+                            <Gavel className="w-5 h-5 text-primary mt-1" />
+                            <CardTitle className="text-base">Representante Legal</CardTitle>
+                        </div>
+                        {displayData.legalGuardian?.powerOfAttorneyUrl && displayData.legalGuardian?.documentType && (
+                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                                <BadgeCheck className="w-3 h-3 mr-1"/>
+                                {displayData.legalGuardian.documentType} Cadastrada
+                            </Badge>
+                        )}
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea>
+                           <div className="p-1 pr-4">
+                                {displayData.legalGuardian?.name ? (
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                        <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
+                                        <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
+                                        <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
+                                        {displayData.legalGuardian.powerOfAttorneyUrl && (
+                                            <div className="flex items-end">
+                                                <Button variant="outline" size="sm" asChild className="w-full">
+                                                    <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="h-full flex items-center justify-center">
+                                        <p className="text-sm text-muted-foreground text-center">Nenhum representante legal cadastrado.</p>
+                                    </div>
+                                )}
+                           </div>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Contatos de Emergência</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea>
+                        <div className="space-y-3 pr-4">
+                            {displayData.emergencyContacts?.map((contact, index) => (
+                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                                <div className="flex items-center gap-3">
+                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                    <div>
+                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                                </div>
+                            </div>
+                            ))}
+                            {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
+                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
+                            )}
+                        </div>
+                       </ScrollArea>
                     </CardContent>
                 </Card>
                  <Card>
@@ -226,78 +298,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     </CardContent>
                 </Card>
             </div>
-            
-            {/* Coluna da Direita */}
-            <div className="flex flex-col gap-6 w-full">
-                <Card className="flex flex-col h-48">
-                    <CardHeader className="flex flex-row items-start justify-between">
-                        <div className="flex items-center gap-2">
-                            <Gavel className="w-5 h-5 text-primary mt-1" />
-                            <CardTitle className="text-base">Representante Legal</CardTitle>
-                        </div>
-                        {displayData.legalGuardian?.powerOfAttorneyUrl && displayData.legalGuardian?.documentType && (
-                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">
-                                <BadgeCheck className="w-3 h-3 mr-1"/>
-                                {displayData.legalGuardian.documentType} Cadastrada
-                            </Badge>
-                        )}
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                        <ScrollArea className="h-full">
-                           <div className="p-1 pr-4">
-                                {displayData.legalGuardian?.name ? (
-                                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                        <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
-                                        <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
-                                        <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
-                                        {displayData.legalGuardian.powerOfAttorneyUrl && (
-                                            <div className="flex items-end">
-                                                <Button variant="outline" size="sm" asChild className="w-full">
-                                                    <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="h-full flex items-center justify-center">
-                                        <p className="text-sm text-muted-foreground text-center">Nenhum representante legal cadastrado.</p>
-                                    </div>
-                                )}
-                           </div>
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-                <Card className="flex-1 flex flex-col h-64">
-                    <CardHeader>
-                        <CardTitle className="text-base">Contatos de Emergência</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1">
-                      <ScrollArea className="h-full">
-                        <div className="space-y-3 pr-4">
-                            {displayData.emergencyContacts?.map((contact, index) => (
-                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                                <div className="flex items-center gap-3">
-                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                                    <div>
-                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
-                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
-                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                                </div>
-                            </div>
-                            ))}
-                            {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
-                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
-                            )}
-                        </div>
-                       </ScrollArea>
-                    </CardContent>
-                </Card>
-            </div>
         </div>
     );
 }
+
