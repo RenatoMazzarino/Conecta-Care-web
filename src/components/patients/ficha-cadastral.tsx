@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Users, Copy, Download, FileText, Upload, Plus, X, BookUser, Edit, BadgeCheck, Gavel, Eye
+    User, Phone, Mail, Calendar, Home, Users, Copy, Download, FileText, Upload, Plus, X, BadgeCheck, Gavel, Eye, WhatsAppIcon
 } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
@@ -18,14 +18,8 @@ import Link from 'next/link';
 import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-
-const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 32 32" fill="currentColor" {...props}>
-    <path d="M16.483 3.39a12.872 12.872 0 0 0-12.87 12.87c0 3.43 1.34 6.55 3.51 8.88l-2.22 6.45a.63.63 0 0 0 .78.78l6.45-2.22a12.872 12.872 0 0 0 8.88 3.51c7.11 0 12.87-5.76 12.87-12.87S23.593 3.39 16.483 3.39zm6.39 17.28c-.46.22-2.73 1.35-3.15 1.5s-.73.22-.98 0c-.26-.22-.98-1.2-1.35-2.25s-.37-.88-.37-1.13c0-.25.12-.37.24-.5.13-.12.28-.3.43-.45.14-.15.2-.2.27-.33.07-.13.04-.25-.04-.37s-.98-2.36-1.34-3.25c-.37-.88-.73-1.03-.98-1.03s-.49 0-.74.01c-.25.01-.58.22-.88.62s-1.16 1.13-1.16 2.75c0 1.62 1.18 3.18 1.34 3.4.16.22 2.36 3.62 5.72 5.06.8.34 1.44.54 1.94.69.8.25 1.54.21 2.12.12.65-.08 1.98-.81 2.25-1.58.28-.77.28-1.43.2-1.58-.08-.15-.3-.22-.58-.4z" />
-  </svg>
-);
 
 const FormField = ({ label, children, className }: { 
     label: string, 
@@ -39,17 +33,6 @@ const FormField = ({ label, children, className }: {
         </div>
     </div>
 );
-
-
-const FieldSet = ({ legend, children, className }: { legend: string, children: React.ReactNode, className?: string }) => (
-    <fieldset className={cn("bg-white rounded-md p-4", className)}>
-        <legend className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3">
-            {legend}
-        </legend>
-        {children}
-    </fieldset>
-)
-
 
 type FichaCadastralProps = {
   displayData: Patient | null;
@@ -98,7 +81,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField label="Nome Completo">
-                            {isEditing ? <Input value={editedData.firstName + ' ' + editedData.lastName} disabled /> : <span>{displayData.firstName} {displayData.lastName}</span>}
+                            {isEditing ? <Input value={`${editedData.firstName} ${editedData.lastName}`} disabled /> : <span>{displayData.firstName} {displayData.lastName}</span>}
                         </FormField>
                         <FormField label="Nome Social / Apelido">
                             {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
@@ -180,7 +163,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 w-4"/></Button>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
                                     <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
                                 </div>
                             </div>

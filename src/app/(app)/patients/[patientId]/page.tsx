@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,7 +7,7 @@ import type { Patient } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck, Gavel } from 'lucide-react';
+import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck, Gavel, Shield, AlertTriangle, Star } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { trackEvent } from '@/lib/analytics';
 import { FichaCadastral } from '@/components/patients/ficha-cadastral';
@@ -16,7 +17,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Shield, AlertTriangle, Star } from 'lucide-react';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
@@ -131,7 +131,7 @@ export default function PatientProfilePage() {
                             {fullName} <span className="text-sm text-muted-foreground">— {displayData.displayName}</span>
                         </h2>
                         <div className="mt-1 text-sm text-slate-600 flex items-center">
-                            {age && <span>{age} anos</span>}
+                            {age && <span>{age}</span>}
                             <span className="mx-2">•</span>
                             <span className="text-sm text-slate-500">CPF: <strong>{isEditing ? displayData.cpf : '***.***.***-00'}</strong></span>
                         </div>
@@ -183,8 +183,7 @@ export default function PatientProfilePage() {
 
             <TabsContent value="pessoais">
                  <FichaCadastral 
-                    editMode={editMode} 
-                    setEditMode={setEditMode} 
+                    isEditing={isEditing}
                     displayData={displayData} 
                     editedData={editedData} 
                     setEditedData={setEditedData} 
