@@ -18,7 +18,8 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -77,8 +78,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="space-y-6">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                <Card className="lg:col-span-1">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                              <User className="w-5 h-5 text-primary" />
@@ -136,32 +137,31 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         </FormField>
                     </CardContent>
                 </Card>
-
-                <div className="lg:col-span-1 flex flex-col gap-6">
+                <div className="space-y-6">
                     <Card>
                         <CardHeader className="flex flex-row items-start justify-between">
                             <div className="flex items-center gap-2">
                                 <Gavel className="w-5 h-5 text-primary mt-1" />
                                 <div>
                                     <CardTitle className="text-base">Representante Legal</CardTitle>
-                                    {displayData.legalGuardian?.powerOfAttorneyUrl && (
-                                        <Badge variant="secondary" className="mt-2 bg-emerald-100 text-emerald-800 border-emerald-200">
-                                            <BadgeCheck className="w-3 h-3 mr-1"/>
-                                            Procuração Cadastrada
-                                        </Badge>
-                                    )}
                                 </div>
                             </div>
+                            {displayData.legalGuardian?.powerOfAttorneyUrl && (
+                                <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                                    <BadgeCheck className="w-3 h-3 mr-1"/>
+                                    {displayData.legalGuardian.documentType} Cadastrada
+                                </Badge>
+                            )}
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {displayData.legalGuardian?.name ? (
                                 <>
                                     <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
                                     <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
-                                    {displayData.legalGuardian.validityDate && <FormField label="Validade da Procuração">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
+                                    {displayData.legalGuardian.validityDate && <FormField label="Validade">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
                                     {displayData.legalGuardian.powerOfAttorneyUrl && (
                                         <Button variant="outline" size="sm" asChild className="w-full">
-                                            <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver documento de procuração</Link>
+                                            <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
                                         </Button>
                                     )}
                                 </>

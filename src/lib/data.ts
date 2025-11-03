@@ -65,6 +65,7 @@ export const patients: Patient[] = [
     legalGuardian: {
       name: 'Maria da Silva',
       document: 'CPF: 111.222.333-44',
+      documentType: 'Procuração',
       powerOfAttorneyUrl: '#',
     },
 

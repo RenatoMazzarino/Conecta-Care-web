@@ -112,6 +112,7 @@
           "properties": {
             "name": { "type": "string" },
             "document": { "type": "string" },
+            "documentType": { "type": "string", "enum": ["Procuração", "Curatela"], "description": "Tipo do documento legal." },
             "validityDate": { "type": "string", "format": "date" },
             "powerOfAttorneyUrl": { "type": "string", "format": "uri" }
           }

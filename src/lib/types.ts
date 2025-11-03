@@ -84,6 +84,7 @@ export type Patient = {
   legalGuardian?: {
     name: string;
     document: string;
+    documentType: 'Procuração' | 'Curatela';
     validityDate?: string;
     powerOfAttorneyUrl?: string;
   };
