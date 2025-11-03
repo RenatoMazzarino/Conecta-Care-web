@@ -78,66 +78,68 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2">
-                             <User className="w-5 h-5 text-primary" />
-                             Identificação
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        <FormField label="ID do Paciente" className="md:col-span-2">
-                            <span className="font-mono text-xs select-all">{displayData.id}</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.id, 'ID do Paciente')}><Copy className="w-3 h-3"/></Button>
-                        </FormField>
-                         <FormField label="Tratamento">
-                            {isEditing ? (
-                                <Select value={editedData.salutation || ''} onValueChange={v => handleFieldChange('salutation', v)}>
-                                    <SelectTrigger><SelectValue/></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Sr.">Sr.</SelectItem>
-                                        <SelectItem value="Sra.">Sra.</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            ): (<span>{displayData.salutation || '-'}</span>)}
-                        </FormField>
-                        <FormField label="Nome Social / Apelido">
-                            {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
-                        </FormField>
-                        <FormField label="Nome">
-                            {isEditing ? <Input value={editedData.firstName} onChange={e => handleFieldChange('firstName', e.target.value)} /> : <span>{displayData.firstName}</span>}
-                        </FormField>
-                         <FormField label="Sobrenome">
-                            {isEditing ? <Input value={editedData.lastName} onChange={e => handleFieldChange('lastName', e.target.value)} /> : <span>{displayData.lastName}</span>}
-                        </FormField>
-                         <FormField label="Nacionalidade">
-                            {isEditing ? <Input value={editedData.nacionalidade || ''} onChange={e => handleFieldChange('nacionalidade', e.target.value)} /> : <span>{displayData.nacionalidade || '-'}</span>}
-                        </FormField>
-                         <FormField label="Naturalidade (Cidade/UF)">
-                            {isEditing ? <Input value={editedData.naturalidade || ''} onChange={e => handleFieldChange('naturalidade', e.target.value)} /> : <span>{displayData.naturalidade || '-'}</span>}
-                        </FormField>
-                        <FormField label="Data de Nascimento">
-                            {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
-                        </FormField>
-                        <FormField label="Sexo de Nascimento">
-                            {isEditing ? <Input value={editedData.sexo || ''} onChange={e => handleFieldChange('sexo', e.target.value)} /> : <span>{displayData.sexo || '-'}</span>}
-                        </FormField>
-                        <FormField label="Identidade de Gênero">
-                            {isEditing ? <Input value={editedData.genderIdentity || ''} onChange={e => handleFieldChange('genderIdentity', e.target.value)} /> : <span>{displayData.genderIdentity || '-'}</span>}
-                        </FormField>
-                        <FormField label="Pronomes">
-                            {isEditing ? <Input value={editedData.pronouns || ''} onChange={e => handleFieldChange('pronouns', e.target.value)} /> : <span>{displayData.pronouns || '-'}</span>}
-                        </FormField>
-                        <FormField label="Estado Civil">
-                            {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
-                        </FormField>
-                        <FormField label="Idioma Preferencial">
-                            {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
-                        </FormField>
-                    </CardContent>
-                </Card>
-                <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <div className="w-full lg:w-1/2">
+                    <Card className="h-full">
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <User className="w-5 h-5 text-primary" />
+                                Identificação
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                            <FormField label="ID do Paciente" className="md:col-span-2">
+                                <span className="font-mono text-xs select-all">{displayData.id}</span>
+                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.id, 'ID do Paciente')}><Copy className="w-3 h-3"/></Button>
+                            </FormField>
+                            <FormField label="Tratamento">
+                                {isEditing ? (
+                                    <Select value={editedData.salutation || ''} onValueChange={v => handleFieldChange('salutation', v)}>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Sr.">Sr.</SelectItem>
+                                            <SelectItem value="Sra.">Sra.</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ): (<span>{displayData.salutation || '-'}</span>)}
+                            </FormField>
+                            <FormField label="Nome Social / Apelido">
+                                {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
+                            </FormField>
+                            <FormField label="Nome">
+                                {isEditing ? <Input value={editedData.firstName} onChange={e => handleFieldChange('firstName', e.target.value)} /> : <span>{displayData.firstName}</span>}
+                            </FormField>
+                            <FormField label="Sobrenome">
+                                {isEditing ? <Input value={editedData.lastName} onChange={e => handleFieldChange('lastName', e.target.value)} /> : <span>{displayData.lastName}</span>}
+                            </FormField>
+                            <FormField label="Nacionalidade">
+                                {isEditing ? <Input value={editedData.nacionalidade || ''} onChange={e => handleFieldChange('nacionalidade', e.target.value)} /> : <span>{displayData.nacionalidade || '-'}</span>}
+                            </FormField>
+                            <FormField label="Naturalidade (Cidade/UF)">
+                                {isEditing ? <Input value={editedData.naturalidade || ''} onChange={e => handleFieldChange('naturalidade', e.target.value)} /> : <span>{displayData.naturalidade || '-'}</span>}
+                            </FormField>
+                            <FormField label="Data de Nascimento">
+                                {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
+                            </FormField>
+                            <FormField label="Sexo de Nascimento">
+                                {isEditing ? <Input value={editedData.sexo || ''} onChange={e => handleFieldChange('sexo', e.target.value)} /> : <span>{displayData.sexo || '-'}</span>}
+                            </FormField>
+                            <FormField label="Identidade de Gênero">
+                                {isEditing ? <Input value={editedData.genderIdentity || ''} onChange={e => handleFieldChange('genderIdentity', e.target.value)} /> : <span>{displayData.genderIdentity || '-'}</span>}
+                            </FormField>
+                            <FormField label="Pronomes">
+                                {isEditing ? <Input value={editedData.pronouns || ''} onChange={e => handleFieldChange('pronouns', e.target.value)} /> : <span>{displayData.pronouns || '-'}</span>}
+                            </FormField>
+                            <FormField label="Estado Civil">
+                                {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
+                            </FormField>
+                            <FormField label="Idioma Preferencial">
+                                {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
+                            </FormField>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="w-full lg:w-1/2 flex flex-col space-y-6">
                     <Card>
                         <CardHeader className="flex flex-row items-start justify-between">
                             <div className="flex items-center gap-2">
@@ -156,7 +158,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         <CardContent>
                             {displayData.legalGuardian?.name ? (
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                    <FormField label="Nome do Responsável" className="col-span-1">{displayData.legalGuardian.name}</FormField>
+                                     <FormField label="Nome do Responsável" className="col-span-1">{displayData.legalGuardian.name}</FormField>
                                     <FormField label="Documento" className="col-span-1">{displayData.legalGuardian.document}</FormField>
                                     <FormField label="Tipo" className="col-span-1">{displayData.legalGuardian.documentType}</FormField>
                                     {displayData.legalGuardian.powerOfAttorneyUrl && (
