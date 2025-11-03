@@ -68,6 +68,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     };
 
     const handleCopy = (text: string, fieldName: string) => {
+        if (!text) return;
         navigator.clipboard.writeText(text);
         toast({ title: `${fieldName} copiado!`, description: text });
     };
@@ -75,9 +76,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
 
     return (
-        <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 space-y-6">
-                
+        <div className="space-y-6">
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
@@ -85,12 +86,24 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                              Identificação
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                        <FormField label="ID do Paciente" className="lg:col-span-3">
-                            <span className="font-mono text-xs">{displayData.id}</span>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <FormField label="ID do Paciente" className="md:col-span-2">
+                            <span className="font-mono text-xs select-all">{displayData.id}</span>
+                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.id, 'ID do Paciente')}><Copy className="w-3 h-3"/></Button>
                         </FormField>
                          <FormField label="Tratamento">
-                            {isEditing ? <Input value={editedData.salutation || ''} onChange={e => handleFieldChange('salutation', e.target.value)} /> : <span>{displayData.salutation || '-'}</span>}
+                            {isEditing ? (
+                                <Select value={editedData.salutation || ''} onValueChange={v => handleFieldChange('salutation', v)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Sr.">Sr.</SelectItem>
+                                        <SelectItem value="Sra.">Sra.</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            ): (<span>{displayData.salutation || '-'}</span>)}
+                        </FormField>
+                        <FormField label="Nome Social / Apelido">
+                            {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
                         </FormField>
                         <FormField label="Nome">
                             {isEditing ? <Input value={editedData.firstName} onChange={e => handleFieldChange('firstName', e.target.value)} /> : <span>{displayData.firstName}</span>}
@@ -98,104 +111,158 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                          <FormField label="Sobrenome">
                             {isEditing ? <Input value={editedData.lastName} onChange={e => handleFieldChange('lastName', e.target.value)} /> : <span>{displayData.lastName}</span>}
                         </FormField>
-                        <FormField label="Nome Social / Apelido">
-                            {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
-                        </FormField>
                          <FormField label="Nacionalidade">
                             {isEditing ? <Input value={editedData.nacionalidade || ''} onChange={e => handleFieldChange('nacionalidade', e.target.value)} /> : <span>{displayData.nacionalidade || '-'}</span>}
+                        </FormField>
+                         <FormField label="Naturalidade (Cidade/UF)">
+                            {isEditing ? <Input value={editedData.naturalidade || ''} onChange={e => handleFieldChange('naturalidade', e.target.value)} /> : <span>{displayData.naturalidade || '-'}</span>}
                         </FormField>
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="w-5 h-5 text-primary" />Documentos e Validação</CardTitle></CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                         <FormField label="CPF">
-                            <span className="font-mono">{displayData.cpf}</span>
-                            <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className="ml-auto">{displayData.cpfStatus}</Badge>
-                        </FormField>
-                        <FormField label="RG / Órgão Emissor">
-                            {isEditing ? (
-                                <div className="flex gap-2 w-full">
-                                    <Input value={editedData.rg || ''} placeholder="RG" onChange={e => handleFieldChange('rg', e.target.value)} />
-                                    <Input value={editedData.rgIssuer || ''} placeholder="Órgão Emissor" onChange={e => handleFieldChange('rgIssuer', e.target.value)} />
-                                </div>
-                            ) : (
-                                <span className="truncate">{displayData.rg || '-'} / {displayData.rgIssuer || '-'}</span>
-                            )}
-                        </FormField>
-                        <FormField label="CNS (Cartão SUS)">
-                            {isEditing ? <Input value={editedData.cns || ''} onChange={e => handleFieldChange('cns', e.target.value)} /> : <span>{displayData.cns || '-'}</span>}
-                        </FormField>
-                         <FormField label="Doc. Estrangeiro (National ID)">
-                            {isEditing ? <Input value={editedData.nationalId || ''} onChange={e => handleFieldChange('nationalId', e.target.value)} /> : <span>{displayData.nationalId || '-'}</span>}
-                        </FormField>
-                         <FormField label="Validação de Documentos">
-                             <div className="flex items-center gap-2">
-                                <Badge variant={displayData.documentValidation?.status === 'validated' ? 'secondary' : 'default'}>{displayData.documentValidation?.status}</Badge>
-                                <span className="text-xs text-muted-foreground">({displayData.documentValidation?.method} por {displayData.documentValidation?.validatedBy} em {displayData.documentValidation?.validatedAt ? new Date(displayData.documentValidation.validatedAt).toLocaleDateString('pt-BR') : 'N/A'})</span>
-                             </div>
-                        </FormField>
-                    </CardContent>
-                </Card>
-                
-                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
-                             <Phone className="w-5 h-5 text-primary" />
-                             Contatos & Responsáveis
+                             <Gavel className="w-5 h-5 text-primary" />
+                             Representante Legal
                         </CardTitle>
                     </CardHeader>
                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <FormField label="Telefone Principal">
-                                <span>{displayData.phones?.[0]?.number}</span>
-                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
-                            </FormField>
-                            <FormField label="E-mail">
-                                <span>{displayData.emails?.[0]?.email}</span>
-                                 <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
-                            </FormField>
-                            <FormField label="Contato Preferencial">
-                                <span>{displayData.preferredContactMethod}</span>
-                            </FormField>
-                             <FormField label="Opt-Out de Comunicação">
-                                {displayData.communicationOptOut?.length > 0 ? (
-                                    <div className="flex gap-2">
-                                        {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
-                                    </div>
-                                ) : (
-                                    <span>Nenhum</span>
-                                )}
-                            </FormField>
-                        </div>
-                        <div className="space-y-3 pt-4 border-t">
-                            <h4 className="font-medium text-sm">Contatos de Emergência</h4>
-                            {displayData.emergencyContacts?.map((contact, index) => (
-                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                                <div className="flex items-center gap-3">
-                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                                    <div>
-                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
-                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
-                                        <div className="flex items-center gap-2 mt-1">
-                                            {contact.permissions?.view && <Badge variant="outline" className="text-xs">Pode Visualizar</Badge>}
-                                            {contact.permissions?.authorize && <Badge variant="outline" className="text-xs">Pode Autorizar</Badge>}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
-                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                                </div>
-                            </div>
-                            ))}
-                        </div>
+                         {displayData.legalGuardian?.name ? (
+                            <>
+                                <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
+                                <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
+                                {displayData.legalGuardian.validityDate && <FormField label="Validade da Procuração">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
+                                {displayData.legalGuardian.powerOfAttorneyUrl && <Button asChild variant="secondary" className="w-full mt-2"><Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank"><Download className="w-4 h-4 mr-2"/>Baixar Procuração</Link></Button>}
+                            </>
+                         ) : (
+                            <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
+                         )}
                      </CardContent>
                 </Card>
-
             </div>
+
+            <Card>
+                <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="w-5 h-5 text-primary" />Documentos e Validação</CardTitle></CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                     <FormField label="CPF">
+                        <div className="flex items-center gap-2">
+                           <span className="font-mono">{displayData.cpf}</span>
+                           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.cpf, 'CPF')}><Copy className="w-3 h-3"/></Button>
+                        </div>
+                        {displayData.cpfStatus && <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className="ml-auto">{displayData.cpfStatus}</Badge>}
+                    </FormField>
+                    <FormField label="RG / Órgão Emissor">
+                        {isEditing ? (
+                            <div className="flex gap-2 w-full">
+                                <Input value={editedData.rg || ''} placeholder="RG" onChange={e => handleFieldChange('rg', e.target.value)} />
+                                <Input value={editedData.rgIssuer || ''} placeholder="Órgão Emissor" onChange={e => handleFieldChange('rgIssuer', e.target.value)} />
+                            </div>
+                        ) : (
+                            <span className="truncate">{displayData.rg || '-'} / {displayData.rgIssuer || '-'}</span>
+                        )}
+                    </FormField>
+                    <FormField label="CNS (Cartão SUS)">
+                        {isEditing ? <Input value={editedData.cns || ''} onChange={e => handleFieldChange('cns', e.target.value)} /> : <span>{displayData.cns || '-'}</span>}
+                    </FormField>
+                     <FormField label="Doc. Estrangeiro (ID)">
+                        {isEditing ? <Input value={editedData.nationalId || ''} onChange={e => handleFieldChange('nationalId', e.target.value)} /> : <span>{displayData.nationalId || '-'}</span>}
+                    </FormField>
+                    <FormField label="Validação de Documentos" className="lg:col-span-2">
+                         <div className="flex items-center gap-2">
+                            <Badge variant={displayData.documentValidation?.status === 'validated' ? 'secondary' : 'default'}>{displayData.documentValidation?.status || 'none'}</Badge>
+                            {displayData.documentValidation?.status !== 'none' && (
+                                <span className="text-xs text-muted-foreground">({displayData.documentValidation?.method} por {displayData.documentValidation?.validatedBy} em {displayData.documentValidation?.validatedAt ? new Date(displayData.documentValidation.validatedAt).toLocaleDateString('pt-BR') : 'N/A'})</span>
+                            )}
+                         </div>
+                    </FormField>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Calendar className="w-5 h-5 text-primary" />Perfil Demográfico</CardTitle></CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                    <FormField label="Data de Nascimento">
+                        {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
+                    </FormField>
+                    <FormField label="Sexo de Nascimento">
+                        {isEditing ? <Input value={editedData.sexo || ''} onChange={e => handleFieldChange('sexo', e.target.value)} /> : <span>{displayData.sexo || '-'}</span>}
+                    </FormField>
+                    <FormField label="Identidade de Gênero">
+                        {isEditing ? <Input value={editedData.genderIdentity || ''} onChange={e => handleFieldChange('genderIdentity', e.target.value)} /> : <span>{displayData.genderIdentity || '-'}</span>}
+                    </FormField>
+                    <FormField label="Pronomes">
+                        {isEditing ? <Input value={editedData.pronouns || ''} onChange={e => handleFieldChange('pronouns', e.target.value)} /> : <span>{displayData.pronouns || '-'}</span>}
+                    </FormField>
+                    <FormField label="Estado Civil">
+                        {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
+                    </FormField>
+                    <FormField label="Idioma Preferencial">
+                        {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
+                    </FormField>
+                </CardContent>
+            </Card>
+            
+             <Card>
+                <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                         <Phone className="w-5 h-5 text-primary" />
+                         Contatos & Responsáveis
+                    </CardTitle>
+                </CardHeader>
+                 <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                         <FormField label="Telefone Principal">
+                            <div className="flex items-center gap-2">
+                                <span>{displayData.phones?.[0]?.number}</span>
+                                <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:text-green-700 ml-auto"><WhatsAppIcon className="w-5 h-5"/></Button>
+                            </div>
+                        </FormField>
+                        <FormField label="E-mail">
+                            <div className="flex items-center gap-2">
+                                <span>{displayData.emails?.[0]?.email}</span>
+                                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-primary ml-auto"><Mail className="w-4 h-4"/></Button>
+                            </div>
+                        </FormField>
+                        <FormField label="Contato Preferencial">
+                            <span>{displayData.preferredContactMethod}</span>
+                        </FormField>
+                         <FormField label="Opt-Out de Comunicação" className="md:col-span-2 lg:col-span-3">
+                            {displayData.communicationOptOut?.length > 0 ? (
+                                <div className="flex gap-2">
+                                    {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
+                                </div>
+                            ) : (
+                                <span>Nenhum</span>
+                            )}
+                        </FormField>
+                    </div>
+                    <div className="space-y-3 pt-4 border-t">
+                        <h4 className="font-medium text-sm">Contatos de Emergência</h4>
+                        {displayData.emergencyContacts?.map((contact, index) => (
+                        <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                            <div className="flex items-center gap-3">
+                                <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                <div>
+                                    <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                    <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                    {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
+                                    <div className="flex items-center gap-2 mt-1">
+                                        {contact.permissions?.view && <Badge variant="outline" className="text-xs font-normal"><Eye className="w-3 h-3 mr-1"/>Pode Visualizar</Badge>}
+                                        {contact.permissions?.authorize && <Badge variant="outline" className="text-xs font-normal"><BadgeCheck className="w-3 h-3 mr-1"/>Pode Autorizar</Badge>}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
+                                <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                 </CardContent>
+            </Card>
+
         </div>
     );
 }
