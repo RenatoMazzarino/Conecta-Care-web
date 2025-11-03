@@ -9,13 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Users, Copy, Download, FileText, Upload, Plus, X, BadgeCheck, Gavel, Eye, WhatsAppIcon
+    User, Phone, Mail, Calendar, Home, Users, Copy, Download, FileText, Upload, Plus, X, BadgeCheck, Gavel, Eye
 } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,6 +39,13 @@ type FichaCadastralProps = {
   setEditedData: (data: Patient | null) => void;
   isEditing: boolean;
 };
+
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52s-.67-.816-.916-.816-.524.0-.624.0-.67.0-1.018.332-1.393 1.341-1.393 3.256c0 1.914 1.42 3.771 1.616 3.966.197.199 2.781 4.237 6.746 5.922.955.399 1.711.636 2.298.814.862.259 1.629.219 2.227.132.645-.087 1.758-.718 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.204-1.634a11.815 11.815 0 005.792 1.634h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" fill="currentColor"/>
+    </svg>
+);
+
 
 export function FichaCadastral({ displayData, editedData, setEditedData, isEditing }: FichaCadastralProps) {
     const { toast } = useToast();
