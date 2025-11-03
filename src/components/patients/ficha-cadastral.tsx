@@ -9,10 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Users, Copy, Download, FileText, Upload, Plus, X, BadgeCheck, Gavel, Eye
+    User, Phone, Mail, Calendar, Home, Copy, FileText, BadgeCheck, Gavel, Eye
 } from 'lucide-react';
-import { Switch } from '../ui/switch';
-import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -77,7 +75,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="space-y-6">
-            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
@@ -151,7 +148,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
                                 <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
                                 {displayData.legalGuardian.validityDate && <FormField label="Validade da Procuração">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
-                                {displayData.legalGuardian.powerOfAttorneyUrl && <Button asChild variant="secondary" className="w-full mt-2"><Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank"><Download className="w-4 h-4 mr-2"/>Baixar Procuração</Link></Button>}
                             </>
                          ) : (
                             <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
@@ -201,10 +197,10 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                          <Phone className="w-5 h-5 text-primary" />
-                         Contatos & Responsáveis
+                         Contatos
                     </CardTitle>
                 </CardHeader>
-                 <CardContent className="space-y-4">
+                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                          <FormField label="Telefone Principal">
                             <div className="flex items-center gap-2">
@@ -231,32 +227,38 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             )}
                         </FormField>
                     </div>
-                    <div className="space-y-3 pt-4 border-t">
-                        <h4 className="font-medium text-sm">Contatos de Emergência</h4>
-                        {displayData.emergencyContacts?.map((contact, index) => (
-                        <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                            <div className="flex items-center gap-3">
-                                <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                                <div>
-                                    <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                    <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
-                                    {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
-                                    <div className="flex items-center gap-2 mt-1">
-                                        {contact.permissions?.view && <Badge variant="outline" className="text-xs font-normal"><Eye className="w-3 h-3 mr-1"/>Pode Visualizar</Badge>}
-                                        {contact.permissions?.authorize && <Badge variant="outline" className="text-xs font-normal"><BadgeCheck className="w-3 h-3 mr-1"/>Pode Autorizar</Badge>}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
-                                <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                            </div>
-                        </div>
-                        ))}
-                    </div>
                  </CardContent>
             </Card>
 
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                        Contatos de Emergência
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {displayData.emergencyContacts?.map((contact, index) => (
+                    <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                        <div className="flex items-center gap-3">
+                            <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                            <div>
+                                <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
+                                <div className="flex items-center gap-2 mt-1">
+                                    {contact.permissions?.view && <Badge variant="outline" className="text-xs font-normal"><Eye className="w-3 h-3 mr-1"/>Pode Visualizar</Badge>}
+                                    {contact.permissions?.authorize && <Badge variant="outline" className="text-xs font-normal"><BadgeCheck className="w-3 h-3 mr-1"/>Pode Autorizar</Badge>}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                        </div>
+                    </div>
+                    ))}
+                </CardContent>
+            </Card>
         </div>
     );
 }
