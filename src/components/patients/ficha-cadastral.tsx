@@ -33,19 +33,19 @@ const FormField = ({ label, children, className }: {
     </div>
 );
 
-type FichaCadastralProps = {
-  displayData: Patient | null;
-  editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
-  isEditing: boolean;
-};
-
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52s-.67-.816-.916-.816-.524.0-.624.0-.67.0-1.018.332-1.393 1.341-1.393 3.256c0 1.914 1.42 3.771 1.616 3.966.197.199 2.781 4.237 6.746 5.922.955.399 1.711.636 2.298.814.862.259 1.629.219 2.227.132.645-.087 1.758-.718 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.204-1.634a11.815 11.815 0 005.792 1.634h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" fill="currentColor"/>
     </svg>
 );
 
+
+type FichaCadastralProps = {
+  displayData: Patient | null;
+  editedData: Patient | null;
+  setEditedData: (data: Patient | null) => void;
+  isEditing: boolean;
+};
 
 export function FichaCadastral({ displayData, editedData, setEditedData, isEditing }: FichaCadastralProps) {
     const { toast } = useToast();
@@ -85,31 +85,24 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                              Identificação
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        <FormField label="Nome Completo">
-                            {isEditing ? <Input value={`${editedData.firstName} ${editedData.lastName}`} disabled /> : <span>{displayData.firstName} {displayData.lastName}</span>}
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                        <FormField label="ID do Paciente" className="lg:col-span-3">
+                            <span className="font-mono text-xs">{displayData.id}</span>
+                        </FormField>
+                         <FormField label="Tratamento">
+                            {isEditing ? <Input value={editedData.salutation || ''} onChange={e => handleFieldChange('salutation', e.target.value)} /> : <span>{displayData.salutation || '-'}</span>}
+                        </FormField>
+                        <FormField label="Nome">
+                            {isEditing ? <Input value={editedData.firstName} onChange={e => handleFieldChange('firstName', e.target.value)} /> : <span>{displayData.firstName}</span>}
+                        </FormField>
+                         <FormField label="Sobrenome">
+                            {isEditing ? <Input value={editedData.lastName} onChange={e => handleFieldChange('lastName', e.target.value)} /> : <span>{displayData.lastName}</span>}
                         </FormField>
                         <FormField label="Nome Social / Apelido">
                             {isEditing ? <Input value={editedData.displayName} onChange={e => handleFieldChange('displayName', e.target.value)} /> : <span>{displayData.displayName}</span>}
                         </FormField>
-                        <FormField label="Data de Nascimento">
-                            {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} {age && `(${age})`}</span>}
-                        </FormField>
-                         <FormField label="Gênero / Pronomes">
-                            {isEditing ? (
-                                <div className="flex gap-2 w-full">
-                                <Input value={editedData.genderIdentity || ''} placeholder="Gênero" onChange={e => handleFieldChange('genderIdentity', e.target.value)} />
-                                <Input value={editedData.pronouns || ''} placeholder="Pronomes" onChange={e => handleFieldChange('pronouns', e.target.value)} />
-                                </div>
-                            ) : (
-                                <span>{displayData.genderIdentity || '-'} / {displayData.pronouns || '-'}</span>
-                            )}
-                        </FormField>
-                        <FormField label="Estado Civil">
-                            {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
-                        </FormField>
-                        <FormField label="Idioma">
-                            {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
+                         <FormField label="Nacionalidade">
+                            {isEditing ? <Input value={editedData.nacionalidade || ''} onChange={e => handleFieldChange('nacionalidade', e.target.value)} /> : <span>{displayData.nacionalidade || '-'}</span>}
                         </FormField>
                     </CardContent>
                 </Card>
@@ -246,5 +239,3 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
         </div>
     );
 }
-
-    

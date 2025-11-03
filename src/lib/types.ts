@@ -10,6 +10,7 @@ export type Diagnosis = {
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
+  salutation?: 'Sr.' | 'Sra.' | 'Dr.' | 'Dra.';
   firstName: string;
   lastName: string;
   displayName: string;

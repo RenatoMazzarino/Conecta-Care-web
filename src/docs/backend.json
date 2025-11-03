@@ -7,20 +7,48 @@
       "type": "object",
       "description": "Representa um paciente recebendo serviços de homecare, com estrutura de dados ampliada.",
       "properties": {
-        "id": { "type": "string", "description": "1. Identificador único para o paciente (Auto)." },
-        "fullName": { "type": "string", "description": "1. Nome completo legal." },
-        "displayName": { "type": "string", "description": "1. Nome preferido / nome social." },
-        "pronouns": { "type": "string", "description": "1. Pronomes de preferência (ex: ele/dele, ela/dela)." },
-        "cpf": { "type": "string", "description": "1. CPF para documentação." },
-        "cns": { "type": "string", "description": "1. Cartão Nacional de Saúde (CNS)." },
-        "rg": { "type": "string", "description": "1. RG para documentação complementar." },
-        "rgIssuer": { "type": "string", "description": "1. Órgão emissor do RG." },
-        "dateOfBirth": { "type": "string", "format": "date", "description": "1. Data de Nascimento para cálculo de idade e protocolos." },
-        "sexo": { "type": "string", "enum": ["Masculino", "Feminino", "Outro"], "description": "1. Sexo para estatísticas e protocolos." },
-        "estadoCivil": { "type": "string", "description": "1. Estado civil para registro social." },
-        "nacionalidade": { "type": "string", "description": "1. Nacionalidade para documentação." },
-        "naturalidade": { "type": "string", "description": "1. Cidade/UF de nascimento para histórico civil." },
-        "email": { "type": "string", "format": "email", "description": "1. Email para comunicação digital." },
+        "id": { "type": "string", "description": "Identificador único para o paciente (Auto)." },
+        "salutation": { "type": "string", "enum": ["Sr.", "Sra.", "Dr.", "Dra."], "description": "Termo de tratamento para o paciente." },
+        "firstName": { "type": "string", "description": "Nome do paciente." },
+        "lastName": { "type": "string", "description": "Sobrenome do paciente." },
+        "displayName": { "type": "string", "description": "Nome preferido / nome social." },
+        "pronouns": { "type": "string", "description": "Pronomes de preferência (ex: ele/dele, ela/dela)." },
+        "avatarUrl": { "type": "string", "format": "uri", "description": "Foto do Paciente para identificação visual." },
+        "avatarHint": { "type": "string" },
+        "photoConsent": {
+          "type": "object",
+          "properties": {
+            "granted": { "type": "boolean" },
+            "grantedBy": { "type": "string" },
+            "date": { "type": "string", "format": "date-time" }
+          }
+        },
+
+        "cpf": { "type": "string", "description": "CPF para documentação." },
+        "cpfStatus": { "type": "string", "enum": ["valid", "invalid", "unknown"] },
+        "rg": { "type": "string", "description": "RG para documentação complementar." },
+        "rgIssuer": { "type": "string", "description": "Órgão emissor do RG." },
+        "rgDigitalUrl": { "type": "string", "format": "uri" },
+        "cns": { "type": "string", "description": "Cartão Nacional de Saúde (CNS)." },
+        "nationalId": { "type": "string", "description": "Documento de identificação para estrangeiros." },
+        "documentValidation": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["none", "pending", "validated"] },
+            "validatedBy": { "type": "string" },
+            "validatedAt": { "type": "string", "format": "date-time" },
+            "method": { "type": "string", "enum": ["ocr", "manual"] }
+          }
+        },
+
+        "dateOfBirth": { "type": "string", "format": "date", "description": "Data de Nascimento." },
+        "sexo": { "type": "string", "enum": ["Masculino", "Feminino", "Outro"], "description": "Sexo biológico." },
+        "genderIdentity": { "type": "string", "description": "Identidade de gênero." },
+        "estadoCivil": { "type": "string", "description": "Estado civil." },
+        "nacionalidade": { "type": "string" },
+        "naturalidade": { "type": "string", "description": "Cidade/UF de nascimento." },
+        "preferredLanguage": { "type": "string" },
+
         "phones": {
           "type": "array",
           "items": {
@@ -33,28 +61,65 @@
             }
           }
         },
-        "preferredContactMethod": { "type": "string", "enum": ["Telefone", "WhatsApp", "Email"], "description": "1. Método de contato preferencial." },
-        "preferredLanguage": { "type": "string", "description": "1. Idioma de preferência para comunicação." },
-        "emergencyContacts": {
+        "emails": {
           "type": "array",
-          "description": "1. Lista de contatos para comunicação rápida em emergências.",
           "items": {
             "type": "object",
             "properties": {
-              "name": { "type": "string" },
-              "relationship": { "type": "string" },
-              "phone": { "type": "string" }
-            },
-            "required": ["name", "phone"]
+              "email": { "type": "string", "format": "email" },
+              "verified": { "type": "boolean" },
+              "preferred": { "type": "boolean" }
+            }
           }
         },
-        "avatarUrl": { "type": "string", "format": "uri", "description": "1. Foto do Paciente para identificação visual." },
-        "avatarHint": { "type": "string" },
-        "rgDigitalUrl": { "type": "string", "format": "uri", "description": "1. Upload do RG Digital para validação documental." },
+        "preferredContactMethod": { "type": "string", "enum": ["Telefone", "WhatsApp", "Email"] },
+        "communicationOptOut": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["sms", "email", "whatsapp"] },
+              "optedOut": { "type": "boolean" },
+              "date": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        
+        "emergencyContacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "relationship": { "type": "string" },
+              "phone": { "type": "string" },
+              "email": { "type": "string", "format": "email" },
+              "isLegalRepresentative": { "type": "boolean" },
+              "permissions": {
+                "type": "object",
+                "properties": {
+                  "view": { "type": "boolean" },
+                  "authorize": { "type": "boolean" }
+                }
+              },
+              "documentUrl": { "type": "string", "format": "uri" }
+            }
+          }
+        },
+        "legalGuardian": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "document": { "type": "string" },
+            "validityDate": { "type": "string", "format": "date" },
+            "powerOfAttorneyUrl": { "type": "string", "format": "uri" }
+          }
+        },
         
         "address": {
           "type": "object",
-          "description": "2. Endereço e detalhes do ambiente domiciliar.",
+          "description": "Endereço e detalhes do ambiente domiciliar.",
           "properties": {
             "street": {"type": "string"},
             "number": {"type": "string"},
@@ -74,7 +139,7 @@
 
         "clinicalData": {
           "type": "object",
-          "description": "3. Dados clínicos e assistenciais detalhados.",
+          "description": "Dados clínicos e assistenciais detalhados.",
           "properties": {
             "diagnoses": {
               "type": "array",
@@ -119,7 +184,7 @@
 
         "adminData": {
           "type": "object",
-          "description": "4. Informações administrativas e internas.",
+          "description": "Informações administrativas e internas.",
           "properties": {
             "status": { "type": "string", "enum": ["Ativo", "Inativo", "Suspenso"], "description": "Status do paciente para controle de escala." },
             "complexity": { "type": "string", "enum": ["Baixa", "Média", "Alta"], "description": "Nível de complexidade para dimensionamento da equipe." },
@@ -137,7 +202,7 @@
 
         "financial": {
           "type": "object",
-          "description": "5. Informações financeiras para faturamento.",
+          "description": "Informações financeiras para faturamento.",
           "properties": {
             "vinculo": { "type": "string", "enum": ["Plano de Saúde", "Particular", "Convênio", "Público"], "description": "Tipo de vínculo para faturamento." },
             "operadora": { "type": "string", "description": "Nome da operadora do plano de saúde." },
@@ -152,7 +217,7 @@
 
         "supportNetwork": {
           "type": "object",
-          "description": "6. Rede de apoio e responsáveis familiares.",
+          "description": "Rede de apoio e responsáveis familiares.",
           "properties": {
             "responsavelLegal": { "type": "string" },
             "parentescoResponsavel": { "type": "string" },
@@ -166,7 +231,7 @@
 
         "documents": {
           "type": "object",
-          "description": "7. URLs para documentos e consentimentos.",
+          "description": "URLs para documentos e consentimentos.",
           "properties": {
             "termoConsentimentoUrl": { "type": "string", "format": "uri" },
             "termoLgpdUrl": { "type": "string", "format": "uri" },
@@ -180,7 +245,7 @@
 
         "audit": {
           "type": "object",
-          "description": "8. Histórico e auditoria do registro.",
+          "description": "Histórico e auditoria do registro.",
           "properties": {
             "createdAt": { "type": "string", "format": "date-time" },
             "createdBy": { "type": "string" },
@@ -189,12 +254,12 @@
           }
         },
         
-        "last_visit_date": { "type": "string", "format": "date", "description": "9. Data do último plantão/visita." },
-        "next_visit_date": { "type": "string", "format": "date", "description": "9. Data do próximo plantão/visita agendado." },
-        "consent_status": { "type": "string", "enum": ["ok", "pending"], "description": "9. Status do termo de consentimento (LGPD)." },
-        "pending_documents": { "type": "number", "description": "9. Contagem de documentos importantes faltando." }
+        "last_visit_date": { "type": "string", "format": "date", "description": "Data do último plantão/visita." },
+        "next_visit_date": { "type": "string", "format": "date", "description": "Data do próximo plantão/visita agendado." },
+        "consent_status": { "type": "string", "enum": ["ok", "pending"], "description": "Status do termo de consentimento (LGPD)." },
+        "pending_documents": { "type": "number", "description": "Contagem de documentos importantes faltando." }
       },
-      "required": [ "id", "fullName", "cpf", "dateOfBirth", "address" ]
+      "required": [ "id", "firstName", "lastName", "cpf", "dateOfBirth", "address" ]
     },
     "Professional": {
       "$schema": "http://json-schema.org/draft-07/schema#",

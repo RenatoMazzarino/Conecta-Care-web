@@ -15,6 +15,7 @@ const patientAvatars = {
 export const patients: Patient[] = [
   {
     id: 'patient-123',
+    salutation: 'Sr.',
     firstName: 'João',
     lastName: 'da Silva',
     displayName: 'João',
@@ -119,6 +120,7 @@ export const patients: Patient[] = [
   },
   {
     id: 'patient-456',
+    salutation: 'Sra.',
     firstName: 'Maria',
     lastName: 'Lopes',
     initials: 'ML',
@@ -201,6 +203,7 @@ export const patients: Patient[] = [
   },
   {
     id: 'patient-789',
+    salutation: 'Sr.',
     firstName: 'Jorge',
     lastName: 'Mendes',
     initials: 'JM',
