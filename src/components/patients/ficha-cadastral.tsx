@@ -82,11 +82,11 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                             <User className="w-5 h-5 text-primary" />
-                            Identificação
+                            Identificação e Documentos
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        <FormField label="ID do Paciente" className="md:col-span-2">
+                       <FormField label="ID do Paciente" className="md:col-span-2">
                            <span className="font-mono text-xs select-all">{displayData.id}</span>
                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.id, 'ID do Paciente')}><Copy className="w-3 h-3"/></Button>
                        </FormField>
@@ -110,13 +110,13 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                        <FormField label="Sobrenome">
                            {isEditing ? <Input value={editedData.lastName} onChange={e => handleFieldChange('lastName', e.target.value)} /> : <span>{displayData.lastName}</span>}
                        </FormField>
-                        <FormField label="Nacionalidade">
+                       <FormField label="Nacionalidade">
                            {isEditing ? <Input value={editedData.nacionalidade || ''} onChange={e => handleFieldChange('nacionalidade', e.target.value)} /> : <span>{displayData.nacionalidade || '-'}</span>}
                        </FormField>
                        <FormField label="Naturalidade (Cidade/UF)">
                            {isEditing ? <Input value={editedData.naturalidade || ''} onChange={e => handleFieldChange('naturalidade', e.target.value)} /> : <span>{displayData.naturalidade || '-'}</span>}
                        </FormField>
-                       <FormField label="Data de Nascimento">
+                        <FormField label="Data de Nascimento">
                            {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
                        </FormField>
                        <FormField label="Sexo de Nascimento">
@@ -134,22 +134,16 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                        <FormField label="Idioma Preferencial">
                            {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
                        </FormField>
-                    </CardContent>
+                        <div className="md:col-span-2 my-4 border-t"/>
 
-                    <Separator className="my-4"/>
-
-                    <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2"><FileText className="w-5 h-5 text-primary" />Documentos e Validação</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                        <FormField label="CPF">
+                        <FormField label="CPF" className="md:col-span-1">
                             <div className="flex items-center gap-2">
                             <span className="font-mono">{displayData.cpf}</span>
                             <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.cpf, 'CPF')}><Copy className="w-3 h-3"/></Button>
                             </div>
                             {displayData.cpfStatus && <Badge variant={displayData.cpfStatus === 'valid' ? 'secondary' : 'destructive'} className="ml-auto">{displayData.cpfStatus}</Badge>}
                         </FormField>
-                        <FormField label="RG / Órgão Emissor">
+                        <FormField label="RG / Órgão Emissor" className="md:col-span-1">
                             {isEditing ? (
                                 <div className="flex gap-2 w-full">
                                     <Input value={editedData.rg || ''} placeholder="RG" onChange={e => handleFieldChange('rg', e.target.value)} />
@@ -159,13 +153,13 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 <span className="truncate">{displayData.rg || '-'} / {displayData.rgIssuer || '-'}</span>
                             )}
                         </FormField>
-                        <FormField label="CNS (Cartão SUS)">
+                        <FormField label="CNS (Cartão SUS)" className="md:col-span-1">
                             {isEditing ? <Input value={editedData.cns || ''} onChange={e => handleFieldChange('cns', e.target.value)} /> : <span>{displayData.cns || '-'}</span>}
                         </FormField>
-                        <FormField label="Doc. Estrangeiro (ID)">
+                        <FormField label="Doc. Estrangeiro (ID)" className="md:col-span-1">
                             {isEditing ? <Input value={editedData.nationalId || ''} onChange={e => handleFieldChange('nationalId', e.target.value)} /> : <span>{displayData.nationalId || '-'}</span>}
                         </FormField>
-                        <FormField label="Validação de Documentos" className="lg:col-span-2">
+                        <FormField label="Validação de Documentos" className="md:col-span-2">
                             <div className="flex items-center gap-2">
                                 <Badge variant={displayData.documentValidation?.status === 'validated' ? 'secondary' : 'default'}>{displayData.documentValidation?.status || 'none'}</Badge>
                                 {displayData.documentValidation?.status !== 'none' && (
@@ -178,7 +172,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
                 {/* Coluna da Direita */}
                 <Card className="flex flex-col">
-                     <CardHeader className="flex flex-row items-start justify-between">
+                    <CardHeader className="flex flex-row items-start justify-between">
                         <div className="flex items-center gap-2">
                             <Gavel className="w-5 h-5 text-primary mt-1" />
                             <div>
@@ -192,7 +186,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             </Badge>
                         )}
                     </CardHeader>
-                    <CardContent className="flex-1">
+                    <CardContent className="h-48">
                         <ScrollArea className="h-full">
                             <div className="pr-4">
                                 {displayData.legalGuardian?.name ? (
@@ -222,7 +216,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     <CardHeader>
                         <CardTitle className="text-base">Contatos de Emergência</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-1">
+                    <CardContent className="flex-1 h-64">
                       <ScrollArea className="h-full">
                         <div className="space-y-3 pr-4">
                             {displayData.emergencyContacts?.map((contact, index) => (
@@ -289,3 +283,5 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
         </div>
     );
 }
+
+    
