@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -67,7 +67,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
         });
     };
 
-    const handleCopy = (text: string, fieldName: string) => {
+    const handleCopy = (text: string | undefined, fieldName: string) => {
         if (!text) return;
         navigator.clipboard.writeText(text);
         toast({ title: `${fieldName} copiado!`, description: text });
@@ -117,6 +117,24 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                          <FormField label="Naturalidade (Cidade/UF)">
                             {isEditing ? <Input value={editedData.naturalidade || ''} onChange={e => handleFieldChange('naturalidade', e.target.value)} /> : <span>{displayData.naturalidade || '-'}</span>}
                         </FormField>
+                        <FormField label="Data de Nascimento">
+                            {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
+                        </FormField>
+                        <FormField label="Sexo de Nascimento">
+                            {isEditing ? <Input value={editedData.sexo || ''} onChange={e => handleFieldChange('sexo', e.target.value)} /> : <span>{displayData.sexo || '-'}</span>}
+                        </FormField>
+                        <FormField label="Identidade de Gênero">
+                            {isEditing ? <Input value={editedData.genderIdentity || ''} onChange={e => handleFieldChange('genderIdentity', e.target.value)} /> : <span>{displayData.genderIdentity || '-'}</span>}
+                        </FormField>
+                        <FormField label="Pronomes">
+                            {isEditing ? <Input value={editedData.pronouns || ''} onChange={e => handleFieldChange('pronouns', e.target.value)} /> : <span>{displayData.pronouns || '-'}</span>}
+                        </FormField>
+                        <FormField label="Estado Civil">
+                            {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
+                        </FormField>
+                        <FormField label="Idioma Preferencial">
+                            {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
+                        </FormField>
                     </CardContent>
                 </Card>
 
@@ -141,7 +159,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                      </CardContent>
                 </Card>
             </div>
-
+            
             <Card>
                 <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="w-5 h-5 text-primary" />Documentos e Validação</CardTitle></CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
@@ -180,30 +198,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
             </Card>
 
             <Card>
-                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Calendar className="w-5 h-5 text-primary" />Perfil Demográfico</CardTitle></CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
-                    <FormField label="Data de Nascimento">
-                        {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
-                    </FormField>
-                    <FormField label="Sexo de Nascimento">
-                        {isEditing ? <Input value={editedData.sexo || ''} onChange={e => handleFieldChange('sexo', e.target.value)} /> : <span>{displayData.sexo || '-'}</span>}
-                    </FormField>
-                    <FormField label="Identidade de Gênero">
-                        {isEditing ? <Input value={editedData.genderIdentity || ''} onChange={e => handleFieldChange('genderIdentity', e.target.value)} /> : <span>{displayData.genderIdentity || '-'}</span>}
-                    </FormField>
-                    <FormField label="Pronomes">
-                        {isEditing ? <Input value={editedData.pronouns || ''} onChange={e => handleFieldChange('pronouns', e.target.value)} /> : <span>{displayData.pronouns || '-'}</span>}
-                    </FormField>
-                    <FormField label="Estado Civil">
-                        {isEditing ? <Input value={editedData.estadoCivil || ''} onChange={e => handleFieldChange('estadoCivil', e.target.value)} /> : <span>{displayData.estadoCivil || '-'}</span>}
-                    </FormField>
-                    <FormField label="Idioma Preferencial">
-                        {isEditing ? <Input value={editedData.preferredLanguage || ''} onChange={e => handleFieldChange('preferredLanguage', e.target.value)} /> : <span>{displayData.preferredLanguage || '-'}</span>}
-                    </FormField>
-                </CardContent>
-            </Card>
-            
-             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                          <Phone className="w-5 h-5 text-primary" />
