@@ -10,15 +10,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Copy, FileText, BadgeCheck, Gavel, Eye
+    User, Phone, Mail, Calendar, Home, Copy, FileText, BadgeCheck, Gavel
 } from 'lucide-react';
-import { Switch } from '../ui/switch';
-import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '../ui/scroll-area';
 
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -78,8 +77,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col lg:flex-row gap-6 items-start">
-                <div className="w-full lg:w-1/2">
+            <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+                <div className="lg:w-1/2">
                     <Card className="h-full">
                         <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
@@ -88,7 +87,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                            <FormField label="ID do Paciente" className="md:col-span-2">
+                             <FormField label="ID do Paciente" className="md:col-span-2">
                                 <span className="font-mono text-xs select-all">{displayData.id}</span>
                                 <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => handleCopy(displayData.id, 'ID do Paciente')}><Copy className="w-3 h-3"/></Button>
                             </FormField>
@@ -112,13 +111,13 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             <FormField label="Sobrenome">
                                 {isEditing ? <Input value={editedData.lastName} onChange={e => handleFieldChange('lastName', e.target.value)} /> : <span>{displayData.lastName}</span>}
                             </FormField>
-                            <FormField label="Nacionalidade">
+                             <FormField label="Nacionalidade">
                                 {isEditing ? <Input value={editedData.nacionalidade || ''} onChange={e => handleFieldChange('nacionalidade', e.target.value)} /> : <span>{displayData.nacionalidade || '-'}</span>}
                             </FormField>
                             <FormField label="Naturalidade (Cidade/UF)">
                                 {isEditing ? <Input value={editedData.naturalidade || ''} onChange={e => handleFieldChange('naturalidade', e.target.value)} /> : <span>{displayData.naturalidade || '-'}</span>}
                             </FormField>
-                            <FormField label="Data de Nascimento">
+                             <FormField label="Data de Nascimento">
                                 {isEditing ? <Input type="date" value={editedData.dateOfBirth} onChange={e => handleFieldChange('dateOfBirth', e.target.value)} /> : <span>{new Date(displayData.dateOfBirth).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({age})</span>}
                             </FormField>
                             <FormField label="Sexo de Nascimento">
@@ -139,8 +138,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         </CardContent>
                     </Card>
                 </div>
-                <div className="w-full lg:w-1/2 flex flex-col space-y-6">
-                    <Card>
+                 <div className="lg:w-1/2 flex flex-col gap-6">
+                    <Card className="h-48 flex flex-col">
                         <CardHeader className="flex flex-row items-start justify-between">
                             <div className="flex items-center gap-2">
                                 <Gavel className="w-5 h-5 text-primary mt-1" />
@@ -157,12 +156,12 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         </CardHeader>
                         <CardContent>
                             {displayData.legalGuardian?.name ? (
-                                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                     <FormField label="Nome do Responsável" className="col-span-1">{displayData.legalGuardian.name}</FormField>
-                                    <FormField label="Documento" className="col-span-1">{displayData.legalGuardian.document}</FormField>
-                                    <FormField label="Tipo" className="col-span-1">{displayData.legalGuardian.documentType}</FormField>
+                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                    <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
+                                    <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
+                                    <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
                                     {displayData.legalGuardian.powerOfAttorneyUrl && (
-                                        <div className="col-span-1 flex items-end">
+                                        <div className="flex items-end">
                                             <Button variant="outline" size="sm" asChild className="w-full">
                                                 <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
                                             </Button>
@@ -174,34 +173,34 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                             )}
                         </CardContent>
                     </Card>
-                    <Card>
+                     <Card className="h-64 flex flex-col">
                         <CardHeader>
                             <CardTitle className="text-base">Contatos de Emergência</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                            {displayData.emergencyContacts?.map((contact, index) => (
-                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                                <div className="flex items-center gap-3">
-                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                                    <div>
-                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
-                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
-                                        <div className="flex items-center gap-2 mt-1">
-                                            {contact.permissions?.view && <Badge variant="outline" className="text-xs font-normal"><Eye className="w-3 h-3 mr-1"/>Pode Visualizar</Badge>}
-                                            {contact.permissions?.authorize && <Badge variant="outline" className="text-xs font-normal"><BadgeCheck className="w-3 h-3 mr-1"/>Pode Autorizar</Badge>}
+                        <CardContent className="flex-1 overflow-hidden">
+                          <ScrollArea className="h-full">
+                            <div className="space-y-3 pr-4">
+                                {displayData.emergencyContacts?.map((contact, index) => (
+                                <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                        <div>
+                                            <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                            <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                            {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
                                         </div>
                                     </div>
+                                    <div className="flex items-center gap-2">
+                                        <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
-                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                                </div>
+                                ))}
+                                {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
+                                    <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
+                                )}
                             </div>
-                            ))}
-                             {(!displayData.emergencyContacts || displayData.emergencyContacts.length === 0) && (
-                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum contato de emergência.</p>
-                            )}
+                           </ScrollArea>
                         </CardContent>
                     </Card>
                 </div>
