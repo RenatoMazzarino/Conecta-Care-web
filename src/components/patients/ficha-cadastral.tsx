@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -75,8 +76,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                              <User className="w-5 h-5 text-primary" />
@@ -135,25 +136,57 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2">
-                             <Gavel className="w-5 h-5 text-primary" />
-                             Representante Legal
-                        </CardTitle>
-                    </CardHeader>
-                     <CardContent className="space-y-4">
-                         {displayData.legalGuardian?.name ? (
-                            <>
-                                <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
-                                <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
-                                {displayData.legalGuardian.validityDate && <FormField label="Validade da Procuração">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
-                            </>
-                         ) : (
-                            <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
-                         )}
-                     </CardContent>
-                </Card>
+                <div className="lg:col-span-1 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <Gavel className="w-5 h-5 text-primary" />
+                                Representante Legal
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {displayData.legalGuardian?.name ? (
+                                <>
+                                    <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
+                                    <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
+                                    {displayData.legalGuardian.validityDate && <FormField label="Validade da Procuração">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
+                                </>
+                            ) : (
+                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                Contatos de Emergência
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            {displayData.emergencyContacts?.map((contact, index) => (
+                            <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
+                                <div className="flex items-center gap-3">
+                                    <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
+                                    <div>
+                                        <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                        <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
+                                        {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {contact.permissions?.view && <Badge variant="outline" className="text-xs font-normal"><Eye className="w-3 h-3 mr-1"/>Pode Visualizar</Badge>}
+                                            {contact.permissions?.authorize && <Badge variant="outline" className="text-xs font-normal"><BadgeCheck className="w-3 h-3 mr-1"/>Pode Autorizar</Badge>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
+                                </div>
+                            </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
             
             <Card>
@@ -228,36 +261,6 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         </FormField>
                     </div>
                  </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                        Contatos de Emergência
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    {displayData.emergencyContacts?.map((contact, index) => (
-                    <div key={index} className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/50">
-                        <div className="flex items-center gap-3">
-                            <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
-                            <div>
-                                <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
-                                <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
-                                {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
-                                <div className="flex items-center gap-2 mt-1">
-                                    {contact.permissions?.view && <Badge variant="outline" className="text-xs font-normal"><Eye className="w-3 h-3 mr-1"/>Pode Visualizar</Badge>}
-                                    {contact.permissions?.authorize && <Badge variant="outline" className="text-xs font-normal"><BadgeCheck className="w-3 h-3 mr-1"/>Pode Autorizar</Badge>}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button size="icon" variant="ghost" className="h-8 w-8"><Phone className="h-4 h-4"/></Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600"><WhatsAppIcon className="w-5 h-5"/></Button>
-                        </div>
-                    </div>
-                    ))}
-                </CardContent>
             </Card>
         </div>
     );
