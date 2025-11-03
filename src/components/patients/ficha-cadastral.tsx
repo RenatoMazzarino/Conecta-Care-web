@@ -140,9 +140,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                 </Card>
 
                 {/* Coluna Direita */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 flex flex-col gap-6">
                     <Card>
-                         <CardHeader>
+                        <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
                                 <Gavel className="w-5 h-5 text-primary" />
                                 Representante Legal
@@ -154,6 +154,19 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                     <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
                                     <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
                                     {displayData.legalGuardian.validityDate && <FormField label="Validade da Procuração">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
+                                    {displayData.legalGuardian.powerOfAttorneyUrl && (
+                                        <FormField label="Procuração/Curatela">
+                                            <div className="flex flex-col items-start gap-1">
+                                                <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                                                    <BadgeCheck className="w-4 h-4 mr-2"/>
+                                                    Documento Cadastrado
+                                                </Badge>
+                                                <Button variant="link" asChild className="p-0 h-auto text-sm">
+                                                    <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver documento</Link>
+                                                </Button>
+                                            </div>
+                                        </FormField>
+                                    )}
                                 </>
                             ) : (
                                 <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
