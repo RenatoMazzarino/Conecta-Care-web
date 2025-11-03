@@ -75,6 +75,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     };
 
     const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
+    const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
 
     return (
         <div className="space-y-6">
@@ -146,7 +147,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                     <CardTitle className="text-base">Representante Legal</CardTitle>
                                 </div>
                             </div>
-                            {displayData.legalGuardian?.powerOfAttorneyUrl && (
+                            {displayData.legalGuardian?.powerOfAttorneyUrl && displayData.legalGuardian?.documentType && (
                                 <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-emerald-200">
                                     <BadgeCheck className="w-3 h-3 mr-1"/>
                                     {displayData.legalGuardian.documentType} Cadastrada
@@ -156,8 +157,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                         <CardContent className="space-y-4">
                             {displayData.legalGuardian?.name ? (
                                 <>
-                                    <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
                                     <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
+                                    <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
+                                    <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
                                     {displayData.legalGuardian.validityDate && <FormField label="Validade">{new Date(displayData.legalGuardian.validityDate).toLocaleDateString('pt-BR')}</FormField>}
                                     {displayData.legalGuardian.powerOfAttorneyUrl && (
                                         <Button variant="outline" size="sm" asChild className="w-full">
