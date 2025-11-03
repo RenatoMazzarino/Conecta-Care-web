@@ -78,8 +78,8 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     return (
         <div className="space-y-6">
             <div className="flex flex-col lg:flex-row gap-6 items-stretch">
-                <div className="lg:w-1/2">
-                    <Card className="h-full">
+                <div className="lg:w-1/2 flex">
+                    <Card className="h-full w-full">
                         <CardHeader>
                             <CardTitle className="text-base flex items-center gap-2">
                                 <User className="w-5 h-5 text-primary" />
@@ -154,23 +154,29 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                 </Badge>
                             )}
                         </CardHeader>
-                        <CardContent>
-                            {displayData.legalGuardian?.name ? (
-                                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                    <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
-                                    <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
-                                    <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
-                                    {displayData.legalGuardian.powerOfAttorneyUrl && (
-                                        <div className="flex items-end">
-                                            <Button variant="outline" size="sm" asChild className="w-full">
-                                                <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
-                                            </Button>
+                        <CardContent className="flex-1 overflow-hidden">
+                           <ScrollArea className="h-full">
+                                <div className="pr-4">
+                                    {displayData.legalGuardian?.name ? (
+                                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                                            <FormField label="Nome do Responsável">{displayData.legalGuardian.name}</FormField>
+                                            <FormField label="Documento">{displayData.legalGuardian.document}</FormField>
+                                            <FormField label="Tipo">{displayData.legalGuardian.documentType}</FormField>
+                                            {displayData.legalGuardian.powerOfAttorneyUrl && (
+                                                <div className="flex items-end">
+                                                    <Button variant="outline" size="sm" asChild className="w-full">
+                                                        <Link href={displayData.legalGuardian.powerOfAttorneyUrl} target="_blank">Ver {displayData.legalGuardian.documentType}</Link>
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center">
+                                            <p className="text-sm text-muted-foreground text-center">Nenhum representante legal cadastrado.</p>
                                         </div>
                                     )}
                                 </div>
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-8">Nenhum representante legal cadastrado.</p>
-                            )}
+                           </ScrollArea>
                         </CardContent>
                     </Card>
                      <Card className="h-64 flex flex-col">
@@ -282,3 +288,4 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
         </div>
     );
 }
+
