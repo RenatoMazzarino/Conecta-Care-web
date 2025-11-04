@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -9,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble
+    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble, Globe, KeyRound, Clock, Shield, Camera
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -79,6 +78,30 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                     <FormField label="Bairro">{displayData.address.neighborhood}</FormField>
                     <FormField label="Cidade / Estado">{displayData.address.city} / {displayData.address.state}</FormField>
                     <FormField label="Ponto de Referência">{displayData.address.pontoReferencia || '-'}</FormField>
+                    
+                    <FormField label={<div className='flex items-center gap-1'><Globe className="w-3 h-3"/> Tipo de Zona</div>}>
+                        {displayData.address.zoneType || '-'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><KeyRound className="w-3 h-3"/> Identificação na Portaria</div>}>
+                        {displayData.address.gateIdentification || '-'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Clock className="w-3 h-3"/> Horário de Visitas</div>}>
+                        {displayData.address.allowedVisitHours || 'Não especificado'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Shield className="w-3 h-3"/> Condições de Segurança</div>}>
+                        {displayData.address.localSafetyConditions || 'Não especificado'}
+                    </FormField>
+
+                     <FormField label={<div className='flex items-center gap-1'><MapPin className="w-3 h-3"/> Geolocalização</div>} className="md:col-span-1">
+                        {displayData.address.geolocation ? `${displayData.address.geolocation.lat}, ${displayData.address.geolocation.lng}` : '-'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Camera className="w-3 h-3"/> Foto da Fachada</div>} className="md:col-span-1">
+                         {displayData.address.facadeImageUrl ? (
+                            <Button variant="secondary" size="sm" asChild>
+                                <Link href={displayData.address.facadeImageUrl} target="_blank">Ver Foto</Link>
+                            </Button>
+                        ) : '-'}
+                    </FormField>
                 </CardContent>
             </Card>
 
@@ -136,4 +159,3 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
         </div>
     );
 }
-
