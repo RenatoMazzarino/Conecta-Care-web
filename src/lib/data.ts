@@ -78,10 +78,26 @@ export const patients: Patient[] = [
       state: 'SP',
       zipCode: '01001-000',
       pontoReferencia: 'Próximo à padaria Flor do Dia',
+    },
+     domicile: {
       tipoResidencia: 'Apartamento',
-      condicoesDomicilio: 'Apartamento no 4º andar, possui elevador.',
-      acessoAmbulancia: true,
-      possuiAnimal: false,
+      floor: 4,
+      hasElevator: true,
+      internalAccess: 'Corredores largos, sem escadas internas.',
+      patientRoom: 'Quarto principal',
+      hasAdaptedBathroom: true,
+      ambulanceAccess: 'Fácil',
+      teamParking: 'Restrito',
+      entryProcedure: 'Interfonar no 45, portaria 24h.',
+      nightAccessRisk: 'Baixo',
+      pets: 'Nenhum',
+      hygieneConditions: 'Boa',
+      hasSmokers: false,
+      ventilation: 'Adequada',
+      noiseLevel: 'Baixo',
+      hasWifi: true,
+      backupPowerSource: 'Inexistente',
+      waterSource: 'Rede Pública',
     },
     clinicalData: {
         diagnoses: [
@@ -170,9 +186,10 @@ export const patients: Patient[] = [
       city: 'Rio de Janeiro',
       state: 'RJ',
       zipCode: '22020-002',
-      acessoAmbulancia: true,
-      possuiAnimal: true,
-      animalDescricao: '1 gato persa, tranquilo.',
+      pontoReferencia: 'Próximo ao Copacabana Palace',
+    },
+    domicile: {
+      pets: '1 gato persa, tranquilo.',
     },
      clinicalData: {
         diagnoses: [
@@ -237,8 +254,9 @@ export const patients: Patient[] = [
       city: 'Belo Horizonte',
       state: 'MG',
       zipCode: '30130-001',
-      acessoAmbulancia: false,
+      pontoReferencia: '',
     },
+    domicile: {},
     clinicalData: {
         diagnoses: [
             { name: 'Asma Crônica', code: 'J45' }

@@ -129,12 +129,45 @@
             "city": {"type": "string"},
             "state": {"type": "string"},
             "zipCode": {"type": "string"},
-            "pontoReferencia": { "type": "string", "description": "Ponto de referência para logística de atendimento." },
-            "tipoResidencia": { "type": "string", "enum": ["Casa", "Apartamento", "Chácara", "Condomínio"], "description": "Tipo de residência para planejamento de visita." },
-            "condicoesDomicilio": { "type": "string", "description": "Condições do domicílio para avaliação de risco (acesso, escadas, elevador, iluminação)." },
-            "acessoAmbulancia": { "type": "boolean", "description": "Se há acesso fácil para ambulância." },
-            "possuiAnimal": { "type": "boolean", "description": "Se há animais domésticos na residência." },
-            "animalDescricao": { "type": "string", "description": "Descrição dos animais, se houver." }
+            "geolocation": { "type": "object", "properties": { "lat": {"type": "number"}, "lng": {"type": "number"} } },
+            "zoneType": { "type": "string", "enum": ["Urbana", "Rural", "Condomínio Fechado"] },
+            "gateIdentification": { "type": "string", "description": "Nome/código para acesso na portaria." },
+            "allowedVisitHours": { "type": "string", "description": "Ex: 08:00-18:00" },
+            "localSafetyConditions": { "type": "string", "description": "Bairro de risco, necessidade de aviso prévio, etc." },
+            "facadeImageUrl": { "type": "string", "format": "uri" },
+            "pontoReferencia": { "type": "string", "description": "Ponto de referência para logística de atendimento." }
+          }
+        },
+        
+        "domicile": {
+          "type": "object",
+          "description": "Detalhes da estrutura física e ambiental do domicílio.",
+          "properties": {
+            "tipoResidencia": { "type": "string", "enum": ["Casa", "Apartamento", "Chácara", "Instituição"], "description": "Tipo de residência para planejamento de visita." },
+            "floor": { "type": "number", "description": "Andar do apartamento." },
+            "hasElevator": { "type": "boolean" },
+            "internalAccess": { "type": "string", "description": "Descrição de escadas, rampas, corredores estreitos." },
+            "accessibilityFeatures": { "type": "array", "items": { "type": "string" }, "description": "Ex: Barras de apoio, banheiro adaptado." },
+            "patientRoom": { "type": "string", "description": "Cômodo onde o paciente permanece." },
+            "electricalInfrastructure": { "type": "string", "description": "Detalhes sobre tomadas, risco de sobrecarga." },
+            "waterSource": { "type": "string", "enum": ["Rede Pública", "Poço", "Cisterna"] },
+            "hasWifi": { "type": "boolean" },
+            "backupPowerSource": { "type": "string", "enum": ["Gerador", "Nobreak", "Inexistente"] },
+            "hasAdaptedBathroom": { "type": "boolean" },
+            "ambulanceAccess": { "type": "string", "enum": ["Fácil", "Médio", "Difícil"] },
+            "teamParking": { "type": "string", "enum": ["Disponível", "Restrito", "Inexistente"] },
+            "entryProcedure": { "type": "string", "description": "Detalhes sobre portaria, senha, interfone." },
+            "nightAccessRisk": { "type": "string", "enum": ["Baixo", "Médio", "Alto"] },
+            "currentObstacles": { "type": "string", "description": "Obras, manutenção, etc." },
+            "pets": { "type": "string", "description": "Tipo, porte e comportamento dos animais." },
+            "otherResidents": { "type": "array", "items": { "type": "object", "properties": { "name": {"type": "string"}, "relationship": {"type": "string"} } } },
+            "fixedCaregivers": { "type": "string", "description": "Nomes e horários dos cuidadores." },
+            "hygieneConditions": { "type": "string", "enum": ["Boa", "Regular", "Ruim"] },
+            "environmentalRisks": { "type": "string", "description": "Umidade, mofo, pouca ventilação." },
+            "hasSmokers": { "type": "boolean" },
+            "ventilation": { "type": "string", "enum": ["Adequada", "Insuficiente", "Artificial"] },
+            "noiseLevel": { "type": "string", "enum": ["Baixo", "Médio", "Alto"] },
+            "generalObservations": { "type": "string" }
           }
         },
 

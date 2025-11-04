@@ -100,12 +100,42 @@ export type Patient = {
     state: string;
     zipCode: string;
     pontoReferencia?: string;
-    tipoResidencia?: 'Casa' | 'Apartamento' | 'Chácara' | 'Condomínio';
-    condicoesDomicilio?: string;
-    acessoAmbulancia?: boolean;
-    possuiAnimal?: boolean;
-    animalDescricao?: string;
+    geolocation?: { lat: number; lng: number };
+    zoneType?: 'Urbana' | 'Rural' | 'Condomínio Fechado';
+    gateIdentification?: string;
+    allowedVisitHours?: string;
+    localSafetyConditions?: string;
+    facadeImageUrl?: string;
   };
+  
+  domicile?: {
+    tipoResidencia?: 'Casa' | 'Apartamento' | 'Chácara' | 'Instituição';
+    floor?: number;
+    hasElevator?: boolean;
+    internalAccess?: string;
+    accessibilityFeatures?: string[];
+    patientRoom?: string;
+    electricalInfrastructure?: string;
+    waterSource?: 'Rede Pública' | 'Poço' | 'Cisterna';
+    hasWifi?: boolean;
+    backupPowerSource?: 'Gerador' | 'Nobreak' | 'Inexistente';
+    hasAdaptedBathroom?: boolean;
+    ambulanceAccess?: 'Fácil' | 'Médio' | 'Difícil';
+    teamParking?: 'Disponível' | 'Restrito' | 'Inexistente';
+    entryProcedure?: string;
+    nightAccessRisk?: 'Baixo' | 'Médio' | 'Alto';
+    currentObstacles?: string;
+    pets?: string;
+    otherResidents?: { name: string; relationship: string }[];
+    fixedCaregivers?: string;
+    hygieneConditions?: 'Boa' | 'Regular' | 'Ruim';
+    environmentalRisks?: string;
+    hasSmokers?: boolean;
+    ventilation?: 'Adequada' | 'Insuficiente' | 'Artificial';
+    noiseLevel?: 'Baixo' | 'Médio' | 'Alto';
+    generalObservations?: string;
+  };
+
 
   // 3. Dados Clínicos e Assistenciais
   clinicalData: {

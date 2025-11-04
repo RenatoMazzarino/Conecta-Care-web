@@ -17,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { FichaEndereco } from '@/components/patients/ficha-endereco';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
@@ -191,15 +192,12 @@ export default function PatientProfilePage() {
             </TabsContent>
             
              <TabsContent value="endereco">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Endereço e Ambiente</CardTitle>
-                        <CardDescription>Esta seção conterá os detalhes de endereço e ambiente domiciliar.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">Em breve.</p>
-                    </CardContent>
-                 </Card>
+                <FichaEndereco
+                    isEditing={isEditing}
+                    displayData={displayData}
+                    editedData={editedData}
+                    setEditedData={setEditedData}
+                />
             </TabsContent>
             <TabsContent value="clinicos">
                  <Card>
