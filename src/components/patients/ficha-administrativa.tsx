@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-    Activity, ShieldCheck, ShieldX, ShieldAlert, BookLock, UserCog, User, CalendarDays, Repeat, Map, Briefcase, FileText, Clock, FileClock, Puzzle, Cog
+    Activity, ShieldCheck, ShieldX, ShieldAlert, BookLock, UserCog, User, CalendarDays, Repeat, MapPin as Map, Briefcase, FileText, Clock, FileClock, Puzzle, Cog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { professionals as allProfessionals } from '@/lib/data';
