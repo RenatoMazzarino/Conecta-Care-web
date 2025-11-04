@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble, Globe, KeyRound, Clock, Shield, Camera, Route
+    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble, Globe, KeyRound, Clock, Shield, Camera, Route, UserCheck, Flame, ClipboardList
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -165,6 +165,18 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                     </FormField>
                     <FormField label={<div className='flex items-center gap-1'><Droplets className="w-3 h-3"/> Higiene Geral</div>}>
                         {displayData.domicile?.hygieneConditions || 'Não informado'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Users className="w-3 h-3"/> Pessoas que residem no local</div>} className="md:col-span-2">
+                        {displayData.domicile?.otherResidents?.map(r => `${r.name} (${r.relationship})`).join(', ') || 'Não informado'}
+                    </FormField>
+                     <FormField label={<div className='flex items-center gap-1'><UserCheck className="w-3 h-3"/> Cuidadores Fixos</div>} className="md:col-span-2">
+                        {displayData.domicile?.fixedCaregivers || 'Não informado'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Flame className="w-3 h-3"/> Riscos Ambientais</div>} className="md:col-span-2">
+                        {displayData.domicile?.environmentalRisks || 'Nenhum identificado'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><ClipboardList className="w-3 h-3"/> Observações Gerais do Ambiente</div>} className="md:col-span-2">
+                        {displayData.domicile?.generalObservations || 'Nenhuma observação.'}
                     </FormField>
                 </CardContent>
             </Card>

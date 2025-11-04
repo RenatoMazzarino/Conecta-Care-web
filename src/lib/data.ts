@@ -103,7 +103,11 @@ export const patients: Patient[] = [
       hasWifi: true,
       backupPowerSource: 'Inexistente',
       waterSource: 'Rede Pública',
-      electricalInfrastructure: 'Tomadas 110V e 220V disponíveis no quarto.'
+      electricalInfrastructure: 'Tomadas 110V e 220V disponíveis no quarto.',
+      otherResidents: [{name: 'Maria da Silva', relationship: 'Filha (visitas diárias)'}],
+      fixedCaregivers: 'Nenhum',
+      environmentalRisks: 'Nenhum identificado',
+      generalObservations: 'Apartamento bem organizado e limpo.',
     },
     clinicalData: {
         diagnoses: [
