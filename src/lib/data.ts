@@ -109,24 +109,33 @@ export const patients: Patient[] = [
       environmentalRisks: 'Nenhum identificado',
       generalObservations: 'Apartamento bem organizado e limpo.',
     },
-    clinicalData: {
-        diagnoses: [
-            { name: 'Doença Pulmonar Obstrutiva Crônica', code: 'J44.9' },
-            { name: 'Hipertensão Arterial Sistêmica', code: 'I10' },
-            { name: 'Diabetes Mellitus Tipo 2', code: 'E11' },
-        ],
-        allergies: ['Penicilina'],
-        restricoes: ['Dieta hipossódica'],
-        mobilidade: 'Parcialmente Dependente',
-        estadoConsciencia: 'Lúcido e Orientado no Tempo e Espaço (LOTE)',
-        dispositivos: [],
-        acessorios: 'Andador',
-        medications: [
-            { name: 'Losartana', dosage: '50mg', frequency: '1x ao dia' },
-            { name: 'Metformina', dosage: '850mg', frequency: '2x ao dia', notes: 'Administrar junto com as refeições' },
-            { name: 'Salbutamol', dosage: '100mcg', frequency: 'A cada 4 horas, se necessário' }
-        ],
-        ultimaAvaliacaoMedica: '2024-07-10',
+    clinicalSummary: {
+      diagnosisPrimary: { name: 'DPOC', cid: 'J44.9' },
+      allergies: [
+        { substance: 'Penicilina', severity: 'grave', reaction: 'Anafilaxia', recordedAt: '2019-03-10' }
+      ],
+      criticalMedications: [
+        { name: 'Losartana', note: 'Monitorar PA' },
+        { name: 'Metformina', note: 'Administrar com refeições' }
+      ],
+      devicesActive: [],
+      oxygenTherapy: { active: false },
+      riskScores: {
+        falls: 45,
+        fallsLabel: 'Médio',
+        braden: 18,
+        bradenLabel: 'Risco Baixo'
+      },
+      lastReview: { date: '2025-10-15', by: 'Carla Nogueira (enf)' },
+      shortNote: 'Paciente com mobilidade reduzida, aguardando avaliação da fisioterapia.',
+      alerts: [
+        { type: 'ALERGIA', message: 'Penicilina - Risco de Anafilaxia', severity: 'CRITICAL' }
+      ]
+    },
+    clinicalSummaryMeta: {
+        lastUpdatedAt: '2025-10-15T09:03:00Z',
+        lastUpdatedBy: 'user-234',
+        source: 'prontuario'
     },
     financial: {
         vinculo: 'Plano de Saúde',
@@ -201,17 +210,8 @@ export const patients: Patient[] = [
     domicile: {
       pets: '1 gato persa, tranquilo.',
     },
-     clinicalData: {
-        diagnoses: [
-            { name: 'Artrite Reumatoide', code: 'M05' }
-        ],
-        allergies: [],
-        mobilidade: 'Autônomo',
-        medications: [
-            { name: 'Metotrexato', dosage: '15mg', frequency: '1x por semana' },
-            { name: 'Ácido Fólico', dosage: '5mg', frequency: '1x por semana (dia seguinte ao Metotrexato)' }
-        ],
-    },
+    clinicalSummary: {} as any, // Placeholder
+    clinicalSummaryMeta: {} as any, // Placeholder
     financial: {
         vinculo: 'Particular',
         monthlyFee: 8500,
@@ -267,14 +267,8 @@ export const patients: Patient[] = [
       pontoReferencia: '',
     },
     domicile: {},
-    clinicalData: {
-        diagnoses: [
-            { name: 'Asma Crônica', code: 'J45' }
-        ],
-        allergies: ['Iodo', 'Poeira'],
-        mobilidade: 'Autônomo',
-        medications: [],
-    },
+    clinicalSummary: {} as any, // Placeholder
+    clinicalSummaryMeta: {} as any, // Placeholder
     financial: {
         vinculo: 'Plano de Saúde',
         operadora: 'Unimed Flex',
@@ -612,5 +606,7 @@ export const mockMonthlyRevenue = [
   { month: format(subMonths(today, 1), 'MMM', { locale: ptBR }), revenue: 21500 },
   { month: format(today, 'MMM', { locale: ptBR }), revenue: 10650 },
 ];
+
+    
 
     

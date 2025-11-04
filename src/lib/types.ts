@@ -138,27 +138,44 @@ export type Patient = {
 
 
   // 3. Dados Clínicos e Assistenciais
-  clinicalData: {
-    diagnoses: Diagnosis[];
-    equipamentosDomiciliares?: string[];
-    diagnosticoPrincipal?: string; // Campo a ser removido/refatorado
-    allergies: string[];
-    restricoes?: string[];
-    mobilidade?: 'Autônomo' | 'Parcialmente Dependente' | 'Acamado';
-    estadoConsciencia?: string;
-    dispositivos?: ('GTT' | 'SNE' | 'CVD' | 'Traqueostomia')[];
-    acessorios?: string;
-    medications: {
-        name: string;
-        dosage: string;
-        frequency: string;
-        notes?: string;
+  clinicalSummary: {
+    diagnosisPrimary: { name: string; cid: string };
+    allergies: {
+      substance: string;
+      severity: 'leve' | 'moderada' | 'grave';
+      reaction: string;
+      recordedAt: string;
     }[];
-    ultimaAvaliacaoMedica?: string;
-    ultimoExameLaboratorial?: string;
-    observacoesGerais?: string;
+    criticalMedications: { name: string; note: string }[];
+    devicesActive: string[];
+    oxygenTherapy: {
+      active: boolean;
+      flow?: string;
+    };
+    riskScores: {
+      falls?: number;
+      fallsLabel?: string;
+      braden?: number;
+      bradenLabel?: string;
+    };
+    lastReview: {
+      date: string;
+      by: string;
+    };
+    shortNote?: string;
+    alerts: {
+      type: 'ALERGIA' | 'RISCO_QUEDA' | 'MEDICAMENTO';
+      message: string;
+      severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+    }[];
   };
 
+  clinicalSummaryMeta: {
+    lastUpdatedAt: string;
+    lastUpdatedBy: string;
+    source: 'prontuario' | 'manual';
+  };
+  
   // 4. Dados Administrativos
   adminData: {
     status: 'Ativo' | 'Inativo' | 'Suspenso';
@@ -379,5 +396,7 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
+
+    
 
     

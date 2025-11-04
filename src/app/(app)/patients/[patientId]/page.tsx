@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { FichaEndereco } from '@/components/patients/ficha-endereco';
+import { FichaClinica } from '@/components/patients/ficha-clinica';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
@@ -103,7 +104,7 @@ export default function PatientProfilePage() {
 
   const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
   const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
-  const mainAllergy = displayData.clinicalData?.allergies?.[0];
+  const mainAllergy = displayData.clinicalSummary.allergies?.[0];
   const legalRep = displayData.emergencyContacts?.find(c => c.isLegalRepresentative);
 
 
@@ -150,7 +151,7 @@ export default function PatientProfilePage() {
                             {mainAllergy && (
                                 <Badge variant="outline" className="bg-red-50 text-red-700 border-red-100">
                                     <AlertTriangle className="w-4 h-4 mr-2" />
-                                    Alergia: {mainAllergy}
+                                    Alergia: {mainAllergy.substance}
                                 </Badge>
                             )}
                             <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-100">
@@ -200,15 +201,12 @@ export default function PatientProfilePage() {
                 />
             </TabsContent>
             <TabsContent value="clinicos">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Dados Clínicos</CardTitle>
-                        <CardDescription>Esta seção conterá os dados clínicos detalhados do paciente.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">Em breve.</p>
-                    </CardContent>
-                 </Card>
+                 <FichaClinica
+                    isEditing={isEditing}
+                    displayData={displayData}
+                    editedData={editedData}
+                    setEditedData={setEditedData}
+                 />
             </TabsContent>
             <TabsContent value="administrativo">
                  <Card>
@@ -264,3 +262,5 @@ export default function PatientProfilePage() {
     </div>
   );
 }
+
+    

@@ -171,48 +171,84 @@
           }
         },
 
-        "clinicalData": {
+        "clinicalSummary": {
           "type": "object",
-          "description": "Dados clínicos e assistenciais detalhados.",
+          "description": "Resumo clínico estruturado para acesso rápido.",
           "properties": {
-            "diagnoses": {
+            "diagnosisPrimary": { 
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "cid": { "type": "string" }
+              }
+            },
+            "allergies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "substance": { "type": "string" },
+                  "severity": { "type": "string", "enum": ["leve", "moderada", "grave"] },
+                  "reaction": { "type": "string" },
+                  "recordedAt": { "type": "string", "format": "date" }
+                }
+              }
+            },
+            "criticalMedications": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
                   "name": { "type": "string" },
-                  "code": { "type": "string" }
-                },
-                "required": ["name"]
+                  "note": { "type": "string" }
+                }
               }
             },
-            "equipamentosDomiciliares": { "type": "array", "items": { "type": "string" }, "description": "Equipamentos como oxigênio, cama hospitalar, etc." },
-            "diagnosticoPrincipal": { "type": "string", "description": "Diagnóstico principal que baseia o plano de cuidado." },
-            "diagnosticosSecundarios": { "type": "array", "items": { "type": "string" }, "description": "Diagnósticos secundários para contexto clínico." },
-            "cid": { "type": "array", "items": { "type": "string" }, "description": "Códigos CID para indexação médica." },
-            "allergies": { "type": "array", "items": { "type": "string" }, "description": "Lista de alergias conhecidas." },
-            "restricoes": { "type": "array", "items": { "type": "string" }, "description": "Restrições alimentares, físicas, etc." },
-            "mobilidade": { "type": "string", "enum": ["Autônomo", "Parcialmente Dependente", "Acamado"], "description": "Escala de dependência de mobilidade." },
-            "estadoConsciencia": { "type": "string", "description": "Avaliação neurológica básica do paciente." },
-            "dispositivos": { "type": "array", "items": { "type": "string", "enum": ["GTT", "SNE", "CVD", "Traqueostomia"] }, "description": "Uso de dispositivos como GTT, SNE, etc." },
-            "acessorios": { "type": "string", "description": "Dispositivos e acessórios como cadeira de rodas, andador." },
-            "medications": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "name": {"type": "string"},
-                        "dosage": {"type": "string"},
-                        "frequency": {"type": "string"},
-                        "notes": {"type": "string"}
-                    },
-                    "required": ["name", "dosage", "frequency"]
-                },
-                "description": "A list of medications the patient is taking."
+            "devicesActive": { "type": "array", "items": { "type": "string" } },
+            "oxygenTherapy": {
+              "type": "object",
+              "properties": {
+                "active": { "type": "boolean" },
+                "flow": { "type": "string" }
+              }
             },
-            "ultimaAvaliacaoMedica": { "type": "string", "format": "date", "description": "Data da última avaliação médica." },
-            "ultimoExameLaboratorial": { "type": "string", "format": "date", "description": "Data do último exame laboratorial." },
-            "observacoesGerais": { "type": "string", "description": "Campo livre para observações clínicas gerais." }
+            "riskScores": {
+              "type": "object",
+              "properties": {
+                "falls": { "type": "number" },
+                "fallsLabel": { "type": "string" },
+                "braden": { "type": "number" },
+                "bradenLabel": { "type": "string" }
+              }
+            },
+            "lastReview": {
+              "type": "object",
+              "properties": {
+                "date": { "type": "string", "format": "date" },
+                "by": { "type": "string" }
+              }
+            },
+            "shortNote": { "type": "string" },
+            "alerts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "enum": ["ALERGIA", "RISCO_QUEDA", "MEDICAMENTO"] },
+                  "message": { "type": "string" },
+                  "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] }
+                }
+              }
+            }
+          }
+        },
+
+        "clinicalSummaryMeta": {
+          "type": "object",
+          "properties": {
+            "lastUpdatedAt": { "type": "string", "format": "date-time" },
+            "lastUpdatedBy": { "type": "string" },
+            "source": { "type": "string", "enum": ["prontuario", "manual"] }
           }
         },
 
@@ -437,3 +473,5 @@
     "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/entities/Notification" }, "description": "Notifications for a patient." }
   }
 }
+
+    
