@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { FileText, BookUser } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -52,10 +53,10 @@ export function RecentEvolutionsCard({ reports, patients }: { reports: ShiftRepo
                           <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
                                   <AvatarImage src={patient?.avatarUrl} alt={patient?.name} />
-                                  <AvatarFallback>{patient?.name.charAt(0)}</AvatarFallback>
+                                  <AvatarFallback>{patient?.name?.charAt(0) ?? '?'}</AvatarFallback>
                               </Avatar>
                               <div>
-                                  <p className="font-semibold text-sm">{patient?.name}</p>
+                                  <p className="font-semibold text-sm">{patient?.name ?? 'Paciente não encontrado'}</p>
                                   <p className="text-xs text-muted-foreground">{report.careTeamMemberName}</p>
                               </div>
                           </div>
