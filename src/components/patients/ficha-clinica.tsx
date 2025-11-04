@@ -172,5 +172,3 @@ export function FichaClinica({ displayData, editedData, setEditedData, isEditing
         </div>
     );
 }
-
-    
