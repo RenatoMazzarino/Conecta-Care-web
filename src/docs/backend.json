@@ -133,7 +133,7 @@
             "zoneType": { "type": "string", "enum": ["Urbana", "Rural", "Condomínio Fechado"] },
             "gateIdentification": { "type": "string", "description": "Nome/código para acesso na portaria." },
             "allowedVisitHours": { "type": "string", "description": "Ex: 08:00-18:00" },
-            "localSafetyConditions": { "type": "string", "description": "Bairro de risco, necessidade de aviso prévio, etc." },
+            "localSafetyConditions": { "type": "string", "description": "Bairro de risco, policiamento, necessidade de aviso prévio, etc." },
             "facadeImageUrl": { "type": "string", "format": "uri" },
             "pontoReferencia": { "type": "string", "description": "Ponto de referência para logística de atendimento." }
           }

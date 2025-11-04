@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble, Globe, KeyRound, Clock, Shield, Camera
+    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble, Globe, KeyRound, Clock, Shield, Camera, Route
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -58,8 +58,8 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
 
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <Card className="lg:col-span-1">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                          <CardTitle className="text-base flex items-center gap-2">
@@ -72,23 +72,23 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                     </div>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <FormField label="CEP">{displayData.address.zipCode}</FormField>
-                    <FormField label="Logradouro / Número">{displayData.address.street}, {displayData.address.number}</FormField>
-                    <FormField label="Complemento">{displayData.address.complement || '-'}</FormField>
-                    <FormField label="Bairro">{displayData.address.neighborhood}</FormField>
-                    <FormField label="Cidade / Estado">{displayData.address.city} / {displayData.address.state}</FormField>
-                    <FormField label="Ponto de Referência">{displayData.address.pontoReferencia || '-'}</FormField>
+                    <FormField label="CEP" className="md:col-span-2">{displayData.address.zipCode}</FormField>
+                    <FormField label="Logradouro / Número" className="md:col-span-2">{displayData.address.street}, {displayData.address.number}</FormField>
+                    <FormField label="Complemento" className="md:col-span-2">{displayData.address.complement || '-'}</FormField>
+                    <FormField label="Bairro" className="md:col-span-2">{displayData.address.neighborhood}</FormField>
+                    <FormField label="Cidade / Estado" className="md:col-span-2">{displayData.address.city} / {displayData.address.state}</FormField>
+                    <FormField label="Ponto de Referência" className="md:col-span-2">{displayData.address.pontoReferencia || '-'}</FormField>
                     
-                    <FormField label={<div className='flex items-center gap-1'><Globe className="w-3 h-3"/> Tipo de Zona</div>}>
+                    <FormField label={<div className='flex items-center gap-1'><Globe className="w-3 h-3"/> Tipo de Zona</div>} className="md:col-span-1">
                         {displayData.address.zoneType || '-'}
                     </FormField>
-                    <FormField label={<div className='flex items-center gap-1'><KeyRound className="w-3 h-3"/> Identificação na Portaria</div>}>
+                    <FormField label={<div className='flex items-center gap-1'><KeyRound className="w-3 h-3"/> Identificação na Portaria</div>} className="md:col-span-1">
                         {displayData.address.gateIdentification || '-'}
                     </FormField>
-                    <FormField label={<div className='flex items-center gap-1'><Clock className="w-3 h-3"/> Horário de Visitas</div>}>
+                    <FormField label={<div className='flex items-center gap-1'><Clock className="w-3 h-3"/> Horário de Visitas</div>} className="md:col-span-1">
                         {displayData.address.allowedVisitHours || 'Não especificado'}
                     </FormField>
-                    <FormField label={<div className='flex items-center gap-1'><Shield className="w-3 h-3"/> Condições de Segurança</div>}>
+                    <FormField label={<div className='flex items-center gap-1'><Shield className="w-3 h-3"/> Condições de Segurança</div>} className="md:col-span-1">
                         {displayData.address.localSafetyConditions || 'Não especificado'}
                     </FormField>
 
@@ -105,7 +105,7 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="lg:col-span-1">
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                         <Building className="w-5 h-5 text-primary" />
@@ -123,6 +123,22 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                      <FormField label="Fonte de Água">{displayData.domicile?.waterSource || 'Não informado'}</FormField>
                      <FormField label="Internet / Wi-Fi">{displayData.domicile?.hasWifi ? 'Sim' : 'Não'}</FormField>
                      <FormField label="Fonte de Energia Reserva">{displayData.domicile?.backupPowerSource || 'Não informado'}</FormField>
+                </CardContent>
+            </Card>
+            
+            <Card className="lg:col-span-1">
+                <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                        <Route className="w-5 h-5 text-primary" />
+                        Logística e Acesso
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                     <FormField label="Acesso Ambulância">{displayData.domicile?.ambulanceAccess || '-'}</FormField>
+                     <FormField label="Estacionamento Equipe">{displayData.domicile?.teamParking || '-'}</FormField>
+                     <FormField label="Procedimento de Entrada" className="md:col-span-2">{displayData.domicile?.entryProcedure || '-'}</FormField>
+                     <FormField label="Risco Acesso Noturno">{displayData.domicile?.nightAccessRisk || '-'}</FormField>
+                     <FormField label="Obstáculos Atuais">{displayData.domicile?.currentObstacles || 'Nenhum'}</FormField>
                 </CardContent>
             </Card>
         </div>
