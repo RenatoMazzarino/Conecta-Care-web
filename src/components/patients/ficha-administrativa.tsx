@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-    Activity, ShieldCheck, ShieldX, ShieldAlert, BookLock, UserCog, User, CalendarDays, Repeat, MapPin as Map, Briefcase, FileText, Clock, FileClock, Puzzle, Cog
+    Activity, ShieldCheck, ShieldX, ShieldAlert, BookLock, UserCog, User, CalendarDays, Repeat, MapPin as MapPinIcon, Briefcase, FileText, Clock, FileClock, Puzzle, Cog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { professionals as allProfessionals } from '@/lib/data';
@@ -101,7 +101,7 @@ export function FichaAdministrativa({ displayData, professionals }: FichaAdminis
             <div className="md:col-span-2 p-4 border rounded-lg bg-muted/30 space-y-4">
                  <h3 className="font-semibold mb-3 flex items-center gap-2"><Briefcase className="w-5 h-5 text-muted-foreground"/>Dados Operacionais e Contratuais</h3>
                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <InfoField icon={Map} label="Área de Operação">{adminData.operationArea || '-'}</InfoField>
+                    <InfoField icon={MapPinIcon} label="Área de Operação">{adminData.operationArea || '-'}</InfoField>
                     <InfoField icon={Puzzle} label="Origem da Admissão">{adminData.admissionSource || '-'}</InfoField>
                     <InfoField icon={FileText} label="Pacote de Serviço">{adminData.servicePackage}</InfoField>
                     <InfoField icon={FileClock} label="Tipo de Admissão">{adminData.admissionType || '-'}</InfoField>
