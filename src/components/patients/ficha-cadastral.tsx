@@ -242,7 +242,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                         <div className="flex items-center gap-3">
                                             <Avatar><AvatarFallback>{contact.name.charAt(0)}</AvatarFallback></Avatar>
                                             <div>
-                                                <p className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</p>
+                                                <div className="font-medium text-slate-900">{contact.name} {contact.isLegalRepresentative && <Badge className="ml-2">Rep. Legal</Badge>}</div>
                                                 <p className="text-sm text-slate-600">{contact.relationship} • {contact.phone}</p>
                                                 {contact.email && <p className="text-xs text-slate-500">{contact.email}</p>}
                                             </div>
