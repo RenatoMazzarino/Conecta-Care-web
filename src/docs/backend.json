@@ -256,17 +256,22 @@
           "type": "object",
           "description": "Informações administrativas e internas.",
           "properties": {
-            "status": { "type": "string", "enum": ["Ativo", "Inativo", "Suspenso"], "description": "Status do paciente para controle de escala." },
-            "complexity": { "type": "string", "enum": ["Baixa", "Média", "Alta"], "description": "Nível de complexidade para dimensionamento da equipe." },
-            "servicePackage": { "type": "string", "enum": ["Básico", "Intermediário", "Completo"], "description": "Plano comercial contratado." },
-            "dataInicioAtendimento": { "type": "string", "format": "date", "description": "Data de início do atendimento." },
-            "dataTerminoAtendimento": { "type": "string", "format": "date", "description": "Data de término, se aplicável." },
+            "status": { "type": "string", "enum": ["Ativo", "Inativo", "Suspenso", "Alta", "Internado Temporário", "Óbito"], "description": "Status do paciente para controle de escala." },
+            "admissionType": { "type": "string", "enum": ["Home Care", "Paliativo", "Internação Domiciliar", "Acompanhamento Ambulatorial"] },
+            "complexity": { "type": "string", "enum": ["Baixa", "Média", "Alta", "Crítica"], "description": "Nível de complexidade para dimensionamento da equipe." },
+            "servicePackage": { "type": "string", "enum": ["Básico", "Intermediário", "Completo", "VIP", "Personalizado"], "description": "Plano comercial contratado." },
+            "startDate": { "type": "string", "format": "date", "description": "Data de início do atendimento." },
+            "endDate": { "type": "string", "format": "date", "description": "Data de término, se aplicável." },
             "supervisorId": { "type": "string", "description": "ID do profissional supervisor." },
-            "schedulerId": { "type": "string", "description": "ID do profissional escalista." },
-            "enfermeiroResponsavelId": { "type": "string", "description": "ID do enfermeiro responsável para registro no COREN." },
-            "cuidadoresIds": { "type": "array", "items": { "type": "string" }, "description": "IDs dos cuidadores principais." },
-            "frequenciaAtendimento": { "type": "string", "description": "Frequência planejada de atendimento (ex: 24h, 12h, 3x/semana)." },
-            "observacoesInternas": { "type": "string", "description": "Observações restritas à equipe interna." }
+            "escalistaId": { "type": "string", "description": "ID do profissional escalista." },
+            "nurseResponsibleId": { "type": "string", "description": "ID do enfermeiro responsável para registro no COREN." },
+            "frequency": { "type": "string", "description": "Frequência planejada de atendimento (ex: 24h, 12h, 3x/semana)." },
+            "operationArea": { "type": "string" },
+            "admissionSource": { "type": "string" },
+            "contractId": { "type": "string" },
+            "lastAuditDate": { "type": "string", "format": "date" },
+            "lastAuditBy": { "type": "string" },
+            "notesInternal": { "type": "string", "description": "Observações restritas à equipe interna." }
           }
         },
 
@@ -473,5 +478,3 @@
     "/patients/{patientId}/notifications/{notificationId}": { "schema": { "$ref": "#/entities/Notification" }, "description": "Notifications for a patient." }
   }
 }
-
-    

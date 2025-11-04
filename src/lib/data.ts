@@ -1,5 +1,4 @@
 
-
 import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths, subDays } from 'date-fns';
@@ -144,7 +143,20 @@ export const patients: Patient[] = [
         monthlyFee: 1200,
         billingDay: 10,
     },
-    adminData: { status: 'Ativo', complexity: 'Alta', servicePackage: 'Completo', dataInicioAtendimento: '2023-01-10', supervisorId: 'prof-1', schedulerId: 'prof-5', },
+    adminData: { 
+        status: 'Ativo', 
+        complexity: 'Alta', 
+        servicePackage: 'Completo', 
+        startDate: '2023-01-10', 
+        supervisorId: 'prof-1', 
+        escalistaId: 'prof-5', 
+        admissionType: 'Home Care',
+        frequency: 'Diário (24h)',
+        operationArea: 'SP Capital - Zona Sul',
+        admissionSource: 'Hospital São Luiz',
+        contractId: 'HSJ-2023-001A',
+        lastAuditDate: '2024-07-15'
+    },
     supportNetwork: { responsavelLegal: 'Maria da Silva', parentescoResponsavel: 'Filha', contatoResponsavel: '+55 (11) 98765-4321', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-01-10T10:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-20T15:00:00Z', updatedBy: 'Carla Nogueira' },
@@ -217,7 +229,7 @@ export const patients: Patient[] = [
         monthlyFee: 8500,
         billingDay: 5,
     },
-    adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', dataInicioAtendimento: '2023-05-20', supervisorId: 'prof-3', },
+    adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', startDate: '2023-05-20', supervisorId: 'prof-3', admissionType: 'Acompanhamento Ambulatorial', frequency: '3x por semana'},
     supportNetwork: { responsavelLegal: 'Carlos Lopes', parentescoResponsavel: 'Filho', contatoResponsavel: '+55 (21) 91234-5678', autorizacaoAcessoDados: false },
     documents: {
         termoLgpdUrl: '#'
@@ -276,7 +288,17 @@ export const patients: Patient[] = [
         monthlyFee: 950,
         billingDay: 15,
     },
-     adminData: { status: 'Inativo', complexity: 'Baixa', servicePackage: 'Básico', dataInicioAtendimento: '2024-01-15', dataTerminoAtendimento: '2024-06-30', supervisorId: 'prof-1', schedulerId: 'prof-5' },
+    adminData: { 
+        status: 'Inativo', 
+        complexity: 'Baixa', 
+        servicePackage: 'Básico', 
+        startDate: '2024-01-15', 
+        endDate: '2024-06-30', 
+        supervisorId: 'prof-1', 
+        escalistaId: 'prof-5', 
+        admissionType: 'Acompanhamento Ambulatorial',
+        frequency: '2x por mês'
+    },
     supportNetwork: { responsavelLegal: 'Ana Mendes', parentescoResponsavel: 'Esposa', contatoResponsavel: '+55 (31) 95555-8888', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2024-01-15T09:00:00Z', createdBy: 'Admin', updatedAt: '2024-06-30T18:00:00Z', updatedBy: 'Admin' },
@@ -606,7 +628,3 @@ export const mockMonthlyRevenue = [
   { month: format(subMonths(today, 1), 'MMM', { locale: ptBR }), revenue: 21500 },
   { month: format(today, 'MMM', { locale: ptBR }), revenue: 10650 },
 ];
-
-    
-
-    

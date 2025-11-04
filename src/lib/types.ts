@@ -1,5 +1,4 @@
 
-
 import { LucideIcon } from 'lucide-react';
 
 export type Diagnosis = {
@@ -178,17 +177,22 @@ export type Patient = {
   
   // 4. Dados Administrativos
   adminData: {
-    status: 'Ativo' | 'Inativo' | 'Suspenso';
-    complexity: 'Baixa' | 'Média' | 'Alta';
-    servicePackage: 'Básico' | 'Intermediário' | 'Completo';
-    dataInicioAtendimento: string;
-    dataTerminoAtendimento?: string;
+    status: 'Ativo' | 'Inativo' | 'Suspenso' | 'Alta' | 'Internado Temporário' | 'Óbito';
+    admissionType?: 'Home Care' | 'Paliativo' | 'Internação Domiciliar' | 'Acompanhamento Ambulatorial';
+    complexity: 'Baixa' | 'Média' | 'Alta' | 'Crítica';
+    servicePackage: 'Básico' | 'Intermediário' | 'Completo' | 'VIP' | 'Personalizado';
+    startDate: string;
+    endDate?: string;
     supervisorId?: string;
-    schedulerId?: string;
-    enfermeiroResponsavelId?: string;
-    cuidadoresIds?: string[];
-    frequenciaAtendimento?: string;
-    observacoesInternas?: string;
+    escalistaId?: string;
+    nurseResponsibleId?: string;
+    frequency?: string;
+    operationArea?: string;
+    admissionSource?: string;
+    contractId?: string;
+    lastAuditDate?: string;
+    lastAuditBy?: string;
+    notesInternal?: string;
   };
   
   // 5. Informações Financeiras
@@ -396,7 +400,3 @@ export type Transaction = (
   | { type: 'receita', data: Invoice }
   | { type: 'despesa', data: Expense }
 ) & { transactionDate: string };
-
-    
-
-    

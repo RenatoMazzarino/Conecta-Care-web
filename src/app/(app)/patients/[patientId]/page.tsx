@@ -3,22 +3,23 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import type { Patient } from '@/lib/types';
+import type { Patient, Professional } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck, Gavel, Shield, AlertTriangle, Star } from 'lucide-react';
+import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck, Gavel, Shield, AlertTriangle, Star, Cog } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { trackEvent } from '@/lib/analytics';
 import { FichaCadastral } from '@/components/patients/ficha-cadastral';
 import { ProntuarioPanel } from '@/components/prontuario/prontuario-panel';
-import { patients as mockPatients } from '@/lib/data';
+import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { FichaEndereco } from '@/components/patients/ficha-endereco';
 import { FichaClinica } from '@/components/patients/ficha-clinica';
+import { FichaAdministrativa } from '@/components/patients/ficha-administrativa';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
@@ -40,6 +41,7 @@ export default function PatientProfilePage() {
   const patientId = params.patientId as string;
   
   const [patient, setPatient] = React.useState<Patient | null>(null);
+  const [professionals, setProfessionals] = React.useState<Professional[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isProntuarioOpen, setIsProntuarioOpen] = React.useState(false);
 
@@ -56,6 +58,7 @@ export default function PatientProfilePage() {
       const timer = setTimeout(() => {
         const foundPatient = mockPatients.find(p => p.id === patientId);
         setPatient(foundPatient || null);
+        setProfessionals(mockProfessionals);
         if (foundPatient) {
           setEditedData(JSON.parse(JSON.stringify(foundPatient)));
           trackEvent({
@@ -104,7 +107,7 @@ export default function PatientProfilePage() {
 
   const fullName = `${displayData.firstName || ''} ${displayData.lastName || ''}`.trim();
   const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
-  const mainAllergy = displayData.clinicalSummary.allergies?.[0];
+  const mainAllergy = displayData.clinicalSummary?.allergies?.[0];
   const legalRep = displayData.emergencyContacts?.find(c => c.isLegalRepresentative);
 
 
@@ -209,15 +212,7 @@ export default function PatientProfilePage() {
                  />
             </TabsContent>
             <TabsContent value="administrativo">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Administrativo</CardTitle>
-                        <CardDescription>Esta seção conterá os dados administrativos do paciente.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">Em breve.</p>
-                    </CardContent>
-                 </Card>
+                 <FichaAdministrativa displayData={displayData} professionals={professionals} />
             </TabsContent>
              <TabsContent value="financeiro">
                  <Card>
@@ -262,5 +257,3 @@ export default function PatientProfilePage() {
     </div>
   );
 }
-
-    
