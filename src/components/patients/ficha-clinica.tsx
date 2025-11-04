@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -7,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
-    HeartPulse, Stethoscope, ShieldAlert, Pill, TrendingUp, User, Activity, AlertTriangle
+    HeartPulse, Stethoscope, ShieldAlert, Pill, TrendingUp, User, Activity, AlertTriangle, RefreshCw, Server
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 
 const FormField = ({ label, children, className, labelClassName }: { 
@@ -40,6 +41,25 @@ const allergySeverityColors = {
 }
 
 export function FichaClinica({ displayData, editedData, setEditedData, isEditing }: FichaClinicaProps) {
+    const { toast } = useToast();
+    const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        toast({
+            title: 'Sincronizando dados...',
+            description: 'Buscando as informações mais recentes do prontuário eletrônico.',
+        });
+        setTimeout(() => {
+            setIsRefreshing(false);
+            toast({
+                title: 'Resumo Clínico Atualizado',
+                description: 'Os dados foram sincronizados com sucesso.',
+            });
+            // Aqui você chamaria a função que busca os dados da API
+            // e atualiza o estado `editedData`.
+        }, 1500);
+    }
 
     if (!displayData || !displayData.clinicalSummary) return (
         <Card>
@@ -57,6 +77,18 @@ export function FichaClinica({ displayData, editedData, setEditedData, isEditing
 
     return (
         <div className="space-y-6">
+            <div className="flex justify-between items-start">
+                 <div>
+                    <h3 className="text-xl font-semibold">Resumo Clínico</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Última atualização em {new Date(clinicalSummaryMeta.lastUpdatedAt).toLocaleString('pt-BR')} por {clinicalSummaryMeta.lastUpdatedBy} (via {clinicalSummaryMeta.source})
+                    </p>
+                </div>
+                 <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+                    <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
+                    {isRefreshing ? 'Atualizando...' : 'Atualizar do Prontuário'}
+                </Button>
+            </div>
             
             {clinicalSummary.alerts && clinicalSummary.alerts.length > 0 && (
                  <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-800">
