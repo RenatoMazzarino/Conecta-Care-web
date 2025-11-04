@@ -58,7 +58,7 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
 
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
             <Card className="lg:col-span-1">
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -105,40 +105,67 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                 </CardContent>
             </Card>
 
-            <Card className="lg:col-span-1">
-                <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                        <Building className="w-5 h-5 text-primary" />
-                        Estrutura Física do Domicílio
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                     <FormField label="Tipo de Residência">{displayData.domicile?.tipoResidencia || '-'}</FormField>
-                     <FormField label="Andar">{displayData.domicile?.floor ? `${displayData.domicile.floor}º` : '-'}</FormField>
-                     <FormField label="Elevador">{displayData.domicile?.hasElevator ? 'Sim' : 'Não'}</FormField>
-                     <FormField label="Acesso Interno">{displayData.domicile?.internalAccess || 'Não informado'}</FormField>
-                     <FormField label="Local de Permanência">{displayData.domicile?.patientRoom || 'Não informado'}</FormField>
-                     <FormField label="Banheiro Adaptado">{displayData.domicile?.hasAdaptedBathroom ? 'Sim' : 'Não'}</FormField>
-                     <FormField label="Infraestrutura Elétrica">{displayData.domicile?.electricalInfrastructure || 'Não informado'}</FormField>
-                     <FormField label="Fonte de Água">{displayData.domicile?.waterSource || 'Não informado'}</FormField>
-                     <FormField label="Internet / Wi-Fi">{displayData.domicile?.hasWifi ? 'Sim' : 'Não'}</FormField>
-                     <FormField label="Fonte de Energia Reserva">{displayData.domicile?.backupPowerSource || 'Não informado'}</FormField>
-                </CardContent>
-            </Card>
+            <div className="lg:col-span-1 flex flex-col gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                            <Building className="w-5 h-5 text-primary" />
+                            Estrutura Física do Domicílio
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                         <FormField label="Tipo de Residência">{displayData.domicile?.tipoResidencia || '-'}</FormField>
+                         <FormField label="Andar">{displayData.domicile?.floor ? `${displayData.domicile.floor}º` : '-'}</FormField>
+                         <FormField label="Elevador">{displayData.domicile?.hasElevator ? 'Sim' : 'Não'}</FormField>
+                         <FormField label="Acesso Interno">{displayData.domicile?.internalAccess || 'Não informado'}</FormField>
+                         <FormField label="Local de Permanência">{displayData.domicile?.patientRoom || 'Não informado'}</FormField>
+                         <FormField label="Banheiro Adaptado">{displayData.domicile?.hasAdaptedBathroom ? 'Sim' : 'Não'}</FormField>
+                         <FormField label="Infraestrutura Elétrica">{displayData.domicile?.electricalInfrastructure || 'Não informado'}</FormField>
+                         <FormField label="Fonte de Água">{displayData.domicile?.waterSource || 'Não informado'}</FormField>
+                         <FormField label="Internet / Wi-Fi">{displayData.domicile?.hasWifi ? 'Sim' : 'Não'}</FormField>
+                         <FormField label="Fonte de Energia Reserva">{displayData.domicile?.backupPowerSource || 'Não informado'}</FormField>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                            <Route className="w-5 h-5 text-primary" />
+                            Logística e Acesso
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                         <FormField label="Acesso Ambulância">{displayData.domicile?.ambulanceAccess || '-'}</FormField>
+                         <FormField label="Estacionamento Equipe">{displayData.domicile?.teamParking || '-'}</FormField>
+                         <FormField label="Procedimento de Entrada" className="md:col-span-2">{displayData.domicile?.entryProcedure || '-'}</FormField>
+                         <FormField label="Risco Acesso Noturno">{displayData.domicile?.nightAccessRisk || '-'}</FormField>
+                         <FormField label="Obstáculos Atuais">{displayData.domicile?.currentObstacles || 'Nenhum'}</FormField>
+                    </CardContent>
+                </Card>
+            </div>
             
             <Card className="lg:col-span-1">
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <Route className="w-5 h-5 text-primary" />
-                        Logística e Acesso
+                        <Users className="w-5 h-5 text-primary" />
+                        Fatores Ambientais e Familiares
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                     <FormField label="Acesso Ambulância">{displayData.domicile?.ambulanceAccess || '-'}</FormField>
-                     <FormField label="Estacionamento Equipe">{displayData.domicile?.teamParking || '-'}</FormField>
-                     <FormField label="Procedimento de Entrada" className="md:col-span-2">{displayData.domicile?.entryProcedure || '-'}</FormField>
-                     <FormField label="Risco Acesso Noturno">{displayData.domicile?.nightAccessRisk || '-'}</FormField>
-                     <FormField label="Obstáculos Atuais">{displayData.domicile?.currentObstacles || 'Nenhum'}</FormField>
+                    <FormField label={<div className='flex items-center gap-1'><PawPrint className="w-3 h-3"/> Animais</div>} className="md:col-span-2">
+                        {displayData.domicile?.pets || 'Nenhum'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Cigarette className="w-3 h-3"/> Fumantes no Domicílio</div>}>
+                        {displayData.domicile?.hasSmokers ? 'Sim' : 'Não'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Wind className="w-3 h-3"/> Ventilação</div>}>
+                        {displayData.domicile?.ventilation || 'Não informado'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Ear className="w-3 h-3"/> Nível de Ruído</div>}>
+                        {displayData.domicile?.noiseLevel || 'Não informado'}
+                    </FormField>
+                    <FormField label={<div className='flex items-center gap-1'><Droplets className="w-3 h-3"/> Higiene Geral</div>}>
+                        {displayData.domicile?.hygieneConditions || 'Não informado'}
+                    </FormField>
                 </CardContent>
             </Card>
         </div>
