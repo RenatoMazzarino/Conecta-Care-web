@@ -78,6 +78,11 @@ export const patients: Patient[] = [
       state: 'SP',
       zipCode: '01001-000',
       pontoReferencia: 'Próximo à padaria Flor do Dia',
+      zoneType: 'Urbana',
+      gateIdentification: 'Apto 45, Sr. João',
+      allowedVisitHours: '08:00 - 20:00',
+      localSafetyConditions: 'Bairro tranquilo, bem iluminado.',
+      facadeImageUrl: 'https://picsum.photos/seed/fachada1/400/300'
     },
      domicile: {
       tipoResidencia: 'Apartamento',
@@ -98,6 +103,7 @@ export const patients: Patient[] = [
       hasWifi: true,
       backupPowerSource: 'Inexistente',
       waterSource: 'Rede Pública',
+      electricalInfrastructure: 'Tomadas 110V e 220V disponíveis no quarto.'
     },
     clinicalData: {
         diagnoses: [

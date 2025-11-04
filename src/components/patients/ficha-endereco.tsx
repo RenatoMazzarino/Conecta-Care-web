@@ -119,41 +119,10 @@ export function FichaEndereco({ displayData, editedData, setEditedData, isEditin
                      <FormField label="Acesso Interno">{displayData.domicile?.internalAccess || 'Não informado'}</FormField>
                      <FormField label="Local de Permanência">{displayData.domicile?.patientRoom || 'Não informado'}</FormField>
                      <FormField label="Banheiro Adaptado">{displayData.domicile?.hasAdaptedBathroom ? 'Sim' : 'Não'}</FormField>
-                </CardContent>
-            </Card>
-
-             <Card>
-                <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                        <Ambulance className="w-5 h-5 text-primary" />
-                        Logística e Acesso
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                     <FormField label="Acesso para Ambulância">{displayData.domicile?.ambulanceAccess || '-'}</FormField>
-                     <FormField label="Estacionamento para Equipe">{displayData.domicile?.teamParking || '-'}</FormField>
-                     <FormField label="Procedimento de Entrada">{displayData.domicile?.entryProcedure || '-'}</FormField>
-                     <FormField label="Risco de Acesso Noturno">{displayData.domicile?.nightAccessRisk || '-'}</FormField>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                        <Home className="w-5 h-5 text-primary" />
-                        Fatores Ambientais e Familiares
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                     <FormField label="Animais Domésticos"><PawPrint className="w-4 h-4"/>{displayData.domicile?.pets || 'Nenhum'}</FormField>
-                     <FormField label="Outros Residentes"><Users className="w-4 h-4"/>{displayData.domicile?.otherResidents?.length || '0'}</FormField>
-                     <FormField label="Fumantes no Domicílio"><Cigarette className="w-4 h-4"/>{displayData.domicile?.hasSmokers ? 'Sim' : 'Não'}</FormField>
-                     <FormField label="Higiene e Organização">{displayData.domicile?.hygieneConditions || '-'}</FormField>
-                     <FormField label="Ventilação"><Wind className="w-4 h-4"/>{displayData.domicile?.ventilation || '-'}</FormField>
-                     <FormField label="Nível de Ruído"><Ear className="w-4 h-4"/>{displayData.domicile?.noiseLevel || '-'}</FormField>
-                     <FormField label="Internet / Wi-Fi"><Router className="w-4 h-4"/>{displayData.domicile?.hasWifi ? 'Sim' : 'Não'}</FormField>
-                     <FormField label="Energia Reserva"><HardDrive className="w-4 h-4"/>{displayData.domicile?.backupPowerSource || '-'}</FormField>
-                     <FormField label="Fonte de Água"><Droplets className="w-4 h-4"/>{displayData.domicile?.waterSource || '-'}</FormField>
+                     <FormField label="Infraestrutura Elétrica">{displayData.domicile?.electricalInfrastructure || 'Não informado'}</FormField>
+                     <FormField label="Fonte de Água">{displayData.domicile?.waterSource || 'Não informado'}</FormField>
+                     <FormField label="Internet / Wi-Fi">{displayData.domicile?.hasWifi ? 'Sim' : 'Não'}</FormField>
+                     <FormField label="Fonte de Energia Reserva">{displayData.domicile?.backupPowerSource || 'Não informado'}</FormField>
                 </CardContent>
             </Card>
         </div>
