@@ -1,8 +1,10 @@
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { supabaseBrowserClient } from './supabaseClient';
+import { createBrowserSupabaseClient } from './supabaseBrowserClient';
+
+const supabase = createBrowserSupabaseClient();
 
 export function subscribeToShiftPosts(shiftId: string, onEvent: (payload: any) => void): RealtimeChannel {
-  const channel = supabaseBrowserClient
+  const channel = supabase
     .channel(`shift-posts:${shiftId}`, {
       config: {
         broadcast: { ack: true },
@@ -24,7 +26,7 @@ export function subscribeToShiftPosts(shiftId: string, onEvent: (payload: any) =
 }
 
 export function subscribeToPresence(shiftId: string, onEvent: (payload: any) => void): RealtimeChannel {
-  const channel = supabaseBrowserClient
+  const channel = supabase
     .channel(`shift-presence:${shiftId}`, {
       config: {
         presence: { key: shiftId },

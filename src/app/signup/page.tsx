@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabaseBrowserClient } from '@/lib/supabaseClient';
+import { createBrowserSupabaseClient } from '@/lib/supabaseBrowserClient';
 import { useToast } from '@/hooks/use-toast';
 import { resolveAuthErrorMessage } from '@/lib/auth-errors';
 
@@ -35,6 +35,9 @@ export default function SignupPage() {
   });
   const [isProcessing, setIsProcessing] = React.useState(false);
   const hasRedirected = React.useRef(false);
+  const supabase = React.useMemo(() => createBrowserSupabaseClient(), []);
+
+  const supabase = React.useMemo(() => createBrowserSupabaseClient(), []);
 
   React.useEffect(() => {
     if (!state.error) return;
@@ -88,7 +91,7 @@ export default function SignupPage() {
 
     setIsProcessing(true);
 
-    const { data, error } = await supabaseBrowserClient.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {

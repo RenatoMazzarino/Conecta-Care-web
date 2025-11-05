@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabaseBrowserClient } from '@/lib/supabaseClient';
+import { createBrowserSupabaseClient } from '@/lib/supabaseBrowserClient';
 import { useToast } from '@/hooks/use-toast';
 import { resolveAuthErrorMessage } from '@/lib/auth-errors';
 
@@ -65,10 +65,12 @@ export default function LoginPage() {
     }
   }, [isEmailLoading, state.error, state.success]);
 
+  const supabase = React.useMemo(() => createBrowserSupabaseClient(), []);
+
   React.useEffect(() => {
     let cancelled = false;
     const syncCurrentSession = async () => {
-      const { data } = await supabaseBrowserClient.auth.getSession();
+      const { data } = await supabase.auth.getSession();
       if (cancelled) {
         return;
       }
@@ -91,7 +93,7 @@ export default function LoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [formAction]);
+  }, [formAction, supabase]);
 
   const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -114,7 +116,7 @@ export default function LoginPage() {
 
     setIsEmailLoading(true);
 
-    const { data, error } = await supabaseBrowserClient.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -138,7 +140,7 @@ export default function LoginPage() {
 
   const handleOAuthLogin = async () => {
     try {
-      await supabaseBrowserClient.auth.signInWithOAuth({
+      await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined,

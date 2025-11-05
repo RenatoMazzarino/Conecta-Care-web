@@ -1,6 +1,6 @@
 'use server';
 
-import { getSupabaseServiceRoleClient } from '@/lib/supabaseClient';
+import { getSupabaseServiceRoleClient } from '@/server/supabaseServiceClient';
 
 type VerifiedUser = {
   uid: string;
@@ -13,7 +13,7 @@ export async function verifyAccessToken(accessToken: string): Promise<VerifiedUs
     throw new Error('Token de acesso ausente.');
   }
 
-  const serviceClient = getSupabaseServiceRoleClient();
+  const serviceClient = await getSupabaseServiceRoleClient();
 
   const { data, error } = await serviceClient.auth.getUser(accessToken);
 
