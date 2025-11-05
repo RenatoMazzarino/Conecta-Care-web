@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, Megaphone, Edit, X, UserCheck } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, Patient } from '@/lib/types';
+import type { Professional, Shift, OpenShiftInfo, Patient, ShiftType } from '@/lib/types';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -82,7 +82,7 @@ export function ShiftManagement() {
       displayedDays.forEach(day => {
         const dayKey = format(day, 'yyyy-MM-dd');
         
-        const getGridState = (shiftType: 'diurno' | 'noturno'): GridShiftState | null => {
+        const getGridState = (shiftType: ShiftType): GridShiftState | null => {
           let shift = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType);
           
           if (!shift) {
@@ -490,7 +490,7 @@ export const FilledShiftCard = ({ professional, onClick }: { professional: Profe
   )
 };
 
-export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: string, urgent?: boolean, onClick: () => void }) => (
+export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: ShiftType, urgent?: boolean, onClick: () => void }) => (
   <div onClick={onClick} className={cn("group relative flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
     urgent 
         ? 'border-amber-500/50 bg-amber-500/5 text-amber-600 hover:bg-amber-500/10 hover:border-amber-500' 

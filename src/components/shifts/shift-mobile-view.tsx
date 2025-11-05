@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { Patient } from '@/lib/types';
+import type { Patient, ShiftType } from '@/lib/types';
 import { 
     GridShiftState, 
     ActiveShiftCard, 
@@ -26,7 +26,7 @@ interface ShiftMobileViewProps {
 
 export function ShiftMobileView({ patients, days, gridShifts, handlers }: ShiftMobileViewProps) {
 
-  const renderShift = (shiftState: GridShiftState | null, type: 'diurno' | 'noturno', patient: Patient, dayKey: string) => {
+  const renderShift = (shiftState: GridShiftState | null, type: ShiftType, patient: Patient, dayKey: string) => {
     if (!shiftState) {
        const dummyShift: GridShiftState = {
             shift: { id: `${patient.id}-${dayKey}-${type}`, patientId: patient.id, dayKey, shiftType: type, status: 'open' },

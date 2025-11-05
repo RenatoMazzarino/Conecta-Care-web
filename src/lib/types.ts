@@ -6,6 +6,8 @@ export type Diagnosis = {
   code?: string;
 };
 
+export type ShiftType = 'diurno' | 'noturno';
+
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
@@ -207,18 +209,7 @@ export type Patient = {
     observacoesFinanceiras?: string;
   };
 
-  // 6. Rede de Apoio (Agora parte de Dados Pessoais - mantido para compatibilidade, mas dados estão em emergencyContacts/legalGuardian)
-  supportNetwork: {
-      responsavelLegal: string;
-      parentescoResponsavel: string;
-      contatoResponsavel: string;
-      emailResponsavel?: string;
-      enderecoResponsavel?: string;
-      autorizacaoAcessoDados: boolean;
-      familiaresAppIds?: string[];
-  };
-
-  // 7. Documentos
+  // 6. Documentos
   documents: {
       termoConsentimentoUrl?: string;
       termoLgpdUrl?: string;
@@ -229,7 +220,7 @@ export type Patient = {
       protocoloAuditoriaUrl?: string;
   };
 
-  // 8. Auditoria
+  // 7. Auditoria
   audit: {
       createdAt: string;
       createdBy: string;
@@ -237,19 +228,38 @@ export type Patient = {
       updatedBy: string;
   };
   
-  // 9. Dados operacionais (para a lista)
+  // 8. Dados operacionais (para a lista)
   last_visit_date?: string;
   next_visit_date?: string;
   consent_status: 'ok' | 'pending';
   pending_documents: number;
 };
 
+export type Supply = {
+  id: string;
+  name: string;
+  description: string;
+  unit: string;
+};
+
 export type InventoryItem = {
   id: string;
+  patientId: string;
+  supplyId: Supply['id'];
   name: string;
   description: string;
   stock: number;
   lowStockThreshold: number;
+};
+
+export type SupplyRequest = {
+  id: string;
+  patientId: string;
+  supplyId: Supply['id'];
+  quantityRequested: number;
+  requestDate: string;
+  status: 'pending' | 'approved' | 'denied';
+  notes?: string;
 };
 
 export type ChatMessage = {
@@ -286,7 +296,7 @@ export type Shift = {
   patientId: string;
   professionalId?: string;
   dayKey: string;
-  shiftType: 'diurno' | 'noturno';
+  shiftType: ShiftType;
   status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
   isUrgent?: boolean;
   progress?: number;
@@ -298,23 +308,10 @@ export type Shift = {
 };
 
 // This type is deprecated and will be removed. Use Shift.
-export type ShiftDetails = {
-  patient: Patient;
-  dayKey: string;
-  shiftType: 'diurno' | 'noturno';
-  startTime: string;
-  endTime: string;
-  title: string;
-  valueOffered: number;
-  isUrgent: boolean;
-  notes: string;
-  address: Patient['address'];
-}
-
 export type OpenShiftInfo = {
   patient: Patient;
   dayKey: string;
-  shiftType: 'diurno' | 'noturno';
+  shiftType: ShiftType;
 };
 
 
@@ -346,7 +343,7 @@ export type ShiftReport = {
   id: string;
   patientId: string;
   careTeamMemberName: string;
-  shift: 'Diurno' | 'Noturno';
+  shift: ShiftType;
   reportDate: string;
   observations: string;
   vitalSigns: {

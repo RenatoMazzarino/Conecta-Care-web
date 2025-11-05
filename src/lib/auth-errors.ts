@@ -1,26 +1,39 @@
-import type { FirebaseError } from 'firebase/app';
-
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
-  'auth/invalid-email': 'Endereço de email inválido.',
-  'auth/user-not-found': 'Usuário não encontrado. Verifique seu email.',
-  'auth/wrong-password': 'Credenciais inválidas. Revise email e senha.',
-  'auth/invalid-credential': 'Credenciais inválidas. Revise email e senha.',
-  'auth/user-disabled': 'A conta está desativada.',
-  'auth/too-many-requests': 'Muitas tentativas de login. Tente novamente mais tarde.',
+  'Invalid login credentials': 'Credenciais inválidas. Revise email e senha.',
+  'Email not confirmed': 'Confirme o email antes de fazer login.',
+  'User already registered': 'Já existe uma conta com este email.',
+  'Password strength': 'A senha não atende aos requisitos mínimos.',
+  'AuthApiError': 'Falha na autenticação. Revise seus dados.',
 };
 
 export const GENERIC_AUTH_ERROR = 'Não foi possível concluir a autenticação. Tente novamente.';
 
-function isFirebaseError(error: unknown): error is FirebaseError {
-  return typeof error === 'object' && error !== null && 'code' in (error as Record<string, unknown>);
+type SupabaseErrorShape = {
+  message: string;
+  code?: string;
+  status?: number;
+  name?: string;
+};
+
+function isSupabaseError(error: unknown): error is SupabaseErrorShape {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in (error as Record<string, unknown>) &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
 }
 
 /**
- * Converts Firebase/Auth errors into localized, user-friendly messages.
+ * Converte erros de autenticação (Supabase/Fetch) em mensagens amigáveis.
  */
 export function resolveAuthErrorMessage(error: unknown, fallback = GENERIC_AUTH_ERROR): string {
-  if (isFirebaseError(error)) {
-    return AUTH_ERROR_MESSAGES[error.code] ?? fallback;
+  if (isSupabaseError(error)) {
+    const specific =
+      AUTH_ERROR_MESSAGES[error.message] ??
+      (error.code ? AUTH_ERROR_MESSAGES[error.code] : undefined) ??
+      (error.name ? AUTH_ERROR_MESSAGES[error.name] : undefined);
+    return specific ?? error.message ?? fallback;
   }
 
   if (typeof error === 'string') {
@@ -32,8 +45,11 @@ export function resolveAuthErrorMessage(error: unknown, fallback = GENERIC_AUTH_
     if (normalized.includes('INVALID_ID_TOKEN') || normalized.includes('TOKEN EXPIRED')) {
       return 'Sessão inválida ou expirada. Faça login novamente.';
     }
-    if (normalized.includes('USER_DISABLED')) {
-      return AUTH_ERROR_MESSAGES['auth/user-disabled'];
+    if (normalized.includes('EMAIL NOT CONFIRMED')) {
+      return AUTH_ERROR_MESSAGES['Email not confirmed'];
+    }
+    if (normalized.includes('USER ALREADY REGISTERED')) {
+      return AUTH_ERROR_MESSAGES['User already registered'];
     }
   }
 

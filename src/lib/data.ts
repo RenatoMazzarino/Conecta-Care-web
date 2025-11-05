@@ -1,5 +1,5 @@
 
-import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem } from './types';
+import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem, Supply, SupplyRequest } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -10,6 +10,17 @@ const patientAvatars = {
   'patient-456': PlaceHolderImages.find(img => img.id === 'patient-avatar-2'),
   'patient-789': PlaceHolderImages.find(img => img.id === 'patient-avatar-3'),
 };
+
+export const supplies: Supply[] = [
+  { id: 'supply-001', name: 'Gaze Estéril', description: 'Pacote com 10 unidades 10x10cm', unit: 'pacote' },
+  { id: 'supply-002', name: 'Pomada Antibiótica', description: 'Tubo de 30g', unit: 'tubo' },
+  { id: 'supply-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', unit: 'rolo' },
+  { id: 'supply-004', name: 'Luvas Descartáveis', description: 'Caixa com 100 unidades, tamanho M', unit: 'caixa' },
+  { id: 'supply-005', name: 'Soro Fisiológico', description: 'Frasco de 500ml', unit: 'frasco' },
+  { id: 'supply-006', name: 'Seringas', description: 'Seringas 10ml, bico Luer Lock', unit: 'caixa' },
+  { id: 'supply-007', name: 'Curativos Adesivos', description: 'Curativos tamanho variado', unit: 'caixa' },
+  { id: 'supply-008', name: 'Álcool 70%', description: 'Frasco de 1L', unit: 'frasco' },
+];
 
 export const patients: Patient[] = [
   {
@@ -157,7 +168,6 @@ export const patients: Patient[] = [
         contractId: 'HSJ-2023-001A',
         lastAuditDate: '2024-07-15'
     },
-    supportNetwork: { responsavelLegal: 'Maria da Silva', parentescoResponsavel: 'Filha', contatoResponsavel: '+55 (11) 98765-4321', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2023-01-10T10:00:00Z', createdBy: 'Admin', updatedAt: '2024-07-20T15:00:00Z', updatedBy: 'Carla Nogueira' },
     
@@ -230,7 +240,6 @@ export const patients: Patient[] = [
         billingDay: 5,
     },
     adminData: { status: 'Ativo', complexity: 'Média', servicePackage: 'Intermediário', startDate: '2023-05-20', supervisorId: 'prof-3', admissionType: 'Acompanhamento Ambulatorial', frequency: '3x por semana'},
-    supportNetwork: { responsavelLegal: 'Carlos Lopes', parentescoResponsavel: 'Filho', contatoResponsavel: '+55 (21) 91234-5678', autorizacaoAcessoDados: false },
     documents: {
         termoLgpdUrl: '#'
     },
@@ -299,7 +308,6 @@ export const patients: Patient[] = [
         admissionType: 'Acompanhamento Ambulatorial',
         frequency: '2x por mês'
     },
-    supportNetwork: { responsavelLegal: 'Ana Mendes', parentescoResponsavel: 'Esposa', contatoResponsavel: '+55 (31) 95555-8888', autorizacaoAcessoDados: true },
     documents: {},
     audit: { createdAt: '2024-01-15T09:00:00Z', createdBy: 'Admin', updatedAt: '2024-06-30T18:00:00Z', updatedBy: 'Admin' },
     
@@ -518,14 +526,43 @@ export const mockShiftHistory: ShiftHistoryEvent[] = [
 ];
 
 export const mockInventory: InventoryItem[] = [
-  { id: 'item-001', name: 'Gaze Estéril', description: 'Pacote com 10 unidades 10x10cm', stock: 45, lowStockThreshold: 20 },
-  { id: 'item-002', name: 'Pomada Antibiótica', description: 'Tubo de 30g', stock: 8, lowStockThreshold: 5 },
-  { id: 'item-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', stock: 12, lowStockThreshold: 10 },
-  { id: 'item-004', name: 'Luvas Descartáveis', description: 'Caixa com 100un, tamanho M', stock: 88, lowStockThreshold: 50 },
-  { id: 'item-005', name: 'Soro Fisiológico', description: 'Frasco de 500ml', stock: 3, lowStockThreshold: 4 },
-  { id: 'item-006', name: 'Seringas', description: '10ml, bico Luer Lock, caixa c/ 50', stock: 2, lowStockThreshold: 30 },
-  { id: 'item-007', name: 'Curativos Adesivos', description: 'Caixa com tamanhos variados', stock: 150, lowStockThreshold: 50 },
-  { id: 'item-008', name: 'Álcool 70%', description: 'Frasco de 1L', stock: 1, lowStockThreshold: 2 },
+  { id: 'item-001', patientId: 'patient-123', supplyId: 'supply-001', name: 'Gaze Estéril', description: 'Pacote com 10 unidades 10x10cm', stock: 45, lowStockThreshold: 20 },
+  { id: 'item-002', patientId: 'patient-123', supplyId: 'supply-002', name: 'Pomada Antibiótica', description: 'Tubo de 30g', stock: 8, lowStockThreshold: 5 },
+  { id: 'item-003', patientId: 'patient-123', supplyId: 'supply-003', name: 'Fita Micropore', description: 'Rolo de 2.5cm x 10m', stock: 12, lowStockThreshold: 10 },
+  { id: 'item-004', patientId: 'patient-456', supplyId: 'supply-004', name: 'Luvas Descartáveis', description: 'Caixa com 100un, tamanho M', stock: 88, lowStockThreshold: 50 },
+  { id: 'item-005', patientId: 'patient-456', supplyId: 'supply-005', name: 'Soro Fisiológico', description: 'Frasco de 500ml', stock: 3, lowStockThreshold: 4 },
+  { id: 'item-006', patientId: 'patient-789', supplyId: 'supply-006', name: 'Seringas', description: '10ml, bico Luer Lock, caixa c/ 50', stock: 2, lowStockThreshold: 30 },
+  { id: 'item-007', patientId: 'patient-789', supplyId: 'supply-007', name: 'Curativos Adesivos', description: 'Caixa com tamanhos variados', stock: 150, lowStockThreshold: 50 },
+  { id: 'item-008', patientId: 'patient-789', supplyId: 'supply-008', name: 'Álcool 70%', description: 'Frasco de 1L', stock: 1, lowStockThreshold: 2 },
+];
+
+export const mockSupplyRequests: SupplyRequest[] = [
+  {
+    id: 'req-001',
+    patientId: 'patient-123',
+    supplyId: 'supply-001',
+    quantityRequested: 30,
+    requestDate: subDays(new Date(), 2).toISOString(),
+    status: 'pending',
+    notes: 'Repor estoque para curativos da semana.'
+  },
+  {
+    id: 'req-002',
+    patientId: 'patient-123',
+    supplyId: 'supply-002',
+    quantityRequested: 5,
+    requestDate: subDays(new Date(), 5).toISOString(),
+    status: 'approved',
+    notes: 'Solicitado pela enfermeira Carla.'
+  },
+  {
+    id: 'req-003',
+    patientId: 'patient-456',
+    supplyId: 'supply-005',
+    quantityRequested: 10,
+    requestDate: subDays(new Date(), 1).toISOString(),
+    status: 'pending'
+  },
 ];
 
 export const mockShiftReports: ShiftReport[] = [
@@ -533,7 +570,7 @@ export const mockShiftReports: ShiftReport[] = [
     id: 'sr-001',
     patientId: 'patient-123',
     careTeamMemberName: 'Carla Nogueira',
-    shift: 'Diurno',
+    shift: 'diurno',
     reportDate: new Date(new Date().setDate(new Date().getDate() -1)).toISOString(),
     observations: 'Paciente passou o dia tranquilo, colaborativo e sem queixas de dor. Realizou fisioterapia pela manhã e aceitou bem a dieta.',
     vitalSigns: { bloodPressure: '122/78', heartRate: 75, oxygenSaturation: 98 }
@@ -542,7 +579,7 @@ export const mockShiftReports: ShiftReport[] = [
     id: 'sr-002',
     patientId: 'patient-123',
     careTeamMemberName: 'Fábio Bastos',
-    shift: 'Noturno',
+    shift: 'noturno',
     reportDate: new Date(new Date().setDate(new Date().getDate() -2)).toISOString(),
     observations: 'Noite calma, sono tranquilo com alguns despertares. Sem intercorrências durante a madrugada. Sinais vitais estáveis.',
     vitalSigns: { bloodPressure: '118/75', heartRate: 70, oxygenSaturation: 97 }
@@ -551,7 +588,7 @@ export const mockShiftReports: ShiftReport[] = [
     id: 'sr-003',
     patientId: 'patient-456',
     careTeamMemberName: 'Diogo Lima',
-    shift: 'Diurno',
+    shift: 'diurno',
     reportDate: new Date(new Date().setDate(new Date().getDate() -1)).toISOString(),
     observations: 'Paciente apresentou leve dor na articulação do joelho direito. Administrado analgésico conforme prescrição, com melhora do quadro.',
     vitalSigns: { bloodPressure: '130/85', heartRate: 80, oxygenSaturation: 99 }

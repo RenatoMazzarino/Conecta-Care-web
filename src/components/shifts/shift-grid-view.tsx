@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import type { Patient } from '@/lib/types';
+import type { Patient, ShiftType } from '@/lib/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
@@ -25,7 +25,7 @@ interface ShiftGridViewProps {
 
 export function ShiftGridView({ patients, days, gridShifts, handlers }: ShiftGridViewProps) {
   
-  const renderShift = (shiftState: GridShiftState | null, type: 'diurno' | 'noturno', patient: Patient, dayKey: string) => {
+  const renderShift = (shiftState: GridShiftState | null, type: ShiftType, patient: Patient, dayKey: string) => {
     if (!shiftState) {
         // This case should ideally not happen with the new logic, but as a fallback:
         const dummyShift: GridShiftState = {

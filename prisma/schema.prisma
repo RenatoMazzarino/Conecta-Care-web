@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DATABASE_DIRECT_URL")
+  relationMode = "prisma"
+}
+
+model Shift {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String?         @map("tenant_id") @db.Uuid
+  owner_id       String?         @db.Uuid
+  title          String
+  description    String?
+  startAt        DateTime        @map("start_at") @db.Timestamptz(6)
+  endAt          DateTime?       @map("end_at") @db.Timestamptz(6)
+  status         String          @default("scheduled")
+  createdAt      DateTime?       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime?       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  supplyRequests SupplyRequest[]
+
+  @@index([status], map: "idx_shifts_status")
+  @@index([startAt], map: "idx_shifts_start")
+  @@map("shifts")
+}
+
+model InventoryItem {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String?         @map("tenant_id") @db.Uuid
+  name           String
+  unit           String?
+  minStock       Int?            @map("min_stock")
+  createdAt      DateTime?       @default(now()) @map("created_at") @db.Timestamptz(6)
+  supplyRequests SupplyRequest[]
+
+  @@map("inventory_items")
+}
+
+model SupplyRequest {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String?        @map("tenant_id") @db.Uuid
+  requesterId String?        @map("requester_id") @db.Uuid
+  shiftId     String?        @map("shift_id") @db.Uuid
+  itemId      String?        @map("item_id") @db.Uuid
+  qty         Int
+  status      String?        @default("pending")
+  createdAt   DateTime?      @default(now()) @map("created_at") @db.Timestamptz(6)
+  shift       Shift?         @relation(fields: [shiftId], references: [id])
+  item        InventoryItem? @relation(fields: [itemId], references: [id])
+
+  @@index([shiftId], map: "idx_supply_requests_shift")
+  @@map("supply_requests")
+}
+
+model AuditLog {
+  id        BigInt    @id @default(autoincrement())
+  tenantId  String?   @map("tenant_id") @db.Uuid
+  entity    String?
+  entityId  String?   @map("entity_id") @db.Uuid
+  action    String?
+  actorId   String?   @map("actor_id") @db.Uuid
+  payload   Json?
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("audit_logs")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model posts {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id  String?   @db.Uuid
+  author_id  String?   @db.Uuid
+  shift_id   String?   @db.Uuid
+  content    String?
+  pinned     Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([shift_id], map: "idx_posts_shift")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model presence {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id String?   @db.Uuid
+  user_id   String?   @db.Uuid
+  shift_id  String?   @db.Uuid
+  state     String
+  last_seen DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([shift_id, user_id], map: "idx_presence_shift_user")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model user_profiles {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auth_user_id String?   @unique @db.Uuid
+  email        String?   @unique
+  name         String?
+  phone        String?
+  role         String?
+  tenant_id    String?   @db.Uuid
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+}

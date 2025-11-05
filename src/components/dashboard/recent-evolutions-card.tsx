@@ -60,8 +60,8 @@ export function RecentEvolutionsCard({ reports, patients }: { reports: ShiftRepo
                                   <p className="text-xs text-muted-foreground">{report.careTeamMemberName}</p>
                               </div>
                           </div>
-                          <Badge variant={report.shift === 'Diurno' ? 'secondary' : 'default'} className="text-xs shrink-0">
-                              {report.shift} - {formatRelativeDate(report.reportDate)}
+                          <Badge variant={report.shift === 'diurno' ? 'secondary' : 'default'} className="text-xs shrink-0">
+                              {report.shift === 'diurno' ? 'Diurno' : 'Noturno'} - {formatRelativeDate(report.reportDate)}
                           </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{report.observations}</p>

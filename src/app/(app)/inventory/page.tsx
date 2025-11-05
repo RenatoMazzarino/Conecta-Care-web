@@ -11,10 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-// Firestore related imports are removed as we are disconnecting Firebase.
-// import { useFirestore } from '@/firebase';
-// import { setDoc, collection, doc } from 'firebase/firestore';
-// import { Firestore } from 'firebase/firestore';
+// Firestore related imports foram removidos após a migração para Supabase.
 
 
 // This function is commented out as it depends on Firestore.
@@ -31,7 +28,7 @@ export default function InventoryPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [itemsToRequisition, setItemsToRequisition] = React.useState<InventoryItem[]>([]);
   const { toast } = useToast();
-  // const firestore = useFirestore(); // Disconnecting Firebase
+  // const supabase = createSupabaseServerClient(); // Exemplos futuros de integração
   
   const [inventory, setInventory] = React.useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -53,7 +50,7 @@ export default function InventoryPage() {
   };
   
   const handleSeedData = async () => {
-    // This functionality is disabled as we are disconnecting from Firebase.
+    // Este fluxo agora depende do Supabase; ajuste quando conectar ao backend real.
     toast({
         title: "Funcionalidade Desativada",
         description: "A conexão com o Firestore está temporariamente desativada.",

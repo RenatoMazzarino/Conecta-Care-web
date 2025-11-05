@@ -290,19 +290,6 @@
           }
         },
 
-        "supportNetwork": {
-          "type": "object",
-          "description": "Rede de apoio e responsáveis familiares.",
-          "properties": {
-            "responsavelLegal": { "type": "string" },
-            "parentescoResponsavel": { "type": "string" },
-            "contatoResponsavel": { "type": "string" },
-            "emailResponsavel": { "type": "string", "format": "email" },
-            "enderecoResponsavel": { "type": "string" },
-            "autorizacaoAcessoDados": { "type": "boolean" },
-            "familiaresAppIds": { "type": "array", "items": { "type": "string" } }
-          }
-        },
 
         "documents": {
           "type": "object",
@@ -406,15 +393,17 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Inventory",
       "type": "object",
-      "description": "Represents the inventory level of a specific supply item for a patient.",
+      "description": "Inventory entry for a specific supply tracked per patient.",
       "properties": {
         "id": { "type": "string" },
         "patientId": { "type": "string" },
         "supplyId": { "type": "string" },
-        "quantity": { "type": "number" },
-        "lastUpdated": { "type": "string", "format": "date-time" }
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "stock": { "type": "number" },
+        "lowStockThreshold": { "type": "number" }
       },
-      "required": [ "id", "patientId", "supplyId", "quantity", "lastUpdated" ]
+      "required": [ "id", "patientId", "supplyId", "name", "stock", "lowStockThreshold" ]
     },
     "SupplyRequest": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -424,7 +413,7 @@
       "properties": {
         "id": { "type": "string" }, "patientId": { "type": "string" }, "supplyId": { "type": "string" },
         "quantityRequested": { "type": "number" }, "requestDate": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["Pending", "Approved", "Denied"] }, "notes": { "type": "string" }
+        "status": { "type": "string", "enum": ["pending", "approved", "denied"] }, "notes": { "type": "string" }
       },
       "required": [ "id", "patientId", "supplyId", "quantityRequested", "requestDate", "status" ]
     },
@@ -437,7 +426,7 @@
         "id": { "type": "string" },
         "patientId": { "type": "string" },
         "careTeamMemberName": { "type": "string" },
-        "shift": { "type": "string", "enum": ["Diurno", "Noturno"] },
+        "shift": { "type": "string", "enum": ["diurno", "noturno"] },
         "reportDate": { "type": "string", "format": "date-time" },
         "observations": { "type": "string" },
         "vitalSigns": {
