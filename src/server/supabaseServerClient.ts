@@ -1,28 +1,36 @@
-'use server';
+// src/server/supabaseServerClient.ts
+"use server";
 
-import { cookies } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabaseConfig } from '@/lib/supabaseEnv';
+import { cookies } from "next/headers";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { supabaseConfig } from "@/lib/supabaseEnv";
 
-export function createSupabaseServerClient(): SupabaseClient {
-  const cookieStore = cookies();
+/**
+ * Cria um cliente do Supabase para uso no SERVIDOR (Server Components / Server Actions).
+ * Tenta reaproveitar o token presente nos cookies para respeitar o RLS.
+ */
+export async function createSupabaseServerClient(): Promise<SupabaseClient> {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("sb-access-token")?.value;
+  const refreshToken = cookieStore.get("sb-refresh-token")?.value;
 
-  return createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+  const client = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
     auth: {
+      autoRefreshToken: Boolean(refreshToken),
       persistSession: false,
-      autoRefreshToken: false,
-    },
-    cookies: {
-      get(key: string) {
-        return cookieStore.get(key)?.value;
-      },
-      set() {
-        // handled by Next.js
-      },
-      remove() {
-        // handled by Next.js
-      },
+      detectSessionInUrl: false,
     },
   });
+
+  if (accessToken) {
+    await client.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken ?? "",
+    });
+  }
+
+  return client;
 }
+
+/** Alias para manter compatibilidade com imports existentes nas actions */
+export const getSupabaseServerClient = createSupabaseServerClient;

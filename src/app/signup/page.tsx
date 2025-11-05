@@ -37,8 +37,6 @@ export default function SignupPage() {
   const hasRedirected = React.useRef(false);
   const supabase = React.useMemo(() => createBrowserSupabaseClient(), []);
 
-  const supabase = React.useMemo(() => createBrowserSupabaseClient(), []);
-
   React.useEffect(() => {
     if (!state.error) return;
     toast({

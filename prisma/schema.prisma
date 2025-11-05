@@ -107,3 +107,51 @@ model user_profiles {
   tenant_id    String?   @db.Uuid
   created_at   DateTime? @default(now()) @db.Timestamptz(6)
 }
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model patients {
+  id                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id                String    @db.Uuid
+  full_name                String
+  display_name             String?
+  pronouns                 String?
+  photo_url                String?
+  photo_consent            Json?
+  cpf                      String?
+  cpf_status               String?   @default("unknown")
+  rg                       String?
+  rg_issuer                String?
+  rg_digital_url           String?
+  cns                      String?
+  national_id              String?
+  document_validation      Json?
+  date_of_birth            DateTime? @db.Date
+  sex_at_birth             String?   @default("Unknown")
+  gender_identity          String?
+  civil_status             String?
+  nationality              String?
+  place_of_birth           String?
+  preferred_language       String?
+  phones                   Json?
+  emails                   Json?
+  preferred_contact_method String?
+  communication_opt_out    Json?
+  emergency_contacts       Json?
+  legal_guardian           Json?
+  external_ids             Json?
+  identity_verification    Json?
+  duplicate_candidates     String[]  @db.Uuid
+  risk_flags               String[]
+  sensitive_data_consent   Json?
+  record_status            String?   @default("active")
+  created_at               DateTime  @default(now()) @db.Timestamptz(6)
+  created_by               String?   @db.Uuid
+  updated_at               DateTime? @db.Timestamptz(6)
+  updated_by               String?   @db.Uuid
+  last_viewed_at           DateTime? @db.Timestamptz(6)
+  access_log_summary       Json?
+
+  @@index([cpf], map: "idx_patients_cpf")
+  @@index([tenant_id], map: "idx_patients_tenant")
+}

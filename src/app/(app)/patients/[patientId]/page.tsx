@@ -20,6 +20,13 @@ import { Badge } from '@/components/ui/badge';
 import { FichaEndereco } from '@/components/patients/ficha-endereco';
 import { FichaClinica } from '@/components/patients/ficha-clinica';
 import { FichaAdministrativa } from '@/components/patients/ficha-administrativa';
+import {
+  PatientPersonalForm,
+  PatientAddressForm,
+  PatientAdminForm,
+  PatientClinicalSummaryForm,
+  PatientFinancialForm,
+} from '@/components/patients/patient-forms';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
@@ -110,6 +117,55 @@ export default function PatientProfilePage() {
   const mainAllergy = displayData.clinicalSummary?.allergies?.[0];
   const legalRep = displayData.emergencyContacts?.find(c => c.isLegalRepresentative);
 
+  const personalDefaults = {
+    full_name: fullName || displayData.displayName,
+    display_name: displayData.displayName,
+    cpf: displayData.cpf,
+    date_of_birth: displayData.dateOfBirth?.slice(0, 10),
+  };
+
+  const addressDefaults = {
+    cep: displayData.address?.zipCode,
+    address_line: displayData.address?.street,
+    number: displayData.address?.number,
+    complement: displayData.address?.complement,
+    neighborhood: displayData.address?.neighborhood,
+    city: displayData.address?.city,
+    state: displayData.address?.state,
+    reference_point: displayData.address?.pontoReferencia,
+  };
+
+  const adminDefaults = displayData.adminData
+    ? {
+        status: displayData.adminData.status,
+        admission_type: displayData.adminData.admissionType,
+        complexity: displayData.adminData.complexity,
+        service_package: displayData.adminData.servicePackage,
+        start_date: displayData.adminData.startDate,
+        end_date: displayData.adminData.endDate,
+        notes_internal: displayData.adminData.notesInternal,
+      }
+    : undefined;
+
+  const clinicalDefaults = {
+    summary: displayData.clinicalSummary,
+    meta: displayData.clinicalSummaryMeta,
+  };
+
+  const financialDefaults = displayData.financial
+    ? {
+        bond_type: displayData.financial.vinculo,
+        insurer: displayData.financial.operadora,
+        plan_name: displayData.financial.operadora,
+        card_number: displayData.financial.carteirinha,
+        validity: displayData.financial.validadeCarteirinha,
+        monthly_fee: displayData.financial.monthlyFee,
+        due_day: displayData.financial.billingDay,
+        payment_method: displayData.financial.formaPagamento,
+        observations: displayData.financial.observacoesFinanceiras,
+      }
+    : undefined;
+
 
   return (
     <div className="space-y-6">
@@ -187,32 +243,56 @@ export default function PatientProfilePage() {
             </TabsList>
 
             <TabsContent value="pessoais">
-                 <FichaCadastral 
-                    isEditing={isEditing}
-                    displayData={displayData} 
-                    editedData={editedData} 
-                    setEditedData={setEditedData} 
-                />
+                 <div className="space-y-6">
+                   <FichaCadastral 
+                      isEditing={isEditing}
+                      displayData={displayData} 
+                      editedData={editedData} 
+                      setEditedData={setEditedData} 
+                  />
+                  <PatientPersonalForm
+                    patientId={displayData.id}
+                    defaultValues={personalDefaults}
+                  />
+                </div>
             </TabsContent>
             
              <TabsContent value="endereco">
-                <FichaEndereco
-                    isEditing={isEditing}
-                    displayData={displayData}
-                    editedData={editedData}
-                    setEditedData={setEditedData}
-                />
+                <div className="space-y-6">
+                  <FichaEndereco
+                      isEditing={isEditing}
+                      displayData={displayData}
+                      editedData={editedData}
+                      setEditedData={setEditedData}
+                  />
+                  <PatientAddressForm
+                    patientId={displayData.id}
+                    defaultValues={addressDefaults}
+                  />
+                </div>
             </TabsContent>
             <TabsContent value="clinicos">
-                 <FichaClinica
-                    isEditing={isEditing}
-                    displayData={displayData}
-                    editedData={editedData}
-                    setEditedData={setEditedData}
-                 />
+                 <div className="space-y-6">
+                   <FichaClinica
+                      isEditing={isEditing}
+                      displayData={displayData}
+                      editedData={editedData}
+                      setEditedData={setEditedData}
+                   />
+                   <PatientClinicalSummaryForm
+                     patientId={displayData.id}
+                     defaultValues={clinicalDefaults}
+                   />
+                 </div>
             </TabsContent>
             <TabsContent value="administrativo">
-                 <FichaAdministrativa displayData={displayData} professionals={professionals} />
+                 <div className="space-y-6">
+                   <FichaAdministrativa displayData={displayData} professionals={professionals} />
+                   <PatientAdminForm
+                     patientId={displayData.id}
+                     defaultValues={adminDefaults}
+                   />
+                 </div>
             </TabsContent>
              <TabsContent value="financeiro">
                  <Card>
@@ -221,9 +301,15 @@ export default function PatientProfilePage() {
                         <CardDescription>Esta seção conterá os dados financeiros do paciente.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-muted-foreground">Em breve.</p>
+                        <p className="text-muted-foreground text-sm">
+                            Utilize o formul��rio abaixo para atualizar as informa����es de cobrança diretamente no Supabase.
+                        </p>
                     </CardContent>
                  </Card>
+                 <PatientFinancialForm
+                   patientId={displayData.id}
+                   defaultValues={financialDefaults}
+                 />
             </TabsContent>
              <TabsContent value="documentos">
                  <Card>
@@ -257,3 +343,4 @@ export default function PatientProfilePage() {
     </div>
   );
 }
+

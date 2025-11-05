@@ -192,7 +192,11 @@ export default function PatientsPage() {
             ) : (
                 <div className="flex items-center gap-2">
                     <Button variant="outline"><Upload className="mr-2 h-4 w-4"/> Importar</Button>
-                    <Button><UserPlus className="mr-2 h-4 w-4"/> Adicionar Paciente</Button>
+                    <Button asChild>
+                      <Link href="/patients/new">
+                        <UserPlus className="mr-2 h-4 w-4" /> Adicionar Paciente
+                      </Link>
+                    </Button>
                 </div>
             )}
         </div>
