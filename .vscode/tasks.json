@@ -48,5 +48,41 @@
       "dependsOn": ["Firebase: Emulators Start", "Start Dev Server"],
       "dependsOrder": "parallel"
     }
+    ,
+    {
+      "label": "Update Repo State",
+      "type": "shell",
+      "command": "node ${workspaceFolder}/scripts/update_repo_state.js --actor \"${input:actor}\" --message \"${input:message}\" --files \"${input:files}\"",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+  ,
+  "inputs": [
+    {
+      "id": "actor",
+      "type": "promptString",
+      "description": "Actor name (ex: AutoAgent)",
+      "default": "AutoAgent"
+    },
+    {
+      "id": "message",
+      "type": "promptString",
+      "description": "Short message describing the change",
+      "default": "repo state update"
+    },
+    {
+      "id": "files",
+      "type": "promptString",
+      "description": "Comma-separated list of changed files (optional)",
+      "default": ""
+    }
   ]
 }
