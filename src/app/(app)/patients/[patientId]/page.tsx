@@ -27,8 +27,7 @@ import {
   PatientClinicalSummaryForm,
   PatientFinancialForm,
 } from '@/components/patients/patient-forms';
-
-export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
+import type { EditMode } from '@/components/patients/edit-mode';
 
 const TABS = [
     { id: "pessoais", label: "Dados Pessoais" },

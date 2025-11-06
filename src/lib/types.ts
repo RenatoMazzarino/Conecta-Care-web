@@ -15,6 +15,9 @@ export type Patient = {
   firstName: string;
   lastName: string;
   displayName: string;
+  // compatibility alias used in many components
+  name: string;
+  medications?: { name: string; dosage: string; frequency: string; notes?: string }[];
   initials: string;
   pronouns?: string;
   avatarUrl: string;
@@ -171,6 +174,25 @@ export type Patient = {
     }[];
   };
 
+  // compatibility alias for older code that used `clinicalData`
+  clinicalData?: {
+    diagnosisPrimary: { name: string; cid: string };
+    allergies: {
+      substance: string;
+      severity: 'leve' | 'moderada' | 'grave';
+      reaction: string;
+      recordedAt: string;
+    }[];
+    criticalMedications: { name: string; note: string }[];
+    medications?: { name: string; dosage: string; frequency: string; notes?: string }[];
+    devicesActive: string[];
+    oxygenTherapy: { active: boolean; flow?: string };
+    riskScores: { falls?: number; fallsLabel?: string; braden?: number; bradenLabel?: string };
+    lastReview: { date: string; by: string };
+    shortNote?: string;
+    alerts: { type: string; message: string; severity: string }[];
+  };
+
   clinicalSummaryMeta: {
     lastUpdatedAt: string;
     lastUpdatedBy: string;
@@ -181,7 +203,7 @@ export type Patient = {
   adminData: {
     status: 'Ativo' | 'Inativo' | 'Suspenso' | 'Alta' | 'Internado Temporário' | 'Óbito';
     admissionType?: 'Home Care' | 'Paliativo' | 'Internação Domiciliar' | 'Acompanhamento Ambulatorial';
-    complexity: 'Baixa' | 'Média' | 'Alta' | 'Crítica';
+  complexity: 'Baixa' | 'Média' | 'Alta' | 'Crítica' | 'baixa' | 'media' | 'alta' | 'critica';
     servicePackage: 'Básico' | 'Intermediário' | 'Completo' | 'VIP' | 'Personalizado';
     startDate: string;
     endDate?: string;
@@ -196,6 +218,9 @@ export type Patient = {
     lastAuditBy?: string;
     notesInternal?: string;
   };
+
+  // compatibility: some components read `patient.complexity` at root
+  complexity?: 'Baixa' | 'Média' | 'Alta' | 'Crítica' | 'baixa' | 'media' | 'alta' | 'critica';
   
   // 5. Informações Financeiras
   financial: {
@@ -335,7 +360,7 @@ export type ShiftHistoryEvent = {
     time: string;
     event: string;
     details?: string;
-    icon: React.ElementType;
+    icon: LucideIcon;
     status: 'ok' | 'pending' | 'late' | 'default';
 }
 

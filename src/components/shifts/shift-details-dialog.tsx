@@ -10,7 +10,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X, CalendarClock, Info, FileDown } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, AlertTriangle, DollarSign, Megaphone, CalendarClock, FileDown } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -31,7 +31,7 @@ const mockCandidates: Professional[] = [
     allProfessionals.find(p => p.id === 'prof-5')!,
 ].filter(Boolean);
 
-const complexityVariant: { [key in Patient['complexity']]: string } = {
+const complexityVariant: Record<string, string> = {
     baixa: 'bg-green-100 text-green-800 border-green-200',
     media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     alta: 'bg-red-100 text-red-800 border-red-200',
@@ -62,7 +62,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     isUrgent: shift.isUrgent || false,
   });
   
-  const isTimeInvalid = publishData.startTime && publishData.endTime && publishData.startTime > publishData.endTime;
+    const isTimeInvalid = !!(publishData.startTime && publishData.endTime && publishData.startTime > publishData.endTime);
 
 
   const { toast } = useToast();
@@ -166,7 +166,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     }
 
     if (view === 'publish') {
-      const fullAddress = `${patient.address.street}, ${patient.address.number} - ${patient.address.neighborhood}, ${patient.address.city}/${patient.address.state}`;
+    const fullAddress = `${patient.address.street}, ${patient.address.number} - ${patient.address.neighborhood}, ${patient.address.city}/${patient.address.state}`;
       const formattedDate = new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' });
       return (
         <div className="py-4 max-h-[70vh]">
@@ -262,7 +262,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                             <div className="space-y-3">
                                 <div>
                                     <p className="font-semibold text-muted-foreground">Localização</p>
-                                    <p>{patient.address.neighborhood}, {patient.address.city} - {patient.address.state}</p>
+                                    <p>{fullAddress}</p>
                                 </div>
                                 <div>
                                     <p className="font-semibold text-muted-foreground">Data e Horário</p>
@@ -423,8 +423,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   
   if (!shift || !patient) return null;
 
-  const isCreatingNew = !patient.id;
-  const isActive = shift.status === 'active';
+    const isActive = shift.status === 'active';
 
   return (
     <>

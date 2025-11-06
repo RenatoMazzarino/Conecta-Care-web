@@ -30,15 +30,15 @@ const FormField = ({ label, children, className, labelClassName }: {
 type FichaClinicaProps = {
   displayData: Patient | null;
   editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
+  setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
   isEditing: boolean;
 };
 
-const allergySeverityColors = {
+const allergySeverityColors: Record<'grave' | 'moderada' | 'leve', 'default' | 'secondary' | 'destructive'> = {
     grave: 'destructive',
     moderada: 'secondary',
     leve: 'default'
-}
+} as const;
 
 export function FichaClinica({ displayData, editedData, setEditedData, isEditing }: FichaClinicaProps) {
     const { toast } = useToast();

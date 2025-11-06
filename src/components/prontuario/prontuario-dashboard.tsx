@@ -10,13 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, X, Stethoscope, Dumbbell, Apple, Pill, Edit } from 'lucide-react';
 import { ProntuarioTimeline } from './prontuario-timeline';
-import type { EditMode } from '../patients/patient-details-panel';
+import type { EditMode } from '@/components/patients/edit-mode';
 
 type ProntuarioDashboardProps = {
     editMode: EditMode;
     setEditMode: (mode: EditMode) => void;
     editedData: Patient | null;
-    setEditedData: (data: Patient | null) => void;
+    setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
 };
 
 export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEditedData }: ProntuarioDashboardProps) {
@@ -27,16 +27,22 @@ export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEdit
     if (!editedData || !editedData.clinicalData) return;
     const newMeds = [...(editedData.clinicalData.medications || []), { name: '', dosage: '', frequency: '', notes: '' }];
     // Create a deep copy to ensure state updates correctly
-    const newEditedData = JSON.parse(JSON.stringify(editedData));
-    newEditedData.clinicalData.medications = newMeds;
+    const newEditedData = JSON.parse(JSON.stringify(editedData)) as Patient;
+    if (!newEditedData.clinicalData) {
+      newEditedData.clinicalData = { ...editedData.clinicalData, medications: [] };
+    }
+    newEditedData.clinicalData!.medications = newMeds;
     setEditedData(newEditedData);
   };
 
   const removeMedication = (index: number) => {
     if (!editedData || !editedData.clinicalData?.medications) return;
     const newMeds = editedData.clinicalData.medications.filter((_, i) => i !== index);
-    const newEditedData = JSON.parse(JSON.stringify(editedData));
-    newEditedData.clinicalData.medications = newMeds;
+    const newEditedData = JSON.parse(JSON.stringify(editedData)) as Patient;
+    if (!newEditedData.clinicalData) {
+      newEditedData.clinicalData = { ...editedData.clinicalData, medications: [] };
+    }
+    newEditedData.clinicalData!.medications = newMeds;
     setEditedData(newEditedData);
   };
 
@@ -44,14 +50,19 @@ export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEdit
     if (!editedData || !editedData.clinicalData?.medications) return;
     const newMeds = [...editedData.clinicalData.medications];
     newMeds[index] = { ...newMeds[index], [field]: value };
-    const newEditedData = JSON.parse(JSON.stringify(editedData));
-    newEditedData.clinicalData.medications = newMeds;
+    const newEditedData = JSON.parse(JSON.stringify(editedData)) as Patient;
+    if (!newEditedData.clinicalData) {
+      newEditedData.clinicalData = { ...editedData.clinicalData, medications: [] };
+    }
+    newEditedData.clinicalData!.medications = newMeds;
     setEditedData(newEditedData);
   };
 
   const displayData = editedData;
 
   if (!displayData) return null;
+
+  const medications = displayData.clinicalData?.medications ?? [];
 
   const summaryCards = [
     { title: "Resumo Médico", icon: Stethoscope, content: "Paciente estável, seguindo plano terapêutico. Pressão arterial controlada.", color: "text-blue-600" },
@@ -85,7 +96,7 @@ export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEdit
             <CardContent className="p-6">
               {isEditing ? (
                 <div className="space-y-4">
-                  {displayData.clinicalData.medications?.map((med, index) => (
+                  {medications.map((med, index) => (
                     <Card key={index} className="p-4 bg-background">
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-medium">Medicação {index + 1}</h4>
@@ -130,14 +141,14 @@ export function ProntuarioDashboard({ editMode, setEditMode, editedData, setEdit
                       </div>
                     </Card>
                   ))}
-                   {(!displayData.clinicalData.medications || displayData.clinicalData.medications.length === 0) && (
+                   {medications.length === 0 && (
                     <p className="text-muted-foreground text-center py-4">Nenhuma medicação para editar.</p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {displayData.clinicalData.medications?.length > 0 ? (
-                    displayData.clinicalData.medications.map((med, i) => (
+                  {medications.length > 0 ? (
+                    medications.map((med, i) => (
                       <div key={i} className="p-3 bg-secondary/30 rounded-lg">
                         <p className="font-semibold text-secondary-foreground">{med.name}</p>
                         <p className="text-sm text-muted-foreground mt-1">

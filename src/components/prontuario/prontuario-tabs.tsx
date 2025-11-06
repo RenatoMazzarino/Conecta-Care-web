@@ -14,7 +14,7 @@ import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documen
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import type { EditMode } from '../patients/patient-details-panel';
+import type { EditMode } from '@/components/patients/edit-mode';
 
 // Definição das abas do prontuário
 export const prontuarioTabs = [
@@ -53,7 +53,7 @@ type ProntuarioContentProps = {
     editMode: EditMode;
     setEditMode: (mode: EditMode) => void;
     editedData: Patient | null;
-    setEditedData: (data: Patient | null) => void;
+    setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
 };
 
 // Componente que renderiza o conteúdo da aba ativa

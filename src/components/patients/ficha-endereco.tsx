@@ -30,7 +30,7 @@ const FormField = ({ label, children, className, labelClassName }: {
 type FichaEnderecoProps = {
   displayData: Patient | null;
   editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
+  setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
   isEditing: boolean;
 };
 

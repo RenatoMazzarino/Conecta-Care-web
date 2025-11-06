@@ -6,8 +6,8 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X, Users, AlertTriangle, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
-import Link from 'next/link';
 import type { Patient, Professional } from '@/lib/types';
+import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatientTable } from '@/components/patients/patient-table';
 import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { StatsCard } from '@/components/ui/stats-card';
 
 type KpiFilter = 'all' | 'pending' | 'active' | 'low_complexity' | 'medium_complexity' | 'high_complexity';
+type StatusFilter = 'all' | 'Ativo' | 'Inativo';
 
 export default function PatientsPage() {
   const { toast } = useToast();
@@ -36,9 +37,15 @@ export default function PatientsPage() {
   const [packageFilter, setPackageFilter] = React.useState('all');
   const [planFilter, setPlanFilter] = React.useState('all');
   const [supervisorFilter, setSupervisorFilter] = React.useState('all');
-  const [statusFilter, setStatusFilter] = React.useState<'all' | 'Ativo' | 'Inativo'>('all');
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
   const [cityFilter, setCityFilter] = React.useState('');
   const [stateFilter, setStateFilter] = React.useState('');
+
+  const handleStatusFilterChange = React.useCallback((value: string) => {
+    if (value === 'all' || value === 'Ativo' || value === 'Inativo') {
+      setStatusFilter(value);
+    }
+  }, []);
 
   React.useEffect(() => {
     // Simulate fetching data
@@ -283,7 +290,7 @@ export default function PatientsPage() {
                   </div>
                    <div className="space-y-2">
                     <Label>Status do Paciente</Label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
                         <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>
