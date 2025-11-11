@@ -45,7 +45,7 @@ const FormField = ({ label, children, className, labelClassName }: {
 type FichaCadastralProps = {
   displayData: Patient | null;
   editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
+  setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
   isEditing: boolean;
 };
 
@@ -76,6 +76,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     };
 
     const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
+    const communicationOptOuts = displayData.communicationOptOut ?? [];
 
     return (
         <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -279,9 +280,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                     <span>{displayData.preferredContactMethod}</span>
                                 </FormField>
                                 <FormField label="Opt-Out de Comunicação" className="md:col-span-2 lg:col-span-3">
-                                    {displayData.communicationOptOut?.length > 0 ? (
+                                    {communicationOptOuts.length > 0 ? (
                                         <div className="flex gap-2">
-                                            {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
+                                            {communicationOptOuts.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
                                         </div>
                                     ) : (
                                         <span>Nenhum</span>

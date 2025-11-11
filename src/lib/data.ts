@@ -34,6 +34,7 @@ export const patients: Patient[] = [
     avatarUrl: patientAvatars['patient-123']?.imageUrl ?? 'https://picsum.photos/seed/1/100/100',
     avatarHint: patientAvatars['patient-123']?.imageHint ?? 'homem idoso sorrindo',
     photoConsent: { granted: true, grantedBy: 'Maria da Silva (Filha)', date: '2023-01-10T10:00:00Z' },
+  name: 'João da Silva',
     
     cpf: '123.456.789-00',
     cpfStatus: 'valid',
@@ -51,6 +52,7 @@ export const patients: Patient[] = [
     nacionalidade: 'Brasileiro',
     naturalidade: 'São Paulo/SP',
     preferredLanguage: 'Português',
+  
 
     phones: [
       { type: 'mobile', number: '+55 (11) 98888-1111', verified: true, preferred: true },
@@ -183,6 +185,7 @@ export const patients: Patient[] = [
     lastName: 'Lopes',
     initials: 'ML',
     displayName: 'Maria',
+    name: 'Maria Lopes',
     pronouns: 'Ela/Dela',
     avatarUrl: patientAvatars['patient-456']?.imageUrl ?? 'https://picsum.photos/seed/2/100/100',
     avatarHint: patientAvatars['patient-456']?.imageHint ?? 'senhora de oculos',
@@ -264,6 +267,7 @@ export const patients: Patient[] = [
     avatarUrl: patientAvatars['patient-789']?.imageUrl ?? 'https://picsum.photos/seed/3/100/100',
     avatarHint: patientAvatars['patient-789']?.imageHint ?? 'homem de meia idade',
     documentValidation: { status: 'none' },
+  name: 'Jorge Mendes',
 
     phones: [{ type: 'mobile', number: '+55 (31) 96666-3333', verified: false, preferred: true }],
     emails: [{ email: 'jorge.mendes@example.com', verified: false, preferred: true }],

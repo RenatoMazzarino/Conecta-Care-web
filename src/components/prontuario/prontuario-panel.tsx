@@ -7,7 +7,7 @@ import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboar
 import { Button } from '../ui/button';
 import { Upload } from 'lucide-react';
 import { ProntuarioUploadDialog } from '../prontuario/prontuario-upload-dialog';
-import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
+import type { EditMode } from '@/components/patients/edit-mode';
 
 interface ProntuarioPanelProps {
   patient: Patient | null;

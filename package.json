@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+  "test": "vitest",
     "db:pull": "prisma db pull",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
@@ -75,6 +76,9 @@
     "postcss": "^8",
     "prisma": "^5.18.0",
     "tailwindcss": "^3.4.1",
+    "vitest": "^1.0.0",
+    "@testing-library/react": "^14.0.0",
+    "jsdom": "^21.1.0",
     "tsx": "^4.19.1",
     "typescript": "^5"
   }

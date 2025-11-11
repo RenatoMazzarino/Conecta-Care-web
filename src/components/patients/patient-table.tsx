@@ -25,10 +25,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 
-const complexityVariant: { [key in Patient['adminData']['complexity']]: string } = {
-    Baixa: 'bg-green-100 text-green-800 border-green-200',
-    Média: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    Alta: 'bg-red-100 text-red-800 border-red-200',
+const complexityVariant: Record<string, string> = {
+  Baixa: 'bg-green-100 text-green-800 border-green-200',
+  Média: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  Alta: 'bg-red-100 text-red-800 border-red-200',
+  Crítica: 'bg-red-200 text-red-900 border-red-300',
 }
 
 const patientStatusConfig: { [key: string]: { text: string; icon: React.ElementType; className: string; } } = {
@@ -98,7 +99,7 @@ export function PatientTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[50px]">
+                <TableHead className="w-[50px]">
               <Checkbox
                 checked={
                   selectedPatients.size > 0 &&
@@ -106,12 +107,13 @@ export function PatientTable({
                 }
                 onCheckedChange={handleToggleSelectAll}
                 aria-label="Selecionar todos"
-                 ref={(el) =>
-                  el &&
-                  (el.indeterminate =
-                    selectedPatients.size > 0 &&
-                    selectedPatients.size < patients.length)
-                }
+                 ref={(el) => {
+                  if (el) {
+                    (el as any).indeterminate =
+                      selectedPatients.size > 0 &&
+                      selectedPatients.size < patients.length;
+                  }
+                }}
               />
             </TableHead>
             <TableHead className="w-[40px]">Status</TableHead>

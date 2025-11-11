@@ -105,13 +105,14 @@ export function InventoryTable({
                   selectedItems.size > 0 && selectedItems.size === items.length
                 }
                 onCheckedChange={handleToggleSelectAll}
-                aria-label="Select all"
-                ref={(el) =>
-                  el &&
-                  (el.indeterminate =
-                    selectedItems.size > 0 &&
-                    selectedItems.size < items.length)
-                }
+                  aria-label="Select all"
+                  ref={(el) => {
+                    if (el) {
+                      (el as any).indeterminate =
+                        selectedItems.size > 0 &&
+                        selectedItems.size < items.length;
+                    }
+                  }}
               />
             </TableHead>
             <TableHead>Item</TableHead>
