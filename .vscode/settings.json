@@ -1,0 +1,17 @@
+{
+    // Arquivo mesclado: combina as configurações remotas e locais.
+    // Observação: as entradas em `vs-kubernetes` e `redhat.telemetry.enabled` são específicas da máquina;
+    // se preferir não compartilhar caminhos absolutos, remova-as deste arquivo e mantenha-as no User Settings.
+
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "gitlens.ai.model": "vscode",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+
+    // Alinhado com cloudcode.project conforme solicitado
+    "geminicodeassist.project": "studio-6201763510-1a97b",
+    "cloudcode.project": "studio-6201763510-1a97b",
+
+    "cloudcode.autoDependencies": "off",
+    "git.autofetch": true,
+    "workbench.secondarySideBar.defaultVisibility": "hidden"
+}
