@@ -2,7 +2,7 @@
 "use server";
 
 import { PatientFinancialZ } from "@/schemas/patient.financial";
-import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
+import { getSupabaseServerClient } from "@/server/supabaseServerClient";
 import { getCurrentTenantId } from "@/server/getCurrentTenantId";
 
 export async function upsertPatientFinancial(payload: unknown) {

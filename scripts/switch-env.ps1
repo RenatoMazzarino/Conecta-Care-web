@@ -6,7 +6,7 @@ param(
     [string]$Mode
 )
 
-$envFile = ".env.local"
+$envFile = ".env.local.dev"
 
 # Se não especificou modo, detectar atual e sugerir troca
 if (-not $Mode) {

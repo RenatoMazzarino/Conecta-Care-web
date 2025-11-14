@@ -75,15 +75,14 @@ Remove-Item scripts/supabase-status.ps1
 
 **Arquivos Existentes:**
 1. `.env` - ⚠️ **NÃO DEVERIA EXISTIR** (deve estar em .gitignore)
-2. `.env.local` - ✅ Ambiente atual (local/cloud)
+2. `.env.local.dev` - ✅ Ambiente atual (local/cloud, ignorado)
 3. `.env.local.backup` - ⚠️ Backup temporário
-4. `.env.local.example` - ✅ Template para local
-5. `.env.example` - ❓ Propósito duplicado?
+4. `.env.template` - ✅ Template único (local + cloud)
 
 **Problemas:**
 - `.env` não está no `.gitignore` - **RISCO DE SEGURANÇA**
 - `.env.local.backup` é temporário - deve ser removido
-- `.env.example` vs `.env.local.example` - propósitos confusos
+- Nome dos arquivos não deixava claro qual é template x runtime
 
 **Ação Recomendada:**
 ```powershell
@@ -94,7 +93,8 @@ Add-Content .gitignore "`n# Environment files`n.env`n.env.local.backup"
 Remove-Item .env.local.backup
 
 # 3. Consolidar examples
-# Manter apenas .env.example com templates para ambos (local + cloud)
+# Manter apenas `.env.template` com valores base (local + cloud)
+# ✅ Status: `.env.local.dev` = runtime; `.env.template` = template único.
 ```
 
 ---
@@ -275,7 +275,7 @@ Add-Content .gitignore "`n# Supabase temporary files`nsupabase/.temp/`nsupabase/
 
 ---
 
-### 12. .env.example - Melhorar Template
+### 12. .env.template - Melhorar Template
 **Sugestão:**
 ```env
 # Conecta Care - Environment Variables Template
@@ -347,8 +347,8 @@ Conecta-Care-web/
 │   ├── functions/              # Edge Functions
 │   ├── migrations/             # Database migrations
 │   └── config.toml
-├── .env.example                # Template completo
-├── .env.local                  # Ambiente atual (ignorado)
+├── .env.template               # Template completo
+├── .env.local.dev              # Ambiente atual (ignorado)
 ├── .gitignore
 ├── components.json
 ├── eslint.config.cjs
@@ -385,7 +385,7 @@ Conecta-Care-web/
 ### Ações Secundárias (Melhorias)
 - [ ] Revisar e consolidar docs do Supabase
 - [ ] Atualizar README.md principal
-- [ ] Melhorar template `.env.example`
+- [ ] Melhorar template `.env.template`
 - [ ] Remover `user-settings-k8s-backup.json` se desnecessário
 - [ ] Documentar estrutura de pastas no README
 

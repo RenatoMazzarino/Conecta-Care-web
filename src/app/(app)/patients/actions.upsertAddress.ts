@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { getSupabaseServerClient } from "@/lib/supabaseServerClient";
+import { getSupabaseServerClient } from "@/server/supabaseServerClient";
 import { getCurrentTenantId } from "@/server/getCurrentTenantId";
 
 const AddressZ = z.object({

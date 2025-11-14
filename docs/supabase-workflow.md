@@ -69,7 +69,7 @@ Cria um arquivo de migration com as diferenças entre o estado atual e o último
    - Teste sua aplicação apontando para o Supabase local
 
 3. **Testar mudanças**:
-   - Sua app usa `.env.local` que pode ter URLs locais ou Cloud (veja abaixo)
+   - Sua app usa `.env.local.dev` que pode ter URLs locais ou Cloud (veja abaixo)
    - Rode testes
 
 4. **Aplicar na cloud**:
@@ -82,9 +82,9 @@ Cria um arquivo de migration com as diferenças entre o estado atual e o último
    npx supabase db pull
    ```
 
-## Configuração de ambiente (.env.local)
+## Configuração de ambiente (.env.local.dev)
 
-Você pode ter dois `.env.local` ou usar variáveis diferentes:
+Você pode manter um único `.env.local.dev` e alternar os valores com o script `switch-env.ps1`:
 
 **Para desenvolvimento local (apontando ao Docker local):**
 ```env
@@ -98,7 +98,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://nalwsuifppxvrikztwcz.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-Atualmente seu `.env.local` aponta para a cloud. Se quiser testar localmente, mude temporariamente para as URLs locais (rode `npx supabase status` para obter as chaves locais).
+Atualmente seu `.env.local.dev` aponta para a cloud. Se quiser testar localmente, mude temporariamente para as URLs locais (rode `npx supabase status` para obter as chaves locais ou use `.\\scripts\\switch-env.ps1 -Mode local`).
 
 ## Extensão VS Code
 

@@ -24,6 +24,15 @@ Esta pasta contém schemas de referência completos do banco de dados.
 - Documentação das decisões de arquitetura
 - Backup da estrutura inicial
 
+### `legacy-sql/`
+Pasta contendo os arquivos SQL originais exportados antes da adoção das migrations do Supabase. Mantidos apenas para consulta histórica.
+Arquivos:
+- `000_init.sql`
+- `001_security_realtime.sql`
+- `002_trigger_user_profiles.sql`
+
+> Esses arquivos não devem mais ser executados diretamente. Sempre utilize as migrations em `supabase/migrations`.
+
 ## Migrations Oficiais
 
 Os schemas oficiais versionados estão em:

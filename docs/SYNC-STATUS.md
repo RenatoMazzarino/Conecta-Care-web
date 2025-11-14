@@ -203,7 +203,7 @@ npx supabase migration new nome_da_migration
 - [x] Supabase local inicializado
 - [x] Projeto linkado à cloud (`nalwsuifppxvrikztwcz`)
 - [x] Migrations sincronizadas (3 migrations aplicadas)
-- [x] `.env.local` configurado
+- [x] `.env.local.dev` configurado
 - [x] Conectividade cloud funcionando (DNS + Pooler + API)
 - [x] Scripts de automação criados
 - [x] PostgreSQL versão 17 (local e cloud alinhados)

@@ -27,10 +27,17 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
+.env
 .env.local
+.env.local.dev
+.env.local.backup
 .env.development.local
 .env.test.local
 .env.production.local
+
+# supabase CLI artifacts
+supabase/.temp/
+supabase/.branches/
 
 # vercel
 .vercel
