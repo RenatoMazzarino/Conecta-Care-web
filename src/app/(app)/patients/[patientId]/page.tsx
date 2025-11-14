@@ -20,13 +20,8 @@ import { Badge } from '@/components/ui/badge';
 import { FichaEndereco } from '@/components/patients/ficha-endereco';
 import { FichaClinica } from '@/components/patients/ficha-clinica';
 import { FichaAdministrativa } from '@/components/patients/ficha-administrativa';
-import {
-  PatientPersonalForm,
-  PatientAddressForm,
-  PatientAdminForm,
-  PatientClinicalSummaryForm,
-  PatientFinancialForm,
-} from '@/components/patients/patient-forms';
+import { FichaFinanceira } from '@/components/patients/ficha-financeira';
+import { Input } from '@/components/ui/input';
 
 export type EditMode = 'none' | 'full' | 'dadosPessoais' | 'endereco' | 'clinico' | 'administrativo' | 'financeiro' | 'redeDeApoio' | 'documentos' | 'medicacoes';
 
@@ -39,6 +34,24 @@ const TABS = [
     { id: "documentos", label: "Documentos e Consentimentos" },
     { id: "auditoria", label: "Histórico e Auditoria" },
 ];
+
+const DOCUMENT_FIELDS = [
+    { key: 'termoConsentimentoUrl', label: 'Termo de Consentimento', helper: 'Assinado pelo paciente ou representante legal.' },
+    { key: 'termoLgpdUrl', label: 'Termo LGPD', helper: 'Autorização de uso e tratamento de dados.' },
+    { key: 'documentoComFotoUrl', label: 'Documento com foto', helper: 'RG, CNH ou documento equivalente.' },
+    { key: 'comprovanteEnderecoUrl', label: 'Comprovante de endereço' },
+    { key: 'fichaAvaliacaoEnfermagemUrl', label: 'Ficha de avaliação de enfermagem' },
+    { key: 'planoCuidadoUrl', label: 'Plano de cuidado' },
+    { key: 'protocoloAuditoriaUrl', label: 'Protocolo de auditoria' },
+] satisfies { key: keyof Patient['documents']; label: string; helper?: string }[];
+
+const formatDate = (value?: string, withTime?: boolean) => {
+    if (!value) return 'Não informado';
+    const date = new Date(value);
+    return withTime
+        ? date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+        : date.toLocaleDateString('pt-BR');
+};
 
 export default function PatientProfilePage() {
   const params = useParams();
@@ -103,6 +116,22 @@ export default function PatientProfilePage() {
   }
   
   const displayData = editedData || patient;
+  const documentData = displayData?.documents ?? {};
+
+  const handleDocumentChange = React.useCallback(
+    (field: keyof Patient['documents'], value: string) => {
+      setEditedData((prev) => {
+        if (!prev) return prev;
+        const next = structuredClone(prev);
+        next.documents = {
+          ...(next.documents ?? {}),
+          [field]: value || undefined,
+        };
+        return next;
+      });
+    },
+    [setEditedData]
+  );
 
   if (isLoading) {
       return <div className="p-6"><Skeleton className="h-[85vh] w-full" /></div>
@@ -116,56 +145,6 @@ export default function PatientProfilePage() {
   const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
   const mainAllergy = displayData.clinicalSummary?.allergies?.[0];
   const legalRep = displayData.emergencyContacts?.find(c => c.isLegalRepresentative);
-
-  const personalDefaults = {
-    full_name: fullName || displayData.displayName,
-    display_name: displayData.displayName,
-    cpf: displayData.cpf,
-    date_of_birth: displayData.dateOfBirth?.slice(0, 10),
-  };
-
-  const addressDefaults = {
-    cep: displayData.address?.zipCode,
-    address_line: displayData.address?.street,
-    number: displayData.address?.number,
-    complement: displayData.address?.complement,
-    neighborhood: displayData.address?.neighborhood,
-    city: displayData.address?.city,
-    state: displayData.address?.state,
-    reference_point: displayData.address?.pontoReferencia,
-  };
-
-  const adminDefaults = displayData.adminData
-    ? {
-        status: displayData.adminData.status,
-        admission_type: displayData.adminData.admissionType,
-        complexity: displayData.adminData.complexity,
-        service_package: displayData.adminData.servicePackage,
-        start_date: displayData.adminData.startDate,
-        end_date: displayData.adminData.endDate,
-        notes_internal: displayData.adminData.notesInternal,
-      }
-    : undefined;
-
-  const clinicalDefaults = {
-    summary: displayData.clinicalSummary,
-    meta: displayData.clinicalSummaryMeta,
-  };
-
-  const financialDefaults = displayData.financial
-    ? {
-        bond_type: displayData.financial.vinculo,
-        insurer: displayData.financial.operadora,
-        plan_name: displayData.financial.operadora,
-        card_number: displayData.financial.carteirinha,
-        validity: displayData.financial.validadeCarteirinha,
-        monthly_fee: displayData.financial.monthlyFee,
-        due_day: displayData.financial.billingDay,
-        payment_method: displayData.financial.formaPagamento,
-        observations: displayData.financial.observacoesFinanceiras,
-      }
-    : undefined;
-
 
   return (
     <div className="space-y-6">
@@ -252,10 +231,6 @@ export default function PatientProfilePage() {
                       editedData={editedData} 
                       setEditedData={setEditedData} 
                   />
-                  <PatientPersonalForm
-                    patientId={displayData.id}
-                    defaultValues={personalDefaults}
-                  />
                 </div>
             </TabsContent>
             
@@ -267,10 +242,6 @@ export default function PatientProfilePage() {
                       editedData={editedData}
                       setEditedData={setEditedData}
                   />
-                  <PatientAddressForm
-                    patientId={displayData.id}
-                    defaultValues={addressDefaults}
-                  />
                 </div>
             </TabsContent>
             <TabsContent value="clinicos">
@@ -281,57 +252,114 @@ export default function PatientProfilePage() {
                       editedData={editedData}
                       setEditedData={setEditedData}
                    />
-                   <PatientClinicalSummaryForm
-                     patientId={displayData.id}
-                     defaultValues={clinicalDefaults}
-                   />
                  </div>
             </TabsContent>
             <TabsContent value="administrativo">
                  <div className="space-y-6">
-                   <FichaAdministrativa displayData={displayData} professionals={professionals} />
-                   <PatientAdminForm
-                     patientId={displayData.id}
-                     defaultValues={adminDefaults}
+                   <FichaAdministrativa 
+                      displayData={displayData} 
+                      editedData={editedData}
+                      setEditedData={setEditedData}
+                      isEditing={isEditing}
+                      professionals={professionals} 
                    />
                  </div>
             </TabsContent>
-             <TabsContent value="financeiro">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Financeiro</CardTitle>
-                        <CardDescription>Esta seção conterá os dados financeiros do paciente.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground text-sm">
-                            Utilize o formul��rio abaixo para atualizar as informa����es de cobrança diretamente no Supabase.
-                        </p>
-                    </CardContent>
-                 </Card>
-                 <PatientFinancialForm
-                   patientId={displayData.id}
-                   defaultValues={financialDefaults}
-                 />
+            <TabsContent value="financeiro">
+                 <div className="space-y-6">
+                   <FichaFinanceira
+                      displayData={displayData}
+                      editedData={editedData}
+                      setEditedData={setEditedData}
+                      isEditing={isEditing}
+                   />
+                 </div>
             </TabsContent>
-             <TabsContent value="documentos">
+
+            <TabsContent value="documentos">
                  <Card>
                     <CardHeader>
                         <CardTitle>Documentos e Consentimentos</CardTitle>
-                        <CardDescription>Esta seção conterá os documentos e consentimentos do paciente.</CardDescription>
+                        <CardDescription>
+                            Status e links de arquivos essenciais para o atendimento.
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">Em breve.</p>
+                    <CardContent className="space-y-4">
+                        {DOCUMENT_FIELDS.map((doc) => {
+                            const value = documentData[doc.key];
+                            return (
+                                <div
+                                    key={doc.key}
+                                    className="rounded-lg border p-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+                                >
+                                    <div>
+                                        <p className="text-sm font-medium">{doc.label}</p>
+                                        {doc.helper && (
+                                            <p className="text-xs text-muted-foreground">{doc.helper}</p>
+                                        )}
+                                        {!isEditing && value && (
+                                            <a
+                                                href={value}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="text-xs text-primary hover:underline"
+                                            >
+                                                Abrir documento
+                                            </a>
+                                        )}
+                                    </div>
+                                    {isEditing ? (
+                                        <Input
+                                            type="url"
+                                            placeholder="URL ou identificador do arquivo"
+                                            value={value ?? ''}
+                                            onChange={(e) => handleDocumentChange(doc.key, e.target.value)}
+                                        />
+                                    ) : (
+                                        <Badge variant={value ? 'secondary' : 'outline'} className="w-fit">
+                                            {value ? 'Anexado' : 'Pendente'}
+                                        </Badge>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </CardContent>
                  </Card>
             </TabsContent>
+
             <TabsContent value="auditoria">
                  <Card>
                     <CardHeader>
                         <CardTitle>Histórico e Auditoria</CardTitle>
-                        <CardDescription>Esta seção conterá o histórico de alterações do paciente.</CardDescription>
+                        <CardDescription>
+                            Registro das principais modificações e responsáveis.
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">Em breve.</p>
+                    <CardContent className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="rounded-lg border bg-muted/40 p-4">
+                                <p className="text-xs text-muted-foreground uppercase">Criado em</p>
+                                <p className="text-sm font-semibold">{formatDate(displayData.audit.createdAt, true)}</p>
+                                <p className="text-xs text-muted-foreground">por {displayData.audit.createdBy || 'Equipe Conecta Care'}</p>
+                            </div>
+                            <div className="rounded-lg border bg-muted/40 p-4">
+                                <p className="text-xs text-muted-foreground uppercase">Última atualização</p>
+                                <p className="text-sm font-semibold">{formatDate(displayData.audit.updatedAt, true)}</p>
+                                <p className="text-xs text-muted-foreground">por {displayData.audit.updatedBy || 'Equipe Conecta Care'}</p>
+                            </div>
+                        </div>
+                        <div className="space-y-3 text-sm">
+                            <p className="font-semibold">Última auditoria operacional</p>
+                            <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <span className="font-medium">Status atual:</span>
+                                    <Badge variant="outline">{displayData.adminData.status}</Badge>
+                                </div>
+                                <p><span className="font-medium">Data:</span> {formatDate(displayData.adminData.lastAuditDate, true)}</p>
+                                <p><span className="font-medium">Responsável:</span> {displayData.adminData.lastAuditBy || 'Não informado'}</p>
+                                <p><span className="font-medium">Observações:</span> {displayData.adminData.notesInternal || 'Sem anotações registradas.'}</p>
+                            </div>
+                        </div>
                     </CardContent>
                  </Card>
             </TabsContent>

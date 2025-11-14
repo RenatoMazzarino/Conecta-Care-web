@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Archive, Inbox, Send, Search, Users, FileText, Trash2, Mail, Bot, Phone, CheckSquare } from 'lucide-react';
+import { Archive, Inbox, Send, Search, Users, FileText, Trash2, Mail, Bot, Phone, CheckSquare, type LucideIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,26 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { patients } from '@/lib/data';
 
-const mockConversations = [
+type ChannelType = 'whatsapp' | 'email' | 'chat' | 'system';
+
+type ConversationMessage = {
+  role: 'system' | 'assistant' | 'user';
+  text: string;
+};
+
+type Conversation = {
+  id: string;
+  type: ChannelType;
+  sender: string;
+  patientId: string;
+  subject: string;
+  preview: string;
+  timestamp: string;
+  read: boolean;
+  content: ConversationMessage[];
+};
+
+const mockConversations: Conversation[] = [
   {
     id: 'convo-1',
     type: 'whatsapp',
@@ -71,12 +90,12 @@ const mockConversations = [
   },
 ];
 
-const channelIcons = {
-    whatsapp: Phone,
-    email: Mail,
-    chat: Bot,
-    system: 'system'
-}
+const channelIcons: Record<ChannelType, LucideIcon> = {
+  whatsapp: Phone,
+  email: Mail,
+  chat: Bot,
+  system: FileText,
+};
 
 export default function CommunicationsPage() {
     const [selectedConversation, setSelectedConversation] = React.useState(mockConversations[0]);
@@ -135,7 +154,7 @@ export default function CommunicationsPage() {
           </div>
           <div className="flex-1 overflow-y-auto">
             {mockConversations.map(convo => {
-                 const Icon = channelIcons[convo.type as keyof typeof channelIcons] || FileText;
+                 const IconComponent = channelIcons[convo.type] ?? FileText;
                 return (
                     <div
                         key={convo.id}
@@ -148,7 +167,7 @@ export default function CommunicationsPage() {
                          {!convo.read && <div className="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Icon className="h-4 w-4 text-muted-foreground" />
+                                <IconComponent className="h-4 w-4 text-muted-foreground" />
                                 <p className="font-semibold text-sm truncate">{convo.sender}</p>
                             </div>
                             <span className="text-xs text-muted-foreground">{convo.timestamp}</span>

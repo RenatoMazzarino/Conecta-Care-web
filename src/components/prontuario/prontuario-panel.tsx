@@ -26,6 +26,16 @@ const tabPanelBackgrounds = [
   'bg-rose-50 text-rose-900',
 ];
 
+const panelSurfaceBackgrounds = [
+  'bg-sky-50',
+  'bg-pink-50',
+  'bg-emerald-50',
+  'bg-amber-50',
+  'bg-violet-50',
+  'bg-blue-50',
+  'bg-rose-50',
+];
+
 const tabAccentStrips = [
   'bg-sky-500',
   'bg-pink-500',
@@ -67,12 +77,13 @@ export function ProntuarioPanel({ patient, isOpen, onOpenChange }: ProntuarioPan
 
   const activeIndex = Math.max(prontuarioTabs.findIndex((tab) => tab.id === activeTab), 0);
   const contentBgClass = tabPanelBackgrounds[activeIndex] ?? 'bg-white';
+  const panelBgClass = panelSurfaceBackgrounds[activeIndex] ?? 'bg-white';
 
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="w-full sm:max-w-[95vw] lg:max-w-[90vw] xl-max-w-[85vw] p-0 flex flex-col bg-white shadow-2xl">
-          <SheetHeader className="px-6 pt-4 pb-3 border-b bg-white relative z-50">
+        <SheetContent className={cn('w-full sm:max-w-[95vw] lg:max-w-[90vw] xl-max-w-[85vw] p-0 flex flex-col border-none shadow-none overflow-hidden', panelBgClass)}>
+          <SheetHeader className="px-6 pt-4 pb-3 border-b bg-white">
             <div className="flex items-center justify-between">
               <div>
                 <SheetTitle className="text-2xl font-bold">Prontuário de {patient.displayName}</SheetTitle>
@@ -84,9 +95,9 @@ export function ProntuarioPanel({ patient, isOpen, onOpenChange }: ProntuarioPan
             </div>
           </SheetHeader>
 
-          <div className="relative flex flex-1 overflow-visible z-10 -mt-3">
-            <div className="relative flex-1 px-4 sm:px-8 py-0 z-20 bg-transparent">
-              <div className="flex flex-col gap-0 items-start absolute -left-2 top-[-10px] hidden lg:flex z-50">
+          <div className="-mt-4 flex flex-1 overflow-hidden z-10 px-0 pb-0">
+            <div className="relative flex-1 pl-8 pr-4 sm:pl-10 sm:pr-6 py-0 z-20 bg-transparent overflow-y-auto overflow-x-hidden">
+              <div className="flex flex-col gap-0 items-start absolute left-0 top-[-10px] hidden lg:flex z-50">
                 {prontuarioTabs.map((tab, index) => {
                   return (
                     <button
@@ -113,14 +124,18 @@ export function ProntuarioPanel({ patient, isOpen, onOpenChange }: ProntuarioPan
                   );
                 })}
               </div>
-              <div className={cn('w-full min-h-full pl-8 pr-6 py-6 -mt-4', contentBgClass)}>
-                <ProntuarioContent
-                  tabId={activeTab}
-                  editMode={editMode}
-                  setEditMode={setEditMode}
-                  editedData={editedData}
-                  setEditedData={setEditedData}
-                />
+              <div className={cn('flex-1 min-h-full ml-2 sm:ml-4 -mt-4 bg-white pr-0 sm:pr-0', contentBgClass)}>
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto pl-6 pr-2 sm:pl-8 sm:pr-4 py-6">
+                    <ProntuarioContent
+                      tabId={activeTab}
+                      editMode={editMode}
+                      setEditMode={setEditMode}
+                      editedData={editedData}
+                      setEditedData={setEditedData}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
