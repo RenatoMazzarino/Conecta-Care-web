@@ -84,21 +84,33 @@ Cria um arquivo de migration com as diferenças entre o estado atual e o último
 
 ## Configuração de ambiente (.env.local.dev)
 
-Você pode manter um único `.env.local.dev` e alternar os valores com o script `switch-env.ps1`:
+1. `Copy-Item .env.template .env.local.dev`
+2. `Copy-Item scripts/env-presets.example.json scripts/env-presets.json` e preencha com as suas chaves reais (anon/service role locais e cloud).
+3. Rode o script:  
+   ```powershell
+   .\scripts\switch-env.ps1 -Mode local   # usa o preset local
+   .\scripts\switch-env.ps1 -Mode cloud   # usa o preset cloud
+   ```
 
-**Para desenvolvimento local (apontando ao Docker local):**
+O script lê `scripts/env-presets.json` (gitignored) e gera o `.env.local.dev` com cabeçalho que indica o modo atual. Assim as chaves sensíveis não ficam versionadas.
+
+Caso precise editar manualmente, use as referências abaixo:
+
+**Supabase local (Docker)**
 ```env
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<chave-anon-local>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz
 ```
 
-**Para desenvolvimento apontando à cloud:**
+**Supabase cloud**
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://nalwsuifppxvrikztwcz.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key-da-cloud>
+SUPABASE_SERVICE_ROLE_KEY=<service-role-da-cloud>
 ```
 
-Atualmente seu `.env.local.dev` aponta para a cloud. Se quiser testar localmente, mude temporariamente para as URLs locais (rode `npx supabase status` para obter as chaves locais ou use `.\\scripts\\switch-env.ps1 -Mode local`).
+Use `npx supabase status` para conferir as URLs/chaves do ambiente local sempre que duvidar.
 
 ## Extensão VS Code
 

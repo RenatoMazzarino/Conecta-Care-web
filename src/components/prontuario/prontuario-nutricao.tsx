@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Apple, NotebookPen, ClipboardCheck, Filter } from 'lucide-react';
+import { Apple, Filter } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function ProntuarioNutricao() {

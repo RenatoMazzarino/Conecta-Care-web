@@ -35,7 +35,7 @@ export async function auth(): Promise<Session> {
   try {
     const session = JSON.parse(sessionCookie);
     return session;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

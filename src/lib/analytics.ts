@@ -84,5 +84,7 @@ type AnalyticsEvent =
 export function trackEvent(event: AnalyticsEvent): void {
   // In a real implementation, you would use your analytics library here.
   // For example: `mixpanel.track(event.eventName, event.properties);`
-  console.log(`[Analytics] Event: ${event.eventName}`, event.properties);
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(`[Analytics] Event: ${event.eventName}`, event.properties);
+  }
 }

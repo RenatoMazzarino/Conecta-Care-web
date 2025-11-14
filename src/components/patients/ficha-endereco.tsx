@@ -2,13 +2,11 @@
 
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    Home, Building, MapPin, ParkingCircle, Ambulance, Wind, Cigarette, Ear, PawPrint, Users, Router, HardDrive, Droplets, BedDouble, Globe, KeyRound, Clock, Shield, Camera, Route, UserCheck, Flame, ClipboardList
+    Building, MapPin, Wind, Cigarette, Ear, PawPrint, Users, Droplets, Globe, KeyRound, Clock, Shield, Camera, Route, UserCheck, Flame, ClipboardList
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -30,28 +28,13 @@ const FormField = ({ label, children, className, labelClassName }: {
 type FichaEnderecoProps = {
   displayData: Patient | null;
   editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
+  setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
   isEditing: boolean;
 };
 
-export function FichaEndereco({ displayData, editedData, setEditedData, isEditing }: FichaEnderecoProps) {
+export function FichaEndereco({ displayData, editedData, setEditedData: _setEditedData, isEditing: _isEditing }: FichaEnderecoProps) {
 
     if (!displayData || !editedData) return null;
-    
-    const handleFieldChange = (path: string, value: any) => {
-        setEditedData(prevData => {
-            if (!prevData) return null;
-            const newEditedData = JSON.parse(JSON.stringify(prevData));
-            let current = newEditedData;
-            const keys = path.split('.');
-            for (let i = 0; i < keys.length - 1; i++) {
-                current[keys[i]] = current[keys[i]] || {};
-                current = current[keys[i]];
-            }
-            current[keys[keys.length - 1]] = value;
-            return newEditedData;
-        });
-    };
     
     const fullAddress = `${displayData.address.street}, ${displayData.address.number}`
     const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress + ', ' + displayData.address.city)}`;

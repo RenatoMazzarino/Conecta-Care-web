@@ -3,7 +3,7 @@ import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invo
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Footprints, Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck, MapPin, AlertTriangle, Clock } from 'lucide-react';
+import { Pill, CircleCheck, CircleX, Stethoscope, TestTube, UserCheck, Heart, CalendarCheck, MapPin, AlertTriangle, Clock } from 'lucide-react';
 
 const patientAvatars = {
   'patient-123': PlaceHolderImages.find(img => img.id === 'patient-avatar-1'),
@@ -28,6 +28,7 @@ export const patients: Patient[] = [
     salutation: 'Sr.',
     firstName: 'João',
     lastName: 'da Silva',
+    name: 'João da Silva',
     displayName: 'João',
     initials: 'JS',
     pronouns: 'Ele/Dele',
@@ -147,6 +148,12 @@ export const patients: Patient[] = [
         lastUpdatedBy: 'user-234',
         source: 'prontuario'
     },
+    clinicalData: {
+        medications: [
+            { name: 'Losartana', dosage: '50mg', frequency: '2x/dia', notes: 'Monitorar PA' },
+            { name: 'Metformina', dosage: '500mg', frequency: '2x/dia', notes: 'Administrar com refeições' },
+        ],
+    },
     financial: {
         vinculo: 'Plano de Saúde',
         operadora: 'Amil 700',
@@ -181,6 +188,7 @@ export const patients: Patient[] = [
     salutation: 'Sra.',
     firstName: 'Maria',
     lastName: 'Lopes',
+    name: 'Maria Lopes',
     initials: 'ML',
     displayName: 'Maria',
     pronouns: 'Ela/Dela',
@@ -234,6 +242,7 @@ export const patients: Patient[] = [
     },
     clinicalSummary: {} as any, // Placeholder
     clinicalSummaryMeta: {} as any, // Placeholder
+    clinicalData: { medications: [] },
     financial: {
         vinculo: 'Particular',
         monthlyFee: 8500,
@@ -255,6 +264,7 @@ export const patients: Patient[] = [
     salutation: 'Sr.',
     firstName: 'Jorge',
     lastName: 'Mendes',
+    name: 'Jorge Mendes',
     initials: 'JM',
     displayName: 'Jorge',
     pronouns: 'Ele/Dele',
@@ -290,6 +300,7 @@ export const patients: Patient[] = [
     domicile: {},
     clinicalSummary: {} as any, // Placeholder
     clinicalSummaryMeta: {} as any, // Placeholder
+    clinicalData: { medications: [] },
     financial: {
         vinculo: 'Plano de Saúde',
         operadora: 'Unimed Flex',

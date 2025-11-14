@@ -10,7 +10,7 @@ import type { Shift, Professional, Patient } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '../ui/textarea';
 import Link from 'next/link';
-import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, Edit, Calendar, Clock, AlertTriangle, MapPin, DollarSign, Megaphone, X, CalendarClock, Info, FileDown } from 'lucide-react';
+import { FileText, MessageCircle, User, CheckSquare, FileUp, UserCheck, Star, Shield, Search, AlertTriangle, MapPin, DollarSign, Megaphone, CalendarClock, FileDown } from 'lucide-react';
 import { ShiftAuditDialog } from './shift-audit-dialog';
 import { ShiftChatDialog } from './shift-chat-dialog';
 import { ProntuarioTimeline } from '../prontuario/prontuario-timeline';
@@ -31,10 +31,11 @@ const mockCandidates: Professional[] = [
     allProfessionals.find(p => p.id === 'prof-5')!,
 ].filter(Boolean);
 
-const complexityVariant: { [key in Patient['complexity']]: string } = {
-    baixa: 'bg-green-100 text-green-800 border-green-200',
-    media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    alta: 'bg-red-100 text-red-800 border-red-200',
+const complexityVariant: { [key in Patient['adminData']['complexity']]: string } = {
+    Baixa: 'bg-green-100 text-green-800 border-green-200',
+    Média: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    Alta: 'bg-red-100 text-red-800 border-red-200',
+    Crítica: 'bg-red-200 text-red-900 border-red-300',
 }
 
 export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, patient, onOpenProfile, onApprove, onVacancyPublished }: { 
@@ -61,8 +62,8 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
     notes: '',
     isUrgent: shift.isUrgent || false,
   });
-  
-  const isTimeInvalid = publishData.startTime && publishData.endTime && publishData.startTime > publishData.endTime;
+  const hasTimeRange = Boolean(publishData.startTime && publishData.endTime);
+  const isTimeInvalid = hasTimeRange && publishData.startTime > publishData.endTime;
 
 
   const { toast } = useToast();
@@ -167,6 +168,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
 
     if (view === 'publish') {
       const fullAddress = `${patient.address.street}, ${patient.address.number} - ${patient.address.neighborhood}, ${patient.address.city}/${patient.address.state}`;
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
       const formattedDate = new Date(shift.dayKey).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' });
       return (
         <div className="py-4 max-h-[70vh]">
@@ -218,10 +220,28 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                                 <Switch 
                                     id="urgent-switch-publish"
                                     checked={publishData.isUrgent} 
-                                    onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} 
+                                    onCheckedChange={(checked) => setPublishData({...publishData, isUrgent: checked === true})} 
                                     className="data-[state=checked]:bg-amber-500"
                                 />
                             </div>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <MapPin className="h-5 w-5 text-primary" />
+                              Localização do atendimento
+                            </CardTitle>
+                            <CardDescription>Confirme o endereço antes de publicar.</CardDescription>
+                          </CardHeader>
+                          <CardContent className="flex flex-col gap-2">
+                            <p className="text-sm text-muted-foreground break-words">{fullAddress}</p>
+                            <Button asChild variant="outline" size="sm" className="self-start">
+                              <Link href={mapsUrl} target="_blank" rel="noreferrer">
+                                Abrir no Google Maps
+                              </Link>
+                            </Button>
                           </CardContent>
                         </Card>
                         
@@ -303,7 +323,7 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                 <Switch 
                     id="urgent-switch"
                     checked={publishData.isUrgent} 
-                    onCheckedChange={checked => setPublishData({...publishData, isUrgent: checked})} 
+                    onCheckedChange={(checked) => setPublishData({...publishData, isUrgent: checked === true})} 
                     className="data-[state=checked]:bg-amber-500"
                 />
             </div>
@@ -423,8 +443,8 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
   
   if (!shift || !patient) return null;
 
-  const isCreatingNew = !patient.id;
   const isActive = shift.status === 'active';
+  const patientComplexity = patient.adminData?.complexity;
 
   return (
     <>
@@ -444,11 +464,11 @@ export function ShiftDetailsDialog({ isOpen, onOpenChange, shift, professional, 
                          <DialogTitle className="text-2xl">
                             <Link href={`/patients/${patient.id}`} className="hover:underline">{patient.name || 'Nova Vaga'}</Link>
                          </DialogTitle>
-                         {patient.complexity && (
-                            <Badge className={cn("hidden sm:inline-flex", complexityVariant[patient.complexity])}>
-                                {patient.complexity.charAt(0).toUpperCase() + patient.complexity.slice(1)} Complexidade
-                            </Badge>
-                         )}
+                        {patientComplexity && (
+                           <Badge className={cn("hidden sm:inline-flex", complexityVariant[patientComplexity])}>
+                                {patientComplexity.charAt(0).toUpperCase() + patientComplexity.slice(1)} Complexidade
+                           </Badge>
+                        )}
                     </div>
                     <DialogDescription className="flex items-center flex-wrap gap-x-2">
                         {professional ? (

@@ -583,9 +583,9 @@ type PatientFinancialFormProps = {
 };
 
 const BOND_OPTIONS = [
-  "Plano de Saúde",
+  "Plano de Saï¿½de",
   "Particular",
-  "Convênio",
+  "Convï¿½nio",
   "SUS",
   "Parceria",
 ] as const;
@@ -593,8 +593,8 @@ const BOND_OPTIONS = [
 const PAYMENT_OPTIONS = [
   "Boleto",
   "PIX",
-  "Débito",
-  "Transferência",
+  "Dï¿½bito",
+  "Transferï¿½ncia",
   "Faturamento",
   "Outro",
 ] as const;
@@ -602,7 +602,7 @@ const PAYMENT_OPTIONS = [
 const BILLING_STATUS_OPTIONS = [
   "Em dia",
   "Atrasado",
-  "Em negociação",
+  "Em negociaï¿½ï¿½o",
   "Inadimplente",
   "Isento",
 ] as const;
@@ -636,8 +636,8 @@ export function PatientFinancialForm({
       if (invoiceHistoryText.trim()) {
         try {
           payload.invoice_history = JSON.parse(invoiceHistoryText);
-        } catch (parseError) {
-          throw new Error("Histórico de faturas precisa ser um JSON valido.");
+        } catch {
+          throw new Error("Histï¿½rico de faturas precisa ser um JSON valido.");
         }
       } else {
         delete payload.invoice_history;
@@ -672,7 +672,7 @@ export function PatientFinancialForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">
-              Vínculo
+              Vï¿½nculo
             </label>
             <select
               name="bond_type"
@@ -789,7 +789,7 @@ export function PatientFinancialForm({
           </div>
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">
-              Status de cobrança
+              Status de cobranï¿½a
             </label>
             <select
               name="billing_status"
@@ -809,7 +809,7 @@ export function PatientFinancialForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">
-              Último pagamento
+              ï¿½ltimo pagamento
             </label>
             <input
               type="date"
@@ -820,7 +820,7 @@ export function PatientFinancialForm({
           </div>
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">
-              Valor do último pagamento
+              Valor do ï¿½ltimo pagamento
             </label>
             <input
               type="number"
@@ -849,7 +849,7 @@ export function PatientFinancialForm({
 
         <div className="space-y-1">
           <label className="block text-sm font-medium text-slate-700">
-            Observações gerais
+            Observaï¿½ï¿½es gerais
           </label>
           <textarea
             name="observations"
@@ -860,7 +860,7 @@ export function PatientFinancialForm({
 
         <div className="space-y-1">
           <label className="block text-sm font-medium text-slate-700">
-            Histórico de faturas (JSON)
+            Histï¿½rico de faturas (JSON)
           </label>
           <textarea
             value={invoiceHistoryText}
@@ -884,4 +884,5 @@ export function PatientFinancialForm({
     </div>
   );
 }
+
 

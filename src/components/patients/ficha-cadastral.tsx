@@ -10,13 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-    User, Phone, Mail, Calendar, Home, Copy, FileText, BadgeCheck, Gavel
+    User, Phone, Mail, Copy, FileText, BadgeCheck, Gavel
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 
@@ -45,7 +45,7 @@ const FormField = ({ label, children, className, labelClassName }: {
 type FichaCadastralProps = {
   displayData: Patient | null;
   editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
+  setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
   isEditing: boolean;
 };
 
@@ -76,6 +76,7 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
     };
 
     const age = displayData.dateOfBirth ? `${new Date().getFullYear() - new Date(displayData.dateOfBirth).getFullYear()} anos` : null;
+    const communicationOptOut = displayData.communicationOptOut ?? [];
 
     return (
         <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -279,9 +280,9 @@ export function FichaCadastral({ displayData, editedData, setEditedData, isEditi
                                     <span>{displayData.preferredContactMethod}</span>
                                 </FormField>
                                 <FormField label="Opt-Out de Comunicação" className="md:col-span-2 lg:col-span-3">
-                                    {displayData.communicationOptOut?.length > 0 ? (
+                                    {communicationOptOut.length > 0 ? (
                                         <div className="flex gap-2">
-                                            {displayData.communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
+                                            {communicationOptOut.map(opt => <Badge key={opt.type}>{opt.type.toUpperCase()}</Badge>)}
                                         </div>
                                     ) : (
                                         <span>Nenhum</span>

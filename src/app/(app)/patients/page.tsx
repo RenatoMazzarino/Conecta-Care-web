@@ -36,7 +36,9 @@ export default function PatientsPage() {
   const [packageFilter, setPackageFilter] = React.useState('all');
   const [planFilter, setPlanFilter] = React.useState('all');
   const [supervisorFilter, setSupervisorFilter] = React.useState('all');
-  const [statusFilter, setStatusFilter] = React.useState<'all' | 'Ativo' | 'Inativo'>('all');
+type StatusFilterOption = 'all' | 'Ativo' | 'Inativo';
+
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilterOption>('all');
   const [cityFilter, setCityFilter] = React.useState('');
   const [stateFilter, setStateFilter] = React.useState('');
 
@@ -283,7 +285,7 @@ export default function PatientsPage() {
                   </div>
                    <div className="space-y-2">
                     <Label>Status do Paciente</Label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilterOption)}>
                         <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Todos</SelectItem>

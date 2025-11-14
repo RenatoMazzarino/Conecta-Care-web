@@ -7,7 +7,7 @@ import type { Patient, Professional } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, X, FileText, Upload, BookUser, Edit, BadgeCheck, Gavel, Shield, AlertTriangle, Star, Cog } from 'lucide-react';
+import { ArrowLeft, X, BookUser, Edit, BadgeCheck, Gavel, Shield, AlertTriangle, Star } from 'lucide-react';
 import { deepEqual } from '@/lib/deep-equal';
 import { trackEvent } from '@/lib/analytics';
 import { FichaCadastral } from '@/components/patients/ficha-cadastral';
@@ -226,7 +226,9 @@ export default function PatientProfilePage() {
                     {isEditing ? (
                         <>
                         <Button variant="outline" onClick={handleCancelEdit}><X className="w-4 h-4 mr-2"/> Cancelar</Button>
-                        <Button onClick={handleSave}><BadgeCheck className="w-4 h-4 mr-2"/> Salvar Alterações</Button>
+                        <Button onClick={handleSave} disabled={!hasChanges}>
+                            <BadgeCheck className="w-4 h-4 mr-2"/> Salvar Alterações
+                        </Button>
                         </>
                     ) : (
                         <Button onClick={() => setEditMode('full')}><Edit className="w-4 h-4 mr-2"/> Editar Ficha</Button>

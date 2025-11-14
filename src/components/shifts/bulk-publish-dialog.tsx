@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Calendar as CalendarIcon, Search, Check, CircleDashed } from 'lucide-react';
-import type { OpenShiftInfo, Patient } from '@/lib/types';
+import type { OpenShiftInfo } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';

@@ -5,7 +5,7 @@
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
 import { LayoutDashboard, Stethoscope, HeartPulse, Dumbbell, Apple, FolderKanban, Gavel } from 'lucide-react';
-import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
+import { ProntuarioDashboard, ProntuarioEditMode } from '@/components/prontuario/prontuario-dashboard';
 import { ProntuarioEnfermagem } from '@/components/prontuario/prontuario-enfermagem';
 import { ProntuarioMedico } from '@/components/prontuario/prontuario-medico';
 import { ProntuarioFisioterapia } from '@/components/prontuario/prontuario-fisioterapia';
@@ -14,7 +14,6 @@ import { ProntuarioDocumentos } from '@/components/prontuario/prontuario-documen
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import type { EditMode } from '../patients/patient-details-panel';
 
 // Definição das abas do prontuário
 export const prontuarioTabs = [
@@ -50,10 +49,10 @@ const ProntuarioJuridico: React.FC = () => (
 
 type ProntuarioContentProps = {
     tabId: string;
-    editMode: EditMode;
-    setEditMode: (mode: EditMode) => void;
+    editMode: ProntuarioEditMode;
+    setEditMode: (mode: ProntuarioEditMode) => void;
     editedData: Patient | null;
-    setEditedData: (data: Patient | null) => void;
+    setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
 };
 
 // Componente que renderiza o conteúdo da aba ativa

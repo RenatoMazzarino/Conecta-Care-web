@@ -14,6 +14,7 @@ export type Patient = {
   salutation?: 'Sr.' | 'Sra.' | 'Dr.' | 'Dra.';
   firstName: string;
   lastName: string;
+  name: string;
   displayName: string;
   initials: string;
   pronouns?: string;
@@ -175,6 +176,15 @@ export type Patient = {
     lastUpdatedAt: string;
     lastUpdatedBy: string;
     source: 'prontuario' | 'manual';
+  };
+
+  clinicalData?: {
+    medications?: {
+      name: string;
+      dosage: string;
+      frequency: string;
+      notes?: string;
+    }[];
   };
   
   // 4. Dados Administrativos

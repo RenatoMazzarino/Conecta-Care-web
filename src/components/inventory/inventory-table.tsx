@@ -44,8 +44,10 @@ export function InventoryTable({
   onOpenRequisition: (items: InventoryItem[]) => void;
 }) {
   const { toast } = useToast();
-  const [items, setItems] = React.useState(initialItems);
+  const items = React.useMemo(() => initialItems, [initialItems]);
   const [selectedItems, setSelectedItems] = React.useState<Set<string>>(new Set());
+  const allItemsSelected = items.length > 0 && selectedItems.size === items.length;
+  const isIndeterminate = selectedItems.size > 0 && selectedItems.size < items.length;
 
   const handleToggleSelect = (itemId: string) => {
     setSelectedItems((prev) => {
@@ -101,17 +103,9 @@ export function InventoryTable({
           <TableRow>
             <TableHead className="w-[50px]">
               <Checkbox
-                checked={
-                  selectedItems.size > 0 && selectedItems.size === items.length
-                }
-                onCheckedChange={handleToggleSelectAll}
+                checked={isIndeterminate ? 'indeterminate' : allItemsSelected}
+                onCheckedChange={() => handleToggleSelectAll()}
                 aria-label="Select all"
-                ref={(el) =>
-                  el &&
-                  (el.indeterminate =
-                    selectedItems.size > 0 &&
-                    selectedItems.size < items.length)
-                }
               />
             </TableHead>
             <TableHead>Item</TableHead>

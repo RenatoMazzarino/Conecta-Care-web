@@ -3,7 +3,7 @@
 import type { Professional } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Phone, Mail, Calendar, Home, Award, UserCheck, MapPin, AlertTriangle, CalendarCheck, Clock, History } from 'lucide-react';
+import { User, Phone, Mail, Calendar, Home, Award, UserCheck, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function TeamProfileTab({ professional }: { professional: Professional }) {

@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import type { Patient, ShiftReport, Notification, Task, Shift } from '@/lib/types';
 import { mockTasks, patients as mockPatients, professionals, mockShiftReports, mockNotifications, initialShifts } from '@/lib/data';
 import { trackEvent } from '@/lib/analytics';
 

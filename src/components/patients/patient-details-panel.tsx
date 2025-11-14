@@ -5,7 +5,6 @@
 import * as React from 'react';
 import type { Patient } from '@/lib/types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboard';
 import { Button } from '../ui/button';
 import { Upload } from 'lucide-react';

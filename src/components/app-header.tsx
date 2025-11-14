@@ -94,33 +94,54 @@ export function AppHeader() {
 
   const renderNavItem = (item: any) => {
     if (item.subItems) {
+      const isSubActive = item.subItems.some((sub: any) =>
+        pathname?.startsWith(sub.href)
+      );
+
       return (
-         <Collapsible key={item.id}>
-            <CollapsibleTrigger className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground w-full">
+         <Collapsible key={item.id} defaultOpen={isSubActive}>
+            <CollapsibleTrigger
+              className={cn(
+                'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground w-full',
+                isSubActive && 'text-foreground font-semibold'
+              )}
+            >
               <item.icon className="h-5 w-5" />
               {item.label}
             </CollapsibleTrigger>
             <CollapsibleContent className="pl-10 mt-2 space-y-4">
-              {item.subItems.map((sub: any) => (
-                <Link
-                  key={sub.href}
-                  href={sub.href}
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <sub.icon className="h-5 w-5" />
-                  {sub.label}
-                </Link>
-              ))}
+              {item.subItems.map((sub: any) => {
+                const isActive = pathname?.startsWith(sub.href);
+                return (
+                  <Link
+                    key={sub.href}
+                    href={sub.href}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={cn(
+                      'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
+                      isActive && 'text-foreground font-medium'
+                    )}
+                  >
+                    <sub.icon className="h-5 w-5" />
+                    {sub.label}
+                  </Link>
+                );
+              })}
             </CollapsibleContent>
          </Collapsible>
       )
     }
 
+    const isActive = pathname?.startsWith(item.href);
     return (
        <Link
           href={item.href}
           key={item.href}
-          className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          aria-current={isActive ? 'page' : undefined}
+          className={cn(
+            'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
+            isActive && 'text-foreground font-semibold'
+          )}
         >
           <item.icon className="h-5 w-5" />
           {item.label}

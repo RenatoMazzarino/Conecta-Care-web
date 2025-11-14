@@ -2,10 +2,9 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Bar } from 'recharts';
+import { BarChart, XAxis, YAxis, Tooltip, Bar } from 'recharts';
 import { ArrowDown, ArrowUp, DollarSign, FileWarning, Wallet } from 'lucide-react';
 import { mockTransactions, mockMonthlyRevenue } from '@/lib/data';
-import type { Transaction } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

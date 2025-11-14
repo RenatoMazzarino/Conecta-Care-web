@@ -5,13 +5,10 @@ import * as React from 'react';
 import type { Patient, Professional } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-    Activity, ShieldCheck, ShieldX, ShieldAlert, BookLock, UserCog, User, CalendarDays, Repeat, MapPin as MapPinIcon, Briefcase, FileText, Clock, FileClock, Puzzle, Cog
+    ShieldCheck, ShieldX, ShieldAlert, BookLock, UserCog, User, CalendarDays, Repeat, MapPin as MapPinIcon, Briefcase, FileText, Clock, FileClock, Puzzle, Cog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { professionals as allProfessionals } from '@/lib/data';
 
 const statusConfig: { [key: string]: { icon: React.ElementType, text: string, className: string } } = {
   Ativo: { icon: ShieldCheck, text: 'Ativo', className: 'bg-green-100 text-green-800 border-green-200' },

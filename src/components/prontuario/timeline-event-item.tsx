@@ -2,10 +2,10 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
+import type { ElementType } from "react";
 
 interface TimelineEventItemProps {
-  icon: LucideIcon;
+  icon: ElementType<{ className?: string }>;
   isComplete: boolean;
 }
 

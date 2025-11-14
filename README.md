@@ -1,241 +1,98 @@
-# Conecta Care – Supabase Backend
+# Conecta Care - Web & Supabase
 
-Stack atual: **Supabase (Postgres + Realtime + Edge Functions)** com Prisma, RLS habilitado e documentação via Dataedo. Firebase foi removido por completo.
+Aplicação Next.js (App Router) integrada ao Supabase (Postgres, Auth, Storage, Edge Functions) e fluxos Genkit/AI. O fluxo recomendado é desenvolver no Supabase local (Docker) e sincronizar com o projeto cloud `nalwsuifppxvrikztwcz` apenas quando necessário.
 
----
+## Visão Geral
+- Front-end em Next.js 15 + Tailwind + componentes Shadcn.
+- Back-end dirigido via Supabase (migrations SQL puras + Edge Functions).
+- Documentação consolidada em `docs/` (arquitetura, workflows, histórico de limpeza).
+- Scripts auxiliares para alternar ambientes, testar conectividade e depurar UI headless.
 
-## 1. Passo a passo rápido
-
-1. **Criar `.env.local.dev`**
+## Como começar
+1. **Instalar dependências**
    ```powershell
-   Copy-Item .env.template .env.local.dev
-   ```
-   - Substitua `PASSWORD_URL_ENCODED` pela senha do Postgres (URL-encoded: `@` → `%40`, etc.).
-   - Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` em código cliente.
-
-2. **Instalar dependências**
-   ```bash
    npm install
    ```
-
-3. **Linkar o projeto Supabase**
-   ```bash
-   npm run sb:link
+   - Se for usar `scripts/debug-headless.js`, rode `npx playwright install` uma vez para baixar os navegadores.
+2. **Configurar variáveis de ambiente**
+   ```powershell
+   Copy-Item .env.template .env.local.dev
+   Copy-Item scripts/env-presets.example.json scripts/env-presets.json
    ```
-   (usa o `project-ref` nalwsuifppxvrikztwcz).
-
-4. **Sincronizar Prisma com o banco existente**
-   ```bash
-   npx prisma migrate resolve --applied 20241104000000_init   # 1ª vez apenas
-   npm run db:pull
-   npm run db:generate
+   - Preencha `scripts/env-presets.json` com as chaves reais (anon/service role locais e cloud).
+   - Rode `./scripts/switch-env.ps1 -Mode local` ou `-Mode cloud` para popular `.env.local.dev` automaticamente.
+3. **Iniciar Supabase local (opcional mas recomendado)**
+   ```powershell
+   npx supabase start
+   npx supabase status   # URLs/chaves locais
    ```
-
-5. **Aplicar RLS/Reatime se necessário**
-   ```bash
-   psql "$DATABASE_URL" -f sql/001_security_realtime.sql
-   psql "$DATABASE_URL" -f sql/002_trigger_user_profiles.sql
+4. **Vincular o projeto cloud (uma vez)**
+   ```powershell
+   npm run sb:link   # usa o project-ref nalwsuifppxvrikztwcz
    ```
-   (ou use `supabase db remote commit --file ...`).
-
-6. **Seed opcional para dados de demonstração**
-   ```bash
-   npm run db:seed
-   ```
-
-7. **Deploy das Edge Functions**
-   ```bash
-   npm run sb:functions:deploy
-   ```
-
-8. **Rodar o app**
-   ```bash
+5. **Rodar a aplicação**
+   ```powershell
    npm run dev
    ```
+   - O dashboard abre em http://localhost:9003.
+   - Use `./scripts/switch-env.ps1` para alternar em segundos entre local/cloud.
 
----
-
-## 2. Scripts úteis (`package.json`)
-
+## Scripts npm principais
 | Script | Descrição |
 | --- | --- |
-| `npm run db:pull` | Introspecção do schema atual do Postgres |
-| `npm run db:generate` | Geração do cliente Prisma |
-| `npm run db:migrate` | Executa migrações pendentes (deploy) |
-| `npm run db:seed` | Popula dados mínimos (requer Service Role) |
-| `npm run studio` | Abre o Prisma Studio |
-| `npm run sb:link` | Conecta CLI ao projeto Supabase |
-| `npm run sb:functions:deploy` | Faz deploy das edge functions existentes |
+| `npm run dev` | Next.js + Turbopack em `:9003`. |
+| `npm run build` / `npm run start` | Build e execução em modo produção. |
+| `npm run lint` / `npm run typecheck` | Qualidade (ESLint + tsc). |
+| `npm run genkit:dev` / `npm run genkit:watch` | Execução de flows Genkit. |
+| `npm run sb:link` | Liga Supabase CLI ao projeto `nalwsuifppxvrikztwcz`. |
+| `npm run sb:functions:deploy` | Deploy das Edge Functions em `supabase/functions/*`. |
 
----
-
-## 3. Configuração de segurança
-
-- `sql/001_security_realtime.sql`: habilita RLS, recria policies e garante réplica/Realtime (`shift_posts`, `shift_presence`, `shifts`).
-- `sql/002_trigger_user_profiles.sql`: sincroniza `auth.users` → `public.user_profiles`.
-- As policies assumem que os JWT incluem `tenant_id`, `app_role` e `sub`. Preencha esses claims via `app_metadata`.
-- Service Role Key **apenas** em ambientes seguros (backend, CI, seed).
-
----
-
-## 4. Seed
-
-`prisma/seed.ts` usa a Admin API do Supabase para criar:
-- Tenant “Conecta Care”;
-- Usuário admin (`admin@conecta-care.test`, password `SEED_ADMIN_PASSWORD` se definido);
-- Paciente, profissional, shift, post, presença, item de inventário e supply request.
-
-Não cria tabelas, extensões ou estruturas – apenas dados.
-
----
-
-## 5. Edge Functions disponíveis
-
-| Função | Endpoint | Uso |
-| --- | --- | --- |
-| `checkin` | `/functions/v1/checkin` | Atualiza presença do usuário em um shift |
-| `post_to_shift` | `/functions/v1/post_to_shift` | Cria post no mural do shift |
-| `shift_status` | `/functions/v1/shift_status` | Atualiza o status do shift |
-
-Exemplo de chamada (fetch):
-```ts
-await fetch('https://nalwsuifppxvrikztwcz.supabase.co/functions/v1/checkin', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${accessToken}`, // token do usuário logado
-  },
-  body: JSON.stringify({ shiftId, state: 'online' }),
-});
+## Estrutura do repositório
 ```
-
----
-
-## 6. Realtime – snippet de teste
-
-```ts
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-
-export function subscribeToShiftRealtime(shiftId: string) {
-  const channel = supabase
-    .channel(`shift:${shiftId}`)
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'shift_posts', filter: `shift_id=eq.${shiftId}` },
-      (payload) => console.log('Post event', payload)
-   ﻿# Conecta Care – Web & Supabase
-
-   Aplicação Next.js integrada ao Supabase (Postgres, Auth, Storage e Edge Functions). O fluxo oficial é **desenvolver no ambiente local (Docker)** e sincronizar com o projeto cloud `nalwsuifppxvrikztwcz` quando necessário.
-
-   ## 🚀 Como começar
-
-   1. **Variáveis de ambiente**
-      ```powershell
-      Copy-Item .env.template .env.local.dev
-      ```
-      - A seção "Local Supabase" já traz as chaves padrão exibidas por `npx supabase start`.
-      - Ajuste a seção "Cloud" se for apontar direto para o projeto remoto.
-
-   2. **Instalar dependências**
-      ```powershell
-      npm install
-      ```
-
-   3. **(Opcional) Iniciar Supabase local**
-      ```powershell
-      npx supabase start
-      ```
-      Consulte `docs/supabase-workflow.md` para o ciclo completo Local ↔ Cloud.
-
-   4. **Selecionar ambiente rapidamente**
-      ```powershell
-      .\scripts\switch-env.ps1          # mostra modo atual
-      .\scripts\switch-env.ps1 -Mode local
-      .\scripts\switch-env.ps1 -Mode cloud
-      ```
-
-   5. **Rodar a aplicação**
-      ```powershell
-      npm run dev
-      ```
-      A interface abre em http://localhost:9003.
-
-   ## 📜 Scripts principais (`package.json`)
-
-   | Script | Descrição |
-   | --- | --- |
-   | `npm run dev` | Next.js + Turbopack em `:9003` |
-   | `npm run build` / `npm run start` | Build e execução em modo produção |
-   | `npm run lint` / `npm run typecheck` | Garantias de qualidade |
-   | `npm run genkit:dev` / `npm run genkit:watch` | Flows Genkit/AI |
-   | `npm run sb:link` | Conecta Supabase CLI ao projeto `nalwsuifppxvrikztwcz` |
-   | `npm run sb:functions:deploy` | Deploy das Edge Functions (`supabase/functions/*`) |
-
-   Scripts legados do Prisma foram removidos—toda a gestão de banco passa pelas migrations do Supabase.
-
-   ## 🗂️ Estrutura resumida
-
-   ```
-    .on(
-     app/                 # App Router (rotas públicas + painel)
-     components/          # UI (dashboard, patients, shifts, etc.)
-     hooks/, lib/, server/ # lógica compartilhada e server actions
-   supabase/
-     migrations/          # Fonte da verdade do schema
-     functions/           # Edge Functions (checkin, post_to_shift, shift_status)
-      'postgres_changes',
-     supabase-workflow.md # Passo a passo Local ↔ Cloud
-     SYNC-STATUS.md       # Situação atual das migrations
-     schemas/             # Referências completas (combined + legacy SQL)
-     CLEANUP-REPORT.md    # Histórico desta faxina estrutural
-   scripts/
-     switch-env.ps1, test-supabase-connectivity.ps1, debug-headless.js
-   ```
-
-   ## 🧱 Banco de dados
-   - Execute `npx supabase db pull` para trazer alterações cloud.
-   - Gere novas migrations com `npx supabase db diff -f <nome>`.
-   - Referências completas em `docs/schemas/` e no arquivo consolidado `docs/backend.json`.
-
-   ## 🔐 Segurança e boas práticas
-   - `.env*` (incluindo `.env.local.dev`) e artefatos Supabase CLI (`supabase/.temp`, `.branches`) estão ignorados por padrão.
-   - Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` no cliente.
-   - Utilize `scripts/test-supabase-connectivity.ps1` se desconfiar de bloqueios de rede.
-   - Documentação complementar: `docs/supabase-workflow.md` e `docs/SYNC-STATUS.md`.
-
-   Com isso o repositório fica enxuto, sem duplicidades (Prisma/sql legacy), e pronto para continuar evoluindo o produto. Bons builds! 💙
-      { event: '*', schema: 'public', table: 'shift_presence', filter: `shift_id=eq.${shiftId}` },
-      (payload) => console.log('Presence event', payload)
-    )
-    .subscribe();
-
-  return () => {
-    channel.unsubscribe();
-  };
-}
+├── docs/                     # Documentação central (API, workflow, schemas, cleanups)
+│   ├── schemas/              # Referências completas do banco (combined + legacy)
+│   ├── CLEANUP-REPORT.md     # Histórico detalhado da faxina
+│   ├── supabase-workflow.md  # Passo a passo Local ↔ Cloud
+│   └── SYNC-STATUS.md        # Estado atual das migrations
+├── scripts/                  # Scripts utilitários (env switch, conectividade, debug)
+├── src/                      # Código Next.js (app router, components, hooks, lib, server)
+├── supabase/                 # Migrations e Edge Functions oficiais
+├── .env.template             # Template único (local + overrides cloud)
+├── package.json              # Scripts/npm deps
+└── README.md                 # Este guia
 ```
+- SQL legados/duplicados vivem agora apenas em `docs/schemas/legacy-sql/` para consulta.
+- Todo schema oficial é versionado em `supabase/migrations/*.sql` (ver `docs/SYNC-STATUS.md`).
 
-Execute em um componente React ou script Node (com `SUPABASE_URL/ANON_KEY` configurados).
+## Supabase, banco e migrations
+- **Ambiente local**: `npx supabase start`, `stop`, `status`, `db reset` quando quiser um banco limpo.
+- **Gerar migrations**: `npx supabase db diff -f nome_da_migration` (gera arquivos em `supabase/migrations/`).
+- **Sincronizar**:
+  - Cloud → local: `npx supabase db pull`.
+  - Local → cloud: `npx supabase db push` seguido de `npm run sb:functions:deploy` (se alterou funções).
+- **Referências**:
+  - `docs/schemas/combined-schema-baseline.sql` traz o schema completo atual.
+  - `docs/supabase-workflow.md` descreve o ciclo completo Local ↔ Cloud + troubleshooting.
+  - `docs/SYNC-STATUS.md` mantém o status validado das migrations (baseline + 2 remotas aplicadas).
 
----
+## Utilitários & diagnósticos
+- `scripts/switch-env.ps1`: gera `.env.local.dev` com base nos presets (sem expor chaves no repo).
+- `scripts/test-supabase-connectivity.ps1`: testa DNS/API/porta 443 e oferece ajuste automático de DNS.
+- `scripts/debug-headless.js`: usa Playwright para renderizar `/login` headless, salvar screenshot + logs (rode `npx playwright install` antes de usar).
 
-## 7. Documentação (Dataedo)
+## Documentação complementar
+- `docs/api.md`: endpoints planejados e payloads de referência.
+- `docs/blueprint.md`: visão macro do produto.
+- `docs/backend.json`: inventário completo de entidades/campos consumido pela UI.
+- `docs/CLEANUP-REPORT.md`: decisões e pendências da faxina (atualizado constantemente).
+- `docs/supabase-remote-only.md`: mantido como histórico (modo somente cloud) – ler nota no topo.
 
-1. Usar `DATABASE_URL` com usuário read-only.
-2. Importar banco **postgres** / schema `public`.
-3. Habilitar importação de comentários (`COMMENT ON ...` já está no SQL base).
-4. Reimportar sempre que rodar novas migrações.
+## Checklist rápido
+- [ ] `.env.local.dev` criado a partir do template e preenchido via `switch-env`.
+- [ ] `npm run dev` sem erros (conferir warnings de lint/typecheck).
+- [ ] `npx supabase status` aponta URLs/chaves que batem com o preset selecionado.
+- [ ] `supabase/migrations` revisado antes de `db push` (fonte da verdade do schema).
+- [ ] Edge Functions (`supabase/functions/*`) atualizadas com `npm run sb:functions:deploy` após alterações.
+- [ ] Documentação sincronizada (`docs/` ≈ código) – atualize `docs/CLEANUP-REPORT.md` ao concluir tarefas grandes.
 
----
-
-## 8. Checklist de segurança
-
-- RLS ativo e validado (`sql/001_security_realtime.sql`).
-- Trigger de perfis (`sql/002_trigger_user_profiles.sql`).
-- Supabase Auth responsável por e-mail/senha e OAuth (Google).
-- Edge Functions autenticadas via Bearer token.
-- Senhas e chaves sensíveis fora do Git (usar secrets/CI).
-
-Com isso o backend Supabase está pronto para uso em produção, mantendo auditoria, políticas e realtime alinhados com o front.***
+Bons builds! 💙

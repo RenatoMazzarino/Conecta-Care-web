@@ -16,6 +16,20 @@
 - **Variáveis de ambiente:** 5 arquivos (precisa limpeza)
 
 ---
+## ✅ Atualização - 14 de novembro de 2025
+
+- `src/docs/backend.json` removido — `docs/backend.json` passa a ser a única fonte da verdade.
+- `.env.template` simplificado (sem variáveis duplicadas) e novo fluxo `scripts/env-presets.json` + `switch-env.ps1` evita chaves no repositório.
+- `scripts/env-presets.example.json` criado e `scripts/env-presets.json` adicionado ao `.gitignore`.
+- `README.md`, `docs/supabase-workflow.md` e `docs/supabase-remote-only.md` atualizados com as novas instruções.
+- `switch-env.ps1` agora gera `.env.local.dev` com cabeçalhos + backups, mantendo histórico claro por modo.
+- ESLint zerado (limpeza em pacientes, shifts, hooks, nav; Toaster renderizado e navegação destaca rota ativa).
+- Dependência `playwright` adicionada (scripts/debug-headless com `npx playwright install` documentado).
+- `.vscode/user-settings-k8s-backup.json` removido; inventário/switches ajustados e detalhes de plantão agora exibem endereço com link para o Maps.
+- `npm run lint` e `npm run typecheck` executam sem erros (tsconfig exclui `supabase/functions` para evitar conflitos Deno).
+
+Próximos pontos: revisar `/docs/.vscode`, decidir sobre `user-settings-k8s-backup.json` e declarar dependência do `scripts/debug-headless.js` (Playwright).
+
 
 ## 🔴 CRÍTICO - Ação Imediata Necessária
 
@@ -373,21 +387,21 @@ Conecta-Care-web/
 ## ✅ Checklist de Ações
 
 ### Ações Imediatas (Críticas)
-- [ ] Remover ou mover pasta `sql/` para `docs/schemas/legacy-sql-backup/`
-- [ ] Deletar scripts redundantes: `supabase-{start,stop,status}.ps1`
-- [ ] Adicionar `.env` ao `.gitignore`
-- [ ] Remover `.env.local.backup`
-- [ ] Adicionar `supabase/.temp/` e `supabase/.branches/` ao `.gitignore`
-- [ ] Decidir sobre Prisma: remover ou integrar completamente
-- [ ] Consolidar `backend.json` (remover duplicata em `src/docs/`)
-- [ ] Padronizar imports de `supabaseServerClient`
+- [x] Remover ou mover pasta `sql/` para `docs/schemas/legacy-sql-backup/`
+- [x] Deletar scripts redundantes: `supabase-{start,stop,status}.ps1`
+- [x] Adicionar `.env` ao `.gitignore`
+- [x] Remover `.env.local.backup`
+- [x] Adicionar `supabase/.temp/` e `supabase/.branches/` ao `.gitignore`
+- [x] Decidir sobre Prisma: remover ou integrar completamente
+- [x] Consolidar `backend.json` (remover duplicata em `src/docs/`)
+- [x] Padronizar imports de `supabaseServerClient`
 
 ### Ações Secundárias (Melhorias)
-- [ ] Revisar e consolidar docs do Supabase
-- [ ] Atualizar README.md principal
-- [ ] Melhorar template `.env.template`
-- [ ] Remover `user-settings-k8s-backup.json` se desnecessário
-- [ ] Documentar estrutura de pastas no README
+- [x] Revisar e consolidar docs do Supabase
+- [x] Atualizar README.md principal
+- [x] Melhorar template `.env.template`
+- [x] Remover `user-settings-k8s-backup.json` se desnecessário
+- [x] Documentar estrutura de pastas no README
 
 ### Ações Futuras (Opcional)
 - [ ] Adicionar CI/CD para validar estrutura
@@ -431,3 +445,4 @@ git commit -m "chore: backup before repository cleanup"
 ---
 
 **Quer que eu execute alguma dessas ações agora?** 🚀
+

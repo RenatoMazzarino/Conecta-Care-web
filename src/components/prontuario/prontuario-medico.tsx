@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Stethoscope, ClipboardCheck, Filter } from 'lucide-react';
+import { FileText, Stethoscope, Filter } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function ProntuarioMedico() {

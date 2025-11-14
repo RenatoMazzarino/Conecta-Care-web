@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
-    HeartPulse, Stethoscope, ShieldAlert, Pill, TrendingUp, User, Activity, AlertTriangle, RefreshCw, Server
+    Stethoscope, ShieldAlert, Pill, Activity, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
@@ -30,17 +30,17 @@ const FormField = ({ label, children, className, labelClassName }: {
 type FichaClinicaProps = {
   displayData: Patient | null;
   editedData: Patient | null;
-  setEditedData: (data: Patient | null) => void;
+  setEditedData: React.Dispatch<React.SetStateAction<Patient | null>>;
   isEditing: boolean;
 };
 
-const allergySeverityColors = {
+const allergySeverityColors: Record<string, 'default' | 'secondary' | 'destructive'> = {
     grave: 'destructive',
     moderada: 'secondary',
     leve: 'default'
 }
 
-export function FichaClinica({ displayData, editedData, setEditedData, isEditing }: FichaClinicaProps) {
+export function FichaClinica({ displayData, editedData: _editedData, setEditedData: _setEditedData, isEditing: _isEditing }: FichaClinicaProps) {
     const { toast } = useToast();
     const [isRefreshing, setIsRefreshing] = React.useState(false);
 

@@ -1,5 +1,7 @@
 # Supabase remoto (local desativado)
 
+> **Nota:** Documento mantido apenas como histórico. O repositório voltou a operar no modo **Local ↔ Cloud** com `supabase/config.toml`, Docker e scripts atualizados em novembro/2025. Consulte `docs/supabase-workflow.md` e `docs/SYNC-STATUS.md` para o fluxo suportado atualmente.
+
 Este projeto usa somente o ambiente REMOTO do Supabase.
 
 Mudanças aplicadas

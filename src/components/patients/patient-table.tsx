@@ -14,7 +14,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp, CheckCircle, XCircle, CircleOff } from 'lucide-react';
+import { FileText, MoreHorizontal, AlertTriangle, MessageSquare, CalendarPlus, FileUp, CheckCircle, CircleOff } from 'lucide-react';
 import type { Patient, Professional } from '@/lib/types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,7 @@ const complexityVariant: { [key in Patient['adminData']['complexity']]: string }
     Baixa: 'bg-green-100 text-green-800 border-green-200',
     Média: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     Alta: 'bg-red-100 text-red-800 border-red-200',
+    Crítica: 'bg-red-200 text-red-900 border-red-300',
 }
 
 const patientStatusConfig: { [key: string]: { text: string; icon: React.ElementType; className: string; } } = {
@@ -62,6 +63,8 @@ export function PatientTable({
     onSelectionChange: (selection: Set<string>) => void;
 }) {
   const { toast } = useToast();
+  const allSelected = patients.length > 0 && selectedPatients.size === patients.length;
+  const isIndeterminate = selectedPatients.size > 0 && selectedPatients.size < patients.length;
 
   const handleToggleSelect = (patientId: string) => {
     const newSelection = new Set(selectedPatients);
@@ -100,18 +103,9 @@ export function PatientTable({
           <TableRow>
             <TableHead className="w-[50px]">
               <Checkbox
-                checked={
-                  selectedPatients.size > 0 &&
-                  selectedPatients.size === patients.length
-                }
-                onCheckedChange={handleToggleSelectAll}
+                checked={isIndeterminate ? 'indeterminate' : allSelected}
+                onCheckedChange={() => handleToggleSelectAll()}
                 aria-label="Selecionar todos"
-                 ref={(el) =>
-                  el &&
-                  (el.indeterminate =
-                    selectedPatients.size > 0 &&
-                    selectedPatients.size < patients.length)
-                }
               />
             </TableHead>
             <TableHead className="w-[40px]">Status</TableHead>

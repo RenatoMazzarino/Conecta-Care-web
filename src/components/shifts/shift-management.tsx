@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, Megaphone, Edit, X, UserCheck } from 'lucide-react';
-import type { Professional, Shift, OpenShiftInfo, Patient, ShiftType } from '@/lib/types';
+import type { Professional, Shift, Patient, ShiftType } from '@/lib/types';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -52,7 +52,7 @@ export function ShiftManagement() {
   }, []);
 
   const [selectedProfessional, setSelectedProfessional] = React.useState<Professional | null>(null);
-  const [isCandidacyListOpen, setIsCandidacyListOpen] = React.useState(false);
+  const [candidacyContext, setCandidacyContext] = React.useState<{shift: Shift; patient: Patient} | null>(null);
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
   const [detailsShift, setDetailsShift] = React.useState<{shift: Shift, professional?: Professional, patient: Patient} | null>(null);
   
@@ -166,6 +166,13 @@ export function ShiftManagement() {
   };
   
   const handleShiftClick = (shiftState: GridShiftState) => {
+    if (shiftState.status === 'pending') {
+      setCandidacyContext({
+        shift: shiftState.shift,
+        patient: shiftState.patient,
+      });
+      return;
+    }
     setDetailsShift({
       shift: shiftState.shift,
       professional: shiftState.professional,
@@ -205,7 +212,7 @@ export function ShiftManagement() {
             description: `${professional.name} foi alocado para o plantão.`,
         });
 
-        setIsCandidacyListOpen(false);
+        setCandidacyContext(null);
         setDetailsShift(null); // Close the main dialog
         handleCloseProfile();
     }
@@ -352,7 +359,7 @@ export function ShiftManagement() {
                 value={stats.pending}
                 icon={UserPlus}
                 className="text-amber-600"
-                onClick={() => stats.pending > 0 && setIsCandidacyListOpen(true)}
+                onClick={() => setStatusFilter('pending')}
                 isActive={statusFilter === 'pending'}
                 comparison="+3 novas candidaturas hoje"
             />
@@ -402,12 +409,17 @@ export function ShiftManagement() {
           onOpenChange={setIsBulkPublishing}
         />
       
-      {professionals && <CandidacyManagementDialog
-          isOpen={isCandidacyListOpen}
-          onOpenChange={setIsCandidacyListOpen}
+      <CandidacyManagementDialog
+          isOpen={Boolean(candidacyContext && professionals)}
+          context={candidacyContext}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCandidacyContext(null);
+            }
+          }}
           onOpenProfile={handleOpenProfile}
-          onApprove={(prof, shiftInfo) => handleApproveProfessional(prof, shiftInfo as unknown as Shift)}
-      />}
+          onApprove={handleApproveProfessional}
+      />
       
       {detailsShift && (
         <ShiftDetailsDialog

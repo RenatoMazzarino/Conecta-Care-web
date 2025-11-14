@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dumbbell, Target, ClipboardCheck, Filter } from 'lucide-react';
+import { Dumbbell, Filter } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function ProntuarioFisioterapia() {

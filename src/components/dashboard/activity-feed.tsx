@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { Patient, ShiftReport, Notification, Task } from '@/lib/types';
+import type { ShiftReport, Notification, Task } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -117,8 +117,11 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
 
 
   const EventItem: React.FC<{ event: FeedEvent }> = ({ event }) => {
-    let icon, color, title, details, timestamp, author, href;
+    let title, details, timestamp, author, href;
     const eventType = getEventType(event);
+    const config = eventIcons[eventType] ?? eventIcons.info;
+    const IconComp = config.icon;
+    const color = config.color;
     
     const handleEventClick = () => {
         if (isShiftReport(event)) {
@@ -129,27 +132,18 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
     };
 
     if (isShiftReport(event)) {
-      const config = eventIcons.shiftReport;
-      icon = config.icon;
-      color = config.color;
       title = `Evolução de Plantão (${event.shift})`;
       details = event.observations;
       timestamp = event.reportDate;
       author = event.careTeamMemberName;
       href = `/patients/${event.patientId}`;
     } else if (isNotification(event)) {
-      const config = eventIcons[event.type];
-      icon = config.icon;
-      color = config.color;
       title = 'Notificação do Sistema';
       details = event.message;
       timestamp = event.timestamp;
       author = 'Sistema';
       href = `/communications`;
     } else if (isTask(event)) {
-      const config = eventIcons.task;
-      icon = config.icon;
-      color = config.color;
       title = `Tarefa para ${event.assignee}`;
       details = event.title;
       timestamp = event.dueDate || new Date().toISOString();
@@ -159,10 +153,8 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
         return null;
     }
 
-    const IconComp = icon;
-
     return (
-      <li className="relative group" onClick={handleEventClick}>
+      <li className="relative group" data-event-type={eventType} onClick={handleEventClick}>
           {/* Timeline line */}
           <div className="absolute left-4 top-5 h-full w-px bg-border group-last:h-0" />
           
@@ -174,8 +166,13 @@ export function ActivityFeed({ events }: { events: FeedEvent[] }) {
               </div>
               
               <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold truncate">{title}</p>
+                      <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <p className="text-sm font-semibold truncate">{title}</p>
+                            <Badge variant="outline" className="text-[0.65rem] uppercase tracking-wide">
+                              {config.label}
+                            </Badge>
+                          </div>
                           <time className="text-xs text-muted-foreground flex-shrink-0 ml-2">{formatRelativeDate(timestamp)}</time>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{details}</p>

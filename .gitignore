@@ -35,6 +35,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# env presets for switch script
+scripts/env-presets.json
+
 # supabase CLI artifacts
 supabase/.temp/
 supabase/.branches/

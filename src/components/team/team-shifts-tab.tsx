@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
 import type { Professional } from '@/lib/types';
-import { History, Star } from 'lucide-react';
+import { History } from 'lucide-react';
 
 const mockShifts = [
     { id: 'shift-101', patient: 'João da Silva', date: '2024-07-22', type: 'diurno', value: 150.00, status: 'pago' },

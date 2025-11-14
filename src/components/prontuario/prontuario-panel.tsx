@@ -7,7 +7,6 @@ import { ProntuarioDashboard } from '@/components/prontuario/prontuario-dashboar
 import { Button } from '../ui/button';
 import { Upload } from 'lucide-react';
 import { ProntuarioUploadDialog } from '../prontuario/prontuario-upload-dialog';
-import type { EditMode } from '@/app/(app)/patients/[patientId]/page';
 
 interface ProntuarioPanelProps {
   patient: Patient | null;
@@ -47,7 +46,7 @@ export function ProntuarioPanel({ patient, isOpen, onOpenChange }: ProntuarioPan
 
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
              <ProntuarioDashboard 
-                editMode={'none' as EditMode}
+                editMode={'none'}
                 setEditMode={() => {}}
                 editedData={editedData}
                 setEditedData={setEditedData}

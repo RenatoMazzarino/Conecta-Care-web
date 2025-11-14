@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { Shift, Professional, Patient } from '@/lib/types';
-import { Camera, Fingerprint, Router, BadgeCheck, MapPin, ClipboardCheck } from 'lucide-react';
+import { Camera, Fingerprint, BadgeCheck, MapPin, ClipboardCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 

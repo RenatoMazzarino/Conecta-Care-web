@@ -3,7 +3,6 @@
 import * as React from 'react';
 import type { Task } from '@/lib/types';
 import { TaskCard } from './task-card';
-import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 
 type TaskBoardProps = {

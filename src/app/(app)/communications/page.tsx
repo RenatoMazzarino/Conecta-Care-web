@@ -4,8 +4,7 @@
 import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Archive, Edit, Inbox, Send, Search, Users, FileText, Trash2, Mail, Bot, Phone, CheckSquare } from 'lucide-react';
+import { Archive, Inbox, Send, Search, Users, FileText, Trash2, Mail, Bot, Phone, CheckSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

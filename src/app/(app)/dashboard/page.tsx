@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { CommunicationsCard } from '@/components/dashboard/communications-card';
 import { TasksCard } from '@/components/dashboard/tasks-card';
-import type { Patient, ShiftReport, Notification, Task, Shift } from '@/lib/types';
+import type { Task } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

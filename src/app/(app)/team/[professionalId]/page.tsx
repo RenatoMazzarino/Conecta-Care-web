@@ -18,7 +18,6 @@ import { TeamFinancialTab } from '@/components/team/team-financial-tab';
 import { TeamDocumentsTab } from '@/components/team/team-documents-tab';
 import { professionals as mockProfessionals } from '@/lib/data';
 import { ShiftChatDialog } from '@/components/shifts/shift-chat-dialog';
-import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 function StarRating({ rating, reviewCount }: { rating: number, reviewCount: number }) {
