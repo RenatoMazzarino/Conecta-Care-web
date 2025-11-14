@@ -13,5 +13,9 @@
 
     "cloudcode.autoDependencies": "off",
     "git.autofetch": true,
-    "workbench.secondarySideBar.defaultVisibility": "hidden"
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+
+    // Supabase extension configuration - use remote project only (no local Docker)
+    "supabase.projectRef": "nalwsuifppxvrikztwcz",
+    "supabase.localEnabled": false
 }

@@ -16,7 +16,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "studio": "prisma studio",
     "sb:link": "supabase link --project-ref nalwsuifppxvrikztwcz",
-    "sb:functions:deploy": "supabase functions deploy --project-ref nalwsuifppxvrikztwcz"
+    "sb:functions:deploy": "supabase functions deploy --project-ref nalwsuifppxvrikztwcz",
+    "supabase:pull": "supabase db pull --db-url \"$SUPABASE_DIRECT_URL\""
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.20.0",

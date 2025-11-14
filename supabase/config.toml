@@ -1,0 +1,25 @@
+# supabase/config.toml
+
+project_id = "nalwsuifppxvrikztwcz"
+
+[api]
+port = 54321
+schemas = ["public", "storage", "graphql"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+port = 54323
+
+# Email testing
+[inbucket]
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[auth]
+enable_signup = true
