@@ -1,4 +1,4 @@
-# **App Name**: CareSync Home
+# **App Name**: Conecta Care
 
 ## Core Features:
 

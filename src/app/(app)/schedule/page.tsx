@@ -1,5 +1,5 @@
-// This page has been removed as per user request.
-// The "Schedule" feature will be re-evaluated for a future implementation.
+import { ScheduleDashboard } from '@/components/shifts/schedule-dashboard';
+
 export default function SchedulePage() {
-  return null;
+  return <ScheduleDashboard />;
 }

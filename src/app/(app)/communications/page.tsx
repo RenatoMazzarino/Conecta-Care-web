@@ -78,7 +78,7 @@ const mockConversations: Conversation[] = [
    {
     id: 'convo-4',
     type: 'system',
-    sender: 'Sistema CareSync',
+    sender: 'Sistema Conecta Care',
     patientId: 'patient-789',
     subject: 'Alerta de Estoque Baixo',
     preview: 'O item "Salbutamol" atingiu o nível de estoque baixo. Restam 3 unidades.',

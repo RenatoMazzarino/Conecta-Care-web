@@ -1,6 +1,6 @@
 # API Endpoint & Data Architecture Reference
 
-This document outlines the suggested API endpoints and data flow for the CareSync application. It serves as a blueprint for backend development and frontend data fetching.
+This document outlines the suggested API endpoints and data flow for the Conecta Care application. It serves as a blueprint for backend development and frontend data fetching.
 
 ---
 

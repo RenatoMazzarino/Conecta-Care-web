@@ -8,6 +8,179 @@ export type Diagnosis = {
 
 export type ShiftType = 'diurno' | 'noturno';
 
+export type PatientDocumentType =
+  | 'RG'
+  | 'CPF'
+  | 'CNH'
+  | 'ComprovanteResidencia'
+  | 'CarteirinhaPlano'
+  | 'ContratoPrestacaoServicos'
+  | 'AditivoContrato'
+  | 'LaudoMedico'
+  | 'RelatorioTecnico'
+  | 'ReceitaMedica'
+  | 'TermoConsentimento'
+  | 'TermoResponsabilidade'
+  | 'POA'
+  | 'Outro';
+
+export type PatientDocumentCategory =
+  | 'Identificacao'
+  | 'Financeiro'
+  | 'Clinico'
+  | 'Juridico'
+  | 'Consentimento'
+  | 'Outros';
+
+export type PatientDocumentSource =
+  | 'upload'
+  | 'integracao'
+  | 'assinaturaDigital'
+  | 'importacao';
+
+export type PatientDocument = {
+  id: string;
+  type: PatientDocumentType;
+  category: PatientDocumentCategory;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  fileName: string;
+  mimeType: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  expiresAt?: string;
+  verified: boolean;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  source: PatientDocumentSource;
+  tags?: string[];
+  hash?: string;
+};
+
+export type PatientConsentType =
+  | 'TratamentoDadosLGPD'
+  | 'CompartilhamentoComOperadora'
+  | 'CompartilhamentoComFamiliares'
+  | 'EnvioComunicacoesWhatsApp'
+  | 'AutorizacaoProcedimentoInvasivo'
+  | 'AutorizacaoPublicacaoImagem'
+  | 'Outro';
+
+export type PatientConsentScope =
+  | 'DadosClinicos'
+  | 'DadosFinanceiros'
+  | 'DadosAdministrativos'
+  | 'EnvioComunicacoes'
+  | 'CompartilhamentoComTerceiros'
+  | 'Imagem'
+  | 'Outros';
+
+export type PatientConsentStatus = 'Ativo' | 'Revogado' | 'Expirado';
+
+export type PatientConsentChannel = 'AssinaturaDigital' | 'Upload' | 'Aplicativo' | 'Manual';
+
+export type PatientConsent = {
+  id: string;
+  type: PatientConsentType;
+  scope: PatientConsentScope[];
+  status: PatientConsentStatus;
+  grantedAt: string;
+  revokedAt?: string;
+  channel: PatientConsentChannel;
+  documentId?: string;
+  grantedBy: 'Paciente' | 'ResponsavelLegal' | 'Tutor' | 'Outro';
+  grantedByName: string;
+  grantedByDocument?: string;
+  relatedLegalResponsibleId?: string;
+  notes?: string;
+};
+
+export type SmartFieldScore = {
+  value: number;
+  label: string;
+  lastUpdatedAt?: string;
+  lastSurveyAt?: string;
+  surveyId?: string;
+  source?: string;
+};
+
+export type SmartFieldIncidents = {
+  count: number;
+  lastIncidentAt?: string;
+};
+
+export type PatientSmartFields = Partial<{
+  readmissionRiskScore: SmartFieldScore;
+  careAdherenceScore: SmartFieldScore;
+  familySatisfactionScore: SmartFieldScore;
+  incidentsLast30Days: SmartFieldIncidents;
+  environmentAdequacyScore: SmartFieldScore;
+}>;
+
+export type PatientOperationalLinks = Partial<{
+  contractId: string;
+  rosterId: string;
+  inventoryId: string;
+  publicProtocolUrl: string;
+  accessLogRef: string;
+}>;
+
+export type PatientExternalIds = {
+  crmId?: string;
+  susId?: string;
+  contractId?: string;
+  [key: string]: string | undefined;
+};
+
+export type PatientIdentityVerification = {
+  status: 'none' | 'pending' | 'verified';
+  method?: 'ocr' | 'manual' | 'ocr_manual';
+  verifiedBy?: string;
+  verifiedAt?: string;
+  notes?: string;
+};
+
+export type PatientSensitiveConsent = {
+  granted: boolean;
+  types: Array<'medical' | 'photo' | 'financial' | string>;
+  date: string;
+  grantedBy: string;
+};
+
+export type PatientAccessLogSummary = {
+  totalViews: number;
+  totalExports: number;
+  lastAccessAt?: string;
+  lastAccessBy?: string;
+};
+
+export type PatientAuditLogType =
+  | 'view'
+  | 'edit'
+  | 'export'
+  | 'download'
+  | 'login_as_family'
+  | 'status_change';
+
+export type PatientAuditOrigin = 'web' | 'mobile' | 'api' | 'integration';
+
+export type PatientAuditLog = {
+  id: string;
+  patientId: string;
+  type: PatientAuditLogType;
+  action: string;
+  userId: string;
+  userRole: string;
+  timestamp: string;
+  origin: PatientAuditOrigin;
+  ip?: string;
+  changedFields?: string[];
+  oldValue?: string;
+  newValue?: string;
+  meta?: Record<string, unknown>;
+};
+
 export type Patient = {
   // 1. Dados Pessoais
   id: string;
@@ -40,16 +213,24 @@ export type Patient = {
     validatedAt?: string;
     method?: 'ocr' | 'manual';
   };
+  identityVerification?: PatientIdentityVerification;
+  externalIds?: PatientExternalIds;
 
   // Demográfico
   dateOfBirth: string;
   sexo?: 'Masculino' | 'Feminino' | 'Outro';
+  sexAtBirth?: 'Masculino' | 'Feminino' | 'Outro' | 'Desconhecido';
   genderIdentity?: string;
   estadoCivil?: string;
   nacionalidade?: string;
   naturalidade?: string; // representa placeOfBirth
+  placeOfBirth?: string;
   preferredLanguage?: 'Português' | 'Inglês' | 'Espanhol' | string;
-  
+  riskFlags?: string[];
+  recordStatus?: 'active' | 'inactive' | 'deceased';
+  sensitiveDataConsent?: PatientSensitiveConsent;
+  duplicateCandidates?: string[];
+
   // Contato
   phones: {
     type: 'mobile' | 'home' | 'work';
@@ -80,8 +261,15 @@ export type Patient = {
     permissions?: {
       view: boolean;
       authorize: boolean;
+      clinical?: boolean;
+      financial?: boolean;
     };
     documentUrl?: string;
+    notificationPreferences?: {
+      channel: 'sms' | 'email' | 'whatsapp';
+      enabled: boolean;
+    }[];
+    appUserId?: string;
   }[];
   legalGuardian?: {
     name: string;
@@ -108,6 +296,8 @@ export type Patient = {
     allowedVisitHours?: string;
     localSafetyConditions?: string;
     facadeImageUrl?: string;
+    etaMinutes?: number;
+    travelNotes?: string;
   };
   
   domicile?: {
@@ -130,12 +320,18 @@ export type Patient = {
     pets?: string;
     otherResidents?: { name: string; relationship: string }[];
     fixedCaregivers?: string;
+    caregivers?: { name: string; schedule?: string; role?: string }[];
     hygieneConditions?: 'Boa' | 'Regular' | 'Ruim';
     environmentalRisks?: string;
     hasSmokers?: boolean;
     ventilation?: 'Adequada' | 'Insuficiente' | 'Artificial';
     noiseLevel?: 'Baixo' | 'Médio' | 'Alto';
     generalObservations?: string;
+    careTeamEtaMinutes?: number;
+    etaSource?: string;
+    logisticNotes?: string;
+    animalsBehavior?: string;
+    environmentNotes?: string;
   };
 
 
@@ -210,12 +406,23 @@ export type Patient = {
   // 5. Informações Financeiras
   financial: {
     vinculo: 'Plano de Saúde' | 'Particular' | 'Convênio' | 'Público';
+    bondType?: 'Plano de Saúde' | 'Particular' | 'Convênio' | 'Público';
     operadora?: string;
     carteirinha?: string;
     validadeCarteirinha?: string;
     monthlyFee: number;
     billingDay: number;
     formaPagamento?: string;
+    paymentMethod?: string;
+    billingStatus?: 'Pago' | 'Pendente' | 'Atrasado';
+    lastPaymentDate?: string;
+    paymentHistory?: {
+      month: string;
+      status: 'Pago' | 'Pendente' | 'Atrasado';
+      amount: number;
+      paidAt?: string;
+      method?: string;
+    }[];
     observacoesFinanceiras?: string;
   };
 
@@ -229,6 +436,14 @@ export type Patient = {
       planoCuidadoUrl?: string;
       protocoloAuditoriaUrl?: string;
   };
+  documentsCollection: PatientDocument[];
+  consents: PatientConsent[];
+  changeLog: PatientAuditLog[];
+  accessLog: PatientAuditLog[];
+  smartFields?: PatientSmartFields;
+  operationalLinks?: PatientOperationalLinks;
+  lastViewedAt?: string;
+  accessLogSummary?: PatientAccessLogSummary;
 
   // 7. Auditoria
   audit: {

@@ -1,10 +1,5 @@
-
-import { ShiftManagement } from '@/components/shifts/shift-management';
+import { ScheduleDashboard } from '@/components/shifts/schedule-dashboard';
 
 export default function ShiftsPage() {
-  return (
-    <div className="flex-1 flex flex-col bg-background">
-      <ShiftManagement />
-    </div>
-  );
+  return <ScheduleDashboard />;
 }

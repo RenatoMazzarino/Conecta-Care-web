@@ -178,7 +178,7 @@ export default function LoginPage() {
           <div className="flex justify-center items-center mb-4">
             <HeartPulse className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Bem-vindo ao CareSync</CardTitle>
+          <CardTitle className="text-2xl">Bem-vindo ao Conecta Care</CardTitle>
           <CardDescription>Insira suas credenciais para acessar o sistema.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

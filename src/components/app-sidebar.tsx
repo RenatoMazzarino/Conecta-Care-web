@@ -150,7 +150,7 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boole
         )}>
           <Link href="/" className="flex items-center gap-2 font-semibold font-headline text-primary">
             <HeartPulse className="h-6 w-6" />
-            <span className={cn("transition-opacity", isCollapsed && "w-0 opacity-0")}>CareSync</span>
+            <span className={cn("transition-opacity", isCollapsed && "w-0 opacity-0")}>Conecta Care</span>
           </Link>
         </div>
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 text-sm font-medium">

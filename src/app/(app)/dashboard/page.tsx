@@ -174,7 +174,7 @@ export default function DashboardPage() {
       {noData && (
           <Card className="mt-6">
               <CardHeader>
-                  <CardTitle>Bem-vindo ao CareSync</CardTitle>
+                  <CardTitle>Bem-vindo ao Conecta Care</CardTitle>
                   <CardDescription>Parece que você ainda não tem pacientes cadastrados.</CardDescription>
               </CardHeader>
               <CardContent>
