@@ -116,26 +116,39 @@ export default function LoginPage() {
 
     setIsEmailLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error || !data.session?.access_token) {
-      console.error('signInWithPassword error', error);
+      if (error || !data.session?.access_token) {
+        console.error('signInWithPassword error', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro de Login',
+          description: resolveAuthErrorMessage(error),
+        });
+        setIsEmailLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('accessToken', data.session.access_token);
+
+      React.startTransition(() => formAction(formData));
+    } catch (authError) {
+      console.error('Erro ao conectar ao Supabase', authError);
       toast({
         variant: 'destructive',
         title: 'Erro de Login',
-        description: resolveAuthErrorMessage(error),
+        description: resolveAuthErrorMessage(
+          authError,
+          'Nao foi possivel conectar ao servico de autenticacao. Verifique se o Supabase esta acessivel.'
+        ),
       });
       setIsEmailLoading(false);
-      return;
     }
-
-    const formData = new FormData();
-    formData.append('accessToken', data.session.access_token);
-
-    React.startTransition(() => formAction(formData));
   };
 
   const handleOAuthLogin = async () => {

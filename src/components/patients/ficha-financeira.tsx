@@ -43,7 +43,6 @@ export function FichaFinanceira({
         vinculo: next.financial?.vinculo ?? 'Particular',
         monthlyFee: next.financial?.monthlyFee ?? 0,
         billingDay: next.financial?.billingDay ?? 1,
-        ...next.financial,
       };
       (next.financial as any)[field] = value;
       return next;

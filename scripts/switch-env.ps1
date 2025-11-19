@@ -10,6 +10,7 @@ param(
 )
 
 $envFile = ".env.local.dev"
+$envMirrorFile = ".env.local"
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $presetsPath = Join-Path $scriptRoot "env-presets.json"
 
@@ -68,7 +69,9 @@ function Write-PresetToFile {
         $lines += "$key=$value"
     }
 
-    Set-Content -Path $envFile -Value ($lines -join [Environment]::NewLine)
+    $content = $lines -join [Environment]::NewLine
+    Set-Content -Path $envFile -Value $content
+    Set-Content -Path $envMirrorFile -Value $content
 }
 
 if (-not $Mode) {

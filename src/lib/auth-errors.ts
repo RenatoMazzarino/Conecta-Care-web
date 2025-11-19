@@ -1,9 +1,15 @@
+const NETWORK_AUTH_ERROR =
+  'Nao foi possivel conectar ao servico de autenticacao. Verifique se o Supabase esta acessivel.';
+
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'Invalid login credentials': 'Credenciais inválidas. Revise email e senha.',
   'Email not confirmed': 'Confirme o email antes de fazer login.',
   'User already registered': 'Já existe uma conta com este email.',
   'Password strength': 'A senha não atende aos requisitos mínimos.',
   'AuthApiError': 'Falha na autenticação. Revise seus dados.',
+  AuthRetryableFetchError: NETWORK_AUTH_ERROR,
+  FetchError: NETWORK_AUTH_ERROR,
+  'Failed to fetch': NETWORK_AUTH_ERROR,
 };
 
 export const GENERIC_AUTH_ERROR = 'Não foi possível concluir a autenticação. Tente novamente.';
