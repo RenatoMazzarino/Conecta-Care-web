@@ -87,15 +87,16 @@ export const patients: Patient[] = [
 
     emergencyContacts: [{
       id: 'ec-1',
+      patientId: 'patient-123',
       name: 'Maria da Silva',
       relationship: 'Filha',
       phone: '+55 (11) 98765-4321',
       email: 'maria.filha@example.com',
       isLegalRepresentative: true,
       permissions: { view: true, authorize: true, clinical: true, financial: true },
-      notificationPreferences: [
-        { channel: 'whatsapp', enabled: true },
-        { channel: 'email', enabled: true },
+      notifications: [
+        { id: 'ecn-1', contact_id: 'ec-1', channel: 'whatsapp', enabled: true },
+        { id: 'ecn-2', contact_id: 'ec-1', channel: 'email', enabled: true },
       ],
       documentUrl: '#'
     }],
@@ -506,15 +507,16 @@ export const patients: Patient[] = [
 
     emergencyContacts: [{
         id: 'ec-2',
+        patientId: 'patient-456',
         name: 'Carlos Lopes',
         relationship: 'Filho',
         phone: '+55 (21) 91234-5678',
         email: 'carlos.lopes@example.com',
         isLegalRepresentative: true,
         permissions: { view: true, authorize: true, financial: true },
-        notificationPreferences: [
-          { channel: 'whatsapp', enabled: true },
-          { channel: 'email', enabled: false },
+        notifications: [
+          { id: 'ecn-3', contact_id: 'ec-2', channel: 'whatsapp', enabled: true },
+          { id: 'ecn-4', contact_id: 'ec-2', channel: 'email', enabled: false },
         ],
     }],
     legalGuardian: undefined,
@@ -670,15 +672,16 @@ export const patients: Patient[] = [
     
     emergencyContacts: [{
         id: 'ec-3',
+        patientId: 'patient-789',
         name: 'Ana Mendes',
         relationship: 'Esposa',
         phone: '+55 (31) 95555-8888',
         email: 'ana.mendes@example.com',
         isLegalRepresentative: true,
         permissions: { view: true, authorize: true, clinical: true },
-        notificationPreferences: [
-          { channel: 'sms', enabled: true },
-          { channel: 'whatsapp', enabled: false },
+        notifications: [
+          { id: 'ecn-5', contact_id: 'ec-3', channel: 'sms', enabled: true },
+          { id: 'ecn-6', contact_id: 'ec-3', channel: 'whatsapp', enabled: false },
         ],
     }],
     legalGuardian: undefined,

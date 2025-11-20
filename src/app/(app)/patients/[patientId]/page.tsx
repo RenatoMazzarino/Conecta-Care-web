@@ -31,6 +31,11 @@ export default async function PatientPage({ params }: PatientPageProps) {
       patient_clinical_summaries(*),
       financial_profile:patient_financial_profiles(*),
       transactions:payment_transactions(*),
+      emergency_contacts:patient_emergency_contacts(*, notifications:patient_contact_notifications(*)),
+      legal_guardians:patient_legal_guardians(*),
+      diagnoses:patient_diagnoses(*),
+      allergies:patient_allergies(*),
+      devices:patient_devices(*),
       patient_support_network(*),
       patient_intelligence(*),
       patient_operational_links(*),
@@ -78,11 +83,18 @@ function mapPatientFromRow(row: any): Patient {
     : row.patient_clinical_summaries;
   const financialProfileRow = Array.isArray(row.financial_profile) ? row.financial_profile[0] : row.financial_profile;
   const transactions = Array.isArray(row.transactions) ? row.transactions : row.transactions ? [row.transactions] : [];
+  const emergencyContacts = Array.isArray(row.emergency_contacts) ? row.emergency_contacts : [];
+  const legalGuardians = Array.isArray(row.legal_guardians) ? row.legal_guardians : row.legal_guardians ? [row.legal_guardians] : [];
+  const diagnoses = Array.isArray(row.diagnoses) ? row.diagnoses : row.diagnoses ? [row.diagnoses] : [];
+  const allergies = Array.isArray(row.allergies) ? row.allergies : row.allergies ? [row.allergies] : [];
+  const devices = Array.isArray(row.devices) ? row.devices : row.devices ? [row.devices] : [];
   const fullName = row.full_name ?? row.display_name ?? '';
   const { first, last, initials } = splitName(fullName);
   const documents = mapDocuments(row.patient_documents, row.id);
   const consents = mapConsents(row.patient_consents, row.id);
   const auditLogs = mapAuditLogs(row.patient_audit_logs ?? []);
+  const emergencyContactsMapped = mapEmergencyContacts(emergencyContacts, row.id);
+  const legalGuardiansMapped = mapLegalGuardians(legalGuardians);
 
   return {
     id: row.id,
@@ -117,8 +129,9 @@ function mapPatientFromRow(row: any): Patient {
     emails: Array.isArray(row.emails) ? row.emails : [],
     preferredContactMethod: row.preferred_contact_method ?? undefined,
     communicationOptOut: row.communication_opt_out ?? undefined,
-    emergencyContacts: Array.isArray(row.emergency_contacts) ? row.emergency_contacts : [],
-    legalGuardian: row.legal_guardian ?? undefined,
+    emergencyContacts: emergencyContactsMapped,
+    legalGuardians: legalGuardiansMapped,
+    legalGuardian: legalGuardiansMapped?.[0],
     recordStatus: row.record_status ?? undefined,
     address: mapAddress(addressRow),
     domicile: mapDomicile(addressRow),
@@ -131,6 +144,9 @@ function mapPatientFromRow(row: any): Patient {
     adminData: mapAdminInfo(adminRow),
     financialProfile: financialProfileRow ? mapFinancialProfile(financialProfileRow, row.id) : undefined,
     paymentTransactions: mapTransactions(transactions, row.id),
+    diagnoses: mapDiagnoses(diagnoses, row.id),
+    allergies: mapAllergies(allergies, row.id),
+    devices: mapDevices(devices, row.id),
     documents: {},
     documentsCollection: documents,
     consents,
@@ -283,6 +299,102 @@ function mapTransactions(transactions: any[], fallbackPatientId: string): Paymen
     paidAt: tx.paid_at ?? undefined,
     metadata: tx.metadata ?? undefined,
     createdAt: tx.created_at ?? new Date().toISOString(),
+  }));
+}
+
+function mapEmergencyContacts(contacts: any[], fallbackPatientId: string): Patient['emergencyContacts'] {
+  return contacts.map((contact) => ({
+    id: contact.id,
+    patientId: contact.patient_id ?? fallbackPatientId,
+    name: contact.name,
+    relationship: contact.relationship ?? undefined,
+    phone: contact.phone ?? undefined,
+    email: contact.email ?? undefined,
+    isLegalRepresentative: contact.is_legal_representative ?? false,
+    canView: contact.can_view ?? undefined,
+    canAuthorize: contact.can_authorize ?? undefined,
+    canClinical: contact.can_clinical ?? undefined,
+    canFinancial: contact.can_financial ?? undefined,
+    permissions: {
+      view: contact.can_view ?? undefined,
+      authorize: contact.can_authorize ?? undefined,
+      clinical: contact.can_clinical ?? undefined,
+      financial: contact.can_financial ?? undefined,
+    },
+    notifications: Array.isArray(contact.notifications)
+      ? contact.notifications.map((n: any) => ({
+          id: n.id,
+          contactId: n.contact_id ?? contact.id,
+          channel: n.channel,
+          enabled: n.enabled ?? true,
+          createdAt: n.created_at ?? undefined,
+          updatedAt: n.updated_at ?? undefined,
+        }))
+      : [],
+    createdAt: contact.created_at ?? undefined,
+    updatedAt: contact.updated_at ?? undefined,
+  }));
+}
+
+function mapLegalGuardians(guardians: any[]): Patient['legalGuardians'] {
+  return guardians.map((guardian) => ({
+    id: guardian.id,
+    patientId: guardian.patient_id ?? '',
+    name: guardian.name,
+    documentType: guardian.document_type ?? undefined,
+    documentNumber: guardian.document_number ?? undefined,
+    contact: guardian.contact ?? undefined,
+    notes: guardian.notes ?? undefined,
+    validUntil: guardian.valid_until ?? undefined,
+    document: guardian.document_number ?? undefined,
+    validityDate: guardian.valid_until ?? undefined,
+    createdAt: guardian.created_at ?? undefined,
+    updatedAt: guardian.updated_at ?? undefined,
+  }));
+}
+
+function mapDiagnoses(diagnoses: any[], fallbackPatientId: string): Patient['diagnoses'] {
+  return diagnoses.map((diag) => ({
+    id: diag.id,
+    patientId: diag.patient_id ?? fallbackPatientId,
+    code: diag.code ?? undefined,
+    system: diag.system ?? undefined,
+    description: diag.description ?? '',
+    isPrimary: diag.is_primary ?? undefined,
+    diagnosedAt: diag.diagnosed_at ?? undefined,
+    resolvedAt: diag.resolved_at ?? undefined,
+    status: diag.status ?? undefined,
+    createdAt: diag.created_at ?? undefined,
+    updatedAt: diag.updated_at ?? undefined,
+  }));
+}
+
+function mapAllergies(allergies: any[], fallbackPatientId: string): Patient['allergies'] {
+  return allergies.map((allergy) => ({
+    id: allergy.id,
+    patientId: allergy.patient_id ?? fallbackPatientId,
+    substance: allergy.substance ?? '',
+    reaction: allergy.reaction ?? undefined,
+    severity: allergy.severity ?? undefined,
+    recordedAt: allergy.recorded_at ?? undefined,
+    status: allergy.status ?? undefined,
+    createdAt: allergy.created_at ?? undefined,
+    updatedAt: allergy.updated_at ?? undefined,
+  }));
+}
+
+function mapDevices(devices: any[], fallbackPatientId: string): Patient['devices'] {
+  return devices.map((device) => ({
+    id: device.id,
+    patientId: device.patient_id ?? fallbackPatientId,
+    deviceType: device.device_type ?? '',
+    description: device.description ?? undefined,
+    status: device.status ?? undefined,
+    placedAt: device.placed_at ?? undefined,
+    removedAt: device.removed_at ?? undefined,
+    notes: device.notes ?? undefined,
+    createdAt: device.created_at ?? undefined,
+    updatedAt: device.updated_at ?? undefined,
   }));
 }
 

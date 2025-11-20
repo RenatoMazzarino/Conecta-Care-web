@@ -104,8 +104,9 @@ export type Patient = {
   photoConsent?: Record<string, any> | null;
   communicationOptOut?: Record<string, any> | null;
   accessLogSummary?: Record<string, any> | null;
-  emergencyContacts?: Record<string, any>[] | null;
-  legalGuardian?: Record<string, any> | null;
+  emergencyContacts?: PatientEmergencyContact[] | null;
+  legalGuardian?: PatientLegalGuardian | null;
+  legalGuardians?: PatientLegalGuardian[] | null;
   // UI-composite fields (from related tables) kept optional for backward compatibility
   address?: PatientAddress | Record<string, any> | null;
   domicile?: Record<string, any> | null;
@@ -113,6 +114,9 @@ export type Patient = {
   financialProfile?: PatientFinancialProfile | null;
   clinicalSummary?: Record<string, any> | null;
   clinicalSummaryMeta?: Record<string, any> | null;
+  diagnoses?: PatientDiagnosis[] | null;
+  allergies?: PatientAllergy[] | null;
+  devices?: PatientDevice[] | null;
   documentsCollection?: PatientDocument[];
   changeLog?: PatientAuditLog[];
   accessLog?: PatientAuditLog[];
@@ -333,6 +337,92 @@ export type PatientSupportNetwork = {
   responsibleLegal?: Record<string, any> | null;
   network?: Record<string, any>[] | null;
   emergencyContact?: Record<string, any> | null;
+};
+
+export type PatientEmergencyContact = {
+  id?: string; // uuid
+  patientId?: string; // uuid
+  name: string;
+  relationship?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  isLegalRepresentative?: boolean | null;
+  canView?: boolean | null;
+  canAuthorize?: boolean | null;
+  canClinical?: boolean | null;
+  canFinancial?: boolean | null;
+  permissions?: {
+    view?: boolean;
+    authorize?: boolean;
+    clinical?: boolean;
+    financial?: boolean;
+  };
+  notifications?: PatientContactNotification[] | null;
+  createdAt?: string | null; // timestamptz
+  updatedAt?: string | null; // timestamptz
+};
+
+export type PatientContactNotification = {
+  id?: string; // uuid
+  contactId?: string; // uuid
+  channel: string;
+  enabled: boolean;
+  createdAt?: string | null; // timestamptz
+  updatedAt?: string | null; // timestamptz
+};
+
+export type PatientLegalGuardian = {
+  id?: string; // uuid
+  patientId?: string; // uuid
+  name: string;
+  documentType?: string | null;
+  documentNumber?: string | null;
+  contact?: string | null;
+  notes?: string | null;
+  validUntil?: string | null; // date
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  document?: string | null;
+  validityDate?: string | null;
+};
+
+export type PatientDiagnosis = {
+  id?: string; // uuid
+  patientId?: string; // uuid
+  code?: string | null;
+  system?: string | null;
+  description: string;
+  isPrimary?: boolean | null;
+  diagnosedAt?: string | null; // date
+  resolvedAt?: string | null; // date
+  status?: string | null;
+  createdAt?: string | null; // timestamptz
+  updatedAt?: string | null; // timestamptz
+};
+
+export type PatientAllergy = {
+  id?: string; // uuid
+  patientId?: string; // uuid
+  substance: string;
+  reaction?: string | null;
+  severity?: string | null;
+  recordedAt?: string | null; // timestamptz
+  status?: string | null;
+  createdAt?: string | null; // timestamptz
+  updatedAt?: string | null; // timestamptz
+};
+
+export type PatientDevice = {
+  id?: string; // uuid
+  patientId?: string; // uuid
+  deviceType: string;
+  description?: string | null;
+  status?: string | null;
+  placedAt?: string | null; // date
+  removedAt?: string | null; // date
+  notes?: string | null;
+  createdAt?: string | null; // timestamptz
+  updatedAt?: string | null; // timestamptz
 };
 
 export type PatientDocument = {
