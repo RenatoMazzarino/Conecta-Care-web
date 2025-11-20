@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 
 import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
-import { PatientHeader } from '@/components/patients/v2/patient-header';
 import { PatientTabs } from '@/components/patients/v2/patient-tabs';
 import type { ClientProfessional } from '@/components/patients/v2/types';
 import { savePatientSnapshot } from './actions';
@@ -22,9 +21,8 @@ export default async function PatientPage({ params }: PatientPageProps) {
   }
 
   return (
-    <div className="space-y-8 pb-10">
-      <PatientHeader patient={patient} onSave={savePatientSnapshot} />
-      <PatientTabs patient={patient} professionals={professionals} />
-    </div>
+    <main className="mx-auto flex min-h-screen max-w-screen-2xl flex-col gap-8 px-4 pb-10 pt-8 sm:px-6 lg:px-10">
+      <PatientTabs patient={patient} professionals={professionals} onSave={savePatientSnapshot} withHeader />
+    </main>
   );
 }

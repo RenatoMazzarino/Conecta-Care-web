@@ -1,23 +1,21 @@
 'use client';
 
-import * as React from 'react';
+import type { ComponentType } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home,
-  ClipboardList,
+  CalendarBlank,
+  CaretLeft,
+  CaretRight,
+  ChatCircleDots,
+  ChartLineUp,
+  ClipboardText,
+  CurrencyDollar,
+  Heartbeat,
+  ListChecks,
+  SquaresFour,
   Users,
-  LineChart,
-  DollarSign,
-  CalendarCheck,
-  MessageSquareWarning,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  User,
-  HeartPulse,
-  CheckSquare,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,162 +25,150 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
-  { 
-    id: 'pessoas',
-    label: 'Pessoas', 
-    icon: Users,
-    subItems: [
-      { href: '/patients', label: 'Pacientes', icon: User },
-      { href: '/team', label: 'Equipe', icon: HeartPulse }
-    ]
-  },
-  { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
-  { href: '/tasks', label: 'Tarefas', icon: CheckSquare },
+type NavItem = {
+  href: string;
+  label: string;
+  icon: ComponentType<{ size?: number; weight?: any; className?: string }>;
+};
+
+type AppSidebarProps = {
+  isCollapsed: boolean;
+  setIsCollapsed: (isCollapsed: boolean) => void;
+  isMobileOpen: boolean;
+  onMobileClose: () => void;
+};
+
+const primaryNav: NavItem[] = [
+  { href: '/dashboard', label: 'Início', icon: SquaresFour },
+  { href: '/shifts', label: 'Plantões', icon: CalendarBlank },
+  { href: '/patients', label: 'Pacientes', icon: Users },
+  { href: '/team', label: 'Equipe', icon: Heartbeat },
+  { href: '/communications', label: 'Comunicações', icon: ChatCircleDots },
+  { href: '/tasks', label: 'Tarefas', icon: ListChecks },
 ];
 
-const secondaryNavItems = [
-  { href: '/inventory', label: 'Estoque', icon: ClipboardList },
-  { href: '/financial', label: 'Financeiro', icon: DollarSign },
-  { href: '/reports', 'label': 'Relatórios', icon: LineChart },
+const secondaryNav: NavItem[] = [
+  { href: '/inventory', label: 'Estoque', icon: ClipboardText },
+  { href: '/financial', label: 'Financeiro', icon: CurrencyDollar },
+  { href: '/reports', label: 'Relatórios', icon: ChartLineUp },
 ];
 
-export function AppSidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean, setIsCollapsed: (isCollapsed: boolean) => void }) {
+export function AppSidebar({
+  isCollapsed,
+  setIsCollapsed,
+  isMobileOpen,
+  onMobileClose,
+}: AppSidebarProps) {
   const pathname = usePathname();
-  const isMobile = useIsMobile();
-  
-   React.useEffect(() => {
-    // Evita a mudança de estado na renderização inicial do servidor
-    if (isMobile === undefined) return;
+  const isMobileView = useIsMobile();
+  const isDesktop = !isMobileView;
 
-    if (isMobile) {
-      setIsCollapsed(true);
-    } else {
-      setIsCollapsed(false);
+  const widthClass = isMobileView ? 'w-64' : isCollapsed ? 'w-16' : 'w-60';
+  const hiddenOnMobile = isMobileView && !isMobileOpen;
+
+  const handleCollapseClick = () => {
+    if (isMobileView) {
+      onMobileClose();
+      return;
     }
-  }, [isMobile, setIsCollapsed]);
+    setIsCollapsed(!isCollapsed);
+  };
 
-  const renderNavItem = (item: any) => {
-    const isActive = item.href === pathname;
+  const renderNavItem = (item: NavItem) => {
+    const Icon = item.icon;
+    const isActive = pathname?.startsWith(item.href);
+    const link = (
+      <Link
+        key={item.href}
+        href={item.href}
+        aria-current={isActive ? 'page' : undefined}
+        onClick={isMobileView ? onMobileClose : undefined}
+        className={cn(
+          'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900',
+          isActive && 'bg-slate-100 text-slate-900 ring-1 ring-slate-200',
+          isCollapsed && isDesktop && 'justify-center px-0'
+        )}
+      >
+        <Icon size={20} weight={isActive ? 'fill' : 'regular'} className="flex-shrink-0 text-slate-700" />
+        <span
+          className={cn(
+            'truncate',
+            isCollapsed && isDesktop && 'sr-only'
+          )}
+        >
+          {item.label}
+        </span>
+      </Link>
+    );
 
-    if (item.subItems) {
-      const isChildActive = item.subItems.some((sub: any) => sub.href === pathname);
+    if (isCollapsed && isDesktop) {
       return (
-        <Collapsible key={item.id} defaultOpen={isChildActive}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-               <CollapsibleTrigger className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent w-full',
-                  isChildActive && 'text-primary',
-                   isCollapsed && 'justify-center'
-                )}>
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'w-0 opacity-0')}>{item.label}</span>
-                  {!isCollapsed && <ChevronDown className="h-4 w-4 ml-auto transition-transform [&[data-state=open]]:rotate-180" />}
-              </CollapsibleTrigger>
-            </TooltipTrigger>
-             {isCollapsed && (
-                <TooltipContent side="right" align="center">
-                    {item.label}
-                </TooltipContent>
-            )}
-          </Tooltip>
-           <CollapsibleContent className={cn("pl-7 pr-2 space-y-1", isCollapsed && "hidden")}>
-              {item.subItems.map((subItem: any) => {
-                 const isSubItemActive = subItem.href === pathname;
-                return (
-                  <Link
-                    key={subItem.href}
-                    href={subItem.href}
-                    className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent',
-                        isSubItemActive && 'bg-accent text-primary',
-                    )}
-                    >
-                    <subItem.icon className="h-4 w-4 shrink-0" />
-                    <span>{subItem.label}</span>
-                </Link>
-                )
-              })}
-           </CollapsibleContent>
-        </Collapsible>
+        <Tooltip key={item.href} delayDuration={0}>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent side="right" className="text-sm">
+            {item.label}
+          </TooltipContent>
+        </Tooltip>
       );
     }
 
-    return (
-       <Tooltip key={item.href}>
-          <TooltipTrigger asChild>
-               <Link
-                  href={item.href}
-                  className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:text-primary hover:bg-accent',
-                      isActive && 'bg-accent text-primary',
-                      isCollapsed && 'justify-center'
-                  )}
-                  >
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  <span className={cn('whitespace-nowrap transition-opacity', isCollapsed && 'w-0 opacity-0')}>{item.label}</span>
-              </Link>
-          </TooltipTrigger>
-          {isCollapsed && (
-              <TooltipContent side="right" align="center">
-                  {item.label}
-              </TooltipContent>
-          )}
-       </Tooltip>
-    );
-  }
+    return link;
+  };
 
   return (
-    <aside className={cn(
-        "fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-card sm:flex transition-[width] duration-300",
-        isCollapsed ? "w-16" : "w-64"
-    )}>
-       <TooltipProvider delayDuration={0}>
-      <div className="flex h-full max-h-screen flex-col">
-        <div className={cn(
-            "flex h-16 items-center border-b px-6",
-            isCollapsed && "justify-center px-2"
-        )}>
-          <Link href="/" className="flex items-center gap-2 font-semibold font-headline text-primary">
-            <HeartPulse className="h-6 w-6" />
-            <span className={cn("transition-opacity", isCollapsed && "w-0 opacity-0")}>Conecta Care</span>
-          </Link>
-        </div>
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 text-sm font-medium">
-          <ul className="flex flex-col gap-1">
-            {navItems.map(item => (
-              <li key={item.href ?? item.id}>{renderNavItem(item)}</li>
-            ))}
-          </ul>
-           <hr className="my-4" />
-           <ul className="flex flex-col gap-1">
-            {secondaryNavItems.map(item => (
-              <li key={item.href}>{renderNavItem(item)}</li>
-            ))}
-          </ul>
-        </nav>
-        <div className={cn("mt-auto p-4 border-t", isCollapsed && "p-2")}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-                 <Button onClick={() => setIsCollapsed(!isCollapsed)} variant="ghost" className="w-full justify-center">
-                    {isCollapsed ? <ChevronRight className="h-5 w-5"/> : <ChevronLeft className="h-5 w-5" />}
-                    <span className="sr-only">{isCollapsed ? 'Expandir' : 'Recolher'}</span>
-                </Button>
-            </TooltipTrigger>
-             {isCollapsed && (
-                <TooltipContent side="right" align="center">
-                    {isCollapsed ? 'Expandir' : 'Recolher'}
-                </TooltipContent>
-            )}
-          </Tooltip>
-        </div>
-      </div>
-      </TooltipProvider>
-    </aside>
+    <>
+      {isMobileView && isMobileOpen && (
+        <div className="fixed inset-0 z-30 bg-slate-900/30 backdrop-blur-[1px]" onClick={onMobileClose} />
+      )}
+      <aside
+        className={cn(
+          'fixed left-0 top-12 z-40 h-[calc(100vh-3rem)] flex-col border-r border-slate-200 bg-white transition-all duration-300',
+          isMobileView ? 'flex' : 'hidden sm:flex',
+          widthClass,
+          hiddenOnMobile ? '-translate-x-full' : 'translate-x-0',
+          !isDesktop && 'shadow-fluent'
+        )}
+      >
+        <TooltipProvider delayDuration={0}>
+          <div className="flex items-center border-b border-slate-200 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+            {!isCollapsed || !isDesktop ? 'Navegação' : ''}
+          </div>
+          <nav className="flex-1 overflow-y-auto px-2 py-4">
+            <div className="space-y-1">{primaryNav.map(renderNavItem)}</div>
+            <div className="mt-5 border-t border-slate-200 pt-4">
+              <p
+                className={cn(
+                  'px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500',
+                  isCollapsed && isDesktop && 'sr-only'
+                )}
+              >
+                Operação
+              </p>
+              <div className="space-y-1">{secondaryNav.map(renderNavItem)}</div>
+            </div>
+          </nav>
+          <div className="border-t border-slate-200 p-3">
+            <Button
+              variant="ghost"
+              className={cn(
+                'w-full justify-between border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100',
+                isCollapsed && isDesktop && 'justify-center px-2'
+              )}
+              onClick={handleCollapseClick}
+            >
+              {isCollapsed && isDesktop ? (
+                <CaretRight className="h-5 w-5" weight="bold" />
+              ) : (
+                <>
+                  <span>Recolher</span>
+                  <CaretLeft className="h-5 w-5" weight="bold" />
+                </>
+              )}
+            </Button>
+          </div>
+        </TooltipProvider>
+      </aside>
+    </>
   );
 }

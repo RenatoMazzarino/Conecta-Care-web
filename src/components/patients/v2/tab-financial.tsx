@@ -1,125 +1,462 @@
-import type { Patient } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CreditCard, Wallet, Calendar, Bell } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+import type { Patient } from '@/lib/types';
+import {
+  AlertTriangle,
+  BriefcaseMedical,
+  Download,
+  Eye,
+  Filter,
+  Info,
+  Printer,
+  ReceiptText,
+  SlidersHorizontal,
+  Wallet,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
 
-const formatCurrency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+type PaymentStatus = 'Pago' | 'Pendente' | 'Atrasado' | 'Aberto';
 
-export function TabFinancial({ patient }: { patient: Patient }) {
-  const payments = patient.financial.paymentHistory ?? [];
+type PaymentEntry = {
+  id: string;
+  competence: string;
+  description: string;
+  dueDate?: string;
+  status: PaymentStatus;
+  amount: number;
+  paidAt?: string;
+  method?: string;
+  notes?: string;
+};
+
+type TabFinancialProps = {
+  patient: Patient;
+  isEditing?: boolean;
+  paymentTransactions?: PaymentEntry[];
+};
+
+const formatCurrency = (value?: number) => {
+  if (!value) return 'R$ 0,00';
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
+
+const formatDate = (value?: string) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('pt-BR');
+};
+
+const formatCompetence = (value: string) => {
+  if (!value) return '—';
+  if (/\w{3}\/?\d{4}/i.test(value)) return value;
+  const parsed = new Date(`${value}-01T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }).replace('.', '');
+};
+
+const statusTone: Record<PaymentStatus, string> = {
+  Pago: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  Pendente: 'border-amber-300 bg-amber-50 text-amber-700',
+  Aberto: 'border-amber-200 bg-amber-50 text-amber-700',
+  Atrasado: 'border-rose-200 bg-rose-50 text-rose-700',
+};
+
+const FieldValue = ({
+  value,
+  isEditing,
+  name,
+  type = 'text',
+  placeholder,
+  displayClassName,
+}: {
+  value?: ReactNode;
+  isEditing: boolean;
+  name: string;
+  type?: 'text' | 'number' | 'date' | 'textarea';
+  placeholder?: string;
+  displayClassName?: string;
+}) => {
+  if (!isEditing) {
+    return (
+      <div
+        className={cn(
+          'flex min-h-[36px] items-center rounded border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-900',
+          displayClassName,
+        )}
+      >
+        {value ?? '—'}
+      </div>
+    );
+  }
+
+  if (type === 'textarea') {
+    return <Textarea name={name} defaultValue={(value as string) ?? ''} placeholder={placeholder} className="min-h-[120px]" />;
+  }
+
+  return (
+    <Input
+      name={name}
+      type={type}
+      defaultValue={typeof value === 'string' || typeof value === 'number' ? value : undefined}
+      placeholder={placeholder}
+      className="h-10"
+    />
+  );
+};
+
+const DenseField = ({ label, children }: { label: string; children: ReactNode }) => (
+  <div className="space-y-1">
+    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">{label}</p>
+    {children}
+  </div>
+);
+
+export function TabFinancial({ patient, isEditing = false, paymentTransactions }: TabFinancialProps) {
+  const { financial } = patient;
+  const planName =
+    (financial as Record<string, unknown>).plan_name as string | undefined ??
+    (financial as Record<string, unknown>).planName as string | undefined;
+  const cardNumber = financial.carteirinha ?? (financial as Record<string, unknown>).card_number ?? '—';
+  const validity = financial.validadeCarteirinha ?? (financial as Record<string, unknown>).validity;
+  const monthlyFee = financial.monthlyFee ?? (financial as Record<string, unknown>).monthly_fee;
+  const billingDay = financial.billingDay ?? (financial as Record<string, unknown>).due_day;
+  const paymentMethod =
+    financial.paymentMethod ?? financial.formaPagamento ?? (financial as Record<string, unknown>).payment_method;
+  const bondType =
+    financial.bondType ?? financial.vinculo ?? (financial as Record<string, unknown>).bond_type ?? '—';
+  const carencia = (financial as Record<string, unknown>).carencia as string | undefined ?? 'N/A';
+  const financialContactName = (financial as Record<string, unknown>).financial_contact as string | undefined;
+
+  const financialContact =
+    financialContactName
+      ? { name: financialContactName }
+      : patient.emergencyContacts.find((contact) => contact.permissions?.financial);
+
+  const billingEmail = (financial as Record<string, unknown>).billingEmail as string | undefined ?? financialContact?.email;
+
+  const ledger: PaymentEntry[] = (
+    paymentTransactions && paymentTransactions.length
+      ? paymentTransactions
+      : (financial.paymentHistory ?? []).map((item, index) => {
+          const rawMonth = item.month ?? '';
+          const fallbackDueDate =
+            billingDay && /\d{4}-\d{2}/.test(rawMonth)
+              ? `${rawMonth}-${String(billingDay).padStart(2, '0')}`
+              : undefined;
+          return {
+            id: rawMonth || `history-${index}`,
+            competence: rawMonth || '—',
+            description: 'Fatura mensal',
+            dueDate: (item as Record<string, unknown>).dueDate as string | undefined ?? fallbackDueDate,
+            status: (item.status as PaymentStatus) ?? 'Pago',
+            amount: item.amount,
+            paidAt: item.paidAt,
+            method: item.method,
+          } satisfies PaymentEntry;
+        })
+  ).map((entry) => ({
+    ...entry,
+    status:
+      entry.status === 'Aberto' && entry.dueDate && new Date(entry.dueDate) < new Date() ? 'Pendente' : entry.status,
+  }));
+
+  const totals = ledger.reduce(
+    (acc, item) => {
+      if (item.status === 'Pago') acc.paid += item.amount;
+      if (item.status === 'Pendente' || item.status === 'Atrasado' || item.status === 'Aberto') acc.pending += item.amount;
+      return acc;
+    },
+    { paid: 0, pending: 0 },
+  );
+
+  const years = Array.from(
+    new Set(
+      ledger
+        .map((item) => {
+          const yearMatch = item.competence?.match(/(\d{4})/);
+          if (yearMatch) return yearMatch[1];
+          const date = item.dueDate ? new Date(item.dueDate) : null;
+          return date && !Number.isNaN(date.getTime()) ? `${date.getFullYear()}` : undefined;
+        })
+        .filter(Boolean) as string[],
+    ),
+  ).sort((a, b) => Number(b) - Number(a));
+  const defaultYear = years[0] ?? new Date().getFullYear().toString();
+
+  const expiryDate = validity ? new Date(validity) : null;
+  const isExpirySoon = expiryDate ? (expiryDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24) <= 60 : false;
+
+  const responsibleInitials = financialContact?.name
+    ? financialContact.name
+        .split(' ')
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'RF';
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-fluent">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Wallet className="h-5 w-5 text-primary" />
-            Situação atual
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 text-sm">
-          <div className="rounded-lg border bg-white p-4 shadow-sm">
-            <p className="text-muted-foreground">Vínculo</p>
-            <p className="text-lg font-semibold">{patient.financial.vinculo}</p>
-            <p className="text-muted-foreground">{patient.financial.operadora ?? 'Sem operadora'}</p>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="space-y-6">
+          <div className="relative overflow-hidden rounded-lg border border-white/20 bg-gradient-to-br from-[#0F2B45] to-[#1B4B7A] p-6 text-white shadow-[0_8px_16px_rgba(15,43,69,0.3)]">
+            <div className="flex items-start justify-between">
+              <span className="rounded border border-white/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em]">
+                {bondType}
+              </span>
+              <BriefcaseMedical className="h-6 w-6 opacity-80" />
+            </div>
+            <div className="mt-6 space-y-2">
+              <div className="text-[10px] uppercase opacity-80">Operadora</div>
+              <div className="text-2xl font-bold tracking-wide">{financial.operadora ?? '—'}</div>
+              <div className="text-sm font-medium opacity-90">{planName ?? 'Plano não informado'}</div>
+            </div>
+            <div className="mt-6 flex flex-wrap items-end justify-between gap-4 text-sm">
+              <div>
+                <p className="text-[10px] uppercase opacity-80">Número da Carteira</p>
+                <p className="font-mono text-lg tracking-widest">{cardNumber}</p>
+              </div>
+              <div className={cn('text-right', isExpirySoon && 'text-red-100')}>
+                <p className="text-[10px] uppercase opacity-80">Validade</p>
+                <p className="font-bold">{validity ? formatDate(validity) : '—'}</p>
+                {isExpirySoon && <p className="text-[10px] uppercase">Revalidar</p>}
+              </div>
+            </div>
           </div>
-          <div className="rounded-lg border bg-white p-4 shadow-sm">
-            <p className="text-muted-foreground">Carteirinha</p>
-            <p className="text-lg font-semibold">{patient.financial.carteirinha ?? 'Não informado'}</p>
-            {patient.financial.validadeCarteirinha && (
-              <p className="text-muted-foreground">
-                Válida até {new Date(patient.financial.validadeCarteirinha).toLocaleDateString('pt-BR')}
-              </p>
-            )}
-          </div>
-          <div className="rounded-lg border bg-white p-4 shadow-sm">
-            <p className="text-muted-foreground">Status de cobrança</p>
-            <p className="text-lg font-semibold">{patient.financial.billingStatus ?? '—'}</p>
-            <p className="text-muted-foreground">
-              Último pagamento:{' '}
-              {patient.financial.lastPaymentDate
-                ? new Date(patient.financial.lastPaymentDate).toLocaleDateString('pt-BR')
-                : 'Nunca'}
-            </p>
-          </div>
-          <div className="rounded-lg border bg-white p-4 shadow-sm">
-            <p className="text-muted-foreground">Mensalidade</p>
-            <p className="text-lg font-semibold">{formatCurrency(patient.financial.monthlyFee)}</p>
-            <p className="text-muted-foreground">Vencimento dia {patient.financial.billingDay}</p>
-          </div>
-        </CardContent>
-        <CardContent className="flex flex-wrap gap-3 border-t pt-4">
-          <Button variant="outline" size="sm" className="gap-2">
-            <CreditCard className="h-4 w-4" />
-            Marcar como pago
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Gerar boleto
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Bell className="h-4 w-4" />
-            Enviar lembrete
-          </Button>
-        </CardContent>
-      </Card>
 
-      <Card className="shadow-fluent">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <CreditCard className="h-5 w-5 text-primary" />
-            Histórico de pagamentos
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-hidden rounded-lg border">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-muted/70 text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Mês</th>
-                <th className="px-4 py-3">Valor</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Pago em</th>
-                <th className="px-4 py-3">Método</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.length ? (
-                payments.map((payment) => (
-                  <tr key={payment.month} className="border-t">
-                    <td className="px-4 py-3 font-semibold text-foreground">{payment.month}</td>
-                    <td className="px-4 py-3">{formatCurrency(payment.amount)}</td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        variant="outline"
-                        className={
-                          payment.status === 'Pago'
-                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                            : payment.status === 'Pendente'
-                            ? 'border-amber-200 bg-amber-50 text-amber-700'
-                            : 'border-rose-200 bg-rose-50 text-rose-700'
-                        }
-                      >
-                        {payment.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      {payment.paidAt ? new Date(payment.paidAt).toLocaleDateString('pt-BR') : '—'}
-                    </td>
-                    <td className="px-4 py-3">{payment.method ?? '—'}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
-                    Nenhum pagamento registrado.
-                  </td>
-                </tr>
+          <Card className="border border-border shadow-fluent">
+            <CardHeader className="border-b border-slate-200 pb-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.1em] text-brand">
+                <SlidersHorizontal className="h-5 w-5" /> Regras de faturamento
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 p-5 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <DenseField label="Vínculo">
+                  <FieldValue isEditing={isEditing} name="financial.vinculo" value={bondType} />
+                </DenseField>
+              </div>
+              <DenseField label="Mensalidade Base">
+                <FieldValue
+                  isEditing={isEditing}
+                  name="financial.monthlyFee"
+                  value={isEditing ? monthlyFee ?? '' : formatCurrency(monthlyFee)}
+                  type="number"
+                  placeholder="0,00"
+                  displayClassName="font-bold text-slate-900"
+                />
+              </DenseField>
+              <DenseField label="Dia do vencimento">
+                <FieldValue
+                  isEditing={isEditing}
+                  name="financial.billingDay"
+                  value={isEditing ? billingDay ?? '' : billingDay ? `Dia ${billingDay}` : '—'}
+                  type="number"
+                  placeholder="10"
+                />
+              </DenseField>
+              <div className="sm:col-span-2">
+                <DenseField label="Forma de pagamento">
+                  <FieldValue
+                    isEditing={isEditing}
+                    name="financial.paymentMethod"
+                    value={paymentMethod ?? '—'}
+                    placeholder="PIX / Boleto / Faturamento"
+                    displayClassName="flex items-center gap-2"
+                  />
+                </DenseField>
+              </div>
+              <div className="sm:col-span-2">
+                <DenseField label="Carência">
+                  <FieldValue
+                    isEditing={isEditing}
+                    name="financial.carencia"
+                    value={carencia}
+                    displayClassName={cn(
+                      'font-bold',
+                      carencia?.toLowerCase().includes('isento') || carencia?.toLowerCase().includes('cumprida')
+                        ? 'border-green-100 bg-green-50 text-green-700'
+                        : undefined,
+                    )}
+                  />
+                </DenseField>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-border shadow-fluent">
+            <CardHeader className="border-b border-slate-200 pb-4">
+              <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.1em] text-brand">
+                <Wallet className="h-5 w-5" /> Responsável financeiro
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-sm font-bold text-slate-600">
+                  {responsibleInitials}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">{financialContact?.name ?? 'Responsável não definido'}</p>
+                  {financialContact && (
+                    <p className="text-xs text-slate-500">
+                      {financialContact.relationship ?? 'Contato'}
+                      {financialContact.relationship ? ' • ' : ''}
+                      {financialContact.phone ?? ''}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <DenseField label="E-mail para fatura / boleto">
+                <FieldValue
+                  isEditing={isEditing}
+                  name="financial.billingEmail"
+                  value={billingEmail ?? '—'}
+                  placeholder="contato@dominio.com"
+                  displayClassName="text-blue-600 underline"
+                />
+              </DenseField>
+
+              {financial.observacoesFinanceiras && (
+                <div className="flex gap-2 rounded border border-amber-100 bg-amber-50 p-3 text-xs text-amber-900">
+                  <Info className="mt-0.5 h-4 w-4" />
+                  <p>{financial.observacoesFinanceiras}</p>
+                </div>
               )}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <Card className="flex h-full flex-col border border-border shadow-fluent">
+            <CardHeader className="border-b border-slate-200 pb-4">
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.1em] text-brand">
+                  <ReceiptText className="h-5 w-5" /> Extrato financeiro
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="icon" className="h-8 w-8 border-slate-300 text-slate-600">
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="gap-2 border-brand text-brand hover:bg-brand/5">
+                    <Download className="h-4 w-4" /> Exportar
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+
+            <div className="border-b border-slate-200 bg-slate-50 px-5 py-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <Filter className="absolute left-2 top-2 h-3 w-3 text-slate-400" />
+                  <select
+                    className="h-8 rounded border border-slate-300 bg-white pl-6 pr-2 text-xs font-semibold text-slate-600 shadow-sm focus:border-brand"
+                    defaultValue={defaultYear}
+                    aria-label="Ano"
+                  >
+                    {years.length ? years.map((year) => <option key={year}>{year}</option>) : <option>{defaultYear}</option>}
+                  </select>
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px] font-bold">
+                  <Button variant="ghost" size="sm" className="h-7 rounded border border-slate-300 px-2 text-slate-600 shadow-sm">
+                    Todos
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-7 rounded px-2 text-slate-500">
+                    Pagos
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 rounded border border-rose-200 bg-rose-50 px-2 text-rose-600"
+                  >
+                    Pendentes ({ledger.filter((item) => item.status !== 'Pago').length})
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <CardContent className="flex-1 overflow-x-auto p-0">
+              <table className="min-w-full text-[12px]">
+                <thead className="bg-slate-100 uppercase text-[11px] text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Competência</th>
+                    <th className="px-4 py-3 text-left">Descrição / ID</th>
+                    <th className="px-4 py-3 text-left">Vencimento</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-right">Valor</th>
+                    <th className="px-4 py-3 text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ledger.length ? (
+                    ledger.map((item) => (
+                      <tr key={item.id} className={cn('border-b border-slate-100', item.status === 'Atrasado' && 'bg-rose-50/50')}>
+                        <td className="px-4 py-3 font-semibold text-slate-700">{formatCompetence(item.competence)}</td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-slate-800">{item.description}</div>
+                          <div className="font-mono text-[10px] text-slate-400">{item.id}</div>
+                        </td>
+                        <td className="px-4 py-3 text-slate-600">{item.dueDate ? formatDate(item.dueDate) : '—'}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="outline" className={statusTone[item.status] ?? statusTone.Pendente}>
+                              {item.status}
+                            </Badge>
+                            {item.paidAt && item.status === 'Pago' && (
+                              <span className="text-[10px] text-slate-400">Em {formatDate(item.paidAt)} ({item.method ?? '—'})</span>
+                            )}
+                            {item.status === 'Atrasado' && item.notes && (
+                              <span className="text-[10px] text-rose-600">{item.notes}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className={cn('px-4 py-3 text-right font-bold', item.status === 'Atrasado' ? 'text-rose-600' : 'text-slate-800')}>
+                          {formatCurrency(item.amount)}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-brand">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
+                        Nenhuma transação encontrada.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </CardContent>
+
+            <div className="flex flex-wrap justify-end gap-8 border-t border-slate-200 bg-slate-50 px-6 py-4 text-right text-sm">
+              <div>
+                <p className="text-[10px] font-bold uppercase text-slate-500">Total pago (ano)</p>
+                <p className="text-base font-bold text-emerald-700">{formatCurrency(totals.paid)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase text-slate-500">Em aberto</p>
+                <p className="text-lg font-bold text-brand">{formatCurrency(totals.pending)}</p>
+              </div>
+            </div>
+          </Card>
+
+          {totals.pending > 0 && (
+            <div className="flex items-center gap-2 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+              <AlertTriangle className="h-4 w-4" /> Há valores em aberto. Considere gerar lembrete ou negociação.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

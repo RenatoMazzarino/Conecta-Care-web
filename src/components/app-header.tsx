@@ -1,35 +1,7 @@
-
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import {
-  Bell,
-  BotMessageSquare,
-  CalendarCheck,
-  ClipboardList,
-  DollarSign,
-  HeartPulse,
-  Home,
-  LineChart,
-  LogOut,
-  MessageSquareWarning,
-  PanelLeft,
-  Search,
-  Settings,
-  User,
-  Users,
-  Package,
-  AlertCircle,
-  CheckSquare,
-} from 'lucide-react';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { CaretDown, List, MagnifyingGlass } from '@phosphor-icons/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,236 +10,81 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { logoutAction } from '@/app/logout/actions';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { Input } from './ui/input';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
-import { mockNotifications } from '@/lib/data';
-import type { Notification } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { logoutAction } from '@/app/logout/actions';
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/shifts', label: 'Plantões', icon: CalendarCheck },
-  { 
-    id: 'pessoas',
-    label: 'Pessoas', 
-    icon: Users,
-    subItems: [
-      { href: '/patients', label: 'Pacientes', icon: User },
-      { href: '/team', label: 'Equipe', icon: HeartPulse }
-    ]
-  },
-  { href: '/communications', label: 'Comunicações', icon: MessageSquareWarning },
-  { href: '/tasks', label: 'Tarefas', icon: CheckSquare },
-];
-
-const secondaryNavItems = [
-  { href: '/inventory', label: 'Estoque', icon: ClipboardList },
-  { href: '/financial', label: 'Financeiro', icon: DollarSign },
-  { href: '/reports', 'label': 'Relatórios', icon: LineChart },
-];
-
-const iconMap: { [key in Notification['type']]: { icon: React.ElementType, color: string } } = {
-    supply: { icon: Package, color: 'text-blue-500' },
-    alert: { icon: AlertCircle, color: 'text-red-500' },
-    info: { icon: Bell, color: 'text-gray-500' },
+type AppHeaderProps = {
+  onToggleMobileSidebar?: () => void;
 };
 
-function formatRelativeDate(dateString: string) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    const diffInDays = Math.floor(diffInHours / 24);
-
-    if (diffInMinutes < 60) return `${diffInMinutes}m atrás`;
-    if (diffInHours < 24) return `${diffInHours}h atrás`;
-    if (diffInDays === 1) return 'Ontem';
-    return `${diffInDays}d atrás`;
-}
-
-
-export function AppHeader() {
-  const pathname = usePathname();
-
-  const renderNavItem = (item: any) => {
-    if (item.subItems) {
-      const isSubActive = item.subItems.some((sub: any) =>
-        pathname?.startsWith(sub.href)
-      );
-
-      return (
-         <Collapsible key={item.id} defaultOpen={isSubActive}>
-            <CollapsibleTrigger
-              className={cn(
-                'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground w-full',
-                isSubActive && 'text-foreground font-semibold'
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.label}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pl-10 mt-2 space-y-4">
-              {item.subItems.map((sub: any) => {
-                const isActive = pathname?.startsWith(sub.href);
-                return (
-                  <Link
-                    key={sub.href}
-                    href={sub.href}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cn(
-                      'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
-                      isActive && 'text-foreground font-medium'
-                    )}
-                  >
-                    <sub.icon className="h-5 w-5" />
-                    {sub.label}
-                  </Link>
-                );
-              })}
-            </CollapsibleContent>
-         </Collapsible>
-      )
-    }
-
-    const isActive = pathname?.startsWith(item.href);
-    return (
-       <Link
-          href={item.href}
-          key={item.href}
-          aria-current={isActive ? 'page' : undefined}
-          className={cn(
-            'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
-            isActive && 'text-foreground font-semibold'
-          )}
-        >
-          <item.icon className="h-5 w-5" />
-          {item.label}
-        </Link>
-    )
-  }
-
-
+export function AppHeader({ onToggleMobileSidebar }: AppHeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button size="icon" variant="outline" className="sm:hidden">
-            <PanelLeft className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="sm:max-w-xs">
-          <nav className="grid gap-6 text-lg font-medium">
-            <Link
-              href="/"
-              className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-            >
-              <HeartPulse className="h-5 w-5 transition-all group-hover:scale-110" />
-              <span className="sr-only">Conecta Care</span>
-            </Link>
-            {navItems.map(renderNavItem)}
-            <hr className="my-2" />
-            {secondaryNavItems.map(renderNavItem)}
-          </nav>
-        </SheetContent>
-      </Sheet>
-
-      <div className="relative ml-auto flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Pesquisar..."
-          className="w-full rounded-lg bg-muted pl-8 md:w-[200px] lg:w-[336px]"
-        />
-      </div>
-
-       <Button asChild variant="outline" size="icon" className="rounded-full">
-            <Link href="/assistant">
-                <BotMessageSquare className="h-5 w-5" />
-                <span className="sr-only">AI Assistant</span>
-            </Link>
+    <header className="fixed inset-x-0 top-0 z-50 h-12 border-b border-white/10 bg-[#0F2B45] text-white shadow-sm">
+      <div className="mx-auto flex h-full max-w-screen-2xl items-center gap-3 px-3 sm:px-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-white hover:bg-white/10 sm:hidden"
+          onClick={onToggleMobileSidebar}
+        >
+          <List weight="bold" className="h-5 w-5" />
+          <span className="sr-only">Abrir navegação</span>
         </Button>
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md border border-white/20 bg-white/10 text-sm font-semibold leading-none tracking-tight">
+            CC
+          </div>
+          <div className="leading-tight">
+            <p className="text-sm font-semibold">Conecta Care</p>
+            <p className="text-[11px] text-white/70">Enterprise</p>
+          </div>
+        </Link>
 
-       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="relative overflow-hidden rounded-full">
-                {mockNotifications.length > 0 && <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />}
-                <Bell className="h-5 w-5" />
-                <span className="sr-only">Notificações</span>
-            </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="flex justify-between items-center">
-                <span>Notificações</span>
-                <Badge variant="secondary">{mockNotifications.length}</Badge>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <div className="max-h-80 overflow-y-auto">
-            {mockNotifications.map(notif => {
-                const Icon = iconMap[notif.type].icon;
-                const color = iconMap[notif.type].color;
-                return (
-                    <DropdownMenuItem key={notif.id} className="flex items-start gap-3 p-2 cursor-pointer">
-                        <Icon className={cn("h-5 w-5 mt-1 flex-shrink-0", color)} />
-                        <div className="flex-1">
-                            <p className="text-sm font-medium leading-tight whitespace-normal">{notif.message}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{formatRelativeDate(notif.timestamp)}</p>
-                        </div>
-                    </DropdownMenuItem>
-                )
-            })}
-            </div>
-            <DropdownMenuSeparator />
-             <DropdownMenuItem asChild>
-                <Link href="/communications" className="justify-center cursor-pointer">
-                    Ver todas as comunicações
-                </Link>
-            </DropdownMenuItem>
-        </DropdownMenuContent>
-       </DropdownMenu>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="overflow-hidden rounded-full"
-          >
-            <Image
-              src="https://picsum.photos/seed/nurse/36/36"
-              width={36}
-              height={36}
-              alt="Avatar"
-              className="overflow-hidden rounded-full"
-              data-ai-hint="nurse avatar"
+        <div className="ml-auto flex items-center gap-3">
+          <div className="relative w-[200px] sm:w-[260px] lg:w-[320px]">
+            <MagnifyingGlass
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60"
+              weight="bold"
             />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            Perfil
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            Configurações
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <form action={logoutAction}>
-            <DropdownMenuItem asChild>
-                <button type="submit" className="w-full cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
+            <Input
+              type="search"
+              placeholder="Pesquisar"
+              className="h-9 w-full rounded-md border border-white/15 bg-white/10 pl-9 text-white placeholder:text-white/70 backdrop-blur focus-visible:ring-white/60"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-2 py-1 text-left text-sm font-medium text-white shadow-sm transition hover:bg-white/10">
+                <Avatar className="h-8 w-8 border border-white/20">
+                  <AvatarImage src="https://picsum.photos/seed/cc-admin/64/64" alt="Usuário" />
+                  <AvatarFallback className="bg-white/10 text-white">CC</AvatarFallback>
+                </Avatar>
+                <span className="hidden text-xs leading-tight sm:block">
+                  <span className="block">Renata</span>
+                  <span className="text-[11px] text-white/70">Gestão de Operações</span>
+                </span>
+                <CaretDown className="hidden h-4 w-4 text-white/70 sm:block" weight="bold" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Conta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Perfil</DropdownMenuItem>
+              <DropdownMenuItem>Configurações</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <form action={logoutAction}>
+                <DropdownMenuItem asChild>
+                  <button type="submit" className="w-full cursor-pointer text-left">
                     Sair
-                </button>
-            </DropdownMenuItem>
-          </form>
-        </DropdownMenuContent>
-      </DropdownMenu>
+                  </button>
+                </DropdownMenuItem>
+              </form>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
     </header>
   );
 }

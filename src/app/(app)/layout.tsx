@@ -17,7 +17,7 @@ function ClientOnly({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!hasMounted) {
-    return null; // Ou um componente de loading/skeleton
+    return null;
   }
 
   return <>{children}</>;
@@ -31,29 +31,39 @@ export default function AppLayout({
 }) {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (isMobile === undefined) return;
     if (isMobile) {
-      setIsCollapsed(true);
+      setIsCollapsed(false);
+      setIsMobileOpen(false);
     }
   }, [isMobile]);
 
+  const desktopMarginClass = isCollapsed ? 'sm:ml-16' : 'sm:ml-60';
+
   return (
-      <ClientOnly>
-        <div className="flex min-h-screen w-full flex-col bg-muted/40">
-            <AppSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-            <div className={cn(
-            "flex flex-col transition-[margin-left] duration-300",
-            isMobile ? "sm:ml-0" : isCollapsed ? "sm:ml-16" : "sm:ml-64"
-            )}>
-              <AppHeader />
-              <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-                {children}
-              </main>
+    <ClientOnly>
+      <div className="flex h-screen flex-col bg-slate-50 text-slate-900">
+        <AppHeader onToggleMobileSidebar={() => setIsMobileOpen((open) => !open)} />
+        <div className="flex flex-1 overflow-hidden pt-12">
+          <AppSidebar
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+            isMobileOpen={isMobileOpen}
+            onMobileClose={() => setIsMobileOpen(false)}
+          />
+          <main
+            className={cn('flex flex-1 flex-col overflow-hidden transition-[margin-left] duration-300', desktopMarginClass)}
+          >
+            <div className="flex-1 overflow-auto bg-slate-50 px-4 py-4 sm:px-8">
+              {children}
             </div>
+          </main>
         </div>
-        <Toaster />
-      </ClientOnly>
+      </div>
+      <Toaster />
+    </ClientOnly>
   );
 }

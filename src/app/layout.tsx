@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 export const metadata: Metadata = {
   title: 'Conecta Care',
   description: 'Homecare Management Platform',
-}
+};
 
 export default function RootLayout({
   children,
@@ -23,10 +23,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body
-        className={cn('font-body antialiased', 'min-h-screen bg-background font-sans')}
-        suppressHydrationWarning={true}
-      >
+      <body className={cn('min-h-screen bg-slate-50 text-slate-900 antialiased font-sans')} suppressHydrationWarning>
         {children}
         <Toaster />
       </body>
