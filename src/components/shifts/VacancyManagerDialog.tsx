@@ -379,9 +379,9 @@ function MobilePreview({
   notes: string;
 }) {
   return (
-    <div className="phone-shell relative h-[620px] w-[320px] rounded-[32px] bg-[#F2F2F7] shadow-[0_0_0_12px_#1C1C1E,0_22px_45px_10px_rgba(0,0,0,0.35)]">
+    <div className="phone-shell relative h-[620px] w-[320px] rounded-lg bg-[#F2F2F7] shadow-[0_0_0_12px_#1C1C1E,0_22px_45px_10px_rgba(0,0,0,0.35)]">
       <div className="phone-notch absolute left-1/2 top-0 h-7 w-32 -translate-x-1/2 rounded-b-[16px] bg-[#1C1C1E]" />
-      <div className="flex h-full flex-col rounded-[32px] overflow-hidden">
+      <div className="flex h-full flex-col rounded-lg overflow-hidden">
         <div className="bg-white px-5 pt-10 pb-4 shadow-sm">
           <button className="flex items-center gap-1 text-sm font-medium text-blue-600">
             <i className="ph ph-caret-left" /> Voltar
@@ -479,8 +479,8 @@ function MobilePreview({
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 w-full rounded-b-[32px] border-t border-slate-200 bg-white px-4 py-4">
-          <button className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/40">
+        <div className="absolute bottom-0 w-full rounded-b-lg border-t border-slate-200 bg-white px-4 py-4">
+          <button className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-500/30">
             Aceitar plantão
           </button>
         </div>

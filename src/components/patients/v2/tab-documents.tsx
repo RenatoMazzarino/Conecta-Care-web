@@ -425,7 +425,7 @@ export function TabDocuments({ patient, isAdmin = false }: TabDocumentsProps) {
             onDrop={handleDrop}
             className={cn(
               'group flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-slate-200 bg-slate-50/70 px-8 py-10 text-center text-slate-600 shadow-fluent transition',
-              isDragging && 'border-[#0F2B45] bg-sky-50 text-[#0F2B45] shadow-lg',
+              isDragging && 'border-[#0F2B45] bg-sky-50 text-[#0F2B45] shadow-fluent',
             )}
           >
             <div className="rounded-full border border-slate-200 bg-white p-3 text-slate-400 transition group-hover:border-[#0F2B45] group-hover:text-[#0F2B45]">
@@ -509,7 +509,7 @@ export function TabDocuments({ patient, isAdmin = false }: TabDocumentsProps) {
               <div
                 key={doc.id}
                 className={cn(
-                  'flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-fluent transition hover:-translate-y-0.5 hover:shadow-lg',
+                  'flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-fluent transition hover:-translate-y-0.5 hover:shadow-fluent',
                   requiresAttention && 'border-l-4 border-l-amber-400',
                   expirationAlert?.tone === 'destructive' && 'border-l-4 border-l-rose-400',
                 )}

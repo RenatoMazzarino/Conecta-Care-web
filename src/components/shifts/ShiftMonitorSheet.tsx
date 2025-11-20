@@ -199,7 +199,7 @@ export function ShiftMonitorSheet({
               </div>
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Avatar className="h-14 w-14 border-2 border-emerald-400 shadow-lg">
+                  <Avatar className="h-14 w-14 border-2 border-emerald-400 shadow-sm">
                     <AvatarImage src={data?.professional.avatarUrl} />
                     <AvatarFallback>{data?.professional.initials}</AvatarFallback>
                   </Avatar>
@@ -254,7 +254,7 @@ export function ShiftMonitorSheet({
                       style={{ width: `${Math.min(data?.progress ?? 0, 100)}%` }}
                     />
                     <div
-                      className="absolute -top-8 left-0 -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-[10px] font-medium text-white shadow-lg transition-all duration-150"
+                      className="absolute -top-8 left-0 -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-[10px] font-medium text-white shadow-sm transition-all duration-150"
                       style={{
                         left: `${Math.min(data?.progress ?? 0, 100)}%`,
                       }}

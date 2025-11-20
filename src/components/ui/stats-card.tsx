@@ -1,13 +1,14 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import type { LucideIcon } from 'lucide-react';
-import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Minus } from '@phosphor-icons/react';
+import type { ComponentType } from 'react';
+import type { IconProps } from '@phosphor-icons/react';
 
 interface StatsCardProps {
     title: string;
     value: string | number;
-    icon: LucideIcon;
+    icon: ComponentType<IconProps>;
     comparisonText?: string;
     trend?: 'up' | 'down' | 'neutral';
     isActive?: boolean;

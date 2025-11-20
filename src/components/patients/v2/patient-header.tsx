@@ -167,7 +167,7 @@ export function PatientHeader({ patient, onSave, tabsList }: PatientHeaderProps)
         <div className="flex flex-col gap-8 py-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex flex-1 flex-col gap-4">
             <div className="flex flex-wrap items-start gap-6">
-              <Avatar className="h-20 w-20 rounded-full border-4 border-white bg-slate-100 text-[#0F2B45] shadow-lg">
+              <Avatar className="h-20 w-20 rounded-full border-4 border-white bg-slate-100 text-[#0F2B45] shadow-sm">
                 <AvatarImage src={patient.avatarUrl} alt={patient.avatarHint} />
                 <AvatarFallback className="bg-slate-200 text-xl font-bold text-[#0F2B45] opacity-80">
                   {patient.initials}
