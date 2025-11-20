@@ -3,7 +3,14 @@ import { notFound } from 'next/navigation';
 import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import { PatientTabs } from '@/components/patients/v2/patient-tabs';
 import type { ClientProfessional } from '@/components/patients/v2/types';
-import type { Patient, PatientAuditLog, PatientConsent, PatientDocument } from '@/lib/types';
+import type {
+  Patient,
+  PatientAuditLog,
+  PatientConsent,
+  PatientDocument,
+  PatientFinancialProfile,
+  PaymentTransaction,
+} from '@/lib/types';
 import { createSupabaseServerClient } from '@/server/supabaseServerClient';
 import { savePatientSnapshot } from './actions';
 
@@ -22,7 +29,8 @@ export default async function PatientPage({ params }: PatientPageProps) {
       patient_addresses(*),
       patient_admin_info(*),
       patient_clinical_summaries(*),
-      patient_financial_info(*),
+      financial_profile:patient_financial_profiles(*),
+      transactions:payment_transactions(*),
       patient_support_network(*),
       patient_intelligence(*),
       patient_operational_links(*),
@@ -68,9 +76,8 @@ function mapPatientFromRow(row: any): Patient {
   const clinicalRow = Array.isArray(row.patient_clinical_summaries)
     ? row.patient_clinical_summaries[0]
     : row.patient_clinical_summaries;
-  const financialRow = Array.isArray(row.patient_financial_info)
-    ? row.patient_financial_info[0]
-    : row.patient_financial_info;
+  const financialProfileRow = Array.isArray(row.financial_profile) ? row.financial_profile[0] : row.financial_profile;
+  const transactions = Array.isArray(row.transactions) ? row.transactions : row.transactions ? [row.transactions] : [];
   const fullName = row.full_name ?? row.display_name ?? '';
   const { first, last, initials } = splitName(fullName);
   const documents = mapDocuments(row.patient_documents, row.id);
@@ -122,7 +129,8 @@ function mapPatientFromRow(row: any): Patient {
       source: 'manual',
     },
     adminData: mapAdminInfo(adminRow),
-    financial: mapFinancial(financialRow),
+    financialProfile: financialProfileRow ? mapFinancialProfile(financialProfileRow, row.id) : undefined,
+    paymentTransactions: mapTransactions(transactions, row.id),
     documents: {},
     documentsCollection: documents,
     consents,
@@ -241,6 +249,43 @@ function mapAuditLogs(logs: any[]): PatientAuditLog[] {
   }));
 }
 
+function mapFinancialProfile(financial: any, fallbackPatientId: string): PatientFinancialProfile {
+  return {
+    patientId: financial.patient_id ?? fallbackPatientId,
+    bondType: financial.bond_type ?? undefined,
+    insurerName: financial.insurer_name ?? undefined,
+    planName: financial.plan_name ?? undefined,
+    insuranceCardNumber: financial.insurance_card_number ?? undefined,
+    insuranceCardValidity: financial.insurance_card_validity ?? undefined,
+    monthlyFee: financial.monthly_fee != null ? Number(financial.monthly_fee) : undefined,
+    billingDueDay: financial.billing_due_day ?? undefined,
+    paymentMethod: financial.payment_method ?? undefined,
+    financialResponsibleName: financial.financial_responsible_name ?? undefined,
+    financialResponsibleContact: financial.financial_responsible_contact ?? undefined,
+    billingStatus: financial.billing_status ?? undefined,
+    notes: financial.notes ?? undefined,
+    createdAt: financial.created_at ?? undefined,
+    updatedAt: financial.updated_at ?? undefined,
+  };
+}
+
+function mapTransactions(transactions: any[], fallbackPatientId: string): PaymentTransaction[] {
+  return transactions.map((tx) => ({
+    id: tx.id,
+    patientId: tx.patient_id ?? fallbackPatientId,
+    provider: tx.provider ?? 'N/D',
+    providerTxId: tx.provider_tx_id ?? undefined,
+    amount: tx.amount != null ? Number(tx.amount) : 0,
+    currency: tx.currency ?? 'BRL',
+    status: tx.status ?? 'pending',
+    method: tx.method ?? undefined,
+    dueDate: tx.due_date ?? undefined,
+    paidAt: tx.paid_at ?? undefined,
+    metadata: tx.metadata ?? undefined,
+    createdAt: tx.created_at ?? new Date().toISOString(),
+  }));
+}
+
 function mapAddress(address?: any) {
   return {
     street: address?.address_line ?? '',
@@ -315,29 +360,6 @@ function mapAdminInfo(admin?: any): Patient['adminData'] {
     lastAuditDate: admin?.last_audit_date ?? undefined,
     lastAuditBy: admin?.last_audit_by ?? undefined,
     notesInternal: admin?.notes_internal ?? undefined,
-  };
-}
-
-function mapFinancial(financial?: any): Patient['financial'] {
-  return {
-    bondType: financial?.bond_type ?? financial?.vinculo,
-    insurer: financial?.insurer ?? financial?.operadora,
-    planName: financial?.plan_name ?? undefined,
-    cardNumber: financial?.card_number ?? financial?.carteirinha,
-    validity: financial?.validity ?? financial?.validadeCarteirinha,
-    monthlyFee: financial?.monthly_fee ?? financial?.monthlyFee ?? 0,
-    billingDay: financial?.due_day ?? financial?.billingDay ?? undefined,
-    paymentMethod: financial?.payment_method ?? financial?.paymentMethod ?? financial?.formaPagamento,
-    billingStatus: financial?.billing_status ?? undefined,
-    lastPaymentDate: financial?.last_payment_date ?? undefined,
-    lastPaymentAmount: financial?.last_payment_amount ?? undefined,
-    paymentHistory: financial?.invoice_history ?? [],
-    observations: financial?.observations ?? financial?.observacoesFinanceiras,
-    financial_contact: financial?.financial_contact ?? undefined,
-    vinculo: financial?.bond_type ?? financial?.vinculo,
-    formaPagamento: financial?.payment_method ?? financial?.formaPagamento,
-    carteirinha: financial?.card_number ?? financial?.carteirinha,
-    validadeCarteirinha: financial?.validity ?? financial?.validadeCarteirinha,
   };
 }
 

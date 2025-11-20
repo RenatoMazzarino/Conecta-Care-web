@@ -148,9 +148,10 @@ export function PatientTable({
               return `${patientStatus.text} - ${reasons.join(' e ')} pendente(s).`;
             };
 
-            const vinculoDisplay = patient.financial.vinculo === 'Plano de Saúde' && patient.financial.operadora 
-                ? `${patient.financial.vinculo} - ${patient.financial.operadora}` 
-                : patient.financial.vinculo;
+            const bondType = patient.financialProfile?.bondType ?? '—';
+            const vinculoDisplay = bondType === 'Plano de Saúde' && patient.financialProfile?.insurerName
+                ? `${bondType} - ${patient.financialProfile.insurerName}`
+                : bondType;
             const fullName = `${patient.firstName} ${patient.lastName}`;
             return (
                 <TableRow key={patient.id} data-state={selectedPatients.has(patient.id) && 'selected'}>

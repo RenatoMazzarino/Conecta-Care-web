@@ -138,7 +138,7 @@ export function PatientTabs({ patient, professionals, onSave, withHeader }: Pati
       </TabsContent>
 
       <TabsContent value="financial">
-        <TabFinancial patient={patient} />
+        <TabFinancial patient={patient} paymentTransactions={patient.paymentTransactions} />
       </TabsContent>
 
       <TabsContent value="documents">

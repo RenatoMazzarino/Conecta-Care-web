@@ -182,7 +182,7 @@ const complexityTone: Record<Patient['adminData']['complexity'], string> = {
 };
 
 export function TabAdministrative({ patient, isEditing = false }: TabAdministrativeProps) {
-  const { adminData, externalIds, financial } = patient;
+  const { adminData, externalIds, financialProfile } = patient;
   const contractCode = adminData.contractId ?? externalIds?.contractId ?? 'N/A';
   const startDate = adminData.startDate ? new Date(adminData.startDate).toLocaleDateString('pt-BR') : 'Não informado';
   const endDate = adminData.endDate ? new Date(adminData.endDate).toLocaleDateString('pt-BR') : 'Indeterminado';
@@ -329,7 +329,7 @@ export function TabAdministrative({ patient, isEditing = false }: TabAdministrat
             <CardContent className="px-5 py-4">
               <ExternalRow label="CRM ID" value={externalIds?.crmId} />
               <ExternalRow label="EMR Legado" value={externalIds?.susId} />
-              <ExternalRow label="Operadora" value={financial?.operadora} hasDivider={false} />
+              <ExternalRow label="Operadora" value={financialProfile?.insurerName} hasDivider={false} />
             </CardContent>
           </Card>
 

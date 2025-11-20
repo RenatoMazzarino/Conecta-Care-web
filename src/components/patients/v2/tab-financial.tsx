@@ -6,13 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import type { Patient } from '@/lib/types';
+import type { Patient, PaymentTransaction } from '@/lib/types';
 import {
   DownloadSimple as Download,
   Eye,
   FirstAid as BriefcaseMedical,
   FunnelSimple as Filter,
-  Info,
   Printer,
   Receipt,
   SlidersHorizontal,
@@ -38,7 +37,7 @@ type PaymentEntry = {
 type TabFinancialProps = {
   patient: Patient;
   isEditing?: boolean;
-  paymentTransactions?: PaymentEntry[];
+  paymentTransactions?: PaymentTransaction[];
 };
 
 const formatCurrency = (value?: number) => {
@@ -66,6 +65,17 @@ const statusTone: Record<PaymentStatus, string> = {
   Pendente: 'border-amber-300 bg-amber-50 text-amber-700',
   Aberto: 'border-amber-200 bg-amber-50 text-amber-700',
   Atrasado: 'border-rose-200 bg-rose-50 text-rose-700',
+};
+
+const normalizeTransactionStatus = (status?: string, dueDate?: string): PaymentStatus => {
+  const normalized = status?.toLowerCase();
+  const isOverdue = dueDate ? !Number.isNaN(Date.parse(dueDate)) && new Date(dueDate) < new Date() : false;
+  if (normalized === 'paid') return 'Pago';
+  if (normalized === 'overdue') return 'Atrasado';
+  if (normalized === 'pending') return isOverdue ? 'Atrasado' : 'Pendente';
+  if (normalized === 'cancelled') return 'Aberto';
+  if (normalized === 'failed') return 'Atrasado';
+  return isOverdue ? 'Atrasado' : 'Aberto';
 };
 
 const FieldValue = ({
@@ -119,53 +129,63 @@ const DenseField = ({ label, children }: { label: string; children: ReactNode })
 );
 
 export function TabFinancial({ patient, isEditing = false, paymentTransactions }: TabFinancialProps) {
-  const { financial } = patient;
-  const planName =
-    (financial as Record<string, unknown>).plan_name as string | undefined ??
-    (financial as Record<string, unknown>).planName as string | undefined;
-  const cardNumber = financial.carteirinha ?? (financial as Record<string, unknown>).card_number ?? '—';
-  const validity = financial.validadeCarteirinha ?? (financial as Record<string, unknown>).validity;
-  const monthlyFee = financial.monthlyFee ?? (financial as Record<string, unknown>).monthly_fee;
-  const billingDay = financial.billingDay ?? (financial as Record<string, unknown>).due_day;
-  const paymentMethod =
-    financial.paymentMethod ?? financial.formaPagamento ?? (financial as Record<string, unknown>).payment_method;
-  const bondType =
-    financial.bondType ?? financial.vinculo ?? (financial as Record<string, unknown>).bond_type ?? '—';
-  const carencia = (financial as Record<string, unknown>).carencia as string | undefined ?? 'N/A';
-  const financialContactName = (financial as Record<string, unknown>).financial_contact as string | undefined;
-
+  const financial = patient.financialProfile ?? {};
+  const emergencyContacts = Array.isArray(patient.emergencyContacts) ? patient.emergencyContacts : [];
+  const insurerName = financial.insurerName ?? '—';
+  const planName = financial.planName ?? 'Plano não informado';
+  const cardNumber = financial.insuranceCardNumber ?? '—';
+  const validity = financial.insuranceCardValidity;
+  const monthlyFee = financial.monthlyFee ?? 0;
+  const billingDay = financial.billingDueDay;
+  const paymentMethod = financial.paymentMethod ?? '—';
+  const bondType = financial.bondType ?? '—';
+  const billingStatus = financial.billingStatus ?? 'active';
+  const billingStatusLabel =
+    billingStatus === 'active'
+      ? 'Ativo'
+      : billingStatus === 'suspended'
+        ? 'Suspenso'
+        : billingStatus === 'defaulting'
+          ? 'Inadimplente'
+          : billingStatus;
+  const billingNotes = financial.notes;
   const financialContact =
-    financialContactName
-      ? { name: financialContactName }
-      : patient.emergencyContacts.find((contact) => contact.permissions?.financial);
+    financial.financialResponsibleName || financial.financialResponsibleContact
+      ? {
+          name: financial.financialResponsibleName ?? 'Responsável Financeiro',
+          contact: financial.financialResponsibleContact,
+        }
+      : emergencyContacts.find((contact) => contact.permissions?.financial);
+  const billingEmail =
+    typeof (financialContact as any)?.contact === 'string' && (financialContact as any).contact.includes('@')
+      ? (financialContact as any).contact
+      : (financialContact as any)?.email;
+  const contactLine = financialContact
+    ? [
+        (financialContact as any).relationship ?? 'Contato',
+        (financialContact as any).contact ?? (financialContact as any).phone,
+      ]
+        .filter(Boolean)
+        .join(' • ')
+    : undefined;
 
-  const billingEmail = (financial as Record<string, unknown>).billingEmail as string | undefined ?? financialContact?.email;
-
-  const ledger: PaymentEntry[] = (
-    paymentTransactions && paymentTransactions.length
-      ? paymentTransactions
-      : (financial.paymentHistory ?? []).map((item, index) => {
-          const rawMonth = item.month ?? '';
-          const fallbackDueDate =
-            billingDay && /\d{4}-\d{2}/.test(rawMonth)
-              ? `${rawMonth}-${String(billingDay).padStart(2, '0')}`
-              : undefined;
-          return {
-            id: rawMonth || `history-${index}`,
-            competence: rawMonth || '—',
-            description: 'Fatura mensal',
-            dueDate: (item as Record<string, unknown>).dueDate as string | undefined ?? fallbackDueDate,
-            status: (item.status as PaymentStatus) ?? 'Pago',
-            amount: item.amount,
-            paidAt: item.paidAt,
-            method: item.method,
-          } satisfies PaymentEntry;
-        })
-  ).map((entry) => ({
-    ...entry,
-    status:
-      entry.status === 'Aberto' && entry.dueDate && new Date(entry.dueDate) < new Date() ? 'Pendente' : entry.status,
-  }));
+  const transactions = paymentTransactions ?? patient.paymentTransactions ?? [];
+  const ledger: PaymentEntry[] = transactions.map((tx) => {
+    const dueDate = tx.dueDate ?? undefined;
+    const status = normalizeTransactionStatus(typeof tx.status === 'string' ? tx.status : undefined, dueDate);
+    const competence = dueDate ?? tx.createdAt ?? '';
+    return {
+      id: tx.id ?? tx.providerTxId ?? `${tx.provider}-${competence || 'tx'}`,
+      competence,
+      description: tx.providerTxId ? `${tx.provider} • ${tx.providerTxId}` : tx.provider ?? 'Transação',
+      dueDate,
+      status,
+      amount: tx.amount ?? 0,
+      paidAt: tx.paidAt ?? undefined,
+      method: tx.method ?? undefined,
+      notes: (tx.metadata as Record<string, unknown>)?.notes as string | undefined,
+    };
+  });
 
   const totals = ledger.reduce(
     (acc, item) => {
@@ -215,7 +235,7 @@ export function TabFinancial({ patient, isEditing = false, paymentTransactions }
             </div>
             <div className="mt-6 space-y-2">
               <div className="text-[10px] uppercase opacity-80">Operadora</div>
-              <div className="text-2xl font-bold tracking-wide">{financial.operadora ?? '—'}</div>
+              <div className="text-2xl font-bold tracking-wide">{insurerName}</div>
               <div className="text-sm font-medium opacity-90">{planName ?? 'Plano não informado'}</div>
             </div>
             <div className="mt-6 flex flex-wrap items-end justify-between gap-4 text-sm">
@@ -232,64 +252,76 @@ export function TabFinancial({ patient, isEditing = false, paymentTransactions }
           </div>
 
           <Card className="border border-border shadow-fluent">
-            <CardHeader className="border-b border-slate-200 pb-4">
-              <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.1em] text-brand">
-                <SlidersHorizontal className="h-5 w-5" /> Regras de faturamento
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 p-5 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <DenseField label="Vínculo">
-                  <FieldValue isEditing={isEditing} name="financial.vinculo" value={bondType} />
-                </DenseField>
-              </div>
-              <DenseField label="Mensalidade Base">
+          <CardHeader className="border-b border-slate-200 pb-4">
+            <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.1em] text-brand">
+              <SlidersHorizontal className="h-5 w-5" /> Regras de faturamento
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 p-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <DenseField label="Vínculo">
+                <FieldValue isEditing={isEditing} name="bond_type" value={bondType} />
+              </DenseField>
+            </div>
+            <DenseField label="Mensalidade Base">
+              <FieldValue
+                isEditing={isEditing}
+                name="monthly_fee"
+                value={isEditing ? monthlyFee ?? '' : formatCurrency(monthlyFee)}
+                type="number"
+                placeholder="0,00"
+                displayClassName="font-bold text-slate-900"
+              />
+            </DenseField>
+            <DenseField label="Dia do vencimento">
+              <FieldValue
+                isEditing={isEditing}
+                name="billing_due_day"
+                value={isEditing ? billingDay ?? '' : billingDay ? `Dia ${billingDay}` : '—'}
+                type="number"
+                placeholder="10"
+              />
+            </DenseField>
+            <div className="sm:col-span-2">
+              <DenseField label="Forma de pagamento">
                 <FieldValue
                   isEditing={isEditing}
-                  name="financial.monthlyFee"
-                  value={isEditing ? monthlyFee ?? '' : formatCurrency(monthlyFee)}
-                  type="number"
-                  placeholder="0,00"
-                  displayClassName="font-bold text-slate-900"
+                  name="payment_method"
+                  value={paymentMethod ?? '—'}
+                  placeholder="PIX / Boleto / Faturamento"
+                  displayClassName="flex items-center gap-2"
                 />
               </DenseField>
-              <DenseField label="Dia do vencimento">
+            </div>
+            <DenseField label="Status de cobrança">
+              <FieldValue
+                isEditing={isEditing}
+                name="billing_status"
+                value={billingStatusLabel ?? '—'}
+                displayClassName={cn(
+                  'font-bold',
+                  billingStatus === 'defaulting'
+                    ? 'border-rose-200 bg-rose-50 text-rose-700'
+                    : billingStatus === 'suspended'
+                      ? 'border-amber-200 bg-amber-50 text-amber-700'
+                      : 'border-emerald-100 bg-emerald-50 text-emerald-700',
+                )}
+              />
+            </DenseField>
+            <div className="sm:col-span-2">
+              <DenseField label="Observações financeiras">
                 <FieldValue
                   isEditing={isEditing}
-                  name="financial.billingDay"
-                  value={isEditing ? billingDay ?? '' : billingDay ? `Dia ${billingDay}` : '—'}
-                  type="number"
-                  placeholder="10"
+                  name="notes"
+                  value={billingNotes ?? '—'}
+                  type={isEditing ? 'textarea' : 'text'}
+                  placeholder="Regras adicionais, combinações de negociação, contatos autorizados..."
+                  displayClassName="min-h-[48px]"
                 />
               </DenseField>
-              <div className="sm:col-span-2">
-                <DenseField label="Forma de pagamento">
-                  <FieldValue
-                    isEditing={isEditing}
-                    name="financial.paymentMethod"
-                    value={paymentMethod ?? '—'}
-                    placeholder="PIX / Boleto / Faturamento"
-                    displayClassName="flex items-center gap-2"
-                  />
-                </DenseField>
-              </div>
-              <div className="sm:col-span-2">
-                <DenseField label="Carência">
-                  <FieldValue
-                    isEditing={isEditing}
-                    name="financial.carencia"
-                    value={carencia}
-                    displayClassName={cn(
-                      'font-bold',
-                      carencia?.toLowerCase().includes('isento') || carencia?.toLowerCase().includes('cumprida')
-                        ? 'border-green-100 bg-green-50 text-green-700'
-                        : undefined,
-                    )}
-                  />
-                </DenseField>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
           <Card className="border border-border shadow-fluent">
             <CardHeader className="border-b border-slate-200 pb-4">
@@ -304,32 +336,28 @@ export function TabFinancial({ patient, isEditing = false, paymentTransactions }
                 </div>
                 <div>
                   <p className="text-sm font-bold text-slate-900">{financialContact?.name ?? 'Responsável não definido'}</p>
-                  {financialContact && (
-                    <p className="text-xs text-slate-500">
-                      {financialContact.relationship ?? 'Contato'}
-                      {financialContact.relationship ? ' • ' : ''}
-                      {financialContact.phone ?? ''}
-                    </p>
-                  )}
+                  {financialContact && <p className="text-xs text-slate-500">{contactLine}</p>}
                 </div>
               </div>
 
-              <DenseField label="E-mail para fatura / boleto">
+              <DenseField label="Nome do responsável">
                 <FieldValue
                   isEditing={isEditing}
-                  name="financial.billingEmail"
-                  value={billingEmail ?? '—'}
-                  placeholder="contato@dominio.com"
-                  displayClassName="text-blue-600 underline"
+                  name="financial_responsible_name"
+                  value={financialContact?.name ?? ''}
+                  placeholder="Nome completo"
                 />
               </DenseField>
 
-              {financial.observacoesFinanceiras && (
-                <div className="flex gap-2 rounded border border-amber-100 bg-amber-50 p-3 text-xs text-amber-900">
-                  <Info className="mt-0.5 h-4 w-4" />
-                  <p>{financial.observacoesFinanceiras}</p>
-                </div>
-              )}
+              <DenseField label="Contato (e-mail ou telefone)">
+                <FieldValue
+                  isEditing={isEditing}
+                  name="financial_responsible_contact"
+                  value={billingEmail ?? (financialContact as any)?.contact ?? (financialContact as any)?.phone ?? '—'}
+                  placeholder="contato@dominio.com / (11) 99999-9999"
+                  displayClassName="text-blue-600 underline"
+                />
+              </DenseField>
             </CardContent>
           </Card>
         </div>

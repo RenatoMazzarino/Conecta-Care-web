@@ -110,13 +110,14 @@ export type Patient = {
   address?: PatientAddress | Record<string, any> | null;
   domicile?: Record<string, any> | null;
   adminData?: Record<string, any> | null;
-  financial?: Record<string, any> | null;
+  financialProfile?: PatientFinancialProfile | null;
   clinicalSummary?: Record<string, any> | null;
   clinicalSummaryMeta?: Record<string, any> | null;
   documentsCollection?: PatientDocument[];
   changeLog?: PatientAuditLog[];
   accessLog?: PatientAuditLog[];
   smartFields?: Record<string, any> | null;
+  paymentTransactions?: PaymentTransaction[];
   pending_documents?: number;
   consent_status?: 'ok' | 'pending';
   last_visit_date?: string | null;
@@ -302,27 +303,22 @@ export type PatientClinicalSummary = {
   updatedAt: string; // timestamptz
 };
 
-export type PatientFinancialInfo = {
-  id: string; // uuid
+export type PatientFinancialProfile = {
   patientId: string; // uuid
-  tenantId: string; // uuid
-  bondType?: string | null;
-  insurer?: string | null;
+  bondType?: 'Plano de Saúde' | 'Particular' | 'Convênio' | 'Público' | null;
+  insurerName?: string | null;
   planName?: string | null;
-  cardNumber?: string | null;
-  validity?: string | null; // date
+  insuranceCardNumber?: string | null;
+  insuranceCardValidity?: string | null; // date
   monthlyFee?: number | null;
-  dueDay?: number | null;
+  billingDueDay?: number | null;
   paymentMethod?: string | null;
-  billingStatus?: string | null;
-  lastPaymentDate?: string | null; // date
-  lastPaymentAmount?: number | null;
-  financialContact?: string | null;
-  observations?: string | null;
-  invoiceHistory?: Record<string, any>[] | null;
-  createdAt: string; // timestamptz
-  updatedAt: string; // timestamptz
-  meta?: Record<string, any> | null;
+  financialResponsibleName?: string | null;
+  financialResponsibleContact?: string | null;
+  billingStatus?: 'active' | 'suspended' | 'defaulting' | null;
+  notes?: string | null;
+  createdAt?: string | null; // timestamptz
+  updatedAt?: string | null; // timestamptz
 };
 
 export type PatientSupportNetwork = {
@@ -608,7 +604,7 @@ export type PatientProfile = Patient & {
   address?: PatientAddress;
   adminInfo?: PatientAdminInfo;
   clinicalSummary?: PatientClinicalSummary;
-  financialInfo?: PatientFinancialInfo;
+  financialProfile?: PatientFinancialProfile;
   supportNetwork?: PatientSupportNetwork;
   intelligence?: PatientIntelligence;
   operationalLinks?: PatientOperationalLinks;

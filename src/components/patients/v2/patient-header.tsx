@@ -86,7 +86,7 @@ export function PatientHeader({ patient, onSave, tabsList }: PatientHeaderProps)
   const dataStrip = [
     { label: 'Código', value: `#${patient.id}` },
     { label: 'Idade', value: calculateAge(patient.dateOfBirth) },
-    { label: 'Convênio', value: patient.financial.operadora ?? 'Particular' },
+    { label: 'Convênio', value: patient.financialProfile?.insurerName ?? 'Particular' },
     { label: 'Complexidade', value: patient.adminData.complexity },
     { label: 'Próxima visita', value: formatDateTime(patient.next_visit_date, true) },
     { label: 'Última visita', value: formatDateTime(patient.last_visit_date, true) },
