@@ -147,7 +147,6 @@ function mapPatientFromRow(row: any): Patient {
     diagnoses: mapDiagnoses(diagnoses, row.id),
     allergies: mapAllergies(allergies, row.id),
     devices: mapDevices(devices, row.id),
-    documents: {},
     documentsCollection: documents,
     consents,
     changeLog: auditLogs,

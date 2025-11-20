@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import type { Patient, PaymentTransaction } from '@/lib/types';
+import type { Patient, PaymentTransaction, PatientFinancialProfile } from '@/lib/types';
 import {
   DownloadSimple as Download,
   Eye,
@@ -129,7 +129,7 @@ const DenseField = ({ label, children }: { label: string; children: ReactNode })
 );
 
 export function TabFinancial({ patient, isEditing = false, paymentTransactions }: TabFinancialProps) {
-  const financial = patient.financialProfile ?? {};
+  const financial: Partial<PatientFinancialProfile> = patient.financialProfile ?? {};
   const emergencyContacts = Array.isArray(patient.emergencyContacts) ? patient.emergencyContacts : [];
   const insurerName = financial.insurerName ?? '—';
   const planName = financial.planName ?? 'Plano não informado';

@@ -65,6 +65,9 @@ export type Patient = {
   id: string; // uuid
   tenantId: string; // uuid
   fullName: string;
+  firstName?: string;
+  lastName?: string;
+  salutation?: string;
   dateOfBirth?: string | null; // date
   cns?: string | null;
   cpf?: string | null;
@@ -118,6 +121,7 @@ export type Patient = {
   allergies?: PatientAllergy[] | null;
   devices?: PatientDevice[] | null;
   documentsCollection?: PatientDocument[];
+  consents?: PatientConsent[];
   changeLog?: PatientAuditLog[];
   accessLog?: PatientAuditLog[];
   smartFields?: Record<string, any> | null;
@@ -126,6 +130,7 @@ export type Patient = {
   consent_status?: 'ok' | 'pending';
   last_visit_date?: string | null;
   next_visit_date?: string | null;
+  operationalLinks?: PatientOperationalLinks | null;
 };
 
 export type Professional = {
@@ -141,6 +146,7 @@ export type Professional = {
   employmentType?: string | null;
   createdAt: string; // timestamptz
   updatedAt: string; // timestamptz
+  compatibilityTags?: { text: string; variant?: 'default' | 'positive' | 'warning'; icon?: unknown }[];
 };
 
 export type Shift = {
