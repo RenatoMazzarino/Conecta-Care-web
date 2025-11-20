@@ -5,7 +5,15 @@ import type { ShiftReport, Notification, Task } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Check, FileText, Bell, AlertTriangle, MessageSquareWarning, ListFilter, X } from 'lucide-react';
+import {
+  Bell,
+  Check,
+  ChatTeardropWarning,
+  FileText,
+  FunnelSimple as ListFilter,
+  Warning as AlertTriangle,
+  X,
+} from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -54,7 +62,7 @@ function formatRelativeDate(dateString: string | undefined) {
 
 const eventIcons: { [key: string]: { icon: React.ElementType, color: string, label: string } } = {
     shiftReport: { icon: FileText, color: 'text-blue-500', label: 'Evoluções' },
-    supply: { icon: MessageSquareWarning, color: 'text-orange-500', label: 'Notificações' },
+    supply: { icon: ChatTeardropWarning, color: 'text-orange-500', label: 'Notificações' },
     alert: { icon: AlertTriangle, color: 'text-red-500', label: 'Notificações' },
     info: { icon: Bell, color: 'text-gray-500', label: 'Notificações' },
     task: { icon: Check, color: 'text-purple-500', label: 'Tarefas' },

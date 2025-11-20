@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { FileText, BookUser } from 'lucide-react';
+import { BookOpenText as BookUser, FileText } from '@phosphor-icons/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { ShiftReport, Patient } from '@/lib/types';

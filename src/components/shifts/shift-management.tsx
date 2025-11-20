@@ -45,7 +45,7 @@ import { BulkPublishDialog } from './bulk-publish-dialog';
 
 
 type ViewPeriod = 'weekly' | 'biweekly' | 'monthly';
-type StatusFilter = 'all' | 'open' | 'pending' | 'filled';
+type StatusFilter = 'all' | 'scheduled' | 'published' | 'assigned' | 'in_progress';
 
 const periodConfig = {
   weekly: 7,
@@ -109,21 +109,23 @@ export function ShiftManagement() {
         const dayKey = format(day, 'yyyy-MM-dd');
         
         const getGridState = (shiftType: ShiftType): GridShiftState | null => {
-          let shift = shiftsData.find(s => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType);
-          
+          let shift = shiftsData.find(
+            (s) => s.patientId === patient.id && s.dayKey === dayKey && s.shiftType === shiftType
+          );
+
           if (!shift) {
-              const id = `${patient.id}-${dayKey}-${shiftType}`;
-              shift = { id, patientId: patient.id, dayKey, shiftType, status: 'open' };
+            const id = `${patient.id}-${dayKey}-${shiftType}`;
+            shift = { id, patientId: patient.id, dayKey, shiftType, status: 'scheduled' };
           }
-          
-          const professional = professionals?.find(p => p.id === shift?.professionalId);
+
+          const professional = professionals?.find((p) => p.id === shift?.professionalId);
 
           return {
             shift,
             professional,
             patient,
             status: shift.status,
-            isUrgent: shift.isUrgent
+            isUrgent: shift.isUrgent,
           };
         };
 
@@ -141,9 +143,9 @@ export function ShiftManagement() {
     Object.values(gridShifts).flat().forEach(shiftState => {
       if (!shiftState) return;
       const { status } = shiftState.shift;
-      if (status === 'open') openCount++;
-      if (status === 'pending') pendingCount++;
-      if (['filled', 'active', 'completed', 'issue'].includes(status)) filledCount++;
+      if (status === 'scheduled') openCount++;
+      if (status === 'published') pendingCount++;
+      if (['assigned', 'in_progress', 'completed'].includes(status)) filledCount++;
     });
 
     return { open: openCount, pending: pendingCount, filled: filledCount };
@@ -161,12 +163,14 @@ export function ShiftManagement() {
     }
     
     const patientIdsWithStatus = new Set<string>();
-    const filledStatuses: GridShiftState['status'][] = ['filled', 'active', 'completed', 'issue'];
+    const filledStatuses: GridShiftState['status'][] = ['assigned', 'in_progress', 'completed'];
 
     Object.values(gridShifts).flat().forEach(shiftState => {
       if (!shiftState) return;
       const { shift } = shiftState;
-      const match = (statusFilter === 'filled' && filledStatuses.includes(shift.status)) || shift.status === statusFilter;
+      const match =
+        (statusFilter === 'assigned' && filledStatuses.includes(shift.status)) ||
+        shift.status === statusFilter;
 
       if (match) {
         patientIdsWithStatus.add(shift.patientId);
@@ -192,7 +196,7 @@ export function ShiftManagement() {
   };
   
   const handleShiftClick = (shiftState: GridShiftState) => {
-    if (shiftState.status === 'pending') {
+    if (shiftState.status === 'published') {
       setCandidacyContext({
         shift: shiftState.shift,
         patient: shiftState.patient,
@@ -214,7 +218,7 @@ export function ShiftManagement() {
         patientId: '',
         dayKey: format(new Date(), 'yyyy-MM-dd'),
         shiftType: 'diurno',
-        status: 'open',
+        status: 'scheduled',
     };
      setDetailsShift({
       shift: dummyShift,
@@ -229,10 +233,10 @@ export function ShiftManagement() {
         setShiftsData(prevShifts => {
             const existingShift = prevShifts.find(s => s.id === shift.id);
             if (existingShift) {
-                return prevShifts.map(s => s.id === shift.id ? { ...s, professionalId: professional.id, status: 'filled' } : s);
+                return prevShifts.map(s => s.id === shift.id ? { ...s, professionalId: professional.id, status: 'assigned' } : s);
             }
             // If shift doesn't exist (e.g. was 'open' and thus virtual), add it
-            return [...prevShifts, { ...shift, professionalId: professional.id, status: 'filled' }];
+            return [...prevShifts, { ...shift, professionalId: professional.id, status: 'assigned' }];
         });
 
         toast({
@@ -374,13 +378,13 @@ export function ShiftManagement() {
                 isActive={statusFilter === 'all'}
                 comparison="+2% em relação à semana passada"
             />
-             <StatCard 
+            <StatCard 
                 title="Vagas em Aberto"
                 value={stats.open}
                 icon={CircleHelp}
                 className="text-gray-600"
-                onClick={() => setStatusFilter('open')}
-                isActive={statusFilter === 'open'}
+                onClick={() => setStatusFilter('scheduled')}
+                isActive={statusFilter === 'scheduled'}
                 comparison="-10% em relação à semana passada"
             />
             <StatCard 
@@ -388,8 +392,8 @@ export function ShiftManagement() {
                 value={stats.pending}
                 icon={UserPlus}
                 className="text-amber-600"
-                onClick={() => setStatusFilter('pending')}
-                isActive={statusFilter === 'pending'}
+                onClick={() => setStatusFilter('published')}
+                isActive={statusFilter === 'published'}
                 comparison="+3 novas candidaturas hoje"
             />
             <StatCard 
@@ -397,8 +401,8 @@ export function ShiftManagement() {
                 value={stats.filled}
                 icon={CheckCircle}
                 className="text-blue-600"
-                onClick={() => setStatusFilter('filled')}
-                isActive={statusFilter === 'filled'}
+                onClick={() => setStatusFilter('assigned')}
+                isActive={statusFilter === 'assigned'}
                 comparison="+5% em relação à semana passada"
             />
              <StatProgressCard 
@@ -563,26 +567,34 @@ export type GridShiftState = {
   shift: Shift;
   professional?: Professional;
   patient: Patient;
-  status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
+  status: Shift['status'];
   isUrgent?: boolean;
 };
 
-export const statusConfig: { [key in GridShiftState['status']]: { base: string, border: string, text: string } } = {
-  active: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  completed: { base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900', border: 'border-l-green-500', text: 'text-green-800 dark:text-green-200' },
-  pending: { base: 'bg-card hover:bg-accent', border: 'border-l-muted-foreground/30', text: 'text-muted-foreground' },
-  issue: { base: 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900', border: 'border-l-red-500', text: 'text-red-800 dark:text-red-200' },
-  filled: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
-  open: { base: 'bg-card', border: 'border-muted-foreground/30', text: 'text-muted-foreground' },
+export const statusConfig: { [key in GridShiftState['status']]: { base: string; border: string; text: string } } = {
+  in_progress: {
+    base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900',
+    border: 'border-l-green-500',
+    text: 'text-green-800 dark:text-green-200',
+  },
+  completed: {
+    base: 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900',
+    border: 'border-l-green-500',
+    text: 'text-green-800 dark:text-green-200',
+  },
+  published: { base: 'bg-card hover:bg-accent', border: 'border-l-muted-foreground/30', text: 'text-muted-foreground' },
+  cancelled: { base: 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900', border: 'border-l-red-500', text: 'text-red-800 dark:text-red-200' },
+  assigned: { base: 'bg-blue-50 dark:bg-blue-950 hover:bg-blue-100 dark:hover:bg-blue-900', border: 'border-l-blue-500', text: 'text-blue-800 dark:text-blue-200' },
+  scheduled: { base: 'bg-card', border: 'border-muted-foreground/30', text: 'text-muted-foreground' },
 };
 
 
 export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift, professional: Professional, onClick: () => void }) => {
-  const config = shift.status === 'issue' ? statusConfig.issue : statusConfig.active;
+  const config = shift.status === 'cancelled' ? statusConfig.cancelled : statusConfig.in_progress;
 
   return (
     <div onClick={onClick} className={cn("group relative flex flex-col gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
-       {(shift.hasNotification || shift.status === 'issue') && (
+       {(shift.hasNotification || shift.status === 'cancelled') && (
         <AlertTriangle className="absolute top-1.5 right-1.5 h-4 w-4 text-destructive fill-destructive/20" />
       )}
       <div className="flex items-center gap-2">
@@ -606,7 +618,7 @@ export const ActiveShiftCard = ({ shift, professional, onClick }: { shift: Shift
 };
 
 export const FilledShiftCard = ({ professional, onClick }: { professional: Professional, onClick: () => void }) => {
-  const config = statusConfig.filled;
+  const config = statusConfig.assigned;
   return (
     <div onClick={onClick} className={cn("group relative flex items-center gap-2 p-2 rounded-lg border-l-4 transition-colors cursor-pointer", config.base, config.border)}>
        <div className="flex items-center gap-2">
@@ -648,24 +660,33 @@ export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftTyp
 );
 
 export const PendingShiftCard = ({ onClick }: { onClick: () => void }) => {
-    // Mock candidate count
-    const candidateCount = 3; 
+  // Mock candidate count
+  const candidateCount = 3;
 
-    return (
-        <div onClick={onClick} className={cn("group relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer", statusConfig.pending.base, statusConfig.pending.border)}>
-            <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white text-xs font-bold ring-2 ring-card">
-              {candidateCount}
-            </div>
-            <div className="flex items-center justify-center gap-2 z-10 opacity-100 group-hover:opacity-0 transition-opacity">
-                <UserPlus className={cn("h-5 w-5", statusConfig.pending.text)} />
-                <span className={cn("text-sm font-semibold", statusConfig.pending.text)}>Candidatos</span>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20"><Edit className="h-4 w-4" /></Button>
-            </div>
-        </div>
-    );
-}
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        'group relative flex h-[52px] items-center justify-center gap-2 p-2 rounded-lg border-l-4 cursor-pointer',
+        statusConfig.published.base,
+        statusConfig.published.border
+      )}
+    >
+      <div className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white text-xs font-bold ring-2 ring-card">
+        {candidateCount}
+      </div>
+      <div className="flex items-center justify-center gap-2 z-10 opacity-100 group-hover:opacity-0 transition-opacity">
+        <UserPlus className={cn('h-5 w-5', statusConfig.published.text)} />
+        <span className={cn('text-sm font-semibold', statusConfig.published.text)}>Candidatos</span>
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/20">
+          <Edit className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
     
 
     

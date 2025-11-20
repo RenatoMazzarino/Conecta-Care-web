@@ -1,5 +1,5 @@
 
-import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Invoice, Expense, Task, Notification, ShiftReport, InventoryItem, Supply, SupplyRequest } from './types';
+import type { Patient, Professional, Shift, ShiftHistoryEvent, Transaction, Task, Notification, ShiftReport, InventoryItem, Supply, SupplyRequest } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { format, addDays, startOfWeek, subMonths, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -1023,20 +1023,20 @@ const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 0 }); // 0 for Sun
 
 export const initialShifts: Shift[] = [
   // Patient 123 - Has active and pending shifts
-  { id: 'shift-001', patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'active', progress: 50, checkIn: '08:02', checkInStatus: 'OK' },
-  { id: 'shift-002', patientId: 'patient-123', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'pending' },
-  { id: 'shift-003', patientId: 'patient-123', professionalId: 'prof-3', dayKey: format(addDays(startOfCurrentWeek, 1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'filled' },
-  { id: 'shift-004', patientId: 'patient-123', professionalId: 'prof-5', dayKey: format(addDays(startOfCurrentWeek, 1), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
+  { id: 'shift-001', patientId: 'patient-123', professionalId: 'prof-1', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'in_progress', progress: 50, checkIn: '08:02', checkInStatus: 'OK' },
+  { id: 'shift-002', patientId: 'patient-123', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'published' },
+  { id: 'shift-003', patientId: 'patient-123', professionalId: 'prof-3', dayKey: format(addDays(startOfCurrentWeek, 1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'assigned' },
+  { id: 'shift-004', patientId: 'patient-123', professionalId: 'prof-5', dayKey: format(addDays(startOfCurrentWeek, 1), 'yyyy-MM-dd'), shiftType: 'noturno', status: 'assigned' },
 
   // Patient 456 - Has open, urgent, and completed shifts
-  { id: 'shift-005', patientId: 'patient-456', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'open', isUrgent: true },
-  { id: 'shift-006', patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'issue', progress: 90, checkIn: '20:00', checkInStatus: 'OK', hasNotification: true },
+  { id: 'shift-005', patientId: 'patient-456', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'scheduled', isUrgent: true },
+  { id: 'shift-006', patientId: 'patient-456', professionalId: 'prof-5', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'cancelled', progress: 90, checkIn: '20:00', checkInStatus: 'OK', hasNotification: true },
   { id: 'shift-007', patientId: 'patient-456', professionalId: 'prof-6', dayKey: format(addDays(startOfCurrentWeek, -1), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'completed', progress: 100, checkIn: '08:00', checkOut: '20:00', checkInStatus: 'OK', checkOutStatus: 'OK' },
 
   // Patient 789 - Mostly filled
-  { id: 'shift-008', patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'active', progress: 30, checkIn: '07:55', checkInStatus: 'OK' },
-  { id: 'shift-009', patientId: 'patient-789', professionalId: 'prof-7', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'filled' },
-  { id: 'shift-010', patientId: 'patient-789', dayKey: format(addDays(startOfCurrentWeek, 2), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'open' },
+  { id: 'shift-008', patientId: 'patient-789', professionalId: 'prof-2', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'diurno', status: 'in_progress', progress: 30, checkIn: '07:55', checkInStatus: 'OK' },
+  { id: 'shift-009', patientId: 'patient-789', professionalId: 'prof-7', dayKey: format(startOfCurrentWeek, 'yyyy-MM-dd'), shiftType: 'noturno', status: 'assigned' },
+  { id: 'shift-010', patientId: 'patient-789', dayKey: format(addDays(startOfCurrentWeek, 2), 'yyyy-MM-dd'), shiftType: 'diurno', status: 'scheduled' },
 ];
 
 export const mockShiftHistory: ShiftHistoryEvent[] = [
@@ -1162,24 +1162,61 @@ export const mockTasks: Task[] = [
     { id: 'task-5', title: 'Verificar estoque de gaze para o Sr. João', description: 'Contar a quantidade de pacotes de gaze estéril no inventário do paciente João da Silva e solicitar reposição se necessário.', assignee: 'Enf. Chefe', priority: 'Média', status: 'todo', patientId: 'patient-123', dueDate: new Date().toISOString() }
 ];
 
-const mockInvoices: Invoice[] = [
-  { id: 'inv-001', patientId: 'patient-123', patientName: 'João da Silva', issueDate: '2024-07-01', dueDate: '2024-07-10', amount: 1200.00, status: 'Paga' },
-  { id: 'inv-002', patientId: 'patient-456', patientName: 'Maria Lopes', issueDate: '2024-07-01', dueDate: '2024-07-05', amount: 8500.00, status: 'Paga' },
-  { id: 'inv-003', patientId: 'patient-789', patientName: 'Jorge Mendes', issueDate: '2024-07-01', dueDate: '2024-07-15', amount: 950.00, status: 'Pendente' },
-  { id: 'inv-004', patientId: 'patient-123', patientName: 'João da Silva', issueDate: '2024-06-01', dueDate: '2024-06-10', amount: 1200.00, status: 'Paga' },
-  { id: 'inv-005', patientId: 'patient-456', patientName: 'Maria Lopes', issueDate: '2024-06-01', dueDate: '2024-06-05', amount: 8500.00, status: 'Atrasada' },
-];
-
-const mockExpenses: Expense[] = [
-  { id: 'exp-001', professionalId: 'prof-1', professionalName: 'Carla Nogueira', paymentDate: '2024-07-05', description: 'Pagamento ref. plantões Junho', amount: 2500.00, status: 'Paga' },
-  { id: 'exp-002', professionalId: 'prof-2', professionalName: 'Fábio Bastos', paymentDate: '2024-07-05', description: 'Pagamento ref. plantões Junho', amount: 1800.00, status: 'Paga' },
-  { id: 'exp-003', professionalId: 'prof-3', professionalName: 'Diogo Lima', paymentDate: '2024-07-20', description: 'Pagamento ref. plantões Julho', amount: 2100.00, status: 'Pendente' },
-];
-
 export const mockTransactions: Transaction[] = [
-  ...mockInvoices.map(inv => ({ type: 'receita' as const, data: inv, transactionDate: inv.issueDate })),
-  ...mockExpenses.map(exp => ({ type: 'despesa' as const, data: exp, transactionDate: exp.paymentDate })),
-].sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
+  {
+    id: 'tx-001',
+    patientId: 'patient-123',
+    provider: 'Cora',
+    providerTxId: 'cora-8811',
+    amount: 8500,
+    currency: 'BRL',
+    status: 'paid',
+    method: 'pix',
+    dueDate: format(subMonths(today, 0), 'yyyy-MM-05'),
+    paidAt: format(subDays(today, 2), "yyyy-MM-dd'T'HH:mm:ssxxx"),
+    createdAt: format(subMonths(today, 0), "yyyy-MM-dd'T'HH:mm:ssxxx"),
+    metadata: { description: 'Fatura ref. Julho' },
+  },
+  {
+    id: 'tx-002',
+    patientId: 'patient-456',
+    provider: 'Stripe',
+    providerTxId: 'stripe-2244',
+    amount: 4200,
+    currency: 'BRL',
+    status: 'pending',
+    method: 'card',
+    dueDate: format(addDays(today, 3), 'yyyy-MM-dd'),
+    createdAt: format(subDays(today, 1), "yyyy-MM-dd'T'HH:mm:ssxxx"),
+    metadata: { description: 'Fatura aguardando confirmação' },
+  },
+  {
+    id: 'tx-003',
+    patientId: 'patient-789',
+    provider: 'Asaas',
+    providerTxId: 'asaas-9933',
+    amount: 12900,
+    currency: 'BRL',
+    status: 'overdue',
+    method: 'boleto',
+    dueDate: format(subDays(today, 5), 'yyyy-MM-dd'),
+    createdAt: format(subDays(today, 12), "yyyy-MM-dd'T'HH:mm:ssxxx"),
+    metadata: { description: 'Plano premium - Junho' },
+  },
+  {
+    id: 'tx-004',
+    patientId: 'patient-123',
+    provider: 'PicPay',
+    providerTxId: 'picpay-777',
+    amount: 2100,
+    currency: 'BRL',
+    status: 'cancelled',
+    method: 'pix',
+    dueDate: format(subMonths(today, 1), 'yyyy-MM-28'),
+    createdAt: format(subMonths(today, 1), "yyyy-MM-dd'T'HH:mm:ssxxx"),
+    metadata: { description: 'Cancelada pelo cliente' },
+  },
+].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
 
 export const mockMonthlyRevenue = [
   { month: format(subMonths(today, 5), 'MMM', { locale: ptBR }), revenue: 15200 },

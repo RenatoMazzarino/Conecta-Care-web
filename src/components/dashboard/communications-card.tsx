@@ -1,4 +1,4 @@
-import { Bell, AlertCircle, Package } from 'lucide-react';
+import { Bell, Package, WarningCircle as AlertCircle } from '@phosphor-icons/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Notification } from '@/lib/types';
 import { cn } from '@/lib/utils';

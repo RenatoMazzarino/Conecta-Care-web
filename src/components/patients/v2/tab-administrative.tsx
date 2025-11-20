@@ -314,7 +314,7 @@ export function TabAdministrative({ patient, isEditing = false }: TabAdministrat
             <CardContent className="grid gap-4 p-5 md:grid-cols-2 lg:grid-cols-3">
               <TeamCard label="Supervisão" value={adminData.supervisorId} icon={UserCog} />
               <TeamCard label="Escalista" value={adminData.escalistaId} icon={CalendarDays} />
-              <TeamCard label="Gestor Conta" value={adminData.nurseResponsibleId} icon={BriefcaseBusiness} />
+              <TeamCard label="Gestor Conta" value={adminData.nurseResponsibleId} icon={Briefcase} />
             </CardContent>
           </Card>
         </div>

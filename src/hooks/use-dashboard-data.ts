@@ -12,8 +12,8 @@ async function fetchDashboardSummary() {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  const openShiftsCount = initialShifts.filter(s => s.status === 'open').length;
-  const lateShiftsCount = initialShifts.filter(s => s.status === 'issue').length;
+  const openShiftsCount = initialShifts.filter(s => s.status === 'scheduled').length;
+  const lateShiftsCount = initialShifts.filter(s => s.status === 'cancelled').length;
   const urgentTasksCount = mockTasks.filter(t => t.priority === 'Urgente' && t.status !== 'done').length;
   const pendingCommunicationsCount = mockNotifications.filter(n => !n.read).length;
   

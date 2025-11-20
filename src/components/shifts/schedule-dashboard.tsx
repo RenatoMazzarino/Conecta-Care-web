@@ -4,16 +4,16 @@ import * as React from 'react';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
-  ArrowLeftRight,
+  ArrowsLeftRight as ArrowLeftRight,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
-  FileSpreadsheet,
+  CaretLeft as ChevronLeft,
+  CaretRight as ChevronRight,
+  FileText as FileSpreadsheet,
   Moon,
   Plus,
   Sun,
-  Users,
-} from 'lucide-react';
+  UsersThree as Users,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import {
   ShiftMonitorSheet,

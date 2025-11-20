@@ -29,22 +29,22 @@ export function ShiftMobileView({ patients, days, gridShifts, handlers }: ShiftM
   const renderShift = (shiftState: GridShiftState | null, type: ShiftType, patient: Patient, dayKey: string) => {
     if (!shiftState) {
        const dummyShift: GridShiftState = {
-            shift: { id: `${patient.id}-${dayKey}-${type}`, patientId: patient.id, dayKey, shiftType: type, status: 'open' },
+            shift: { id: `${patient.id}-${dayKey}-${type}`, patientId: patient.id, dayKey, shiftType: type, status: 'scheduled' },
             patient: patient,
-            status: 'open'
+            status: 'scheduled'
         }
         return <OpenShiftCard shiftType={type} onClick={() => handlers.handleShiftClick(dummyShift)} />;
     }
     
     const { shift, professional, status, isUrgent } = shiftState;
 
-    if ((status === 'active' || status === 'issue' || status === 'completed') && professional && shift) {
+    if ((status === 'in_progress' || status === 'cancelled' || status === 'completed') && professional && shift) {
         return <ActiveShiftCard shift={shift} professional={professional} onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
-    if (status === 'filled' && professional) {
+    if (status === 'assigned' && professional) {
         return <FilledShiftCard professional={professional} onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
-    if (status === 'pending') {
+    if (status === 'published') {
         return <PendingShiftCard onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
     

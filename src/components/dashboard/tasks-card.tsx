@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle } from '@phosphor-icons/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import type { Task } from '@/lib/types';
@@ -40,7 +40,7 @@ export function TasksCard({ tasks, onTaskUpdate, onTaskClick }: { tasks: Task[],
               {tasks.filter(t => t.status !== 'done').length} tarefas pendentes.
             </CardDescription>
           </div>
-           <CheckCircle2 className="h-6 w-6 text-primary" />
+          <CheckCircle className="h-6 w-6 text-primary" />
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0">

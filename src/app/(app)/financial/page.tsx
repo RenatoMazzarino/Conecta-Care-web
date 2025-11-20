@@ -10,17 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
-const totalRevenue = mockTransactions
-  .filter(t => t.type === 'receita' && t.data.status === 'Paga')
-  .reduce((acc, t) => acc + t.data.amount, 0);
-
-const totalExpenses = mockTransactions
-  .filter(t => t.type === 'despesa' && t.data.status === 'Paga')
-  .reduce((acc, t) => acc + t.data.amount, 0);
-  
-const pendingRevenue = mockTransactions
-    .filter(t => t.type === 'receita' && (t.data.status === 'Pendente' || t.data.status === 'Atrasada'))
-    .reduce((acc, t) => acc + t.data.amount, 0);
+const paidRevenue = mockTransactions.filter((t) => t.status === 'paid');
+const pendingRevenueTx = mockTransactions.filter((t) => t.status === 'pending' || t.status === 'overdue');
+const totalRevenue = paidRevenue.reduce((acc, t) => acc + t.amount, 0);
+const pendingRevenue = pendingRevenueTx.reduce((acc, t) => acc + t.amount, 0);
+const totalExpenses = 0;
 
 const balance = totalRevenue - totalExpenses;
 
@@ -31,11 +25,12 @@ const chartConfig = {
   },
 };
 
-const statusVariants = {
-  Paga: 'secondary',
-  Pendente: 'default',
-  Atrasada: 'destructive',
-} as const;
+const statusVariants: Record<string, 'secondary' | 'default' | 'destructive'> = {
+  paid: 'secondary',
+  pending: 'default',
+  overdue: 'destructive',
+  cancelled: 'destructive',
+};
 
 
 export default function FinancialPage() {
@@ -122,30 +117,46 @@ export default function FinancialPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Descrição</TableHead>
+                  <TableHead>Provider</TableHead>
+                  <TableHead>Paciente</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Vencimento</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {mockTransactions.slice(0, 5).map((t, index) => (
-                    <TableRow key={`${t.type}-${t.data.id}-${index}`}>
+                  <TableRow key={`${t.id}-${index}`}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {t.type === 'receita' ? <ArrowDown className="h-4 w-4 text-green-500"/> : <ArrowUp className="h-4 w-4 text-red-500"/>}
-                        <span className="capitalize">{t.type}</span>
+                        {t.status === 'paid' ? (
+                          <ArrowDown className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <ArrowUp className="h-4 w-4 text-amber-500" />
+                        )}
+                        <span className="capitalize">{t.provider}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                        <div className="font-medium">{t.type === 'receita' ? t.data.patientName : t.data.professionalName}</div>
-                        <div className="text-sm text-muted-foreground hidden md:inline">{t.type === 'despesa' ? t.data.description : `Fatura ref. ${new Date(t.data.issueDate).toLocaleDateString('pt-BR', { month: 'long' })}`}</div>
+                      <div className="font-medium">{t.patientId ?? '—'}</div>
+                      <div className="text-sm text-muted-foreground hidden md:inline">
+                        {t.metadata?.description ?? 'Transação'}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusVariants[t.data.status as keyof typeof statusVariants] || 'default'}>{t.data.status}</Badge>
+                      <Badge variant={statusVariants[t.status] ?? 'default'} className="capitalize">
+                        {t.status}
+                      </Badge>
                     </TableCell>
-                      <TableCell className={cn("text-right font-medium", t.type === 'receita' ? 'text-green-600' : 'text-red-600')}>
-                      {t.data.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    <TableCell className="text-sm text-muted-foreground">
+                      {t.dueDate
+                        ? new Date(t.dueDate).toLocaleDateString('pt-BR')
+                        : t.paidAt
+                          ? new Date(t.paidAt).toLocaleDateString('pt-BR')
+                          : '—'}
+                    </TableCell>
+                    <TableCell className={cn('text-right font-medium', t.status === 'paid' ? 'text-green-600' : 'text-amber-700')}>
+                      {t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </TableCell>
                   </TableRow>
                 ))}

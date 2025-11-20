@@ -183,7 +183,7 @@ export function TabGeneral({ patient }: { patient: Patient }) {
         <Card className="shadow-fluent">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <CalendarCheck2 className="h-5 w-5 text-primary" />
+              <CalendarCheck className="h-5 w-5 text-primary" />
               Linha do tempo
             </CardTitle>
           </CardHeader>

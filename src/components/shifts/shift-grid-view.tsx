@@ -29,22 +29,22 @@ export function ShiftGridView({ patients, days, gridShifts, handlers }: ShiftGri
     if (!shiftState) {
         // This case should ideally not happen with the new logic, but as a fallback:
         const dummyShift: GridShiftState = {
-            shift: { id: `${patient.id}-${dayKey}-${type}`, patientId: patient.id, dayKey, shiftType: type, status: 'open' },
+            shift: { id: `${patient.id}-${dayKey}-${type}`, patientId: patient.id, dayKey, shiftType: type, status: 'scheduled' },
             patient: patient,
-            status: 'open'
+            status: 'scheduled'
         }
         return <OpenShiftCard shiftType={type} onClick={() => handlers.handleShiftClick(dummyShift)} />;
     }
     
     const { shift, professional, status, isUrgent } = shiftState;
 
-    if (['active', 'issue', 'completed'].includes(status) && professional && shift) {
+    if (['in_progress', 'cancelled', 'completed'].includes(status) && professional && shift) {
         return <ActiveShiftCard shift={shift} professional={professional} onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
-    if (status === 'filled' && professional) {
+    if (status === 'assigned' && professional) {
         return <FilledShiftCard professional={professional} onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
-    if (status === 'pending') {
+    if (status === 'published') {
         return <PendingShiftCard onClick={() => handlers.handleShiftClick(shiftState)} />;
     }
     
