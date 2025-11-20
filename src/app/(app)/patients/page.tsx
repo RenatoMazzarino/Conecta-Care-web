@@ -5,14 +5,13 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, UserPlus, Upload, Trash, Archive, UserCheck, ListFilter, X, Users, AlertTriangle, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
+import { Search, UserPlus, Upload, Trash, Archive, ListFilter, X, Users, AlertTriangle, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
 import Link from 'next/link';
 import type { Patient, Professional } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PatientTable } from '@/components/patients/patient-table';
 import { patients as mockPatients, professionals as mockProfessionals } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { AssignmentDialog } from '@/components/patients/assignment-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Label } from '@/components/ui/label';
@@ -27,7 +26,6 @@ export default function PatientsPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [filteredPatients, setFilteredPatients] = React.useState<Patient[]>([]);
   const [selectedPatients, setSelectedPatients] = React.useState<Set<string>>(new Set());
-  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = React.useState(false);
 
   // State for filters
   const [kpiFilter, setKpiFilter] = React.useState<KpiFilter>('all');
@@ -45,7 +43,26 @@ type StatusFilterOption = 'all' | 'Ativo' | 'Inativo';
   React.useEffect(() => {
     // Simulate fetching data
     const timer = setTimeout(() => {
-      setAllPatients(mockPatients);
+      const normalizePatient = (patient: Patient | (Patient & { financial?: any })) => ({
+        ...patient,
+        financialProfile:
+          patient.financialProfile ??
+          (patient as any).financial
+            ? {
+                bondType: (patient as any).financial.vinculo ?? (patient as any).financial.bondType,
+                insurerName: (patient as any).financial.operadora ?? (patient as any).financial.insurer,
+                planName: (patient as any).financial.planName ?? (patient as any).financial.plan_name,
+                monthlyFee: (patient as any).financial.monthlyFee ?? (patient as any).financial.monthly_fee,
+                billingDueDay: (patient as any).financial.billingDay ?? (patient as any).financial.due_day,
+                paymentMethod: (patient as any).financial.paymentMethod ?? (patient as any).financial.payment_method,
+                billingStatus: (patient as any).financial.billing_status,
+              }
+            : undefined,
+      });
+
+      const normalizedPatients = mockPatients.map(normalizePatient);
+
+      setAllPatients(normalizedPatients);
       setProfessionals(mockProfessionals);
       setIsLoading(false);
     }, 500);
@@ -122,7 +139,7 @@ type StatusFilterOption = 'all' | 'Ativo' | 'Inativo';
         results = results.filter(p => p.adminData.servicePackage === packageFilter);
     }
     if (planFilter !== 'all') {
-        results = results.filter(p => p.financial.vinculo === planFilter);
+        results = results.filter(p => (p.financialProfile?.bondType ?? 'all') === planFilter);
     }
      if (statusFilter !== 'all') {
       results = results.filter(p => p.adminData.status === statusFilter);
@@ -155,14 +172,6 @@ type StatusFilterOption = 'all' | 'Ativo' | 'Inativo';
     setSelectedPatients(new Set());
   }
   
-  const handleAssignmentSuccess = () => {
-    toast({
-        title: 'Pacientes Atribuídos',
-        description: 'A atribuição de supervisor e escalista foi registrada com sucesso.'
-    });
-    setSelectedPatients(new Set());
-  }
-
   const noData = !isLoading && !allPatients.length;
 
   return (
@@ -178,10 +187,6 @@ type StatusFilterOption = 'all' | 'Ativo' | 'Inativo';
                     <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                         {selectedPatients.size} selecionado(s)
                     </span>
-                     <Button variant="outline" size="sm" onClick={() => setIsAssignmentDialogOpen(true)}>
-                      <UserCheck className="mr-2 h-4 w-4" />
-                      Atribuir
-                    </Button>
                     <Button variant="outline" size="sm">
                       <Archive className="mr-2 h-4 w-4" />
                       Arquivar
@@ -348,15 +353,6 @@ type StatusFilterOption = 'all' | 'Ativo' | 'Inativo';
            <Button variant="secondary" onClick={resetFilters}>Limpar Filtros</Button>
         </div>
       )}
-      
-      <AssignmentDialog
-        isOpen={isAssignmentDialogOpen}
-        onOpenChange={setIsAssignmentDialogOpen}
-        selectedPatientIds={Array.from(selectedPatients)}
-        allPatients={allPatients}
-        allProfessionals={professionals}
-        onSuccess={handleAssignmentSuccess}
-      />
     </>
   );
 }
