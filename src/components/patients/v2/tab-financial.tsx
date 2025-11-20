@@ -8,17 +8,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { Patient } from '@/lib/types';
 import {
-  AlertTriangle,
-  BriefcaseMedical,
-  Download,
+  DownloadSimple as Download,
   Eye,
-  Filter,
+  FirstAid as BriefcaseMedical,
+  FunnelSimple as Filter,
   Info,
   Printer,
-  ReceiptText,
+  Receipt,
   SlidersHorizontal,
   Wallet,
-} from 'lucide-react';
+  Warning as AlertTriangle,
+} from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 
 type PaymentStatus = 'Pago' | 'Pendente' | 'Atrasado' | 'Aberto';
@@ -339,7 +339,7 @@ export function TabFinancial({ patient, isEditing = false, paymentTransactions }
             <CardHeader className="border-b border-slate-200 pb-4">
               <div className="flex items-center justify-between gap-4">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.1em] text-brand">
-                  <ReceiptText className="h-5 w-5" /> Extrato financeiro
+                  <Receipt className="h-5 w-5" /> Extrato financeiro
                 </CardTitle>
                 <div className="flex gap-2">
                   <Button variant="outline" size="icon" className="h-8 w-8 border-slate-300 text-slate-600">

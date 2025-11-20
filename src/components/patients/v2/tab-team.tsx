@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Users, Shield, PhoneCall } from 'lucide-react';
+import { PhoneCall, Shield, Users } from '@phosphor-icons/react';
 import { trackEvent } from '@/lib/analytics';
 
 type TabTeamProps = {

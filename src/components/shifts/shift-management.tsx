@@ -4,7 +4,23 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, Plus, UserPlus, CheckCircle, FileUp, ChevronsLeft, ChevronsRight, CircleHelp, AlertTriangle, ListFilter, Megaphone, Edit, X, UserCheck } from 'lucide-react';
+import {
+  CaretLeft as ChevronLeft,
+  CaretRight as ChevronRight,
+  CaretDoubleLeft as ChevronsLeft,
+  CaretDoubleRight as ChevronsRight,
+  CheckCircle,
+  FunnelSimple as ListFilter,
+  Megaphone,
+  PencilSimple as Edit,
+  Plus,
+  Question as CircleHelp,
+  UploadSimple as FileUp,
+  UserCheck,
+  UserPlus,
+  Warning as AlertTriangle,
+  X,
+} from '@phosphor-icons/react';
 import type { Professional, Shift, Patient, ShiftType } from '@/lib/types';
 import { ProfessionalProfileDialog } from './professional-profile-dialog';
 import { Progress } from '@/components/ui/progress';
@@ -13,7 +29,12 @@ import { cn } from '@/lib/utils';
 import { CandidacyManagementDialog } from './candidacy-management-dialog';
 import { addDays, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ShiftDetailsDialog } from './shift-details-dialog';
+import {
+  ShiftMonitorSheet,
+  type ShiftMonitorData,
+  type ShiftMonitorNote,
+  type ShiftMonitorTimelineEvent,
+} from './ShiftMonitorSheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ShiftMobileView } from './shift-mobile-view';
 import { ShiftGridView } from './shift-grid-view';
@@ -55,6 +76,11 @@ export function ShiftManagement() {
   const [candidacyContext, setCandidacyContext] = React.useState<{shift: Shift; patient: Patient} | null>(null);
   const [isBulkPublishing, setIsBulkPublishing] = React.useState(false);
   const [detailsShift, setDetailsShift] = React.useState<{shift: Shift, professional?: Professional, patient: Patient} | null>(null);
+  const monitorData = React.useMemo<ShiftMonitorData | undefined>(
+    () => (detailsShift ? buildMonitorData(detailsShift) : undefined),
+    [detailsShift]
+  );
+  const [isMonitorOpen, setIsMonitorOpen] = React.useState(false);
   
   const [currentDate, setCurrentDate] = React.useState(() => {
     const today = new Date();
@@ -178,6 +204,7 @@ export function ShiftManagement() {
       professional: shiftState.professional,
       patient: shiftState.patient,
     });
+    setIsMonitorOpen(true);
   }
 
   const handlePublishFromScratch = () => {
@@ -194,6 +221,7 @@ export function ShiftManagement() {
       patient: {} as Patient, // A blank patient, the user will select one in the modal
       professional: undefined
     });
+    setIsMonitorOpen(true);
   }
   
   const handleApproveProfessional = (professional: Professional, shift: Shift) => {
@@ -213,7 +241,8 @@ export function ShiftManagement() {
         });
 
         setCandidacyContext(null);
-        setDetailsShift(null); // Close the main dialog
+        setDetailsShift(null); // Close the monitor context
+        setIsMonitorOpen(false);
         handleCloseProfile();
     }
   };
@@ -421,20 +450,113 @@ export function ShiftManagement() {
           onApprove={handleApproveProfessional}
       />
       
-      {detailsShift && (
-        <ShiftDetailsDialog
-          isOpen={!!detailsShift}
-          onOpenChange={() => setDetailsShift(null)}
-          shift={detailsShift.shift}
-          professional={detailsShift.professional}
-          patient={detailsShift.patient}
-          onOpenProfile={handleOpenProfile}
-          onApprove={handleApproveProfessional}
-          onVacancyPublished={() => {}}
-        />
-      )}
+      <ShiftMonitorSheet
+        open={isMonitorOpen && Boolean(monitorData)}
+        onOpenChange={(open) => {
+          setIsMonitorOpen(open);
+          if (!open) {
+            setDetailsShift(null);
+          }
+        }}
+        data={monitorData}
+        onCreateInternalNote={(note) => {
+          toast({
+            title: 'Nota interna registrada',
+            description: note,
+          });
+        }}
+      />
     </div>
   );
+}
+
+function buildMonitorData(context: {
+  shift: Shift;
+  professional?: Professional;
+  patient: Patient;
+}): ShiftMonitorData {
+  const { shift, professional, patient } = context;
+  const shiftLabel = shift.shiftType === 'diurno' ? '07h-19h' : '19h-07h';
+  const patientName =
+    patient.displayName ??
+    patient.fullName ??
+    patient.name ??
+    `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
+    'Paciente';
+  const initials =
+    professional?.initials ??
+    patient.initials ??
+    patientName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase() || 'ND';
+
+  const timeline: ShiftMonitorTimelineEvent[] = [
+    {
+      id: 'check-in',
+      time: shift.checkIn ?? '—',
+      title: 'Check-in',
+      description: 'Entrada registrada pelo time.',
+      icon: UserCheck,
+      tone: shift.checkIn ? 'success' : 'warning',
+    },
+    {
+      id: 'status',
+      time: shift.dayKey,
+      title: 'Status do plantão',
+      description: `Fase atual: ${shift.status}`,
+      icon: Megaphone,
+    },
+  ];
+
+  const notes: ShiftMonitorNote[] = [
+    {
+      id: 'last-note',
+      author: professional?.name ?? 'Coordenação',
+      timestamp: shift.checkIn ?? '—',
+      message: 'Monitoramento rápido para alinhamento de escala.',
+      variant: 'muted',
+    },
+  ];
+
+  return {
+    shiftId: shift.id,
+    patientName,
+    professional: {
+      name: professional?.name ?? 'A definir',
+      role: professional?.role ?? 'Escala',
+      avatarUrl: professional?.avatarUrl,
+      initials,
+      phone: professional?.phone ?? '',
+      whatsapp: professional?.phone,
+      battery: shift.progress ?? 64,
+      bleStatus: 'connected',
+      gpsStatus: 'ok',
+    },
+    shiftWindow: {
+      start: shiftLabel.split('-')[0] ?? '07h',
+      end: shiftLabel.split('-')[1] ?? '19h',
+      startedAt: shift.checkIn,
+    },
+    status: shift.status,
+    progress: shift.progress ?? 0,
+    reminder: shift.dayKey,
+    checkInTime: shift.checkIn,
+    auditBadges: [
+      {
+        id: 'docs',
+        label: 'Documentos',
+        status: patient.pending_documents > 0 ? 'pending' : 'ok',
+        value: `${patient.pending_documents} pendências`,
+      },
+      { id: 'zone', label: 'Zona', status: 'ok', value: patient.address?.zoneType },
+    ],
+    timeline,
+    notes,
+  };
 }
 
 export type GridShiftState = {
@@ -503,7 +625,7 @@ export const FilledShiftCard = ({ professional, onClick }: { professional: Profe
 };
 
 export const OpenShiftCard = ({ shiftType, urgent = false, onClick }: { shiftType: ShiftType, urgent?: boolean, onClick: () => void }) => (
-  <div onClick={onClick} className={cn("group relative flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
+    <div onClick={onClick} className={cn("group relative flex items-center justify-center gap-2 p-2 h-[52px] rounded-lg border-2 border-dashed cursor-pointer transition-colors",
     urgent 
         ? 'border-amber-500/50 bg-amber-500/5 text-amber-600 hover:bg-amber-500/10 hover:border-amber-500' 
         : 'border-muted-foreground/30 bg-card text-muted-foreground hover:bg-accent hover:border-muted-foreground'

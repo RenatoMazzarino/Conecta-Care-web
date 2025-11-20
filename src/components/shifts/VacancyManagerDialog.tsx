@@ -164,7 +164,7 @@ export function VacancyManagerDialog({ open, onOpenChange, context }: Props) {
                 {candidates.map((candidate) => (
                   <div
                     key={candidate.id}
-                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-[0_12px_24px_-10px_rgba(15,43,69,0.25)]"
+                    className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-[0_12px_24px_-10px_rgba(15,43,69,0.25)]"
                   >
                     <div className="flex items-center gap-4">
                       <Avatar className="h-12 w-12 border border-slate-200">
@@ -211,7 +211,7 @@ export function VacancyManagerDialog({ open, onOpenChange, context }: Props) {
 
             <TabsContent value="publish">
               <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
                   <h3 className="text-base font-bold text-[#0F2B45] flex items-center gap-2">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#0F2B45]/10 text-xs font-bold text-[#0F2B45]">
                       1
@@ -401,7 +401,7 @@ function MobilePreview({
             </div>
           </div>
           <div className="px-4 -mt-6 relative z-10 space-y-4">
-            <div className="rounded-xl bg-white p-5 shadow">
+            <div className="rounded-lg bg-white p-5 shadow">
               <div className="flex items-center justify-between text-xs text-slate-500">
                 <span>Valor líquido</span>
                 {urgent && (
@@ -437,13 +437,13 @@ function MobilePreview({
                 </div>
               </div>
             </div>
-            <div className="rounded-xl bg-white p-5 shadow">
+            <div className="rounded-lg bg-white p-5 shadow">
               <div className="text-xs font-semibold uppercase text-slate-500">Janela do plantão</div>
               <p className="mt-2 text-sm font-semibold text-slate-800">
                 {shiftType === 'day' ? 'Plantão 07h-19h (12h)' : 'Plantão 19h-07h (12h)'}
               </p>
             </div>
-            <div className="rounded-xl bg-white p-5 shadow">
+            <div className="rounded-lg bg-white p-5 shadow">
               <h3 className="mb-3 font-bold text-slate-900">Sobre o paciente</h3>
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-50 text-purple-600 font-bold">
@@ -471,7 +471,7 @@ function MobilePreview({
                 </span>
               </div>
             </div>
-            <div className="rounded-xl bg-white p-5 shadow">
+            <div className="rounded-lg bg-white p-5 shadow">
               <h3 className="mb-2 font-bold text-slate-900">Observações</h3>
               <p className="text-sm text-slate-600">
                 {notes || 'A família solicita uso de sapatilhas ao entrar no quarto. Necessário experiência com aspiração de TQT.'}
@@ -480,7 +480,7 @@ function MobilePreview({
           </div>
         </div>
         <div className="absolute bottom-0 w-full rounded-b-[32px] border-t border-slate-200 bg-white px-4 py-4">
-          <button className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/40">
+          <button className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/40">
             Aceitar plantão
           </button>
         </div>

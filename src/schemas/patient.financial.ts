@@ -35,7 +35,7 @@ export const PatientFinancialZ = z.object({
 
   financial_contact: z.string().optional(),
   observations: z.string().optional(),
-  invoice_history: z.array(InvoiceHistoryZ).optional(),
+  invoice_history: z.array(InvoiceHistoryZ).default([]),
 
   created_at: z.string().optional(),
   updated_at: z.string().optional(),

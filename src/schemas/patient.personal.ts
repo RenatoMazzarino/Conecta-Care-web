@@ -31,9 +31,13 @@ export const PatientPersonalZ = z.object({
   tenant_id: z.string().uuid(),
   full_name: z.string().min(2),
   display_name: z.string().optional(),
-  pronouns: z.string().optional(),
+  pronouns: z.string().optional(), // legacy UI-only field (não existe na tabela)
   photo_url: z.string().url().optional(),
   photo_consent: z.any().optional(),
+  access_log_summary: z.any().optional(),
+  last_viewed_at: z.string().datetime().optional(),
+  created_by: z.string().uuid().optional(),
+  updated_by: z.string().uuid().optional(),
 
   cpf: z.string().optional(),
   cpf_status: z.enum(["valid","invalid","unknown"]).optional(),

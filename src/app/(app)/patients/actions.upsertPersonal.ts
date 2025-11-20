@@ -16,7 +16,7 @@ export async function upsertPatientPersonal(payload: unknown) {
     tenant_id: tenantId,
   });
 
-  const { id, ...data } = parsed;
+  const { id, pronouns: _legacyPronouns, ...data } = parsed;
   const timestamp = new Date().toISOString();
 
   const record = id

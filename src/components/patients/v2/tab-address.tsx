@@ -3,27 +3,27 @@
 import type { Patient } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
-  AlertTriangle,
+  Archive,
   Bed,
+  CarSimple as ParkingCircle,
   Cigarette,
-  Droplets,
-  Gavel,
-  HomeIcon,
   DoorOpen,
+  Drop as Droplets,
+  Fan as Wind,
+  Gavel,
+  House as HomeIcon,
   Info,
   MapPin,
   Moon,
-  Archive,
-  ParkingCircle,
   PawPrint,
-  Quote,
-  ShieldAlert,
+  Plugs as Zap,
+  Quotes as Quote,
+  ShieldWarning as ShieldAlert,
+  SpeakerHigh as Volume2,
   Truck,
-  Volume2,
-  Wifi,
-  Wind,
-  Zap,
-} from 'lucide-react';
+  Warning as AlertTriangle,
+  WifiHigh as Wifi,
+} from '@phosphor-icons/react';
 
 type TabAddressProps = { patient: Patient };
 

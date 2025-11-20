@@ -5,7 +5,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { Patient } from '@/lib/types';
-import { BriefcaseBusiness, CalendarDays, FileText, Link2, ShieldCheck, UserCog, Users } from 'lucide-react';
+import {
+  Briefcase,
+  CalendarBlank as CalendarDays,
+  FileText,
+  LinkSimple as Link2,
+  ShieldCheck,
+  UserGear as UserCog,
+  Users,
+} from '@phosphor-icons/react';
 import type { ReactNode } from 'react';
 
 type TabAdministrativeProps = {

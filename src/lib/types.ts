@@ -1,5 +1,7 @@
 
-import { LucideIcon } from 'lucide-react';
+import type { ComponentType, ElementType } from 'react';
+
+type IconType = ComponentType<{ className?: string; size?: number | string }>;
 
 export type Diagnosis = {
   name: string;
@@ -32,30 +34,29 @@ export type PatientDocumentCategory =
   | 'Consentimento'
   | 'Outros';
 
-export type PatientDocumentSource =
-  | 'upload'
-  | 'integracao'
-  | 'assinaturaDigital'
-  | 'importacao';
+export type PatientDocumentSource = 'upload' | 'integracao' | 'assinaturaDigital' | 'importacao';
 
 export type PatientDocument = {
   id: string;
+  patientId: string;
   type: PatientDocumentType;
   category: PatientDocumentCategory;
   title: string;
-  description?: string;
+  description?: string | null;
   fileUrl: string;
-  fileName: string;
-  mimeType: string;
-  uploadedBy: string;
+  fileName?: string | null;
+  mimeType?: string | null;
+  fileHash?: string | null;
+  uploadedBy?: string | null;
   uploadedAt: string;
-  expiresAt?: string;
-  verified: boolean;
-  verifiedBy?: string;
-  verifiedAt?: string;
+  expiresAt?: string | null;
   source: PatientDocumentSource;
+  verified: boolean;
+  verifiedBy?: string | null;
+  verifiedAt?: string | null;
   tags?: string[];
-  hash?: string;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
 };
 
 export type PatientConsentType =
@@ -82,18 +83,20 @@ export type PatientConsentChannel = 'AssinaturaDigital' | 'Upload' | 'Aplicativo
 
 export type PatientConsent = {
   id: string;
+  patientId: string;
   type: PatientConsentType;
   scope: PatientConsentScope[];
   status: PatientConsentStatus;
   grantedAt: string;
-  revokedAt?: string;
+  revokedAt?: string | null;
   channel: PatientConsentChannel;
-  documentId?: string;
+  documentId?: string | null;
   grantedBy: 'Paciente' | 'ResponsavelLegal' | 'Tutor' | 'Outro';
   grantedByName: string;
-  grantedByDocument?: string;
-  relatedLegalResponsibleId?: string;
-  notes?: string;
+  grantedByDocument?: string | null;
+  relatedLegalResponsibleId?: string | null;
+  notes?: string | null;
+  metadata?: Record<string, unknown>;
 };
 
 export type SmartFieldScore = {
@@ -118,12 +121,40 @@ export type PatientSmartFields = Partial<{
   environmentAdequacyScore: SmartFieldScore;
 }>;
 
+export type PatientIntelligence = {
+  patientId: string;
+  readmissionRiskScore?: number | null;
+  readmissionRiskLabel?: string | null;
+  readmissionRiskSource?: string | null;
+  readmissionRiskUpdatedAt?: string | null;
+  careAdherenceScore?: number | null;
+  careAdherenceLabel?: string | null;
+  careAdherenceUpdatedAt?: string | null;
+  familySatisfactionScore?: number | null;
+  familySatisfactionLabel?: string | null;
+  familySatisfactionSource?: string | null;
+  familySatisfactionUpdatedAt?: string | null;
+  incidentsLast30Days?: number | null;
+  lastIncidentAt?: string | null;
+  extraInsights?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type PatientOperationalLinks = Partial<{
+  patientId: string;
   contractId: string;
   rosterId: string;
-  inventoryId: string;
+  inventoryProfileId: string;
   publicProtocolUrl: string;
-  accessLogRef: string;
+  publicProtocolToken: string;
+  publicProtocolCreatedAt?: string;
+  externalCrmId?: string;
+  externalEmrId?: string;
+  accessLogRef?: string;
+  extraLinks?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
 }>;
 
 export type PatientExternalIds = {
@@ -170,45 +201,61 @@ export type PatientAuditLog = {
   patientId: string;
   type: PatientAuditLogType;
   action: string;
-  userId: string;
-  userRole: string;
-  timestamp: string;
+  userId?: string | null;
+  userRole?: string | null;
+  /** Aligns with patient_audit_logs.event_time */
+  eventTime?: string;
+  /** @deprecated use eventTime */
+  timestamp?: string;
   origin: PatientAuditOrigin;
   ip?: string;
   changedFields?: string[];
-  oldValue?: string;
-  newValue?: string;
+  oldValue?: string | Record<string, unknown>;
+  newValue?: string | Record<string, unknown>;
   meta?: Record<string, unknown>;
 };
 
 export type Patient = {
-  // 1. Dados Pessoais
   id: string;
-  salutation?: 'Sr.' | 'Sra.' | 'Dr.' | 'Dra.';
-  firstName: string;
-  lastName: string;
-  name: string;
-  displayName: string;
-  initials: string;
-  pronouns?: string;
-  avatarUrl: string;
-  avatarHint: string;
+  tenantId?: string;
+  fullName?: string;
+  displayName?: string;
+  dateOfBirth?: string;
+  pronouns?: string; // legacy front-only field (not in DB)
+  /** @deprecated use fullName */
+  firstName?: string;
+  /** @deprecated use fullName */
+  lastName?: string;
+  /** @deprecated use fullName */
+  name?: string;
+  /** @deprecated prefer photoUrl */
+  avatarUrl?: string;
+  /** @deprecated prefer displayName initials */
+  initials?: string;
+  avatarHint?: string;
   photoConsent?: {
     granted: boolean;
     grantedBy: string;
     date: string;
   };
-  
-  // Documentos
-  cpf: string;
+  photoUrl?: string;
+  accessLogSummary?: PatientAccessLogSummary;
+  lastViewedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  recordStatus?: 'active' | 'inactive' | 'deceased';
+
+  cpf?: string;
   cpfStatus?: 'valid' | 'invalid' | 'unknown';
   rg?: string;
   rgIssuer?: string;
   rgDigitalUrl?: string;
   cns?: string;
-  nationalId?: string; // Para estrangeiros
+  nationalId?: string;
   documentValidation?: {
-    status: 'none' | 'pending' | 'validated';
+    status?: 'none' | 'pending' | 'validated';
     validatedBy?: string;
     validatedAt?: string;
     method?: 'ocr' | 'manual';
@@ -216,22 +263,17 @@ export type Patient = {
   identityVerification?: PatientIdentityVerification;
   externalIds?: PatientExternalIds;
 
-  // Demográfico
-  dateOfBirth: string;
-  sexo?: 'Masculino' | 'Feminino' | 'Outro';
-  sexAtBirth?: 'Masculino' | 'Feminino' | 'Outro' | 'Desconhecido';
+  sexAtBirth?: 'M' | 'F' | 'Other' | 'Unknown' | 'Masculino' | 'Feminino' | 'Outro' | 'Desconhecido';
   genderIdentity?: string;
-  estadoCivil?: string;
-  nacionalidade?: string;
-  naturalidade?: string; // representa placeOfBirth
+  civilStatus?: string;
+  nationality?: string;
   placeOfBirth?: string;
-  preferredLanguage?: 'Português' | 'Inglês' | 'Espanhol' | string;
+  preferredLanguage?: string;
   riskFlags?: string[];
-  recordStatus?: 'active' | 'inactive' | 'deceased';
   sensitiveDataConsent?: PatientSensitiveConsent;
   duplicateCandidates?: string[];
+  communicationOptOut?: Record<string, unknown>;
 
-  // Contato
   phones: {
     type: 'mobile' | 'home' | 'work';
     number: string;
@@ -243,14 +285,8 @@ export type Patient = {
     verified: boolean;
     preferred: boolean;
   }[];
-  preferredContactMethod?: 'Telefone' | 'WhatsApp' | 'Email';
-  communicationOptOut?: {
-    type: 'sms' | 'email' | 'whatsapp';
-    optedOut: boolean;
-    date: string;
-  }[];
+  preferredContactMethod?: 'Telefone' | 'WhatsApp' | 'Email' | 'phone' | 'whatsapp' | 'email';
 
-  // Contatos de Emergência & Responsáveis
   emergencyContacts: {
     id?: string;
     name: string;
@@ -279,19 +315,17 @@ export type Patient = {
     powerOfAttorneyUrl?: string;
   };
 
-
-  // 2. Endereço e Ambiente Domiciliar
   address: {
-    street: string;
-    number: string;
+    street?: string;
+    number?: string;
     complement?: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    zipCode: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
     pontoReferencia?: string;
     geolocation?: { lat: number; lng: number };
-    zoneType?: 'Urbana' | 'Rural' | 'Condomínio Fechado';
+    zoneType?: 'Urbana' | 'Rural' | 'Condomínio Fechado' | string;
     gateIdentification?: string;
     allowedVisitHours?: string;
     localSafetyConditions?: string;
@@ -299,33 +333,33 @@ export type Patient = {
     etaMinutes?: number;
     travelNotes?: string;
   };
-  
+
   domicile?: {
-    tipoResidencia?: 'Casa' | 'Apartamento' | 'Chácara' | 'Instituição';
+    tipoResidencia?: 'Casa' | 'Apartamento' | 'Chácara' | 'Instituição' | string;
     floor?: number;
     hasElevator?: boolean;
     internalAccess?: string;
     accessibilityFeatures?: string[];
     patientRoom?: string;
     electricalInfrastructure?: string;
-    waterSource?: 'Rede Pública' | 'Poço' | 'Cisterna';
+    waterSource?: 'Rede Pública' | 'Poço' | 'Cisterna' | string;
     hasWifi?: boolean;
-    backupPowerSource?: 'Gerador' | 'Nobreak' | 'Inexistente';
+    backupPowerSource?: 'Gerador' | 'Nobreak' | 'Inexistente' | string;
     hasAdaptedBathroom?: boolean;
-    ambulanceAccess?: 'Fácil' | 'Médio' | 'Difícil';
-    teamParking?: 'Disponível' | 'Restrito' | 'Inexistente';
+    ambulanceAccess?: 'Fácil' | 'Médio' | 'Difícil' | string;
+    teamParking?: 'Disponível' | 'Restrito' | 'Inexistente' | string;
     entryProcedure?: string;
-    nightAccessRisk?: 'Baixo' | 'Médio' | 'Alto';
+    nightAccessRisk?: 'Baixo' | 'Médio' | 'Alto' | string;
     currentObstacles?: string;
     pets?: string;
     otherResidents?: { name: string; relationship: string }[];
     fixedCaregivers?: string;
     caregivers?: { name: string; schedule?: string; role?: string }[];
-    hygieneConditions?: 'Boa' | 'Regular' | 'Ruim';
-    environmentalRisks?: string;
+    hygieneConditions?: 'Boa' | 'Regular' | 'Ruim' | string;
+    environmentalRisks?: string | string[];
     hasSmokers?: boolean;
-    ventilation?: 'Adequada' | 'Insuficiente' | 'Artificial';
-    noiseLevel?: 'Baixo' | 'Médio' | 'Alto';
+    ventilation?: 'Adequada' | 'Insuficiente' | 'Artificial' | string;
+    noiseLevel?: 'Baixo' | 'Médio' | 'Alto' | string;
     generalObservations?: string;
     careTeamEtaMinutes?: number;
     etaSource?: string;
@@ -334,8 +368,6 @@ export type Patient = {
     environmentNotes?: string;
   };
 
-
-  // 3. Dados Clínicos e Assistenciais
   clinicalSummary: {
     diagnosisPrimary: { name: string; cid: string };
     allergies: {
@@ -382,14 +414,13 @@ export type Patient = {
       notes?: string;
     }[];
   };
-  
-  // 4. Dados Administrativos
+
   adminData: {
-    status: 'Ativo' | 'Inativo' | 'Suspenso' | 'Alta' | 'Internado Temporário' | 'Óbito';
-    admissionType?: 'Home Care' | 'Paliativo' | 'Internação Domiciliar' | 'Acompanhamento Ambulatorial';
-    complexity: 'Baixa' | 'Média' | 'Alta' | 'Crítica';
-    servicePackage: 'Básico' | 'Intermediário' | 'Completo' | 'VIP' | 'Personalizado';
-    startDate: string;
+    status: 'Ativo' | 'Inativo' | 'Suspenso' | 'Alta' | 'Internado Temporário' | 'Óbito' | string;
+    admissionType?: 'Home Care' | 'Paliativo' | 'Internação Domiciliar' | 'Acompanhamento Ambulatorial' | string;
+    complexity: 'Baixa' | 'Média' | 'Alta' | 'Crítica' | string;
+    servicePackage?: 'Básico' | 'Intermediário' | 'Completo' | 'VIP' | 'Personalizado' | string;
+    startDate?: string;
     endDate?: string;
     supervisorId?: string;
     escalistaId?: string;
@@ -402,39 +433,43 @@ export type Patient = {
     lastAuditBy?: string;
     notesInternal?: string;
   };
-  
-  // 5. Informações Financeiras
+
   financial: {
-    vinculo: 'Plano de Saúde' | 'Particular' | 'Convênio' | 'Público';
-    bondType?: 'Plano de Saúde' | 'Particular' | 'Convênio' | 'Público';
-    operadora?: string;
-    carteirinha?: string;
-    validadeCarteirinha?: string;
-    monthlyFee: number;
-    billingDay: number;
-    formaPagamento?: string;
+    bondType?: string;
+    insurer?: string;
+    planName?: string;
+    cardNumber?: string;
+    validity?: string;
+    monthlyFee?: number;
+    billingDay?: number;
     paymentMethod?: string;
-    billingStatus?: 'Pago' | 'Pendente' | 'Atrasado';
+    billingStatus?: string;
     lastPaymentDate?: string;
+    lastPaymentAmount?: number;
     paymentHistory?: {
       month: string;
-      status: 'Pago' | 'Pendente' | 'Atrasado';
+      status: 'Pago' | 'Pendente' | 'Atrasado' | 'Aberto';
       amount: number;
       paidAt?: string;
       method?: string;
     }[];
+    financial_contact?: string;
+    observations?: string;
     observacoesFinanceiras?: string;
+    vinculo?: string;
+    formaPagamento?: string;
+    carteirinha?: string;
+    validadeCarteirinha?: string;
   };
 
-  // 6. Documentos
   documents: {
-      termoConsentimentoUrl?: string;
-      termoLgpdUrl?: string;
-      documentoComFotoUrl?: string;
-      comprovanteEnderecoUrl?: string;
-      fichaAvaliacaoEnfermagemUrl?: string;
-      planoCuidadoUrl?: string;
-      protocoloAuditoriaUrl?: string;
+    termoConsentimentoUrl?: string;
+    termoLgpdUrl?: string;
+    documentoComFotoUrl?: string;
+    comprovanteEnderecoUrl?: string;
+    fichaAvaliacaoEnfermagemUrl?: string;
+    planoCuidadoUrl?: string;
+    protocoloAuditoriaUrl?: string;
   };
   documentsCollection: PatientDocument[];
   consents: PatientConsent[];
@@ -442,18 +477,15 @@ export type Patient = {
   accessLog: PatientAuditLog[];
   smartFields?: PatientSmartFields;
   operationalLinks?: PatientOperationalLinks;
-  lastViewedAt?: string;
-  accessLogSummary?: PatientAccessLogSummary;
+  intelligence?: PatientIntelligence;
 
-  // 7. Auditoria
   audit: {
-      createdAt: string;
-      createdBy: string;
-      updatedAt: string;
-      updatedBy: string;
+    createdAt?: string;
+    createdBy?: string;
+    updatedAt?: string;
+    updatedBy?: string;
   };
-  
-  // 8. Dados operacionais (para a lista)
+
   last_visit_date?: string;
   next_visit_date?: string;
   consent_status: 'ok' | 'pending';
@@ -511,7 +543,7 @@ export type Professional = {
   employmentType: 'interno' | 'fixo' | 'externo';
   reviews: { from: string; quote: string }[];
   specialties: string[];
-  compatibilityTags?: { text: string; icon: LucideIcon; variant?: 'default' | 'positive' | 'warning' }[];
+  compatibilityTags?: { text: string; icon: IconType; variant?: 'default' | 'positive' | 'warning' }[];
   lastActivity?: string;
   recentAttendances?: { patientName: string; date: string; note: string }[];
 };
@@ -522,7 +554,18 @@ export type Shift = {
   professionalId?: string;
   dayKey: string;
   shiftType: ShiftType;
-  status: 'open' | 'pending' | 'filled' | 'active' | 'completed' | 'issue';
+  status:
+    | 'scheduled'
+    | 'published'
+    | 'assigned'
+    | 'in_progress'
+    | 'completed'
+    | 'cancelled'
+    | 'open' // LEGACY UI ONLY
+    | 'pending' // LEGACY UI ONLY
+    | 'filled' // LEGACY UI ONLY
+    | 'active' // LEGACY UI ONLY
+    | 'issue'; // LEGACY UI ONLY
   isUrgent?: boolean;
   progress?: number;
   checkIn?: string;
@@ -560,7 +603,7 @@ export type ShiftHistoryEvent = {
     time: string;
     event: string;
     details?: string;
-    icon: React.ElementType;
+    icon: ElementType;
     status: 'ok' | 'pending' | 'late' | 'default';
 }
 

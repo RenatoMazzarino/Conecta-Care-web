@@ -1,7 +1,15 @@
 import type { Patient } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Activity, AlertTriangle, CalendarCheck2, ClipboardList, Shield, Brain, Link2 } from 'lucide-react';
+import {
+  Brain,
+  CalendarCheck,
+  ClipboardText as ClipboardList,
+  LinkSimple as Link2,
+  Pulse as Activity,
+  Shield,
+  Warning as AlertTriangle,
+} from '@phosphor-icons/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { trackEvent } from '@/lib/analytics';

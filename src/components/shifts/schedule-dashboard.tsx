@@ -175,7 +175,7 @@ export function ScheduleDashboard() {
         </div>
       </header>
 
-      <section className="sticky top-4 z-20 rounded-xl border border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
+      <section className="sticky top-4 z-20 rounded-lg border border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <CommandBarButton icon={Plus} label="Nova Vaga" accent />
@@ -192,7 +192,7 @@ export function ScheduleDashboard() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-slate-50/80 px-6 py-3 text-xs font-semibold text-slate-600 shadow-sm">
+      <section className="rounded-lg border border-slate-200 bg-slate-50/80 px-6 py-3 text-xs font-semibold text-slate-600 shadow-sm">
         <div className="flex flex-wrap items-center gap-6">
           <span>
             Total de plantões:{' '}
@@ -211,7 +211,7 @@ export function ScheduleDashboard() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_32px_rgba(15,43,69,0.08)]">
+      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_12px_32px_rgba(15,43,69,0.08)]">
         <div className="relative overflow-auto">
           <div className="min-w-[1100px]">
             <div className="grid grid-cols-[280px_repeat(7,minmax(0,1fr))] border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wide text-slate-500">

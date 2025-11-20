@@ -17,19 +17,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
-  Activity,
   BatteryMedium,
   BluetoothConnected,
-  Calendar,
+  CalendarBlank as Calendar,
+  CellSignalFull as Signal,
+  ChatCenteredText as MessageSquare,
+  ChatCircle as MessageCircle,
   FileText,
   MapPin,
-  MessageSquare,
-  NotebookPen,
+  NotePencil as NotebookPen,
   Phone,
   ShieldCheck,
-  Signal,
-  MessageCircle,
-} from 'lucide-react';
+  Warning as Activity,
+} from '@phosphor-icons/react';
 
 export type ShiftMonitorTimelineEvent = {
   id: string;
@@ -185,7 +185,7 @@ export function ShiftMonitorSheet({
                     Iniciado às {data?.shiftWindow.startedAt ?? data?.shiftWindow.start}
                   </span>
                 </div>
-                <div className="flex gap-1 rounded-xl border border-white/20 bg-white/10 p-1">
+                <div className="flex gap-1 rounded-lg border border-white/20 bg-white/10 p-1">
                   <MonitorActionButton
                     icon={MessageSquare}
                     label="Chat interno"
@@ -238,7 +238,7 @@ export function ShiftMonitorSheet({
             </header>
 
             <div className="px-6 -mt-10 relative z-10">
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_-8px_rgba(15,43,69,0.2)]">
+              <div className="rounded-lg border border-slate-200 bg-white shadow-[0_8px_24px_-8px_rgba(15,43,69,0.2)]">
                 <div className="space-y-3 p-4">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-slate-500 uppercase">
@@ -358,7 +358,7 @@ export function ShiftMonitorSheet({
                         </div>
                         <div
                           className={cn(
-                            'rounded-xl border bg-white p-4 shadow-sm',
+                            'rounded-lg border bg-white p-4 shadow-sm',
                             toneStyles[event.tone ?? 'default']
                           )}
                         >
@@ -390,7 +390,7 @@ export function ShiftMonitorSheet({
 
                 <TabsContent value="notes" className="flex-1 overflow-y-auto px-6 pb-6">
                   <div className="space-y-4">
-                    <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+                    <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
                       <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-amber-700">
                         <NotebookPen className="h-4 w-4" />
                         Nova observação
@@ -416,7 +416,7 @@ export function ShiftMonitorSheet({
                         <div
                           key={note.id}
                           className={cn(
-                            'rounded-xl border p-4 shadow-sm',
+                            'rounded-lg border p-4 shadow-sm',
                             note.variant === 'muted'
                               ? 'border-slate-100 bg-slate-50 text-slate-500'
                               : 'border-slate-200 bg-white text-slate-700'
